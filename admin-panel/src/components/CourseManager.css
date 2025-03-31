@@ -1,197 +1,320 @@
-/* Global Styles */
-.course-price-page {
-    font-family: 'Arial', sans-serif;
-    color: #333;
+/* Course Manager Container */
+.course-manager-page{
+   padding-left: 80px;
+    height: 100vh;
+    overflow: hidden;
+    background: #f9f9f9;
     display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+    flex-direction: column;
   
-  .container {
-    margin-top: 200px;
-    width: 600px;
+}
+.course-manager-page-container{
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  width: 100%;
+  margin-top: 60px;
+}
+.course-manager-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
     padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  }
-  .couser-header{
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-  }
-  
-  .couser-header h2 {
-    font-size: 2rem;
-    color: #333;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-  
-  /* Add Course Button */
-  .add-button {
-    display: block;
-    margin: 20px 5px;
-    padding: 10px 20px;
-    font-size: 1.1rem;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .add-button:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Course List Section */
-  h3 {
-    font-size: 1.6rem;
-    color: #333;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-  
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .course-list {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    margin: 10px 0;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-  }
-  
-  li span {
-    font-size: 1.2rem;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.course-manager-left-header{
+  font-size: 20px;
     font-weight: bold;
     color: #333;
-  }
-  
-  li div {
+    margin: auto 0px;
     display: flex;
-    justify-content: space-between;
-    gap: 10px;
-  }
-  
-  /* Edit and Delete Buttons */
-  .edit, .delete {
-    padding: 5px 15px;
-    font-size: 0.9rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .edit {
-    background-color: #ffc107;
-    color: white;
-  }
-  
-  .edit:hover {
-    background-color: #e0a800;
-  }
-  
-  .delete {
-    background-color: #dc3545;
-    color: white;
-  }
-  
-  .delete:hover {
-    background-color: #c82333;
-  }
-  
-  /* Modal Styles */
-  .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4);
-    display: flex;
-    justify-content: center;
     align-items: center;
-  }
+    justify-content: center;
+    gap: 20px;
+
+}
+
+.course-manager-left-header h2 {
+  font-size: 22px;
+  margin: auto;
+}
+.course-manager-right-header{
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.course-manager-right-header .add-course-btn{
+  background: #033672;
+  color: #fff;
+  border: none;
+  padding: 8px 15px;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  border-radius: 5px;
+  cursor: pointer;  
+  transition: background 0.3s ease-in-out;
+
+}
+.course-manager-right-header .add-course-btn:hover{
+  background: rgb(7, 50, 96);
+}
+
+
+.course-list-manager{
+  flex-grow: 1;
+  padding: 0px 60px 50px 20px;
+  height: calc(100vh - 150px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #aaa #f9f9f9;
+
+}
+
+.course-list-manager .course-list{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 10px;
+  border-left: 5px solid transparent;
+  border-radius: 5px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  list-style-type: none;
+}
+
+.course-list-manager .course-list-card {
+  display: flex;
+  flex-direction: row;  /* Stack items vertically */
+  justify-content: space-between;
+  background-color: white;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  cursor: pointer; /* Make the whole li clickable */
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%; /* Ensure items fit in small containers */
   
-  .modal {
-    background-color: white;
-    width: fit-content;
-    height:fit-content;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    padding: 30px 60px 60px 60px;
+}
+
+
+.course-list-manager .course-list-content {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+}
+
+
+
+
+
+
+
+.course-list-card .course-banner {
+  width: 180px;
+  height: 100px; /* Adjust this based on your preferred size */
+  background-size: cover;
+  background-position: center;
+  border-radius: 4px;
+  margin-bottom: 10px;  /* Space between banner and content */
+}
+
+.course-list-card .course-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 5px;
+  padding: 10px;
+}
+
+.course-list-card .course-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.course-list-card .course-date {
+  font-size: 14px;
+  color: #777;
+}
+
+/* Actions Container for Edit and Delete Buttons */
+.course-list-card .course-actions-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center; /* Align the buttons to the right */
+}
+
+.course-list-card .course-actions button {
+  padding: 8px 15px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.course-list-card .edit-btn {
+  background-color: var(--edit-btn); /* Light Orange */
+  color: white;
+}
+
+.course-list-card .edit-btn:hover {
+  background-color: var(--edit-btn-hover); /* Darker orange */
+}
+
+.course-list-card .delete-btn {
+  background-color: var(--delete-btn);
+  color: white;
+}
+
+.course-list-card .delete-btn:hover {
+  background-color: var(--delete-btn-hover);
+}
+
+
+/* Modal Overlay */
+.course-manager-page .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; 
+}
+
+/* Modal Container */
+.course-manager-modal {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 12px;
+  width: 600px;                  /* Slightly larger width for better spacing */
+  max-width: 90%;
+  position: relative;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Modal Title */
+.course-manager-modal h3 {
+  margin-bottom: 25px;
+  font-size: 22px;
+  color: #333;
+}
+
+/* Form Styling */
+.course-manager-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;                      /* Consistent spacing between form fields */
+}
+
+.course-manager-modal label {
+  font-weight: bold;
+  text-align: left;
+  font-size: 14px;
+  color: #555;
+}
+
+/* Input Fields */
+.course-manager-modal input,
+.course-manager-modal textarea {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  width: 100%;
+  font-size: 14px;
+  transition: border 0.3s ease;
+}
+
+.course-manager-modal input:focus,
+.course-manager-modal textarea:focus {
+  outline: none;
+  border-color: #007bff;          /* Highlight on focus */
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Date Picker Styling */
+.course-manager-modal input[type="date"] {
+  cursor: pointer;
+  background-color: #f9f9f9;
+  color: #333;
+}
+
+/* Full-width button styling */
+.course-manager-modal .modal-footer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 10px;                      /* Consistent spacing between buttons */
+}
+
+/* Save Button */
+.course-manager-modal .modal-footer .save-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.course-manager-modal .modal-footer .save-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Close Modal Button */
+.course-manager-modal .close-modal-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 28px;
+  color: #333;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.course-manager-modal .close-modal-btn:hover {
+  color: red;
+}
+
+/* Responsive Styling */
+@media (max-width: 768px) {
+  .course-manager-modal {
+    width: 90%;
+    padding: 30px 20px;
   }
-  
-  .modal h3 {
-    font-size: 1.6rem;
-    margin-bottom: 30px;
-    text-align: center;
+}
+
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
   }
-  
-  .modal form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
-  
-  .modal input {
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
-  }
-  
-  .modal button.form-btn {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    font-size: 1rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .modal button.form-btn:hover {
-    background-color: #0056b3;
-  }
-  
-  .modal button.close {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background-color: transparent;
-    color: #333;
-    font-size: 1.8rem;
-    border: none;
-    cursor: pointer;
-    transition: color 0.3s ease;
-  }
-  
-  .modal button.close:hover {
-    color: #007bff;
-  }
-  .modal select {
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: 1rem;
-    width: 100%;
-  }
-  
+}

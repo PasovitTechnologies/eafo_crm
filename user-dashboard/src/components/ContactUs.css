@@ -1,150 +1,91 @@
-/* Main container for the button */
-.contact-us-div {
-    position: relative;
-  }
-  
-  /* Button that triggers the popup */
-  .contact-us-button {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #cd1719; /* Button color */
-    padding: 15px;
-    border-radius: 50%;
-    cursor: pointer;
-    z-index: 1000;
-  }
-  
-  .contact-us-button:hover {
-    background-color: #a10c0d; /* Darker button on hover */
-  }
-  
-  .contact-icon {
-    font-size: 30px; /* Larger icon size */
-    color: white; /* Icon color */
-  }
-  
-  /* Popup container */
-  .popup {
-    position: fixed;
-    bottom: 80px; /* Slightly above the button */
-    right: 40px;
-    width: 350px;
-    background-color: white;
-    border-radius: 8px;
-    padding: 30px 40px;
-    z-index: 10000; /* Ensure it's above the button */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  }
-  
-  .popup-content {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 24px;
-    cursor: pointer;
-    color: #033672; /* Close button color */
-  }
-  
-  h3 {
-    font-size: 20px;
-    color: #033672; /* Main heading color */
-    margin-bottom: 10px;
-    font-weight: bold;
-  }
-  
-  /* Contact information styling */
-  .contact-info {
-    margin-top: 20px;
-  }
-  
-  .contact-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  
-  .contact-item h4 {
-    font-size: 16px;
-    color: #033672;
-    margin: 0;
-    margin-left: 10px; /* Space between icon and heading */
-    font-weight: bold;
-  }
-  
-  .contact-item span {
-    font-size: 14px;
-    color: #333;
-  }
-  
-  .contact-item a {
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .contact-item a:hover {
-    text-decoration: underline;
-  }
-  
-  .contact-item .contact-icon {
-    font-size: 24px; /* Larger icon size */
-    color: #033672; /* Icon color */
-    margin-right: 10px; /* Space between icon and text */
-  }
-  
-  /* Style for email and phone icons */
-  .contact-item .contact-icon {
-    font-size: 24px;
-    margin-right: 10px;
-  }
-  
-  .contact-item .contact-icon.MdPhone {
-    font-size: 24px; /* Set specific size for phone icon */
-  }
-  
-  .contact-item .contact-icon.MdEmail {
-    font-size: 24px; /* Set specific size for email icon */
-  }
-  
-  .contact-item .contact-icon.FaWhatsapp {
-    font-size: 24px; /* Set specific size for WhatsApp icon */
-  }
-  
-  /* Styling for the clickable mail and phone link */
-  .contact-item a {
-    color: #007bff;
-    text-decoration: none;
-    font-weight: normal;
-  }
-  
-  .contact-item a:hover {
-    text-decoration: underline;
-  }
-  
-  .popup-footer {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-  }
-  
-  .popup-footer .close-btn {
-    padding: 10px 20px;
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .popup-footer .close-btn:hover {
-    background-color: #c82333;
-  }
-  
+/* Contact Popup Styles */
+.contact-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.contact-popup-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.close-popup-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.contact-popup-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.contact-popup-header h2 {
+  color: #2c3e50;
+  margin: 0;
+}
+
+.contact-popup-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.contact-method {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+
+.contact-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+}
+
+.phone-icon {
+  background-color: #4CAF50;
+}
+
+.email-icon {
+  background-color: #2196F3;
+}
+
+.support-icon {
+  background-color: #FF9800;
+}
+
+.contact-method h4 {
+  margin: 0 0 0.3rem 0;
+  color: #333;
+}
+
+
+.contact-method p {
+  margin: 0;
+  color: #666;
+}

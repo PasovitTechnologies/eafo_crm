@@ -1,163 +1,214 @@
-/* Dashboard.css */
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Russo+One&display=swap');
-.dashboard {
-    margin-left: 200px;
-    width: 1200px;
-    padding: 30px;
-    font-family: "Montserrat", serif;    
-  }
-  .dashboard .header{
-    margin: 40px 0px;
-  }
-  
-  .status-summary {
-    display: flex;
+/* 🌟 General Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-    gap: 20px;
-    margin: 20px 0;
-  }
-  .count{
-    font-size: 40px;
-  }
-  
-  .status-box {
-    width: 400px;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
-    height: 100%;
-  }
-  
-  /* Default Hover Effects for All */
-  .status-box:hover {
+/* 🌟 Dashboard Container */
+.dashboard-container {
+  padding: 40px;
+  padding-left: 120px;    /* ✅ Added more left padding */
+  background: #f4f4f4;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
 
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Add a bigger shadow on hover */
-  }
-  
-  /* Hover Effects Based on Status */
-  .checked:hover {
-    background-color: #c8e8c5; /* Subtle lighter green when hovering over Checked */
-  }
-  
-  .unchecked:hover {
-    background-color: #f5b6b0; /* Subtle lighter red when hovering over Unchecked */
-  }
-  
-  .status-box h3 {
-    font-size: 20px;
-    margin-bottom: 10px;
-    text-align: left;
-    color: #555;
-  }
-  
-  .status-box p {
-    font-size: 64px;  /* Large number size */
-    font-weight: bold;
-    text-align: left;
-    margin: 0;
-  }
-  
-  /* Conditional Styling for Checked and Unchecked */
-  .checked {
-    background-color: #d4edda;  /* Light Green */
-    color: #155724;  /* Dark Green */
-  }
-  
-  .unchecked {
-    background-color: #f8d7da;  /* Light Red */
-    color: #721c24;  /* Dark Red */
-  }
-  
-  .status-link {
-    text-decoration: none;
-    color: inherit;
-  }
-  
+/* 🌟 Header and Navigation Wrapper */
+.header-nav-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 🌟 Top and Navigation Combined Section */
+.top-nav-section {
+  display: flex;
+  flex-direction: column;
+  background:url("");
+  padding: 30px 40px 5px 40px;  /* ✅ Added more padding */
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.top-nav-section:hover {
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+}
+
+/* 🌟 Top Section */
+.top-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;                /* ✅ Added more space between logo and text */
+  margin-bottom: 25px;       /* ✅ Increased bottom margin */
+}
+
+/* ✅ Logo with Border */
+.logo {
+  height: 60px;              /* ✅ Slightly larger logo */
+  width: auto;
+}
+
+/* ✅ Added border around logo */
+.bordered-logo {
+  border: 1px solid #c2c3c5;
+  border-radius: 12px;
+  padding: 6px;              /* ✅ Adjusted padding */
+  transition: border 0.3s ease;
+}
+
+/* 🌟 Navigation Section */
+.nav-section {
+  display: flex;
+  justify-content: flex-start;
+  gap: 40px;                  /* ✅ Increased gap between navigation links */
+}
+
+/* ✅ Navigation Button */
+.nav-button {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start; 
+  background: transparent;
+  border: none;
+  padding: 16px 35px;        
+  cursor: pointer;
+  font-size: 17px;           
+  color: #555;
+  transition: color 0.3s ease;
+  position: relative;
+  outline: none;
+  gap: 10px;                    
+}
 
 
-  /* Dashboard.css */
-.dashboard-filter {
-    margin-left: 200px;
-    width: 900px;
-    padding: 30px;
-    font-family: Arial, sans-serif;
+
+
+.nav-label {
+  font-weight: 500;
+}
+
+
+/* ✅ Hover effect */
+.nav-button:hover {
+  color: #2575fc;
+}
+
+/* 🌟 Active Tab with Bottom Border */
+.nav-button.active {
+  color: #2575fc;
+  font-weight: bold;
+}
+
+/* ✅ Active tab bottom border effect */
+.nav-button.active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 100%;
+  height: 3px;
+  background: #2575fc;
+  transition: all 0.3s ease;
+}
+
+/* 🌟 Content Section */
+.content-section {
+  background: white;
+  padding: 50px;              /* ✅ Increased padding */
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  min-height: 450px;          /* ✅ Slightly taller section */
+  transition: all 0.3s ease;
+}
+
+.content-section:hover {
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* 🌟 Responsive Design */
+@media (max-width: 1200px) {
+  .dashboard-container {
+    padding-left: 60px;       /* ✅ Reduce padding on smaller screens */
+    padding-right: 30px;
   }
-  
-  .filter-heading {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    color: #333;
+
+  .top-nav-section {
+    padding: 25px 30px;
   }
-  
-  .data-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
+
+  .nav-section {
+    gap: 20px;                /* ✅ Decreased gap */
   }
-  
-  .data-box {
+
+  .nav-button {
+    padding: 14px 25px;       /* ✅ Smaller buttons */
+    font-size: 15px;
+  }
+
+  .content-section {
+    padding: 35px;
+    min-height: 350px;
+  }
+}
+
+@media (max-width: 992px) {
+  .dashboard-container {
     padding: 20px;
-    background-color: #f4f4f4;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s;
-    cursor: pointer;
-    border: 1px solid #ccc;
   }
-  
-  .data-box:hover {
-    background-color: #e9ecef;
+
+  .top-nav-section {
+    padding: 20px;
   }
-  
-  .data-box h3 {
-    font-size: 20px;
-    margin-bottom: 10px;
-    color: #333;
+
+  .top-section {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
   }
-  
-  .data-box p {
-    font-size: 16px;
-    color: #555;
+
+  .nav-section {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
   }
-  
-  .checked {
-    background-color: #d4edda;  /* Light Green */
-    color: #155724;  /* Dark Green */
-  }
-  
-  .unchecked {
-    background-color: #f8d7da;  /* Light Red */
-    color: #721c24;  /* Dark Red */
-  }
-  
-  .no-data-message {
-    font-size: 18px;
-    color: #999;
+
+  .nav-button {
+    width: 100%;
     text-align: center;
   }
 
-  .all-btn {
-    background-color: #007bff; /* Blue */
-    color: white;
+  .content-section {
+    padding: 30px;
+    min-height: 300px;
   }
-  @keyframes countUp {
-    from {
-      transform: scale(1);
-    }
-    to {
-      transform: scale(1.2);
-    }
+}
+
+@media (max-width: 768px) {
+  .top-section {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
   }
-  
-  .count {
-    font-size: 40px;
-    font-weight: bold;
-    transition: transform 0.3s ease;
+
+  .nav-section {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
   }
-  
-  
-  
+
+  .nav-button {
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+    padding: 12px 20px;
+  }
+
+  .content-section {
+    padding: 20px;
+    min-height: 250px;
+  }
+}

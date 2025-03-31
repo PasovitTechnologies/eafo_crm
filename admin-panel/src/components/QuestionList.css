@@ -1,0 +1,104 @@
+.question-list-droppable {
+    padding: 10px;
+    background-color: #f9f9f9;
+    min-height: 100px;
+    border: 1px dashed #ddd;
+  }
+  .preview-button{
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+  }
+  .question-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    cursor: grab;
+  }
+  
+  .question-item-buttons button {
+    margin-left: 5px;
+    
+  }
+  
+  .add-question-btn {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .move-buttons{
+    display: flex;
+    gap: 10px;
+  }
+.move-btn {
+    background-color: #f3f4f6;
+    border: 1px solid #ddd;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #6b7280;
+    transition: all 0.2s ease;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1), -2px -2px 5px rgba(255, 255, 255, 0.6);
+    border: 2px solid #4caf50; /* Light green border */
+    background: linear-gradient(145deg, #ffffff, #e6e6e6);
+}
+
+/* 🆙⬇️ Modern Button Styles */
+.move-btn {
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    color: white;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 🟢 Move Up Button (Green Gradient) */
+.move-up {
+    background: linear-gradient(135deg, #34d399, #059669);
+}
+
+.move-up:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 🔴 Move Down Button (Red Gradient) */
+.move-down {
+    background: linear-gradient(135deg, #f87171, #e11d48);
+}
+
+.move-down:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 🚫 Disabled State */
+.move-btn:disabled {
+    color: #d1d5db;
+    background-color: #f3f4f6;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+}

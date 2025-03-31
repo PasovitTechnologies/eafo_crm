@@ -1,637 +1,714 @@
-/* General Styling */
+/* 🌟 Dashboard Container */
+/* 🌟 Dashboard Container */
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #033672; /* Base deep blue */
+  box-sizing: border-box;
+  overflow: hidden;
+  font-family: "Poppins", sans-serif;
+
+  /* Blue-on-blue mixed paint effect */
+  background: 
+    radial-gradient(circle, rgba(3, 54, 114, 0.85) 20%, transparent 60%),  /* Deep blue blob */
+    radial-gradient(circle, rgba(52, 122, 190, 0.7) 18%, transparent 65%), /* Medium blue blob */
+    radial-gradient(circle, rgba(23, 89, 156, 0.75) 15%, transparent 70%),  /* Slightly lighter blue */
+    radial-gradient(circle, rgba(41, 109, 170, 0.7) 25%, transparent 75%), /* More medium blue */
+    radial-gradient(circle, rgba(3, 54, 114, 0.9) 12%, transparent 55%); /* Final deep blue */
+
+  background-blend-mode: multiply, overlay, normal, soft-light; /* Blending effect */
+  background-size: 400% 400%;
+  animation: slowWaveFlow 35s infinite alternate; /* Slower wave animation */
+}
+
+/* 🌊 Slow, smooth wave animation */
+@keyframes slowWaveFlow {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
 
 
-.dashboard-container {
-  max-width: 1500px;
-  margin: 60px auto;
-  font-family: 'Roboto', sans-serif;
+/* 🌟 Dashboard Grid */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)); /* ✅ Prevents items from overflowing */
+  grid-template-rows: repeat(3, minmax(auto, 1fr)); /* ✅ Flexible row height */
+  gap: 15px;
+  width: 85%;
+  max-width: 1100px;
+  height: calc(100vh - 80px); /* ✅ Adjust height with padding */
+  border-radius: 15px;
+  box-sizing: border-box;
+  margin: 20px;
+}
+
+/* 🌟 Common Dashboard Items */
+.dashboard-item {
+  position: relative;
+  background: white;
   padding: 20px;
-  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.3s ease;
+  word-wrap: break-word; /* ✅ Prevents text from overflowing */
+  overflow: hidden; /* ✅ Prevents breaking */
+  box-sizing: border-box;
+}
+
+/* Hover Effect */
+.dashboard-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* 🌟 Profile Section */
+.profile-div {
+  position: relative;
+  grid-row: span 2;
+  background: #ffffff;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  z-index: 2;
+  overflow: hidden; /* ✅ Ensures glare effect stays within bounds */
+}
+
+/* 🌟 Edit Button */
+.edit-profile {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+  background-color: #033672;
+  padding: 8px 15px;
+  border-radius: 25px;
   
 }
 
-/* Layout for the entire dashboard */
-.dashboard-row {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
+.edit-profile:hover {
+  background-color: #122b48;
 }
 
-/* Profile Column */
-.profile-column {
-  width: 35%; /* 40% width for the first column */
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  position: relative; /* To position the edit icon */
+/* 🌟 Edit Icon */
+.edit-icon {
+  padding-left: 3px;
+  font-size: 18px;
 }
 
-/* Profile Container */
-.profile-container {
+
+
+/* 🌟 Profile Frame */
+.profile-frame {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  background: #f9f9f9;
-  position: relative;
+  gap: 10px;
+  padding: 15px;
+  border-radius: 15px;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+  margin-top: 20px;
 }
 
-/* Profile Image */
-/* Profile photo container */
-.profile-photo-container {
-  position: relative;
-  display: inline-block;
-  
-  width: 120px;
-  height: 120px;
+/* 🌟 Profile Image Container */
+.profile-image-container {
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   overflow: hidden;
-  
+  border: 4px solid #3498db;
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  margin-bottom: 6px;
+  z-index: 12; /* Ensure it's on top */
+  box-shadow: 2px 5px 14px rgba(52, 152, 219, 0.7); /* Blue Glow */
+}
+/* Expanding Background Effect */
+.expanding-bg-fullscreen {
+  position: fixed; /* Cover entire screen */
+  width: 100vw;
+  height: 100vh;
+  background: white;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10; /* Ensure it's on top */
 }
 
-/* Profile photo */
-.profile-photo {
-  background-color: #033672;
+/* 🌟 Profile Image */
+.profile-image {
+  
   width: 100%;
   height: 100%;
   object-fit: cover;
-  border-radius: 50%;
-  transition: opacity 0.3s ease;
+  padding: 5px;
+  transition: transform 1s ease-in-out;
 }
 
-/* Upload button styling */
-.upload-btn {
-  position: absolute;
-  bottom: 4px;
-  right: 10px;
-  background: #033672; /* Gradient from top to bottom */
-  color: white;
-  padding: 8px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 12px;
-  opacity: 0; /* Initially hide */
-  transition: opacity 0.3s ease;
-}
-
-.upload-btn:hover {
-  background: #033672;}
-
-/* Show upload button when hovering over the profile container */
-.profile-photo-container:hover .upload-btn {
-  opacity: 1;
-}
-
-
-/* Profile Name */
-.profile-name {
-  margin: 10px 0;
-  font-size: 18px;
+/* 🌟 Welcome Message with Animation */
+.profile-welcome {
+  font-size: 22px;
   font-weight: bold;
+  color: #033672;
+  text-align: center;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  opacity: 0; /* Initially hidden */
+  animation: fadeInUp 1s forwards;
+}
+
+.profile-welcome span {
+  font-size: 26px;
+}
+
+/* 🌟 Animation Keyframes */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 🌟 Profile Name */
+.profile-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 3px;
+}
+
+/* 🌟 Profile Email */
+.profile-email {
+  font-size: 16px;
+  color: #666;
+  word-wrap: break-word; /* ✅ Prevents overflow */
+  overflow-wrap: break-word;
+  white-space: normal; /* ✅ Allows text to wrap naturally */
+  text-align: center;
+  max-width: 100%;
+  padding: 5px 8px;
+}
+
+/* 🌟 Hide Default File Input */
+.file-input {
+  display: none;
+}
+
+/* 🌟 Right Side Arrow */
+.profile-arrow-right {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  transform: translateY(-50%);
+  background: #033672;
+  padding: 12px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
+  cursor: pointer;
+  animation: bounce 1.5s infinite ease-in-out; /* ✅ Keeps bouncing */
+}
+.profile-arrow-right-top{
+  position: absolute;
+  right: 20px;
+  top: 20px;
+  transform: translateY(-50%);
+  background: #033672;
+  padding: 12px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out, background 0.3s ease-in-out;
+  cursor: pointer;
+  animation: bounce 1.5s infinite ease-in-out;
+}
+
+/* 🌟 Hover Effect - Move from Left to Right */
+.profile-arrow-right:hover, .profile-arrow-right-top:hover {
+  background: #122b48;
+  transform: translateY(-50%) translateX(5px); /* Moves right */
+}
+
+/* 🌟 Arrow Icon */
+.arrow-icon, .arrow-icon-top {
+  color: white;
+  font-size: 18px;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* 🌟 Hover Effect - Rotate Slightly */
+.profile-arrow-right:hover .arrow-icon {
+  transform: translateX(3px);
+}
+
+
+/* 🌟 Glare Animation */
+@keyframes glareMove {
+  0% {
+    transform: translate(-100%, -100%) rotate(25deg);
+  }
+  100% {
+    transform: translate(100%, 100%) rotate(25deg);
+  }
+}
+
+/* 🌟 Arrow Bounce Animation */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(5px);
+  }
+}
+.profile-text{
+  width: 100%;
+}
+
+/* Main container for courses item */
+.dashboard-item.courses {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  grid-column: span 2;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 20px;
+  cursor: pointer;
+}
+
+/* Content wrapper */
+.courses-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+/* Courses text with gradient stroke and white fill */
+.courses-text {
+  font-size: 26px;
+  font-weight: bold;
+  position: relative;
+  text-transform: uppercase;
+  text-align: left;
+  opacity: 0.9;
+  color: white; 
+
+  /* Gradient stroke */
+  -webkit-text-stroke: 3px transparent;
+  background: linear-gradient(90deg, #122b48, #6588af, #3879c3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: white; /* Fill remains white */
+  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+}
+.enquiry-text{
+  text-align: left;
+  color: #033672;
+}
+/* Courses image (positioned separately from text) */
+.courses-image {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  height: auto;
+  height: 150px;
+}
+
+.course-slider {
+  position: relative;
+}
+
+.course-details {
+  position: absolute;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.10);
+  padding: 10px;
+  border-radius: 8px;
+  backdrop-filter: blur(0.5px);
+  box-shadow: 2px 5px 8px rgba(0, 0, 0, 0.2);
+  text-align: left;
+  padding: 10px;
+  margin-top: 10px;
+}
+
+.upcoming-label {
+  font-size: 14px;
+  color: #16a548;
+  font-weight: bold;
+  display: flex;
+  box-shadow: 1px 1px 3px 3px rgba(0, 0, 0, 0.2);
+  width: fit-content;
+  padding: 5px 15px;
+  border-radius: 15px;
+  
+}
+
+.upcoming-label .dot {
+  width: 8px;
+  height: 8px;
+  background-color: #16a548; /* Same as text color */
+  border-radius: 50%;
+  margin-right: 5px;
+}
+.course-details h4{
+  text-align: left;
+  font-size: 14px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+.course-details p{
+  font-size: 14px;
+  text-align: left;
+}
+
+.no-courses-text {
+  font-size: 14px;
+  color: gray;
+}
+
+
+.dashboard-item.webinars {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  grid-column: span 1;
+  grid-row: span 2;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  padding: 20px;
   text-align: center;
 }
 
-/* Edit Icon */
-.edit-icon {
-  cursor: pointer;
-  font-size: 20px;
-  background-color: #cd1719;
-  padding: 10px;
-  color: #fff;
-  border-radius: 50%;
+.webinars-content {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  position: relative;
+  width: 100%;
+}
+
+.webinar-slider {
+  width: 100%;
+}
+
+.webinar-details {
   position: absolute;
-  top: 15px;
-  right: 20px;
-  z-index: 10; /* Ensure icon is above profile container */
-}
-
-.edit-icon:hover {
-  color: #fff;
-  background-color: #921517;
-}
-
-/* Personal Details */
-.personal-details {
   width: 100%;
-}
-
-.detail-item {
-  margin-bottom: 14px; /* Space between fields */
-}
-
-.detail-item  label {
-  display: block;
-  font-size: 16px;
-  margin-bottom:8px;
-  font-weight: bold;
-  color: #333;
-  text-transform: capitalize;
-}
-
-.detail-item  input {
-  width: 100%;
+  background: rgba(255, 255, 255, 0.15);
   padding: 10px;
-  font-size: 18px;
-  border: 1px solid #cecccc;
-  border-radius: 10px;
+  border-radius: 8px;
+  backdrop-filter: blur(0.5px);
+  box-shadow: 0px 5px 3px rgba(0, 0, 0, 0.2);
+  text-align: left;
+}
+.upcoming-label {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: #16a548; /* Choose a suitable color */
   margin-bottom: 5px;
 }
 
-input:disabled {
-  background-color: #f4f4f4; /* Disabled fields */
+.dot {
+  width: 8px;
+  height: 8px;
+  background-color: #16a548; /* Same as text color */
+  border-radius: 50%;
+  margin-right: 5px;
 }
 
-input:not(:disabled) {
-  background-color: #fff; /* Normal editable fields */
-}
-.detail-item select {
-  width: 100%; /* Full width */
-  padding: 8px; /* Space inside */
-  font-size: 16px; /* Readable text */
-  border: 1px solid #ccc; /* Light border */
-  border-radius: 5px; /* Slightly rounded corners */
-  background-color: #fff; /* White background */
-  cursor: pointer; /* Pointer on hover */
-  transition: all 0.3s ease;
-}
-
-/* Add these styles to your Dashboard.css */
-.detail-item.row {
-  display: flex;
-  align-items: flex-start;  /* Align labels and inputs to the top */
-  gap: 20px; /* Adds space between the columns */
-}
-
-.detail-item.row .half-width {
-  width: 45%;  /* Ensure each input takes up half the row */
-}
-
-.detail-item.row label {
-  display: block;
-  margin-bottom: 5px;  /* Space between label and input */
-}
-
-
-
-/* Professional Details Section */
-.professional-container {
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.professional-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.professional-details p {
-  margin: 5px 0;
-  font-size: 14px;
-  color: #555;
-}
-
-/* Second Column - Event Details */
-.events-column {
-  width: 65%; /* 60% width for the second column */
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-.events-heading-container {
-  border-bottom: 1px solid #cdcdce;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.events-heading-container  .btn-go-mainSite{
-  background-color: #033672;
-  padding: 10px 20px;
-  color: white;
-  border-radius: 25px;
-  margin-bottom: 10px;
-  font-weight: bold;
-
-}
-.events-heading-container .btn-go-mainSite:hover{
-  background: #062141;
-}
-.events-column h3 {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
-.events-column ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.events-column ul li {
-  padding: 5px 0;
+.webinar-details h4 {
   font-size: 18px;
+  margin: 0;
+  font-weight: 600;
 }
 
-.events-column p {
-  font-size: 16px;
-  color: #888;
+.webinar-details p {
+  font-size: 14px;
+  margin: 5px 0;
+  opacity: 0.8;
 }
-
-.notification-bell {
-  cursor: pointer;
-  font-size: 30px;
-  color: #333;
-  transition: color 0.3s;
-}
-
-.notification-bell:hover {
-  color: #cd1719; /* Change color when hovered */
-}
-
-/* Other event-related styles */
-.event-category-bar {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
-}
-.event-category-bar .event-list-item{
-  font-size: 16px;
-  border-radius: 30px;
-}
-/* Logout Button Styling */
-.logout-button {
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 16px;
-  display: flex;
-  background-color: #cd1719;
-  color: white;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-}
-.logout-icon{
-  margin: 3px 0px 3px 3px;
-  margin-left: 8px;
-}
-
-.logout-button:hover {
-  background-color: #921517;
-}
-
-
-
-/* Toast container styles */
-.Toastify__toast-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 9999;
-}
-
-
-
-.event-list {
-  display: flex;
-  flex-direction: column;
-  overflow-x: auto;
-  gap: 1rem;
-  padding: 1rem 0;
-}
-
-/* Event Tile */
-.event-tile {
-  border: 1px solid #ccc;
-  padding: 1rem;
-  border-radius: 8px;
-  font-weight: bold;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: row;
-}
-.event-info-container{
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  justify-content: space-between;
-}
-
-/* Event Title */
-.event-tile h4 {
-  font-size: 20px;
-  color: #033672; /* Adjusted for better visibility */
-  margin-bottom: 0.5rem;
-}
-
-/* Banner Section */
-.event-banner {
-  position: relative;
-  width: 100%;
+.webinar-icon {
+  position: absolute;
+  bottom: 0px;
   height: auto;
-  overflow: hidden;
-  border-radius: 8px;
-  flex: 0.8;
+  z-index: -1;
+  
 }
-
-.banner-image {
+.enquiry-content{
+  position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
-  object-fit: cover;
 }
 
-/* Event Content */
-.event-content {
+/* 🌟 Payments */
+.dashboard-item.payments {
+  grid-column: span 1;
+  grid-row: span 1;
+  z-index: 10;
+}
+
+.payments:hover {
+}
+
+/* 🌟 About */
+.about {
+  grid-column: span 1;
+  color: white;
+}
+.about-image{
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: auto;
+  height: 150px;
+  padding-bottom: 10px;
+}
+
+.contact-image {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 150px;
+  width: 200px;
+  padding-bottom: 10px;
+  transform: scaleX(-1);
+}
+
+.enquiry-image{
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 150px;
+  width: 200px;
+  padding-bottom: 10px;
+  transform: scaleX(-1);
+}
+.dashboard-item.contact{
+  
+}
+
+
+
+/* 🌟 Responsive Design */
+@media (max-width: 1024px) {
+ 
+
+}
+
+@media (max-width: 768px) {
+  
+  
+}
+
+@media (max-width: 480px) {
+ 
+
+  
+}
+/* Contact Card */
+.dashboard-item.contact {
+  background-color: #e3f2fd;
+  cursor: pointer;
+}
+
+.contact-card-content {
+  padding: 1rem;
+}
+
+.contact-card-content h3 {
+  margin: 0 0 0.5rem 0;
+  color: #0d47a1;
+}
+
+.contact-card-content p {
+  margin: 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+/* Popup Styles */
+.contact-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.contact-popup-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+
+
+.close-popup-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.contact-popup-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.contact-popup-body {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  
-
+  gap: 1.5rem;
 }
 
-.event-expert,
-.event-date-time {
-  font-size: 16px;
-  color: #333232;
-}
-
-.event-expert .expert-name{
-  font-style: italic;
-}
-
-.event-description {
-  font-size: 16px;
-  color: #444;
-}
-
-/* Footer Section */
-.event-footer {
+.contact-method {
   display: flex;
-  justify-content: space-evenly;
-  align-items: center;
-  margin-top: 1rem;
-}
-
-.event-footer span {
-  font-size: 16px;
-  color: #333232;
-}
-
-/* Action Buttons Section */
-.event-buttons-container {
-  display: flex;
-  flex-direction: row;
- gap: 1rem;
-  margin-top: 1rem;
-  
-}
-.event-buttons-container .btn-watch-webinar{
-  background: #007bff;
-}
-.event-buttons-container .btn-watch-webinar:hover{
-  background: #0056b3;
-}
-
-.event-list button.btn-preview {
-  background: #007bff;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  margin-right: 0.5rem;
-  cursor: pointer;
-}
-
-
-.event-list button.btn-preview:hover {
-  background: #0056b3;
-}
-
-.event-list button {
-  background: #28a745;
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  flex: 1;
-}
-
-.event-list button:hover {
-  background: #218838;
-}
-
-.event-list .btn-registered {
-  background-color: #cd1719; /* Red color for registered button */
-  cursor: not-allowed;
-}
-
-.event-list .btn-registered:hover {
-  background-color: #cd1719; /* Red stays the same on hover */
-  cursor: not-allowed;
-}
-
-
-
-/* Styling for Event Category Heading */
-.events-heading h3 {
-  font-size: 24px;
-  font-weight: bold;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #cdcdce; /* Blue border at the bottom of the heading */
-}
-
-/* Styling for Event Category Bar */
-.event-category-bar {
-  display: flex;
-  gap: 10px;
-  padding: 20px 0;
-justify-content:space-between;
-}
-
-.event-category-bar button {
-  background-color: transparent;
-  border: 2px solid #033672; /* Blue border */
-  color: #033672; /* Blue text color */
-  font-size: 14px;
-  padding: 5px 5px;
-  cursor: pointer;
-  font-weight: bold;
-  border-radius: 20px;
-  transition: background-color 0.3s, color 0.3s;
- flex:1; 
-}
-
-
-.event-category-bar button:hover {
-  background-color: #033672; /* Blue background on hover */
-  color: white; /* White text on hover */
-}
-
-.event-category-bar button.active {
-  background-color: #033672; /* Blue background when selected */
-  color: white; /* White text when selected */
-}
-
-
-
-.dashboard-welcome-container {
-  padding: 20px;
-  background-color: #f4f4f4;
-}
-
-
-
-
-
-/* Custom Toast styles for success and error 
-.Toastify__toast--success {
-  background-color: #4caf50; 
-  color: white;
-  border-radius: 8px;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.Toastify__toast--error {
-  background-color: #f44336; 
-  color: white;
-  border-radius: 8px;
-  padding: 15px;
-  font-size: 16px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.Toastify__toast-body {
-  display: flex;
+  gap: 1rem;
   align-items: center;
 }
 
-.Toastify__toast-icon {
-  font-size: 20px;
-  margin-right: 10px;
-}
-
-.Toastify__toast--success .Toastify__toast-icon {
+.contact-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: white;
+  font-size: 1.2rem;
 }
 
-.Toastify__toast--error .Toastify__toast-icon {
-  color: white;
+.phone-icon {
+  background-color: #4CAF50;
+  transform: scaleX(-1);
 }
 
-*/
-/* Media Queries for responsiveness */
-@media screen and (max-width: 768px) {
-  .dashboard-row {
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .profile-column {
-    width: 100%;
-  }
-
-  .events-column {
-    width: 100%;
-  }
-  .dashboard-container{
-    padding: 0px 20px;
-  }
-  .event-footer{
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-  }
-  .event-tile{
-    flex-direction: column;
-  }
+.email-icon, .support-icon {
+  background-color: #2196F3;
 }
 
-.typing-effect {
-  font-size: 30px;
+.contact-method h4 {
+  margin: 0 0 0.3rem 0;
   color: #333;
-  display: block;
 }
 
-.line {
-  display: inline-block;
-  overflow: hidden;
-  white-space: nowrap;
-  border-right: .15em solid #033672;
-  animation: typing 3s steps(30) 1, blinkCaret 0.75s step-end infinite, erase 3s steps(30) 4s forwards;
-}
-.event-tile:hover{
-  background-color: #f7f7f7;
-}
-.event-lists-container{
-  overflow-y: scroll;
-  max-height: 800px;
-  padding: 10px;
-  border-radius: 10px;
- 
+.contact-method p {
+  margin: 0;
+  color: #666;
 }
 
-.event-lists-container::-webkit-scrollbar {
-  width: 8px; /* Small width */
+/* Social Media Icons */
+.social-media-icons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #eee;
 }
 
-.event-lists-container::-webkit-scrollbar-track {
-  background-color: #f1f1f1; /* Light background for the track */
-  border-radius: 15px; /* Rounded corners */
+.social-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.event-lists-container::-webkit-scrollbar-thumb {
-  background-color: #dcdcdc; /* Light gray color for the thumb */
-  border-radius: 15px; /* Rounded corners for the thumb */
-  border: 2px solid #f1f1f1; /* Light border around the thumb */
+.social-icon:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Optional: Hover effect for thumb */
-.event-lists-container::-webkit-scrollbar-thumb:hover {
-  background-color: #c0c0c0; /* Darken the thumb on hover */
+/* Individual icon colors */
+.social-icon.facebook {
+  background-color: #3b5998;
 }
 
-@keyframes typing {
-  from {
-    width: 0;
-  }
-  to {
-    width: 100%;
-  }
+.social-icon.vk {
+  background-color: #4a76a8;
 }
 
-@keyframes erase {
-  from {
-    width: 100%;
-  }
-  to {
-    width: 0;
-  }
+.social-icon.instagram {
+  background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);
 }
 
-@keyframes blinkCaret {
-  50% {
-    border-color: transparent;
-  }
+.social-icon.telegram {
+  background-color: #0088cc;
 }
 
-
-
+.social-icon.whatsapp {
+  background-color: #25D366;
+}

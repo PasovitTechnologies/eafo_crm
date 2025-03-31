@@ -1,5 +1,4 @@
 [
-
   {
     "email": "sasinarayanan2003@gmail.com",
     "password": "$2a$10$H/x60WJEx80gE8bOYw0yb.gziS6A0yx8AP1OaDy5xmaOhtKcpZk76",
@@ -3048,5 +3047,28 @@
     "acceptTerms": true,
     "dashboardLang": "en",
     "registeredAt": "2025-02-12T13:30:33.701Z"
+  },
+  {
+    "email": "eafofb@gmail.com",
+    "password": "$2a$10$WKncuQERaKitPLlroJRuuO1997SAIX2OTD32jPSBW6JhJAebm5CNG",
+    "role": "user",
+    "country": "IN",
+    "title": "Mr.",
+    "firstName": "Sasikumar",
+    "middleName": "",
+    "lastName": "N",
+    "confirmEmail": "eafo1@gmail.com",
+    "confirmPassword": "Sasikumar@2003",
+    "phone": "916382522736",
+    "dob": "20003-04-01",
+    "university": "Pasovit Technologies",
+    "department": "Information Technology",
+    "profession": "Employee",
+    "position": "Fullstack Developer",
+    "gender": "Male",
+    "agreePersonalData": true,
+    "acceptTerms": true,
+    "dashboardLang": "en",
+    "registeredAt": "2025-02-15T03:37:10.454Z"
   }
 ]

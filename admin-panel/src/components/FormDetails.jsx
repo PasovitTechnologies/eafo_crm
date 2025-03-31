@@ -1,155 +1,313 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
-import './DataDisplay.css';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import "./FormDetails.css";
 
-const DataDisplay = () => {
-   const { status } = useParams();
-   const [data, setData] = useState([]);
-   const [error, setError] = useState(null);
-   const [currentPage, setCurrentPage] = useState(1);
-   const [searchTerm, setSearchTerm] = useState('');
-   const [timeFilter, setTimeFilter] = useState('All');
-   const recordsPerPage = 8;
+const FormDetails = () => {
+  const { email } = useParams();
+  const [entry, setEntry] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showPopup, setShowPopup] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState("");
+  const [error, setError] = useState("");
+  const [orderId, setOrderId] = useState("");
+  const [intervalId, setIntervalId] = useState(null);
+  const [selectedMethod, setSelectedMethod] = useState("stripe");
+  const baseUrl = import.meta.env.VITE_BASE_URL;
 
-   useEffect(() => {
-      const fetchData = async () => {
-         try {
-            const response = await axios.get('http://localhost:5000/api/forms');
-            const sortedData = response.data.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
-            setData(sortedData);
-         } catch (error) {
-            console.error('Error fetching data:', error);
-            setError('Failed to fetch data.');
-         }
-      };
+  
+  // Fetch user details
+  useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const response = await fetch(`${baseUrl}/api/forms/${email}`);
+        if (!response.ok) throw new Error("User not found");
 
-      fetchData();
-   }, []);
-
-   const isWithinTimeRange = (submittedAt) => {
-      const now = new Date();
-      const submissionDate = new Date(submittedAt);
-
-      if (timeFilter === 'Last 24 hours') {
-         return now - submissionDate <= 24 * 60 * 60 * 1000;
-      } else if (timeFilter === 'Last 7 days') {
-         return now - submissionDate <= 7 * 24 * 60 * 60 * 1000;
-      } else if (timeFilter === 'Last 30 days') {
-         return now - submissionDate <= 30 * 24 * 60 * 60 * 1000;
+        const data = await response.json();
+        setEntry(data);
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+        setError("User not found.");
+        setEntry(null);
+      } finally {
+        setLoading(false);
       }
-      return true; // For 'All', no date filter applied
-   };
+    };
 
-   const filteredData = useMemo(() => {
-      return data.filter((item) => {
-         const statusMatch = status === 'all' || item.status.toLowerCase() === status;
-         const searchMatch =
-            searchTerm === '' ||
-            (item.fullName && item.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
-         const dateMatch = isWithinTimeRange(item.submittedAt);
-         return statusMatch && searchMatch && dateMatch;
-      });
-   }, [data, status, searchTerm, timeFilter]);
+    if (email) fetchUserDetails();
+  }, [email]);
 
-   const totalPages = Math.ceil(filteredData.length / recordsPerPage);
-   const startIndex = (currentPage - 1) * recordsPerPage;
-   const currentData = filteredData.slice(startIndex, startIndex + recordsPerPage);
-
-   const handlePageChange = (page) => {
-      if (page >= 1 && page <= totalPages) {
-         setCurrentPage(page);
+  // Polling for payment status updates
+  useEffect(() => {
+    if (entry?.payments?.length > 0) {
+      // Clear existing interval before starting a new one
+      if (intervalId) {
+        clearInterval(intervalId);
       }
-   };
 
-   return (
-      <div className="data-display-container">
-         {/* Header */}
-         <div className="header">
-            <h2>{status.charAt(0).toUpperCase() + status.slice(1)} Submissions</h2>
-         </div>
+      const id = setInterval(async () => {
+        try {
+          const updatedPayments = await Promise.all(
+            entry.payments.map(async (payment) => {
+              if (!payment.orderId) return payment; // Skip if no orderId
 
-         {/* Filters and Search */}
-         <div className="filters-container">
-            <div className="search-input">
-               <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search by name..."
-               />
-               <i className="search-icon fas fa-search"></i> {/* Search Icon */}
-            </div>
+              try {
+                // Check the payment status for Alfabank payments
+                if (payment.method === "alfabank") {
+                  const response = await axios.post(
+                    `${baseUrl}/api/payment/alfabank/status`,
+                    { orderId: payment.orderId }
+                  );
 
-            <div className="time-filter">
-               <select
-                  id="time-filter"
-                  value={timeFilter}
-                  onChange={(e) => setTimeFilter(e.target.value)}
-               >
-                  <option value="All">All</option>
-                  <option value="Last 24 hours">Last 24 hours</option>
-                  <option value="Last 7 days">Last 7 days</option>
-                  <option value="Last 30 days">Last 30 days</option>
-               </select>
-            </div>
-         </div>
+                  if (response.data.success && response.data.paymentStatus) {
+                    return {
+                      ...payment,
+                      paymentStatus:
+                        response.data.paymentStatus === "Payment successful" ? "Paid" : response.data.paymentStatus,
+                    };
+                  }
+                }
 
-         {/* Data Cards */}
-         <div className="cards-container">
-            {error && <p className="error-message">{error}</p>}
-            {filteredData.length === 0 ? (
-               <p className="no-data">No submissions found.</p>
-            ) : (
-               currentData.map((item) => (
-                  <Link
-                     to={`/data/${item._id}`}
-                     key={item._id}
-                     className={`data-card ${item.status === 'Checked' ? 'checked' : 'unchecked'}`}
-                  >
-                     <div className="data-card-content">
-                        <h3>{item.fullName}</h3>
-                        <p>
-                           <strong>Submitted At:</strong>{' '}
-                           {new Date(item.submittedAt).toLocaleString('en-GB')}
-                        </p>
-                        <p>
-                           <strong>Status:</strong> {item.status}
-                        </p>
-                     </div>
-                  </Link>
-               ))
+                // Check the payment status for Stripe payments
+                if (payment.method === "stripe") {
+                  const response = await axios.post(
+                    `${baseUrl}/api/payment/stripe/status`,  // Assuming you have a backend endpoint for Stripe status
+                    { orderId: payment.orderId }
+                  );
+
+                  if (response.data.success && response.data.paymentStatus) {
+                    return {
+                      ...payment,
+                      paymentStatus:
+                        response.data.paymentStatus === "Payment successful" ? "Paid" : response.data.paymentStatus,
+                    };
+                  }
+                }
+              } catch (error) {
+                console.error("Error fetching payment status:", error);
+              }
+
+              return payment; // Return old data if API call fails
+            })
+          );
+
+          // Update entry with new payment statuses
+          setEntry((prevEntry) => {
+            if (!prevEntry) return null;
+            return {
+              ...prevEntry,
+              payments: updatedPayments,
+            };
+          });
+
+          // If payment is successful, stop polling
+          if (updatedPayments.every(payment => payment.paymentStatus === "Paid")) {
+            clearInterval(id);
+          }
+        } catch (err) {
+          console.error("Error in polling payments:", err);
+        }
+      }, 10000); // Poll every 10 seconds
+
+      setIntervalId(id);
+
+      // Cleanup on component unmount
+      return () => clearInterval(id);
+    }
+  }, [entry]);
+
+  // Handle Stripe Payment
+  const handleStripePayment = async () => {
+    if (!entry) return;
+
+    const coursePrices = {
+      course1: 1,
+      course2: 2,
+    };
+
+    const orderDetails = {
+      orderNumber: `order-${Date.now()}`,
+      amount: coursePrices[entry.course] || 10,
+      returnUrl: "http://localhost:3000/payment/success",
+      failUrl: "http://localhost:3000/payment/fail",
+      email: entry.email,
+      course: entry.course,
+    };
+
+    try {
+      const response = await axios.post(`${baseUrl}/api/stripe/create-payment-link`, orderDetails);
+      if (response.data.success) {
+        setPaymentUrl(response.data.paymentUrl);
+        setOrderId(response.data.orderId);
+
+        const updatedEntry = {
+          ...entry,
+          payments: [
+            ...(entry.payments || []),
+            {
+              course: entry.course,
+              amount: orderDetails.amount,
+              paymentUrl: response.data.paymentUrl,
+              orderId: response.data.orderId,
+              paymentStatus: "pending",
+              method: "stripe", // Store selected method
+            },
+          ],
+        };
+
+        await fetch(`${baseUrl}/api/forms/${email}/update`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedEntry),
+        });
+
+        setEntry(updatedEntry);
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      setError("Payment request failed.");
+      console.error("Payment error:", error);
+    }
+  };
+
+  // Handle Alfabank Payment
+  const handleAlfabankPayment = async () => {
+    if (!entry) return;
+
+    const coursePrices = {
+      course1: 1.5,
+      course2: 2,
+    };
+
+    const orderDetails = {
+      orderNumber: `order-${Date.now()}`,
+      amount: coursePrices[entry.course] || 10,
+      returnUrl: "http://localhost:3000/payment/success",
+      failUrl: "http://localhost:3000/payment/fail",
+      email: entry.email,
+    };
+
+    try {
+      const response = await axios.post(`${baseUrl}/api/payment/alfabank/pay`, orderDetails);
+      if (response.data.success) {
+        setPaymentUrl(response.data.paymentUrl);
+        setOrderId(response.data.orderId);
+
+        const updatedEntry = {
+          ...entry,
+          payments: [
+            ...(entry.payments || []),
+            {
+              course: entry.course,
+              amount: orderDetails.amount,
+              paymentUrl: response.data.paymentUrl,
+              orderId: response.data.orderId,
+              paymentStatus: "pending",
+              method: "alfabank", // Store selected method
+            },
+          ],
+        };
+
+        await fetch(`${baseUrl}/api/forms/${email}/update`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedEntry),
+        });
+
+        setEntry(updatedEntry);
+      } else {
+        setError(response.data.message);
+      }
+    } catch (error) {
+      setError("Payment request failed.");
+      console.error("Payment error:", error);
+    }
+  };
+
+  if (loading) return <p>Loading user details...</p>;
+  if (!entry) return <p>No details found for this user.</p>;
+
+  return (
+    <div className="details-container">
+      <h2>User Details</h2>
+      <p><strong>Name:</strong> {entry.name}</p>
+      <p><strong>Email:</strong> {entry.email}</p>
+      <p><strong>Phone:</strong> {entry.phone}</p>
+      <p><strong>Course:</strong> {entry.course}</p>
+
+      <button className="invoice-btn" onClick={() => setShowPopup(true)}>
+        Generate Invoice
+      </button>
+
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-content">
+            <h3>Invoice Details</h3>
+            <p><strong>Name:</strong> {entry.name}</p>
+            <p><strong>Email:</strong> {entry.email}</p>
+            <p><strong>Course:</strong> {entry.course}</p>
+            <p><strong>Amount:</strong> {entry.course === "course1" ? 1 : 2}</p>
+
+            <label htmlFor="paymentMethod"><strong>Select Payment Method:</strong></label>
+            <select id="paymentMethod" value={selectedMethod} onChange={(e) => setSelectedMethod(e.target.value)}>
+              <option value="stripe">Stripe</option>
+              <option value="alfabank">Alfabank</option>
+            </select>
+
+            <button className="generate-btn" onClick={selectedMethod === "stripe" ? handleStripePayment : handleAlfabankPayment}>
+              Generate Payment Link
+            </button>
+
+            {paymentUrl && (
+              <p className="payment-link">
+                <a href={paymentUrl} target="_blank" rel="noopener noreferrer">
+                  Click here to pay
+                </a>
+              </p>
             )}
-         </div>
 
-         {/* Pagination */}
-         <div className="pagination">
-            <button
-               onClick={() => handlePageChange(currentPage - 1)}
-               disabled={currentPage === 1}
-               className="pagination-button"
-            >
-               Previous
+            {orderId && <p><strong>Order ID:</strong> {orderId}</p>}
+            {error && <p className="error-message">{error}</p>}
+
+            <button className="close-btn" onClick={() => setShowPopup(false)}>
+              Close
             </button>
-            {Array.from({ length: totalPages }, (_, i) => (
-               <button
-                  key={i}
-                  className={`pagination-button ${currentPage === i + 1 ? 'active' : ''}`}
-                  onClick={() => handlePageChange(i + 1)}
-               >
-                  {i + 1}
-               </button>
+          </div>
+        </div>
+      )}
+
+      <h3>Payment History</h3>
+      {entry.payments && entry.payments.length > 0 ? (
+        <table className="payment-table">
+          <thead>
+            <tr>
+              <th>Course</th>
+              <th>Amount</th>
+              <th>Payment URL</th>
+              <th>Order ID</th>
+              <th>Method</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {entry.payments.map((payment, index) => (
+              <tr key={index}>
+                <td>{payment.course}</td>
+                <td>{payment.amount}</td>
+                <td><a href={payment.paymentUrl} target="_blank" rel="noopener noreferrer">Pay Now</a></td>
+                <td>{payment.orderId}</td>
+                <td>{payment.method}</td>
+                <td>{payment.paymentStatus}</td>
+              </tr>
             ))}
-            <button
-               onClick={() => handlePageChange(currentPage + 1)}
-               disabled={currentPage === totalPages}
-               className="pagination-button"
-            >
-               Next
-            </button>
-         </div>
-      </div>
-   );
+          </tbody>
+        </table>
+      ) : (
+        <p>No payment history available.</p>
+      )}
+    </div>
+  );
 };
 
-export default DataDisplay;
+export default FormDetails;

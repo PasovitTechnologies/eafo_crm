@@ -1,277 +1,85 @@
-/* Form container styling */
+/* Center the form on the page */
 .form-container {
-  display: flex;
-  justify-content: center;  /* Center the form horizontally */
-  align-items: center;      /* Center the form vertically */
-  width: 100vw;             /* Full width of the viewport */
-  padding: 60px;            /* Padding inside the container */
-  box-sizing: border-box;
-  background-color: #f7f7f7;
-  font-family: Arial, sans-serif;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  width: 100%;              /* Make form fill container width */
-  max-width: 600px;         /* Maximum form width on large screens */
-  background-color: white;
-  padding: 40px 40px 40px 40px;  /* Equal padding on all sides */
-  border-radius: 12px;      /* Increased border radius for a softer look */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease; /* Smooth transition for hover effects */
-}
-
-/* Styling for each form question */
-.form-question {
-  margin-bottom: 20px; /* Space between questions */
   width: 100%;
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-/* Label styling */
-.form-question label {
+/* Form title */
+h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+/* Form input fields */
+.form-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.form-group label {
   display: block;
-  font-size: 16px;
-  font-weight: 600; /* Bold label text for better visibility */
-  margin-bottom: 8px; /* Increased space between label and input */
-  color: #333; /* Darker color for labels */
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #555;
 }
 
-/* Uniform input styling */
-textarea,
-input[type="text"],
-input[type="number"],
-input[type="date"],
-select {
+input, select {
   width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  margin-top: 8px; /* Adjust space above the input fields */
-  border-radius: 8px;  /* Rounded corners for inputs */
-  border: 1px solid #ccc; /* Border around the inputs */
-  background-color: #f9f9f9; /* Light background for inputs */
-  transition: border-color 0.3s ease;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
-/* Styling for gender selection */
-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-}
-
-textarea:focus,
-input[type="text"]:focus,
-input[type="number"]:focus,
-input[type="date"]:focus,
-select:focus {
-  border-color: #4CAF50; /* Green border on focus for a modern look */
-  outline: none; /* Remove the default outline */
-}
-
-/* Red outline for empty required fields */
-input:invalid,
-select:invalid,
-textarea:invalid {
-  border-color: red !important;
-}
-
-input:invalid:focus,
-select:invalid:focus,
-textarea:invalid:focus {
-  border-color: red; /* Keep red border color when the field is focused */
-}
-
-/* Radio button styling */
-.radio-buttons {
+/* Checkbox styling */
+.checkbox-group {
   display: flex;
+  align-items: center;
   gap: 10px;
   margin-top: 10px;
 }
 
-.radio-buttons input[type="radio"] {
-  margin-right: 5px;
+.checkbox-group input {
+  width: 16px;
+  height: 16px;
+  accent-color: #007bff;
 }
 
-/* Button styling */
-button {
-  padding: 12px 24px;
-  font-size: 16px;
+.checkbox-group label {
+  font-size: 14px;
+  color: #333;
   cursor: pointer;
-  background-color: #4CAF50;
+}
+
+/* Submit button */
+.submit-btn {
+  width: 100%;
+  padding: 10px;
+  background: #007bff;
   color: white;
-  border: none;
-  margin-top: 20px;
-  border-radius: 8px;
-  align-self: flex-start;  /* Align button to the left */
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #45a049; /* Darker green on hover */
-}
-
-button:focus {
-  outline: none; /* Remove focus outline */
-}
-.section-title{
-  color: #45a049;
-}
-
-/* Ensure the form is responsive */
-@media (max-width: 600px) {
-  .form-container {
-    width: 100%;
-    padding: 15px;
-  }
-
-  /* Adjust the form elements for smaller screens */
-  form {
-    padding: 20px;
-  }
-
-  .form-question label {
-    font-size: 14px; /* Smaller label font for small screens */
-  }
-
-  textarea,
-  input[type="text"],
-  input[type="number"],
-  input[type="date"],
-  select {
-    font-size: 14px; /* Adjust font size for small screens */
-  }
-
-  button {
-    width: 100%; /* Full-width button on small screens */
-    padding: 14px;
-    margin-right: 20px;
-  }
-}
-
-.next-btn{
-  margin-left: 20px;
-}
-.previous-btn{
-  margin-right: 20px;
-}
-.thank-you-page-container{
-  display: flex;
-  justify-content: center;  /* Center the form horizontally */
-  align-items: center;      /* Center the form vertically */
-  width: 100vw;             /* Full width of the viewport */
-  padding: 60px; 
-}
-.thank-you-page {
-  text-align: center;
-  padding: 2rem;
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  max-width: 600px;
-  margin: 2rem auto;
-}
-
-.thank-you-page h1 {
-  font-size: 2rem;
-  color: #4CAF50;
-  margin-bottom: 1rem;
-}
-
-.thank-you-page p {
-  font-size: 1rem;
-  color: #555;
-  margin-bottom: 1rem;
-}
-
-.thank-you-actions button {
-  margin: 0.5rem;
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
-  color: #fff;
-  background-color: #007BFF;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.thank-you-actions button:hover {
-  background-color: #0056b3;
-}
-
-.thank-you-actions button:focus {
-  outline: none;
-}
-
-.preview-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-}
-
-.preview-container h2 {
-  text-align: center;
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #008000; /* Green Title */
-}
-
-.preview-section {
-  margin-bottom: 20px;
-  border-radius: 8px;
-  padding: 15px;
-  background-color: #e6f5e6; /* Light Green Section Background */
-}
-
-.section-title {
-  font-size: 20px;
-  color: #008000; /* Green Title */
-  margin-bottom: 10px;
-  text-transform: uppercase;
-}
-
-.preview-list {
-  list-style-type: none;
-  padding: 0;
-}
-
-.preview-item {
   font-size: 16px;
-  color: #555;
-  margin-bottom: 12px; /* Small spacing between questions */
+  margin-top: 15px;
 }
 
-.preview-item strong {
-  color: #333;
+.submit-btn:hover {
+  background: #0056b3;
 }
 
-.navigation-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
+/* Success/Error message */
+.message {
+  margin-top: 15px;
+  font-size: 14px;
+  color: green;
 }
-
-.navigation-buttons button {
-  background-color: #008000; /* Green Button */
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s;
-}
-
-.navigation-buttons button:hover {
-  background-color: #005b00; /* Darker Green on Hover */
-}
-
-.navigation-buttons button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
-}
-

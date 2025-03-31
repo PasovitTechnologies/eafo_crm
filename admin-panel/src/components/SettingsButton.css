@@ -1,15 +1,15 @@
 /* Settings button styles */
 .settings-button {
     position: fixed;
-    bottom: 20px;
+    top:10px;
     right: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    z-index: 1000; /* Ensure it's on top of other elements */
+    z-index: 100; /* Ensure it's on top of other elements */
     background-color: #007bff; /* Background color for the button */
-    padding: 12px; /* Increased padding to make the button larger */
+    padding: 5px; /* Increased padding to make the button larger */
     border-radius: 50%;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease-in-out;
@@ -21,7 +21,7 @@
   }
   
   .settings-icon {
-    font-size: 28px; /* Larger icon size for visibility */
+    font-size: 26px; /* Larger icon size for visibility */
     color: white;
   }
   
@@ -31,34 +31,40 @@
   }
   
   /* Popup styles */
-  .popup {
+  .settings-popup {
     position: fixed;
-    bottom: 60px;
-    right: 40px;
+    top: 60px;
+    right: 20px;
     width: 450px;
-    border-radius: 8px;
+    border-radius: 20px;
     z-index: 1001; /* Ensure popup is above other content */
     padding: 20px;
     display: flex;
     flex-direction: column;
+    background-color: #fff;
+    box-shadow: -2px 0px 5px rgba(0, 0, 0, 0.2);
+
   }
   
-  .popup-content {
+  .settings-popup-content {
     display: flex;
     flex-direction: column;
     position: relative;
   }
   
-  .close-button {
+  .settings-popup-content .close-button {
     position: absolute;
     top: 10px;
     right: 10px;
     font-size: 20px;
     cursor: pointer;
+    background-color: transparent;
+    border: none;
   }
-  .popup-content  h3{
+  .settings-popup-content  h3{
     font-size: 20px;
     padding: 10px;
+    margin-bottom: 20px;
   }
   
   .question {

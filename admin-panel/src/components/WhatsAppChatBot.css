@@ -1,0 +1,101 @@
+/* ✅ Main container */
+.chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    background: white;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out, opacity 0.3s;
+    display: flex;
+    flex-direction: column; /* 👈 Stack items vertically */
+  }
+  
+  /* ✅ Fixed header */
+  .chatbot-header {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: #075e54;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* ✅ Close icon */
+  .chat-close-icon {
+    cursor: pointer;
+    font-size: 20px;
+    transition: transform 0.3s ease;
+  }
+  
+  .chat-close-icon:hover {
+    transform: rotate(90deg);  /* 💫 Rotate on hover */
+  }
+  
+  /* ✅ Messages container (fills remaining space) */
+  .chatbot-messages-container {
+    flex: 1; /* 👈 Takes available space */
+    overflow-y: auto;
+    background: #f1f1f1;
+  }
+  
+  /* ✅ Footer remains fixed at the bottom */
+  .chatbot-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 999;
+    background: #fff;
+    padding: 10px;
+    display: flex;
+    border-top: 1px solid #ccc;
+    gap: 10px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .chatbot-footer input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  .chatbot-footer input:focus {
+    border: none;
+  }
+  
+  .chatbot-footer button {
+    background: #128c7e;
+    color: white;
+    border: none;
+    font-size: 18px;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.3s;
+  }
+  
+  .chatbot-footer button:hover {
+    background: #0e6b5a;
+  }
+  
+  /* ✅ Scrollbar Styling */
+  .chatbot-messages-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .chatbot-messages-container::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+  }
+  
+  .chatbot-messages-container::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+  }
+  

@@ -1,0 +1,102 @@
+/* Modal Overlay */
+.submission-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Dim background */
+    display: flex;
+    justify-content: flex-end; /* Align modal to the right */
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* Keyframe Animation for Slide In */
+@keyframes slideIn {
+    from {
+        transform: translateX(100%); /* Start off-screen */
+    }
+    to {
+        transform: translateX(0); /* Fully visible */
+    }
+}
+
+/* Keyframe Animation for Slide Out */
+@keyframes slideOut {
+    from {
+        transform: translateX(0); /* Start visible */
+    }
+    to {
+        transform: translateX(100%); /* Move off-screen */
+    }
+}
+
+/* Modal Content (Sliding from Right to Left) */
+.submission-modal-content {
+    background: white;
+    width: 700px; /* Sidebar width */
+    max-width: 90%;
+    height: 100vh; /* Full height */
+    padding: 20px;
+    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.3);
+    position: fixed;
+    right: 0;
+    top: 0;
+    transform: translateX(100%); /* Initially hidden (off-screen) */
+    display: flex;
+    flex-direction: column;
+}
+
+/* Show Modal */
+.submission-modal-overlay.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.submission-modal-overlay.show .submission-modal-content {
+    animation: slideIn 0.4s ease-in-out forwards; /* Apply slide-in animation */
+}
+
+/* Hide Modal with Slide Out Animation */
+.submission-modal-overlay.hide .submission-modal-content {
+    animation: slideOut 0.4s ease-in-out forwards; /* Apply slide-out animation */
+}
+
+/* Close Button */
+.submission-modal-close {
+    position: absolute;
+    top: 60px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 35px;
+    cursor: pointer;
+}
+
+/* Table Container (Scrollable) */
+.submission-modal-table-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-top: 15px;
+}
+
+/* Table */
+.submission-modal-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.submission-modal-table th,
+.submission-modal-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.submission-modal-table th {
+    background-color: #033672;
+    text-align: left;
+}

@@ -1,29 +1,134 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
-const jwt = require('jsonwebtoken'); // Import JWT library
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const Webinar = require("../models/Webinars");
+const User = require("../models/User");
 const router = express.Router();
+const mongoose = require("mongoose");
+const axios = require("axios");
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";; // Replace with a secure key
-const adminCredentials = [
-  { email: "admin@example.com", password: "admin123" } // Replace with actual credentials
-];
 
-// Helper functions for authentication
-const isAdmin = (email, password) => {
-  return adminCredentials.some(
-    (admin) => admin.email === email && admin.password === password
-  );
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+
+// Admin credentials (for authentication)
+const adminCredentials = [{ email: "admin@example.com", password: "admin123" }];
+
+
+const RUSENDER_API = "https://api.beta.rusender.ru/api/v1/external-mails/send";
+
+// ✅ Helper function to send emails using Rusender
+const sendEmailRusender = async (recipient, mail) => {
+    const emailData = {
+        mail: {
+            to: { email: recipient.email },
+            from: { email: "eafo@e-registrar.org", name: "EAFO" },
+            subject: mail.subject,
+            previewTitle: mail.subject,  
+            html: mail.html.replace("{name}", recipient.firstName || "User")
+        }
+    };
+
+    try {
+        const response = await axios.post(RUSENDER_API, emailData, {
+            headers: {
+                "Content-Type": "application/json",
+                "X-Api-Key": process.env.RUSENDER_API_KEY
+            }
+        });
+
+        console.log(`✅ Email sent to ${recipient.email}:`, response.data);
+        return { email: recipient.email, status: "Success", data: response.data };
+    } catch (error) {
+        console.error(`❌ Failed to send email to ${recipient.email}:`, error.response?.data || error.message);
+        return { email: recipient.email, status: "Failed", error: error.message };
+    }
 };
 
+// ✅ Function to select email template
+const getWebinarEmailTemplate = (lang, user, webinar) => {
+  const date = new Date(webinar.date);
+
+  const webinarDate = date.toLocaleDateString(lang === "ru" ? "ru-RU" : "en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+  });
+
+  const webinarTime = webinar.time || date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit"
+  });
+
+  const dayOfWeek = lang === "ru" ? webinar.dayOfWeekRussian : webinar.dayOfWeek;
+  
+  const webinarTitle = lang === "ru" ? webinar.titleRussian : webinar.title;
+  const chiefGuest = lang === "ru" ? webinar.chiefGuestNameRussian : webinar.chiefGuestName;
+  const regalia = lang === "ru" ? webinar.regaliaRussian : webinar.regalia;
+
+  // ✅ Use the user's title for salutation
+  const salutation = user.personalDetails?.title 
+      ? `${user.personalDetails.title}`
+      : lang === "ru" ? "Уважаемый(ая)" : "Dear";
+
+  if (lang === "ru") {
+      return {
+          subject: `Подтверждение регистрации на вебинар: ${webinarTitle}`,
+          html: `
+              <h2>Подтверждение регистрации на вебинар</h2>
+              <p>${salutation} <b>${user.personalDetails?.firstName || "Участник"} ${user.personalDetails?.middleName || ""}</b>,</p>
+
+              <p>Вы успешно зарегистрированы на <strong>"${webinarTitle}"</strong> от Евразийской федерации онкологии (EAFO)!</p>
+
+              <p>Дата проведения вебинара: <strong>${webinarDate}, ${webinarTime} (Timezone: Moscow, Russia (GMT+3)) [${dayOfWeek}]</strong></p>
+              <p>Эксперт вебинара: <strong>${chiefGuest}</strong>,<br> ${regalia}</p>
+
+              <p>Для доступа к запланированным онлайн мероприятиям, пожалуйста, войдите в личный кабинет EAFO:</p>
+              <p><a href="${process.env.APP_URL}">Войти в личный кабинет</a></p>
+
+              <p>В случае возникновения любых вопросов, пожалуйста, свяжитесь с нашей службой технической поддержки по адресу: 
+                  <a href="mailto:support@eafo.info">info@eafo.info</a>
+              </p>
+
+              <footer>
+                  <p>С уважением,</p>
+                  <p>Команда EAFO</p>
+              </footer>
+          `
+      };
+  } else {
+      return {
+          subject: `Webinar Registration Confirmation: ${webinarTitle}`,
+          html: `
+              <h2>Webinar Registration Confirmation</h2>
+              <p>${salutation} <b>${user.personalDetails?.firstName || "Participant"} ${user.personalDetails?.middleName || ""} ${user.personalDetails?.lastName || ""}</b>,</p>
+
+              <p>You have successfully registered for <strong>"${webinarTitle}"</strong> hosted by the Eurasian Federation of Oncology (EAFO)!</p>
+
+              <p>Webinar Date: <strong>${webinarDate}, ${webinarTime} (Timezone: Moscow, Russia (GMT+3)) [${dayOfWeek}]</strong></p>
+              <p>Chief Guest: <strong>${chiefGuest}</strong>,<br> ${regalia}</p>
+
+              <p>To access the scheduled online events, please log in to your EAFO account:</p>
+              <p><a href="${process.env.APP_URL}">Go to Dashboard</a></p>
+
+              <p>If you have any questions, please contact our support team at:
+                  <a href="mailto:support@eafo.info">info@eafo.info</a>
+              </p>
+
+              <footer>
+                  <p>Best regards,</p>
+                  <p>EAFO Team</p>
+              </footer>
+          `
+      };
+  }
+};
+
+
+// **Authentication Middleware**
 const authenticateJWT = (req, res, next) => {
   const token = req.header("Authorization")?.split(" ")[1];
 
   if (!token) {
-    return res
-      .status(401)
-      .json({ message: "Access denied. No token provided." });
+    return res.status(401).json({ message: "Access denied. No token provided." });
   }
 
   jwt.verify(token, JWT_SECRET, (err, decoded) => {
@@ -35,212 +140,187 @@ const authenticateJWT = (req, res, next) => {
   });
 };
 
-// Path to webinars JSON file
-const webinarsFilePath = path.join(__dirname, '..', 'Folders', 'webinarData', 'webinars.json');
-
-// Initialize and read/write helper functions
-const initializeWebinarsFile = () => {
-  if (!fs.existsSync(webinarsFilePath)) {
-    const dirPath = path.dirname(webinarsFilePath);
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-    }
-    fs.writeFileSync(webinarsFilePath, JSON.stringify([]));
-  }
-};
-
-const readWebinarsFromFile = () => {
-  try {
-    initializeWebinarsFile();
-    const webinarsData = fs.readFileSync(webinarsFilePath, 'utf8');
-    return webinarsData ? JSON.parse(webinarsData) : [];
-  } catch (err) {
-    console.error('Error reading webinars file:', err);
-    return [];
-  }
-};
-
-const writeWebinarsToFile = (webinars) => {
-  try {
-    fs.writeFileSync(webinarsFilePath, JSON.stringify(webinars, null, 2));
-  } catch (err) {
-    console.error('Error writing to webinars file:', err);
-  }
-};
-
-// Routes
-router.get('/', authenticateJWT, (req, res) => {
-  try {
-    const webinars = readWebinarsFromFile(); // Read the webinars from the file
-    res.json(webinars); // Send the webinars as a response
-  } catch (error) {
-    console.error('Error fetching webinars:', error);
-    res.status(500).json({ message: 'Error fetching webinars.' });
-  }
-});
-
-router.post('/', authenticateJWT, (req, res) => {
-  try {
-    const {
-      title,
-      titleRussian,
-      date,
-      dayOfWeek,
-      dayOfWeekRussian,
-      time,
-      liveEmbed,
-      eventSiteURL,
-      chatEmbed,
-      bannerUrl,
-      bannerRussianURL,
-      chiefGuestName,
-      chiefGuestNameRussian,
-      photoUrl,
-      regalia,
-      regaliaRussian,
-    } = req.body;
-
-    const webinars = readWebinarsFromFile();
-    const webinarNumber = webinars.length + 1;
-    const webinarId = (webinars.length + 1).toString().padStart(5, '0');
-    const uniqueId = uuidv4();
-
-    const newWebinar = {
-      webinarId,
-      webinarNumber,
-      id: uniqueId,
-      title,
-      titleRussian,
-      date,
-      dayOfWeek,
-      dayOfWeekRussian,
-      time,
-      liveEmbed,
-      eventSiteURL,
-      chatEmbed,
-      bannerUrl,
-      bannerRussianURL,
-      chiefGuestName,
-      chiefGuestNameRussian,
-      photoUrl,
-      regalia,
-      regaliaRussian,
-    };
-
-    webinars.push(newWebinar);
-    writeWebinarsToFile(webinars);
-
-    res.status(200).json({ message: 'Webinar added successfully!', webinar: newWebinar });
-  } catch (error) {
-    console.error('Error adding webinar:', error);
-    res.status(500).json({ message: 'Error adding webinar.' });
-  }
-});
-
-
-router.get("/:webinarId", (req, res) => {
-  const { webinarId } = req.params;
-
-  try {
-    const webinars = readWebinarsFromFile(); // Fetch webinars from file
-
-    const webinar = webinars.find((w) => w.id === webinarId);
-
-    if (!webinar) {
-      return res.status(404).json({ message: "Webinar not found" });
-    }
-
-    res.json(webinar); // Return the webinar object
-  } catch (error) {
-    console.error("Error fetching webinar:", error);
-    res.status(500).json({ message: "Error fetching webinar data" });
-  }
-});
-
-module.exports = router;
-
-router.delete('/:id', authenticateJWT, (req, res) => {
-  try {
-    const { id } = req.params;
-    let webinars = readWebinarsFromFile();
-    webinars = webinars.filter((webinar) => webinar.id !== id);
-    writeWebinarsToFile(webinars);
-
-    res.status(200).json({ message: 'Webinar deleted successfully!' });
-  } catch (error) {
-    console.error('Error deleting webinar:', error);
-    res.status(500).json({ message: 'Error deleting webinar.' });
-  }
-});
-
-router.put('/:id', authenticateJWT, (req, res) => {
-  try {
-    const { id } = req.params;
-    const {
-      title,
-      titleRussian,
-      date,
-      dayOfWeek,
-      dayOfWeekRussian,
-      time,
-      liveEmbed,
-      eventSiteURL,
-      chatEmbed,
-      bannerUrl,
-      bannerRussianURL,
-      chiefGuestName,
-      chiefGuestNameRussian,
-      photoUrl,
-      regalia,
-      regaliaRussian,
-    } = req.body;
-
-    let webinars = readWebinarsFromFile();
-    const webinarIndex = webinars.findIndex((webinar) => webinar.id === id);
-
-    if (webinarIndex === -1) {
-      return res.status(404).json({ message: 'Webinar not found' });
-    }
-
-    webinars[webinarIndex] = {
-      ...webinars[webinarIndex],
-      title,
-      titleRussian,
-      date,
-      dayOfWeek,
-      dayOfWeekRussian,
-      time,
-      liveEmbed,
-      eventSiteURL,
-      chatEmbed,
-      bannerUrl,
-      bannerRussianURL,
-      chiefGuestName,
-      chiefGuestNameRussian,
-      photoUrl,
-      regalia,
-      regaliaRussian,
-    };
-
-    writeWebinarsToFile(webinars);
-
-    res.status(200).json({ message: 'Webinar updated successfully!' });
-  } catch (error) {
-    console.error('Error updating webinar:', error);
-    res.status(500).json({ message: 'Error updating webinar.' });
-  }
-});
-
-// Admin-only route
-router.post('/admin', (req, res) => {
+// **Admin Login Route (Generates JWT)**
+router.post("/admin", (req, res) => {
   const { email, password } = req.body;
 
-  if (isAdmin(email, password)) {
-    const token = jwt.sign({ email, role: 'admin' }, JWT_SECRET, { expiresIn: '1h' });
-    return res.status(200).json({ message: 'Admin authenticated', token });
+  if (adminCredentials.some((admin) => admin.email === email && admin.password === password)) {
+    const token = jwt.sign({ email, role: "admin" }, JWT_SECRET, { expiresIn: "1h" });
+    return res.status(200).json({ message: "Admin authenticated", token });
   }
 
-  return res.status(403).json({ message: 'Invalid admin credentials' });
+  return res.status(403).json({ message: "Invalid admin credentials" });
 });
+
+// **Get All Webinars**
+router.get("/", async (req, res) => {
+  try {
+    const webinars = await Webinar.find();
+    res.json(webinars);
+  } catch (error) {
+    console.error("Error fetching webinars:", error);
+    res.status(500).json({ message: "Error fetching webinars." });
+  }
+});
+
+// **Get Single Webinar by ID**
+router.get("/:id", async (req, res) => {
+  try {
+    const webinar = await Webinar.findById(req.params.id);
+    if (!webinar) return res.status(404).json({ message: "Webinar not found" });
+
+    res.json(webinar);
+  } catch (error) {
+    console.error("Error fetching webinar:", error);
+    res.status(500).json({ message: "Error fetching webinar." });
+  }
+});
+
+// **Create New Webinar**
+router.post("/", authenticateJWT, async (req, res) => {
+  try {
+    const newWebinar = new Webinar({ ...req.body });
+    await newWebinar.save();
+
+    res.status(201).json({ message: "Webinar added successfully!", webinar: newWebinar });
+  } catch (error) {
+    console.error("Error adding webinar:", error);
+    res.status(500).json({ message: "Error adding webinar." });
+  }
+});
+
+// **Update Webinar by ID**
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid webinar ID" });
+  }
+
+  try {
+    const updatedWebinar = await Webinar.findByIdAndUpdate(id, req.body, { new: true });
+    if (!updatedWebinar) return res.status(404).json({ message: "Webinar not found" });
+
+    res.status(200).json(updatedWebinar);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating webinar", error });
+  }
+});
+
+
+// **Delete Webinar by ID**
+router.delete("/:id", authenticateJWT, async (req, res) => {
+  try {
+    const deletedWebinar = await Webinar.findByIdAndDelete(req.params.id);
+
+    if (!deletedWebinar) return res.status(404).json({ message: "Webinar not found" });
+
+    res.status(200).json({ message: "Webinar deleted successfully!" });
+  } catch (error) {
+    console.error("Error deleting webinar:", error);
+    res.status(500).json({ message: "Error deleting webinar." });
+  }
+});
+
+router.post("/:id/register", authenticateJWT, async (req, res) => {
+  try {
+    const { email } = req.body;
+    const webinarId = req.params.id;
+
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    const webinar = await Webinar.findById(webinarId);
+    if (!webinar) return res.status(404).json({ message: "Webinar not found" });
+
+    // ✅ Find User and Check if Already Registered
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const isAlreadyRegistered = user.webinars.some((w) => w.webinarId.equals(webinarId));
+    if (isAlreadyRegistered) {
+      return res.status(400).json({ message: "User already registered for this webinar" });
+    }
+
+    // ✅ Add webinar to User's webinars list
+    user.webinars.push({ webinarId, registeredAt: new Date() });
+    await user.save();
+
+    // ✅ Ensure `participants` array exists in Webinar model
+    if (!webinar.participants) webinar.participants = [];
+
+    // ✅ Add participant to Webinar's participants list
+    const newParticipant = {
+      email,
+      registeredAt: new Date(),
+      status: "Registered",
+    };
+
+    webinar.participants.push(newParticipant);
+    await webinar.save();
+
+    res.status(201).json({ message: "Successfully registered!", participant: newParticipant });
+
+    const lang = user.dashboardLang || "en";
+    const emailTemplate = getWebinarEmailTemplate(lang, user, webinar);
+
+    await sendEmailRusender({ email: user.email, firstName: user.personalDetails?.firstName || "User" }, emailTemplate);
+    
+    console.log("✅ Webinar registration email sent!");
+  } catch (error) {
+    console.error("Error registering participant:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+
+router.post("/:id/cancel", authenticateJWT, async (req, res) => {
+  try {
+    const { email } = req.body; // Get user email from request body
+    const webinarId = req.params.id;
+
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    const webinar = await Webinar.findById(webinarId);
+    if (!webinar) return res.status(404).json({ message: "Webinar not found" });
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    // ✅ Remove user from the webinar's `participants` list
+    webinar.participants = webinar.participants.filter((p) => p.email !== email);
+    await webinar.save();
+
+    // ✅ Remove webinar from the user's `webinars` list
+    user.webinars = user.webinars.filter((w) => !w.webinarId.equals(webinarId));
+    await user.save();
+
+    res.status(200).json({ message: "Registration cancelled successfully!" });
+  } catch (error) {
+    console.error("Error cancelling registration:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+router.get("/:id/status", authenticateJWT, async (req, res) => {
+  try {
+    const { email } = req.query; // Get email from query params
+    const webinarId = req.params.id;
+
+    if (!email) return res.status(400).json({ message: "Email is required" });
+
+    const webinar = await Webinar.findById(webinarId);
+    if (!webinar) return res.status(404).json({ message: "Webinar not found" });
+
+    // ✅ Check if the user is in the participants list
+    const isRegistered = webinar.participants.some((p) => p.email === email);
+
+    res.status(200).json({ registered: isRegistered });
+  } catch (error) {
+    console.error("Error checking registration status:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+
+
 
 module.exports = router;

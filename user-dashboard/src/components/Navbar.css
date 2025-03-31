@@ -1,330 +1,77 @@
-/* Navbar Styles */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+/* Navbar container */
+.navbar-page {
+  width: 100%;
+  background: #f8f9fa;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
 
-.navbar {
+.ui-navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 3rem 2rem; /* Adjusted for responsiveness */
-  background-color: #ffffff;
-  font-family: "Roboto", sans-serif;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100000;
+  padding: 15px 30px;
 }
 
-.navbar .logo img {
-  height:auto; /* Adjust for responsive scaling */
+/* Logo */
+.logo img {
+  height: 40px;
   cursor: pointer;
-  width: 250px;
 }
 
-.nav-welcome-msg {
-  color: #033672;
-  font-weight: bolder;
-  font-size: 1.5rem; /* Made slightly more responsive */
-}
-
-.nav-links {
-  display: flex;
-  list-style: none;
-  gap: 1rem;
-}
-
-.nav-links li {
-  cursor: pointer;
-  color: #000000;
-  font-size: 1rem;
-  transition: color 0.3s;
-}
-
-.nav-links li:hover {
-  color: #033672;
-}
-
-/* Right Section */
-.right-section {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  position: relative;
-}
-
-/* User Icon */
-.user-icon {
-  font-size: 2rem;
-  color: #000000;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.user-icon:hover {
-  color: #cd1719;
-}
-
-/* Menu Icon */
-.menu-icon {
-  font-size: 2rem;
-  cursor: pointer;
-  color: #033672;
-  display: none;
-  z-index: 1001;
-}
-
-/* Button Styles */
-.user-popup button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  font-size: 1rem;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-family: "Roboto", sans-serif;
-  transition: all 0.3s ease;
-}
-
-/* Dashboard Button */
-.user-popup button.dashboard {
-  background-color: #033672;
-  color: #ffffff;
-}
-
-.user-popup button.dashboard:hover {
-  background-color: #02408a;
-}
-
-/* Logout Button */
-.user-popup button.logout {
-  background-color: #cd1719;
-  color: #ffffff;
-}
-
-.user-popup button.logout:hover {
-  background-color: #e03c3e;
-}
-
-/* Login Button */
-.user-popup button.login {
-  background-color: #cd1719;
-  color: #ffffff;
-}
-
-.user-popup button.login:hover {
-  background-color: #e03c3e;
-}
-
-/* Register Button */
-.user-popup button.register {
-  background-color: #033672;
-  color: #ffffff;
-}
-
-.user-popup button.register:hover {
-  background-color: #02408a;
-}
-
-/* Button Icon Spacing */
-.user-popup button .button-icon {
-  font-size: 1.2rem;
-}
-
-/* Display Menu Icon on Small Screens */
-@media (max-width: 768px) {
-  .menu-icon {
-    display: block;
-  }
-
-  .nav-links {
-    display: none;
-  }
-
-  .navbar {
-    padding: 2rem 1.3rem; /* Adjusted padding for smaller screens */
-  }
-}
-
-/* Popup Menu */
-.user-popup {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: #ffffff;
-  border-radius: 5px;
-  padding: 1rem;
-  width: 240px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-/* Mobile Menu */
-.mobile-menu {
-  position: fixed;
-  top: 0;
-  right: 0;
-  height: 100%;
-  width: 70%;
-  background-color: #ffffff;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
-  display: flex;
-  flex-direction: column;
-  padding: 2rem 1rem;
-  z-index: 1000;
-  animation: slide-in-right 0.3s ease-in-out;
-}
-
-.mobile-menu ul {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.mobile-menu ul li {
-  color: #000000;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: color 0.3s;
-}
-
-.mobile-menu ul li:hover {
-  color: #033672;
-}
-
-/* Animations */
-@keyframes slide-in-right {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-@keyframes slide-in-left {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .mobile-menu {
-    animation: slide-in-left 0.3s ease-in-out;
-  }
-}
-
-/* Language Selector Styles */
-.language-selector {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  gap: 8px;
-  font-size: 1rem;
-  padding: 5px;
-  position: relative;
-  color: #000000;
-}
-
-.language-icon {
-  font-size: 1.5rem;
-  color: #333;
-  transition: color 0.3s ease;
-}
-
-.language-icon:hover {
-  color: #007bff;
-}
-
-.language-dropdown {
-  font-size: 1rem;
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff;
-  cursor: pointer;
-  outline: none;
-  transition: border-color 0.3s ease, background-color 0.3s ease;
-}
-
-.language-dropdown:hover {
-  border-color: #007bff;
-}
-
-.language-dropdown:focus {
-  border-color: #007bff;
-  background-color: #f9f9f9;
-}
-
-.language-dropdown::-ms-expand {
-  display: none;
-}
-
-.language-dropdown {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  padding-right: 30px;
-}
-
-.language-dropdown::after {
-  content: '▼';
-  font-size: 1rem;
-  color: #333;
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
-.language-dropdown option {
-  padding: 8px 10px;
-}
-
-.language-dropdown:active {
-  background-color: #f1f1f1;
-}
-
-/* Navbar Welcome Message */
+/* Welcome message */
 .nav-welcome-msg h1 {
+  font-size: 24px;
   color: #033672;
-  font-size: 24px; /* Made font size more responsive */
   font-weight: bold;
 }
 
-/* Hide Welcome Message Below 500px */
-@media (max-width: 500px) {
-  .nav-welcome-msg {
-    display: none !important;  /* Use !important to ensure it's not overridden */
-  }
-  
+/* Right section */
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
-/* Ensuring consistency across screen sizes */
-@media (max-width: 768px) {
-  .nav-welcome-msg h1 {
-    font-size: 18px; /* Adjust font size for smaller screens */
-  }
+/* Language selector with flags */
+.flag-dropdown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 5px 10px;
+  cursor: pointer;
+  background: #fff;
+  transition: 0.3s;
+}
 
-  .navbar .logo img {
-    height:auto; /* Adjust for responsive scaling */
-    cursor: pointer;
-    width: 180px;
-  }
+.flag-dropdown:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
-  .nav-links li {
-    font-size: 0.9rem; /* Slightly smaller text for better fit */
-  }
-  .nav-welcome-msg {
-    display: none !important;  /* Use !important to ensure it's not overridden */
-  }
+.flag-icon {
+  width: 24px;
+  height: 16px;
+  border-radius: 3px;
+}
+
+.language-dropdown {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+  outline: none;
+}
+
+/* User icon */
+.user-icon {
+  font-size: 24px;
+  color: #555;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.user-icon:hover {
+  color: #007bff;
 }

@@ -1,0 +1,313 @@
+/* General Page Styles */
+.enquiry-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #f4f6f8;
+    padding: 80px 20px 20px 100px;  /* Added top & left padding */
+    box-sizing: border-box;
+}
+
+.enquiry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    position: relative; /* Ensures the filter bubble is positioned relative to the header */
+}
+
+.enquiry-left-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+.enquiry-search-container{
+    display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 30px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.search-bar-unique {
+  width: 100%;
+  outline: none;          /* Removes outline on focus */
+  border: none;           /* Removes border */
+  font-size: 16px;
+  color: #333;
+  background: transparent; /* Makes input blend into the background */
+  margin: auto;
+}
+
+.search-bar-unique:focus {
+    outline: none;
+    border-color: #1f81d9;
+}
+.enquiry-search-icon{
+  color: #555;
+  font-size: 18px;
+  margin-right: 10px;
+}
+.filter-container {
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: #f1f1f1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.filter-options-bubble {
+    position: absolute; /* Position it relative to the header */
+    top: 100%; /* Position the bubble directly below the filter icon */
+    left: 0; /* Align it with the left side of the filter icon */
+    background: #fff;
+    padding: 10px;
+    border: 1px solid #ddd;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    width: 150px; /* Set a fixed width for the bubble */
+    z-index: 10; /* Ensure it's above other content */
+}
+
+.filter-options-bubble div {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.active-filter {
+    background: #007bff;
+    color: white;
+    border-radius: 4px;
+}
+
+.enquiry-table-container-unique {
+    width: 100%;
+    overflow-x: auto;
+    padding: 12px;
+    border-radius: 16px;
+}
+
+.enquiry-table-unique {
+    width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.enquiry-table-unique th,
+.enquiry-table-unique td {
+    padding: 12px;
+    text-align: left;
+}
+
+.enquiry-table-unique th {
+    padding: 16px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.enquiry-row-unique:hover {
+    background: #f9f9f9;
+    cursor: pointer;
+}
+.enquiry-table-unique tbody tr {
+    background: white;
+    transition: background-color 0.3s ease-in-out;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  .enquiry-table-unique td{
+  padding: 16px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  }
+
+.status-unique {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    color: #333;
+    background: #f1f1f1;
+    transition: 0.3s;
+    font-size: 14px;
+}
+
+.status-unique.raised {
+    color: #aa0000;
+    background-color: #feaaaa;
+}
+
+.status-unique.under-review {
+    background-color: #f1c40f;
+}
+
+.status-unique.solved {
+    color: #0a600e;
+  background-color: #b8f6ba;
+}
+.rating-stars {
+    display: flex;
+    gap: 3px;
+  }
+  
+  .rating-count {
+    margin-left: 5px;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .filled-star {
+    color: #ffd700; /* Gold color */
+  }
+  
+  .empty-star {
+    color: #ccc; /* Grey color for unfilled stars */
+  }
+  
+.refresh-btn-unique {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+.refresh-btn-unique:hover {
+    background: #0056b3;
+}
+
+.error-unique,
+.no-data-unique {
+    color: #e74c3c;
+    text-align: center;
+    font-size: 16px;
+}
+
+.side-modal-container-unique {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.side-modal-container-unique.open {
+    display: flex;
+}
+
+.side-modal-content-unique {
+    position: relative;
+    background-color: white;
+    padding: 30px 30px;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+}
+
+.close-modal-unique {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 28px;
+    cursor: pointer;
+}
+.close-modal-unique:hover{
+    color: #e74c3c;
+}
+.modal-heading-unique {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.modal-info-unique {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.modal-icon-container {
+    background-color: #007bff;  /* Background color for the icon */
+    padding: 10px;  /* Padding around the icon */
+    border-radius: 50%;  /* Makes the background circular */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-icon-unique {
+    font-size: 24px;  /* Icon size */
+    color: white;  /* Icon color */
+
+}
+
+.modal-info-text p {
+    margin: 0;
+    font-size: 14px;  /* Adjust text size */
+    color: #333;  /* Text color */
+}
+
+.modal-info-text p:first-child {
+    font-weight: bold;  /* Make email bold */
+}
+
+.modal-message-box-unique {
+    width: 100%;
+    height: 150px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    resize: none;
+    margin-top: 10px;
+}
+
+.modal-status-unique {
+    margin-bottom: 15px;
+}
+
+.status-dropdown-modal-unique {
+    padding: 10px;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+.modal-attachments-unique {
+    margin-bottom: 15px;
+}
+
+.file-btn-unique {
+    padding: 10px 20px;
+    background: #27ae60;
+    color: white;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+.file-btn-unique:hover {
+    background: #2ecc71;
+}

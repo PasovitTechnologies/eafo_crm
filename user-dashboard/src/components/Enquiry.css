@@ -1,0 +1,533 @@
+/* 🌟 Global Styling */
+.enquiry-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    background: #f4f4f9;
+    color: #333;
+    padding: 20px;
+        font-family: "Raleway", sans-serif;
+
+  }
+  
+  /* 🌟 Page Layout */
+  .enquiry-page {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 900px;
+    gap: 20px;
+  }
+  
+  /* 🌟 Toolbar Section */
+  .sidebar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    gap: 15px;
+    flex-wrap: wrap;
+  }
+  
+/* 🔍 Search Input & Icon */
+.search-bar-wrapper{
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 30px;
+    padding: 5px 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  /* 🔥 Removed border for the input field */
+  .search-bar-wrapper .enquiry-search-bar {
+    width: 100%;
+    outline: none;          /* Removes outline on focus */
+    border: none;           /* Removes border */
+    font-size: 16px;
+    color: #333;
+    background: transparent; /* Makes input blend into the background */
+    margin: auto;
+  }
+  
+  .enquiry-search-icon {
+    color: #555;
+    font-size: 18px;
+    margin-right: 10px;
+  }
+  
+  .search-bar, .filter-dropdown, .raise-btn {
+    padding: 12px 16px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    transition: 0.3s ease;
+    outline: none;
+  }
+  
+  .search-bar {
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .filter-dropdown {
+    width: 180px;
+    min-width: 150px;
+  }
+  
+  .raise-btn {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+    white-space: nowrap;
+  }
+  
+  .raise-btn:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+  }
+  
+  /* 🌟 Scrollable Enquiry List */
+  .enquiry-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-height: 600px;
+    overflow-y: auto;    /* Scrollable list */
+    scroll-behavior: smooth;
+  }
+  
+  /* 🌟 Enquiry Card - Status-based border */
+  .enquiry-card {
+    background: #f9f9f9;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 15px;
+    position: relative;
+    border-left: 8px solid;  /* Dynamic border color */
+  }
+  
+  .enquiry-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+  }
+  
+  /* 🌟 Dynamic border colors based on status */
+  .enquiry-card[data-status="Raised"] {
+    border-left-color: #ff9800;   /* Orange */
+  }
+  
+  .enquiry-card[data-status="Under Review"] {
+    border-left-color: #ffc107;   /* Yellow */
+  }
+  
+  .enquiry-card[data-status="Solved"] {
+    border-left-color: #4caf50;   /* Green */
+  }
+  
+  /* 🌟 Card Title */
+  .enquiry-card h4 {
+    font-size: 18px;
+    color: #333;
+    margin: 0;
+    font-weight: bold;
+  }
+  
+  /* 🌟 File Section */
+  .file-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f1f1f1;
+    border-radius: 8px;
+    padding: 12px;
+    transition: 0.3s;
+  }
+  
+  .file-container:hover {
+    background: #e8e8e8;
+  }
+  
+  .file-icon {
+    color: #007bff;
+    font-size: 22px;
+  }
+  
+  .file-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 14px;
+  }
+  
+  .file-btn:hover {
+    background: #0056b3;
+  }
+  
+  /* 🌟 Status Badges */
+  .status {
+    font-size: 14px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: bold;
+    display: inline-block;
+    text-align: center;
+    width: fit-content;
+  }
+  
+  /* 🌟 Status Colors */
+  .status.raised {
+    background: #ff9800;
+  }
+  
+  .status.under-review {
+    background: #ffc107;
+  }
+  
+  .status.solved {
+    background: #4caf50;
+  }
+  
+  .rating-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+  
+  .rate-btn {
+    padding: 5px 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .rate-btn:hover {
+    background-color: #45a049;
+  }
+  
+  .rating-stars {
+    display: flex;
+    gap: 2px;
+  }
+  
+  .rating-count {
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #fdfae1;
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-size: 18px;
+    box-shadow: 0 4px 3px rgba(49, 49, 47, 0.3);
+
+  }
+  
+  .star-icon {
+    color: #f8e705; /* Gold color */
+  }
+ 
+  
+  /* 🌟 Popup Styling */
+  .popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  
+  .popup {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+    padding: 30px;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    transition: all 0.4s ease;
+  }
+  
+  .popup h3 {
+    font-size: 22px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .popup textarea {
+    width: 100%;
+    height: 150px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.3s;
+    resize: none;
+  }
+  
+  .popup textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+  }
+  
+  /* 🌟 Buttons */
+  .popup-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .submit-btn, .close-btn {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+  }
+  
+  .submit-btn:hover {
+    background: #0056b3;
+  }
+  
+  .close-btn {
+    background: #ccc;
+    color: #333;
+  }
+  
+  .close-btn:hover {
+    background: #999;
+  }
+  
+  /* 🌟 Close Icon */
+  .close-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    color: #ccc;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .close-icon:hover {
+    color: #ff4d4d;
+  }
+  /* 🌟 File Upload Section */
+.file-upload-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 15px 0;
+    width: 100%;
+  }
+  
+  /* ✅ Upload Label */
+  .upload-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 15px;
+    background: #f1f1f1;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+    width: fit-content;
+  }
+  
+  .upload-label:hover {
+    background: #e0e0e0;
+  }
+  
+  .upload-icon {
+    font-size: 1rem;
+    color: #007bff;
+  }
+  
+  .file-input {
+    display: none;
+  }
+  
+  /* ✅ File Preview */
+  .file-preview-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  
+  .file-preview {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .file-details {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  .file-icon {
+    font-size: 1.2rem;
+    color: #007bff;
+  }
+  
+  /* ✅ Remove Button */
+  .remove-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .remove-btn:hover {
+    background: #e63939;
+  }
+  
+  .remove-btn svg {
+    font-size: 1rem;
+  }
+  
+  /* Popup Overlay */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Popup container */
+  .popup {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 400px;
+    text-align: center;
+    position: relative;
+  }
+  
+  /* Close button style */
+  .close-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    font-size: 20px;
+    color: #333;
+  }
+  
+  /* Rating stars layout (single row) */
+  .rating-popup-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Add space between the stars */
+  }
+  
+  /* Star style */
+  .star {
+    color: #ccc;
+    cursor: pointer;
+    font-size: 30px;
+    transition: color 0.3s;
+  }
+  
+  .star.filled {
+    color: gold;
+  }
+  
+  /* Rating button */
+  .submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  
+  .submit-btn:hover {
+    background-color: #45a049;
+  }
+  
+  /* Popup header */
+  h3 {
+    margin-bottom: 20px;
+  }
+  
+  /* 🌟 Responsive Design */
+  @media (max-width: 768px) {
+    .sidebar {
+      flex-direction: column;
+      gap: 10px;
+    }
+  
+    .enquiry-list {
+      max-height: 500px;
+    }
+  }
+  

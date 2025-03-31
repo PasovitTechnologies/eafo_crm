@@ -1,0 +1,827 @@
+/* ✅ Page Styling */
+.course-details-page-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  font-family: "Raleway", sans-serif;
+
+}
+
+.course-details-page {
+  width: 100%;
+  max-width: 1200px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  transition: all 0.3s ease;
+}
+
+/* ✅ Breadcrumb Styling */
+.breadcrumb {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.breadcrumb span {
+  cursor: pointer;
+  color: #007bff;
+  transition: color 0.3s;
+}
+
+.breadcrumb span:hover {
+  color: #0056b3;
+}
+
+.breadcrumb .active {
+  color: #333;
+  font-weight: bold;
+}
+
+.course-banner-img {
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+
+/* ✅ Title Styling */
+.course-title {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* ✅ Forms Container */
+.available-forms {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.available-forms h3 {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Form item container */
+.form-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Content wrapper */
+.form-content-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Form info (left side) */
+.form-info {
+  flex: 1;
+  min-width: 0;
+  /* prevents overflow */
+}
+
+.form-info strong {
+  font-size: 1.1rem;
+  color: #333;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.form-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+}
+
+/* Form Actions Container */
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Registered State Container */
+.registered-form-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Registered Status - Full Width */
+.registered-status-fullwidth {
+  width: 100%;
+  padding: 8px 12px;
+  background-color: #e8f5e9;
+  color: #186a1c;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.registered-status-fullwidth i {
+  font-size: 1rem;
+}
+
+/* Action Buttons Row */
+.registered-actions-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Base Button Styles */
+.action-btn {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+}
+
+.action-btn i {
+  font-size: 0.95rem;
+}
+
+/* Details Button */
+.details-btn,
+.view-details {
+  background-color: #033672;
+  color: #fff;
+
+}
+
+.details-btn:hover {
+  background-color: #033672;
+  transform: translateY(-1px);
+}
+
+/* Payment Button */
+.payment-btn {
+  background-color: #186a1c;
+  color: #fff;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+}
+
+.payment-btn:hover:not(:disabled) {
+  background-color: #186a1c;
+  color: #fff;
+}
+
+/* Disabled Payment Button */
+.payment-btn:disabled {
+  width: 200px;
+  background-color: #186a1c;
+  color: #fff;
+  transform: none;
+  box-shadow: none;
+
+}
+
+/* Submitted State (Existing) */
+.submitted-state {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.status-badge.submitted {
+  background-color: #186a1c;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* Default Button States (Register/Submit) */
+.btn {
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.btn.register {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+}
+
+.btn.register:hover {
+  background-color: #c8e6c9;
+}
+
+.btn.submit {
+  background-color: #e3f2fd;
+  color: #1565c0;
+}
+
+.btn.submit:hover {
+  background-color: #bbdefb;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .registered-actions-row {
+    flex-direction: column;
+  }
+
+  .action-btn {
+    width: 100%;
+  }
+
+  .submitted-state {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .status-badge.submitted {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.payment-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(12px);
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.4s ease;
+}
+
+/* ✅ Popup Container with Glass Effect */
+.payment-popup {
+  background: #fff;
+  backdrop-filter: blur(20px);
+  width: 90%;
+  max-width: 650px;
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+  padding: 30px;
+  z-index: 1000;
+  animation: fadeIn 0.6s ease;
+  position: relative;
+  max-height: 80vh;
+  overflow-y: auto;
+  transition: transform 0.3s ease, opacity 0.3s;
+}
+
+/* ✅ Close Icon */
+.close-icon-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 22px;
+  color: #000;
+  transition: color 0.3s;
+}
+
+.close-icon-btn:hover {
+  color: #ff5252;
+}
+
+.close-icon {
+  font-size: 26px;
+}
+
+/* ✅ Popup Title */
+.popup-title {
+  font-size: 24px;
+  color: #000;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* ✅ Payment List */
+.payment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ✅ Payment Card Styling */
+.payment-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 10px 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.payment-card:hover {
+  cursor: pointer;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* ✅ Payment Header */
+.payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.payment-header h3 {
+  font-size: 18px;
+  color: #333;
+  font-weight: bold;
+}
+
+.status-icon {
+  font-size: 22px;
+}
+
+.status-icon.paid {
+  color: #28a745;
+}
+
+.status-icon.pending {
+  color: #ffc107;
+}
+
+.status-icon.failed {
+  color: #dc3545;
+}
+
+/* ✅ Payment Info */
+.payment-info p {
+  font-size: 16px;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* ✅ Payment Amount */
+.payment-amount {
+  font-size: 16px;
+  font-weight: bold;
+  color: #007bff;
+}
+
+/* ✅ Payment Status */
+.payment-status {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 3px 10px;
+  margin-left: 5px;
+  border-radius: 5px;
+  display: inline-block;
+  text-transform: uppercase;
+}
+
+/* ✅ Status Colors */
+.payment-status.paid {
+  background: #28a745;
+  color: white;
+}
+
+.payment-status.pending {
+  background: #ffc107;
+  color: #333;
+}
+
+.payment-status.failed {
+  background: #dc3545;
+  color: white;
+}
+
+/* ✅ Popup Buttons */
+.popup-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+/* ✅ Payment Button */
+.payment-button {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 5px 15px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.payment-button:hover {
+  background: #218838;
+}
+
+/* ✅ Close Button */
+.close-btn {
+  background: #ff5252;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.close-btn:hover {
+  background: #e53935;
+}
+
+/* ✅ Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+
+/* ✅ Animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Registration Status Container */
+.registration-status-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.status-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.language-indicator {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.action-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* View Details Button */
+.view-details-btn {
+  background: #f0f4ff;
+  border: 1px solid #d0d7ff;
+  color: #4a6baf;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.view-details-btn:hover {
+  background: #e0e9ff;
+}
+
+/* Payment Status Message */
+.payment-status-message {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #666;
+  font-size: 14px;
+}
+
+.payment-status-message i {
+  color: #ffa500;
+}
+
+/* Submitted Status */
+.submission-status-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.submitted-label {
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+/* Existing button styles */
+.pay-btn {
+  background: #4a6baf;
+  color: white;
+  padding: 8px 16px;
+}
+
+.action-btn {
+  background: #4a6baf;
+  color: white;
+  padding: 8px 16px;
+}
+
+/* ✅ Scrollable Content */
+.payment-popup::-webkit-scrollbar {
+  width: 8px;
+}
+
+.payment-popup::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 10px;
+}
+
+.payment-popup::-webkit-scrollbar-thumb:hover {
+  background: #bbb;
+}
+
+.no-payments-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.no-payments-message i {
+  font-size: 2rem;
+  color: #999;
+  margin-bottom: 15px;
+}
+
+.no-payments-message p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* ✅ Overlay background */
+.submission-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  /* Dark transparent background */
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* ✅ Popup container */
+.submission-popup {
+  background: #fff;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border-radius: 12px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  padding: 30px;
+  position: relative;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+
+
+/* ✅ Smooth fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ✅ Close button */
+.close-btn {
+  background: #f44336;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s;
+  position: absolute;
+  top: 15px;
+  right: 20px;
+}
+
+.close-btn:hover {
+  background: #d32f2f;
+}
+
+/* ✅ Meta info section */
+.submission-meta {
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: #555;
+}
+
+.submission-meta p {
+  margin: 5px 0;
+}
+
+/* ✅ Responses list */
+.submission-responses ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.response-item {
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 15px;
+  transition: transform 0.3s;
+}
+
+.response-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ Question styling */
+.response-question {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.question-description {
+  font-size: 14px;
+  color: #666;
+  margin-top: 5px;
+}
+
+/* ✅ Answer styling */
+.response-answer {
+  font-size: 15px;
+  color: #444;
+  line-height: 1.6;
+  margin: 10px 0;
+}
+
+/* ✅ File container */
+.file-container {
+  background: #f1f1f1;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 15px;
+  transition: all 0.3s;
+}
+
+.file-container:hover {
+  background: #eaeaea;
+}
+
+/* ✅ File preview image */
+.file-preview {
+  max-width: 100%;
+  max-height: 400px;
+  display: block;
+  margin: 15px auto;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ File info text */
+.file-container p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+/* ✅ Download button */
+.download-btn {
+  display: inline-block;
+  padding: 10px 18px;
+  background: #4CAF50;
+  color: white;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 8px;
+  margin-top: 10px;
+  transition: background 0.3s;
+}
+
+.download-btn:hover {
+  background: #45a049;
+}
+
+/* ✅ Scrollbar styling for better UX */
+.submission-popup::-webkit-scrollbar {
+  width: 8px;
+}
+
+.submission-popup::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 8px;
+}
+
+.submission-popup::-webkit-scrollbar-thumb:hover {
+  background: #bbb;
+}
+
+/* ✅ Responsive adjustments */
+@media (max-width: 768px) {
+  .submission-popup {
+    width: 95%;
+    padding: 20px;
+  }
+
+  .file-preview {
+    max-height: 250px;
+  }
+
+  .response-item {
+    padding: 15px;
+  }
+}

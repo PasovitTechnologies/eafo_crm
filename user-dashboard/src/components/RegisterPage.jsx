@@ -1,41 +1,49 @@
-import React, { useState, useEffect,useRef  } from "react";
-import "./RegisterPage.css";
-import { columnImages } from "./imageData";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import i18nCountries from "i18n-iso-countries";
+import Select from "react-select";
+import DatePicker, { registerLocale } from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
-import PhoneInput from "react-phone-input-2";
-import "react-phone-input-2/lib/style.css"; // Importing styles for PhoneInput
 
 import {
   AiOutlineEye,
   AiOutlineEyeInvisible,
   AiOutlineInfoCircle,
-} from "react-icons/ai"; // Importing eye icons
-import Navbar from "./Navbar";
+} from "react-icons/ai";
 import { useTranslation } from "react-i18next";
-import ContactUs from "./ContactUs";
-import ScrollingComponent from "./ScrollingComponent";
+import "./AuthForm.css";
 
+// Register country languages
 import en from "i18n-iso-countries/langs/en.json";
-import ru from "i18n-iso-countries/langs/ru.json";
+import ruCountries  from "i18n-iso-countries/langs/ru.json";
 
-const RegisterPage = () => {
+import enGB from "date-fns/locale/en-GB";
+import ru from "date-fns/locale/ru";
 
+
+const RegisterPage = ({ onSwitchToLogin }) => {
+  const { t, i18n } = useTranslation();
+  const selectedLanguage = i18n.language;
+  const navigate = useNavigate();
+  const formRef = useRef(null);
   
 
-  const { t , i18n} = useTranslation(); // Use the translation function
-  const selectedLanguage = i18n.language; 
-  const [columnsToShow, setColumnsToShow] = useState(7);
-    const navigate = useNavigate();
-  
+  // Initialize i18n countries
+  i18nCountries.registerLocale(en);
+  i18nCountries.registerLocale(ruCountries);
+
   const [formData, setFormData] = useState({
     title: "",
     firstName: "",
     middleName: "",
     lastName: "",
     email: "",
-    confirmEmail:"",
+    confirmEmail: "",
     password: "",
     confirmPassword: "",
     phone: "",
@@ -46,648 +54,549 @@ const RegisterPage = () => {
     profession: "",
     position: "",
     gender: "",
-    agreePersonalData:"",
-    acceptTerms:""
-    
-
+    agreePersonalData: false,
+    acceptTerms: false,
   });
-  i18nCountries.registerLocale(en);
-i18nCountries.registerLocale(ru);
 
-const handleEmailChange = (e) => {
-  const emailValue = e.target.value;
-  setFormData({ ...formData, email: emailValue });
-
-  if (formData.confirmEmail) {
-    setConfirmEmailError(emailValue.toLowerCase() !== formData.confirmEmail.toLowerCase());
-  }
-};
-
-const handleConfirmEmailChange = (e) => {
-  const confirmEmailValue = e.target.value;
-  setFormData({ ...formData, confirmEmail: confirmEmailValue });
-
-  if (formData.email) {
-    setConfirmEmailError(formData.email.toLowerCase() !== confirmEmailValue.toLowerCase());
-  }
-};
-
-
-useEffect(() => {
-  if (!selectedLanguage) return;
-
-  const countries = Object.entries(i18nCountries.getNames(selectedLanguage)).map(([key, value]) => ({
-    value: key,
-    label: value,
-  }));
-
-  if (countries.length === 0) {
-    console.warn(`No country options available for language: ${selectedLanguage}`);
-  }
-
-  setCountryOptions(countries);
-}, [selectedLanguage]); // Update when language changes
-
-
-  const getTranslatedCountries = (language) => {
-    try {
-      const countryNames = i18nCountries.getNames(language);
-  
-      if (!countryNames || Object.keys(countryNames).length === 0) {
-        console.warn(`No country names found for language: ${language}`);
-        return [];
-      }
-  
-      return Object.entries(countryNames).map(([key, value]) => ({
-        value: key,
-        label: value,
-      }));
-    } catch (error) {
-      console.error("Error fetching country list:", error);
-      return [];
-    }
-  };
-  
-
+  const [countryOptions, setCountryOptions] = useState([]);
+  const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [confirmEmailError, setConfirmEmailError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
+  useEffect(() => {
+    if (selectedLanguage === "ru") {
+      registerLocale("ru", ru);
+    } else {
+      registerLocale("en-GB", enGB);
+    }
+  }, [selectedLanguage]);
 
-  const titleOptions = selectedLanguage === 'ru'
-  ? [
-      { value: "Уважаемый", label: "Уважаемый" },  // Respectful title for males
-      { value: "Уважаемая", label: "Уважаемая" }, // Respectful title for females
-      { value: "Доктор.", label: "Доктор" },
-      { value: "Профессор.", label: "Профессор" },
-      { value: "Академик", label: "Академик" }
-    ]
-  : [
-      { value: "Mr.", label: t("registerPage.mr") },
-      { value: "Ms.", label: t("registerPage.ms") },
-      { value: "Mrs.", label: t("registerPage.mrs") },
-      { value: "Dr.", label: t("registerPage.dr") },
-      { value: "Prof.", label: t("registerPage.prof") }
-    ];
+  // Title options based on language
+  const titleOptions =
+    selectedLanguage === "ru"
+      ? [
+          { value: "Уважаемый", label: "Уважаемый" },
+          { value: "Уважаемая", label: "Уважаемая" },
+          { value: "Доктор.", label: "Доктор" },
+          { value: "Профессор.", label: "Профессор" },
+          { value: "Академик", label: "Академик" },
+        ]
+      : [
+          { value: "Mr.", label: t("registerPage.mr") },
+          { value: "Ms.", label: t("registerPage.ms") },
+          { value: "Mrs.", label: t("registerPage.mrs") },
+          { value: "Dr.", label: t("registerPage.dr") },
+          { value: "Prof.", label: t("registerPage.prof") },
+        ];
 
-  
+  // Load country options
+  useEffect(() => {
+    const getCountries = () => {
+      try {
+        const countries = Object.entries(
+          i18nCountries.getNames(selectedLanguage)
+        ).map(([code, name]) => ({ value: code, label: name }));
+        setCountryOptions(countries);
+      } catch (error) {
+        console.error("Error loading countries:", error);
+        setCountryOptions([]);
+      }
+    };
 
-  const [passwordError, setPasswordError] = useState("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState("");
-  const [passwordVisible, setPasswordVisible] = useState(false); // To toggle visibility of password
-  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false); // For confirm password
+    getCountries();
+  }, [selectedLanguage]);
 
+  // Form validation functions
   const validatePassword = (password) => {
     const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
     return regex.test(password);
   };
 
-  
-  
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setFormData({ ...formData, email: value });
+    setEmailError(false);
+
+    if (formData.confirmEmail) {
+      setConfirmEmailError(value !== formData.confirmEmail);
+    }
+  };
+
+  const handleConfirmEmailChange = (e) => {
+    const value = e.target.value;
+    setFormData({ ...formData, confirmEmail: value });
+    setConfirmEmailError(value !== formData.email);
+  };
+
   const handlePasswordChange = (e) => {
-    const newPassword = e.target.value;
-    setFormData({ ...formData, password: newPassword });
-  
-    if (!validatePassword(newPassword)) {
-      setPasswordError(t("registerPage.passwordError")); // Translated error
+    const value = e.target.value;
+    setFormData({ ...formData, password: value });
+
+    if (!validatePassword(value)) {
+      setPasswordError(t("registerPage.passwordError"));
     } else {
       setPasswordError("");
     }
-  
-    // Re-check confirm password if already filled
+
     if (formData.confirmPassword) {
-      setConfirmPasswordError(newPassword !== formData.confirmPassword ? t("registerPage.confirmPasswordError") : "");
+      setConfirmPasswordError(
+        value !== formData.confirmPassword
+          ? t("registerPage.confirmPasswordError")
+          : ""
+      );
     }
   };
-  
+
   const handleConfirmPasswordChange = (e) => {
-    const newConfirmPassword = e.target.value;
-    setFormData({ ...formData, confirmPassword: newConfirmPassword });
-  
-    setConfirmPasswordError(newConfirmPassword !== formData.password ? t("registerPage.confirmPasswordError") : "");
-  };
-  
-
-  // Toggle password visibility
-  const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
-  const toggleConfirmPasswordVisibility = () =>
-    setConfirmPasswordVisible(!confirmPasswordVisible);
-
-  const [emailError, setEmailError] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const updateColumns = () => {
-    const width = window.innerWidth;
-    if (width >= 1200) setColumnsToShow(7);
-    else if (width >= 768) setColumnsToShow(5);
-    else setColumnsToShow(3);
+    const value = e.target.value;
+    setFormData({ ...formData, confirmPassword: value });
+    setConfirmPasswordError(
+      value !== formData.password ? t("registerPage.confirmPasswordError") : ""
+    );
   };
 
-  useEffect(() => {
-    updateColumns();
-    window.addEventListener("resize", updateColumns);
-    return () => window.removeEventListener("resize", updateColumns);
-  }, []);
-
+  // Form submission
   const handleSubmit = async (e) => {
-    const selectedLanguage=localStorage.getItem("language");
     e.preventDefault();
-    setEmailError(false);
     setIsLoading(true);
-  
+
+    // Validate form
+    if (formData.email !== formData.confirmEmail) {
+      setConfirmEmailError(true);
+      setIsLoading(false);
+      return;
+    }
+
+    if (!validatePassword(formData.password)) {
+      setPasswordError(t("registerPage.passwordError"));
+      setIsLoading(false);
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setConfirmPasswordError(t("registerPage.confirmPasswordError"));
+      setIsLoading(false);
+      return;
+    }
+
+    // Prepare payload
+    const payload = {
+      email: formData.email,
+      password: formData.password,
+      role: "user",
+      dashboardLang: selectedLanguage,
+      personalDetails: {
+        title: formData.title,
+        firstName: formData.firstName,
+        middleName: formData.middleName,
+        lastName: formData.lastName,
+        dob: formData.dob,
+        phone: formData.phone,
+        gender: formData.gender,
+        country: formData.country,
+        acceptTerms: formData.acceptTerms,
+        agreePersonalData: formData.agreePersonalData,
+      },
+      professionalDetails: {
+        university: formData.university,
+        department: formData.department,
+        profession: formData.profession,
+        position: formData.position,
+      },
+    };
+
     try {
-      // Include dashboardLang in the request payload
-      const payload = {
-        ...formData,
-        dashboardLang: selectedLanguage, // Assuming you have a state for dashboardLang
-      };
-  
       const response = await fetch(`${baseUrl}/api/user`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-  
-      setIsLoading(false);
-  
-      if (response.ok) {
-        const data = await response.json();
-        toast.success(t("registerPage.toastSuccess"));
-        setEmailError(false);
-  
-        // Reset form after successful submission
-        setFormData({
-          title: "",
-          firstName: "",
-          middleName: "",
-          lastName: "",
-          email: "",
-          confirmEmail:"",
-          password: "",
-          confirmPassword: "",
-          phone: "",
-          dob: "",
-          country: "",
-          university: "",
-          department: "",
-          profession: "",
-          position: "",
-          gender: "",
-          agreePersonalData: "",
-          acceptTerms: "",
-          dashboardLang: "", // Clear after submission
-        });
-  
-        setTimeout(() => {
-          navigate("/"); // Navigate to home page after timeout
-        }, 3000);
-        
-      } else {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const error = await response.json();
-          if (error.message === "Email already registered.") {
-            setEmailError(true);
-            toast.error(t("registerPage.toastEmailRegistered"));
-          } else {
-            toast.error(t("registerPage.toastRegistrationFailed"));
-          }
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.message === "Email already registered.") {
+          setEmailError(true);
+          toast.error(t("registerPage.toastEmailRegistered"));
         } else {
-          toast.error(t("registerPage.toastUnexpectedResponse"));
-          console.error("Unexpected response format:", await response.text());
+          toast.error(t("registerPage.toastRegistrationFailed"));
         }
+        return;
       }
+
+      toast.success(t("registerPage.toastSuccess"));
+      setTimeout(() => navigate("/login"), 2000);
     } catch (error) {
-      setIsLoading(false);
-      console.error("Error:", error);
+      console.error("Registration error:", error);
       toast.error(t("registerPage.toastErrorOccurred"));
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  
 
   return (
-    <div className="user-register-page">
-      <Navbar/>
-    <div className="register-container">
+    <form className="register-form" onSubmit={handleSubmit}>
 
-      
-      <div className="scrolling-columns">
-      
-          <ScrollingComponent/>
-  
-      </div>
+<ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        style={{ zIndex: 15000 }}
+      />
+      <h1>{t("registerPage.register")}</h1>
 
-      <div className="black-blur-overlay"></div>
-<div className="user-register-form-ot-container">
-
-<div className="user-register-form">
-        {/* Fixed Heading */}
-        <h2 className="register-heading">{t("registerPage.register")}</h2>
-
-        {/* Scrollable Form */}
-        <form onSubmit={handleSubmit} ref={formRef} className="scrollable-form">
-          {/* Title and First Name */}
-          <div className="user-form-group-row">
-            <div className="user-form-group">
-              <label htmlFor="title">{t("registerPage.title")}</label>
-              <select
-                id="title"
-                value={formData.title}
-                onChange={(e) =>
-                  setFormData({ ...formData, title: e.target.value })
-                }
-                required
-              >
-                <option value="" disabled>
-                {t("registerPage.selectTitle")}
-                </option>
-                {titleOptions.map((option) => (
+      {/* Title */}
+      <div className="input-box">
+        <select
+          value={formData.title}
+          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+          required
+        >
+          <option value="">{t("registerPage.selectTitle")}</option>
+          {titleOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
           ))}
-              </select>
-            </div>
-            </div>
+        </select>
+      </div>
 
-            {selectedLanguage === 'ru' ? (
-  <div className="user-form-group-row">
-    {/* Last Name First for Russian */}
-    <div className="user-form-group">
-      <label htmlFor="lastName">{t("registerPage.lastName")}</label>
-      <input
-        type="text"
-        id="lastName"
-        placeholder={t("registerPage.plh_lastName")}
-        value={formData.lastName}
-        onChange={(e) =>
-          setFormData({ ...formData, lastName: e.target.value })
-        }
-        required
-      />
-    </div>
-
-    <div className="user-form-group">
-      <label htmlFor="firstName">{t("registerPage.firstName")}</label>
-      <input
-        type="text"
-        id="firstName"
-        placeholder={t("registerPage.plh_firstName")}
-        value={formData.firstName}
-        onChange={(e) =>
-          setFormData({ ...formData, firstName: e.target.value })
-        }
-        required
-      />
-    </div>
-
-    <div className="user-form-group">
-      <label htmlFor="middleName">{t("registerPage.middleName")}</label>
-      <input
-        type="text"
-        id="middleName"
-        placeholder={t("registerPage.plh_middleName")}
-        value={formData.middleName}
-        onChange={(e) =>
-          setFormData({ ...formData, middleName: e.target.value })
-        }
-      />
-    </div>
-  </div>
-) : (
-  <div className="user-form-group-row">
-    {/* Default order for other languages */}
-    <div className="user-form-group">
-      <label htmlFor="firstName">{t("registerPage.firstName")}</label>
-      <input
-        type="text"
-        id="firstName"
-        placeholder={t("registerPage.plh_firstName")}
-        value={formData.firstName}
-        onChange={(e) =>
-          setFormData({ ...formData, firstName: e.target.value })
-        }
-        required
-      />
-    </div>
-
-    <div className="user-form-group">
-      <label htmlFor="middleName">{t("registerPage.middleName")}</label>
-      <input
-        type="text"
-        id="middleName"
-        placeholder={t("registerPage.plh_middleName")}
-        value={formData.middleName}
-        onChange={(e) =>
-          setFormData({ ...formData, middleName: e.target.value })
-        }
-      />
-    </div>
-
-    <div className="user-form-group">
-      <label htmlFor="lastName">{t("registerPage.lastName")}</label>
-      <input
-        type="text"
-        id="lastName"
-        placeholder={t("registerPage.plh_lastName")}
-        value={formData.lastName}
-        onChange={(e) =>
-          setFormData({ ...formData, lastName: e.target.value })
-        }
-        required
-      />
-    </div>
-  </div>
-)}
-
-          {/* Date of Birth */}
-          <div className="user-form-group">
-            <label htmlFor="dob">{t("registerPage.dob")}</label>
+      {/* Name Fields - order changes based on language */}
+      {selectedLanguage === "ru" ? (
+        <>
+          <div className="input-box">
             <input
-              type="date"
-              id="dob"
-              value={formData.dob}
+              type="text"
+              placeholder={t("registerPage.lastName")}
+              value={formData.lastName}
               onChange={(e) =>
-                setFormData({ ...formData, dob: e.target.value })
+                setFormData({ ...formData, lastName: e.target.value })
               }
               required
             />
           </div>
-
-          {/* Gender */}
-          <div className="user-form-group">
-            <label htmlFor="gender">{t("registerPage.gender")}</label>
-            <select
-              id="gender"
-              value={formData.gender}
+          <div className="input-box">
+            <input
+              type="text"
+              placeholder={t("registerPage.firstName")}
+              value={formData.firstName}
               onChange={(e) =>
-                setFormData({ ...formData, gender: e.target.value })
+                setFormData({ ...formData, firstName: e.target.value })
               }
               required
-            >
-              <option value="" disabled>
-              {t("registerPage.genderSelect")}
-              </option>
-              <option value={t("registerPage.male")}>{t("registerPage.male")}</option>
-              <option value={t("registerPage.female")}>{t("registerPage.female")}</option>
-              <option value={t("registerPage.other")}>{t("registerPage.other")}</option>
-            </select>
+            />
           </div>
+          <div className="input-box">
+            <input
+              type="text"
+              placeholder={t("registerPage.middleName")}
+              value={formData.middleName}
+              onChange={(e) =>
+                setFormData({ ...formData, middleName: e.target.value })
+              }
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="input-box">
+            <input
+              type="text"
+              placeholder={t("registerPage.firstName")}
+              value={formData.firstName}
+              onChange={(e) =>
+                setFormData({ ...formData, firstName: e.target.value })
+              }
+              required
+            />
+          </div>
+          <div className="input-box">
+            <input
+              type="text"
+              placeholder={t("registerPage.middleName")}
+              value={formData.middleName}
+              onChange={(e) =>
+                setFormData({ ...formData, middleName: e.target.value })
+              }
+            />
+          </div>
+          <div className="input-box">
+            <input
+              type="text"
+              placeholder={t("registerPage.lastName")}
+              value={formData.lastName}
+              onChange={(e) =>
+                setFormData({ ...formData, lastName: e.target.value })
+              }
+              required
+            />
+          </div>
+        </>
+      )}
 
-          {/* Email */}
-          <div className="user-form-group-row">
-          <div className="user-form-group">
-  {/* Email Field */}
-  <label htmlFor="email">{t("registerPage.email")}</label>
-  <input
-    type="email"
-    id="email"
-    placeholder={t("registerPage.plh_email")}
-    value={formData.email}
-    onChange={handleEmailChange}
-    required
-    className={emailError ? "input-error" : ""}
-  />
-  {emailError && (
-    <div className="error-message" style={{ display: "flex", marginTop: "8px", alignItems: "center" }}>
-      <AiOutlineInfoCircle /> {t("registerPage.emailError")}
-    </div>
-  )}
-</div>
-
-<div className="user-form-group">
-  {/* Confirm Email Field */}
-  <label htmlFor="confirmEmail">{t("registerPage.confirmEmail")}</label>
-  <input
-    type="email"
-    id="confirmEmail"
-    placeholder={t("registerPage.plh_confirmEmail")}
-    value={formData.confirmEmail}
-    onChange={handleConfirmEmailChange}
-    required
-    className={confirmEmailError ? "input-error" : ""}
-  />
-  {confirmEmailError && (
-    <div className="error-message" style={{ display: "flex", marginTop: "8px", alignItems: "center" }}>
-      <AiOutlineInfoCircle /> {t("registerPage.confirmEmailError")}
-    </div>
-  )}
-</div>
-
-</div>
-
-
-          {/* Password and Confirm Password */}
-          <div className="user-form-group-row">
-  {/* Password Field */}
-  <div className="user-form-group">
-    <label htmlFor="password">{t("registerPage.password")}</label>
-    <div className="password-input-container">
-      <input
-        type={passwordVisible ? "text" : "password"}
-        id="password"
-        placeholder={t("registerPage.plh_password")}
-        value={formData.password}
-        onChange={handlePasswordChange}
-        required
-      />
-      <span className="eye-icon" onClick={togglePasswordVisibility}>
-        {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-      </span>
-    </div>
-    {passwordError && (
-      <div className="error-message" style={{ display: "flex", marginTop: "8px", alignItems: "center" }}>
-        <AiOutlineInfoCircle /> {passwordError}
+      {/* Date of Birth */}
+      <div className="input-box date-picker-div">
+        
+        <DatePicker
+          selected={formData.dob}
+          onChange={(date) => setFormData({ ...formData, dob: date })}
+          locale={selectedLanguage === "ru" ? "ru" : "en-GB"}
+          dateFormat={selectedLanguage === "ru" ? "dd.MM.yyyy" : "yyyy-MM-dd"}
+          placeholderText={t('registerPage.dob')}
+          className="date-picker"
+          showMonthDropdown
+          showYearDropdown
+          dropdownMode="select"
+          maxDate={new Date()}
+          required
+        />
       </div>
-    )}
-  </div>
 
-  {/* Confirm Password Field */}
-  <div className="user-form-group">
-    <label htmlFor="confirmPassword">{t("registerPage.confirmPassword")}</label>
-    <div className="password-input-container">
-      <input
-        type={confirmPasswordVisible ? "text" : "password"}
-        id="confirmPassword"
-        placeholder={t("registerPage.plh_confirmPassword")}
-        value={formData.confirmPassword}
-        onChange={handleConfirmPasswordChange}
-        required
-      />
-      <span className="eye-icon" onClick={toggleConfirmPasswordVisibility}>
-        {confirmPasswordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-      </span>
-    </div>
-    {confirmPasswordError && (
-      <div className="error-message" style={{ display: "flex", marginTop: "8px", alignItems: "center" }}>
-        <AiOutlineInfoCircle /> {confirmPasswordError}
+      {/* Gender */}
+      <div className="input-box">
+        <select
+          value={formData.gender}
+          onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+          required
+        >
+          <option value="">{t("registerPage.genderSelect")}</option>
+          <option value="male">{t("registerPage.male")}</option>
+          <option value="female">{t("registerPage.female")}</option>
+          <option value="other">{t("registerPage.other")}</option>
+        </select>
       </div>
-    )}
-  </div>
-</div>
 
+      {/* Email */}
+      <div className="input-box">
+        <input
+          type="email"
+          placeholder={t("registerPage.email")}
+          value={formData.email}
+          onChange={handleEmailChange}
+          required
+          className={emailError ? "error" : ""}
+        />
+        {emailError && (
+          <div className="error-message">
+            <AiOutlineInfoCircle /> {t("registerPage.emailError")}
+          </div>
+        )}
+      </div>
 
-          {/* Phone Number */}
-          <div className="user-form-group">
-  <label htmlFor="phone">{t("registerPage.phone")}</label>
-  <PhoneInput
-    className="phone-input"
-    country={"ru"}
-    value={formData.phone}
-    onChange={(phone) => setFormData({ ...formData, phone })}
-    inputProps={{
-      name: "phone",
-      required: true,
-      autoFocus: true,
-    }}
-  />
-</div>
+      {/* Confirm Email */}
+      <div className="input-box">
+        <input
+          type="email"
+          placeholder={t("registerPage.confirmEmail")}
+          value={formData.confirmEmail}
+          onChange={handleConfirmEmailChange}
+          required
+          className={confirmEmailError ? "error" : ""}
+        />
+        {confirmEmailError && (
+          <div className="error-message">
+            <AiOutlineInfoCircle /> {t("registerPage.confirmEmailError")}
+          </div>
+        )}
+      </div>
 
-
-          {/* Place of Work/Study Section */}
-
-          <div className="user-form-group">
-            <h3
-              style={{
-                margin: "20px 0px",
-                fontWeight: "bold",
-                marginTop: "30px",
-                fontSize: "18px",
-              }}
-            >
-              {t("registerPage.placeOfWorkStudy")}
-            </h3>
-            <label htmlFor="country">{t("registerPage.country")}</label>
-            <Select
-            id="country"
-            options={countryOptions}
-            value={countryOptions.find((option) => option.value === formData.country)}
-            onChange={(selectedOption) => setFormData({ ...formData, country: selectedOption.value })}
-            placeholder={t("registerPage.plh_country")}
-            isSearchable
+      {/* Password Field */}
+      <div className="input-box">
+        <div className="password-input">
+          <input
+            type={passwordVisible ? "text" : "password"}
+            placeholder={t("registerPage.password")}
+            value={formData.password}
+            onChange={handlePasswordChange}
+            required
+            className={passwordError ? "error" : ""}
           />
+          <button
+            type="button"
+            className="password-toggle"
+            onClick={() => setPasswordVisible(!passwordVisible)}
+          >
+            {passwordVisible ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+          </button>
+        </div>
+        {passwordError && (
+          <div className="password-error-container">
+            <div className="error-message">
+              <AiOutlineInfoCircle />
+              <span>{passwordError}</span>
+            </div>
           </div>
-
-          <div className="user-form-group">
-            <label htmlFor="university">{t("registerPage.university")}</label>
-            <input
-              type="text"
-              id="university"
-              placeholder={t("registerPage.plh_university")}
-              value={formData.university}
-              onChange={(e) =>
-                setFormData({ ...formData, university: e.target.value })
-              }
-              required
-            />
-          </div>
-
-          <div className="user-form-group">
-            <label htmlFor="department">{t("registerPage.department")}</label>
-            <input
-              type="text"
-              id="department"
-              placeholder={t("registerPage.plh_department")}
-              value={formData.department}
-              onChange={(e) =>
-                setFormData({ ...formData, department: e.target.value })
-              }
-              required
-            />
-          </div>
-
-          <div className="user-form-group">
-            <label htmlFor="profession">{t("registerPage.profession")}</label>
-            <input
-              type="text"
-              id="profession"
-              placeholder={t("registerPage.plh_profession")}
-              value={formData.profession}
-              onChange={(e) =>
-                setFormData({ ...formData, profession: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="user-form-group">
-            <label htmlFor="position">{t("registerPage.position")}</label>
-            <input
-              type="text"
-              id="position"
-              placeholder={t("registerPage.plh_position")}
-              value={formData.position}
-              onChange={(e) =>
-                setFormData({ ...formData, position: e.target.value })
-              }
-            />
-          </div>
-
-          <div className="user-form-group label-group">
-      <label className="checkbox-label">
-        <input
-          type="checkbox"
-          required
-          checked={formData.agreePersonalData}
-          onChange={(e) =>
-            setFormData({ ...formData, agreePersonalData: e.target.checked })
-          }
-        />
-        {t("registerPage.personalDataText")}{" "}
-        <a
-          href={t("registerPage.privacyPolicyUrl")}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {t("registerPage.privacyPolicy")}
-        </a>
-      </label>
-    </div>
-
-    {/* Checkbox 2: Accept Terms of Use */}
-    <div className="user-form-group ">
-      <label className="checkbox-label">
-        <input
-          type="checkbox"
-          required
-          checked={formData.acceptTerms}
-          onChange={(e) =>
-            setFormData({ ...formData, acceptTerms: e.target.checked })
-          }
-        />
-        {t("registerPage.termsText")}{" "}
-        <a
-          href={t("registerPage.termsUrl")}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {t("registerPage.termsOfUse")}
-        </a>
-      </label>
-    </div>
-          <div className="btn-div">
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="register-button"
-              disabled={isLoading}
-            >
-              {isLoading ? t("registerPage.registering") : t("registerPage.register")}
-            </button>
-          </div>
-        </form>
-
-        {/* Fixed Footer */}
-        <p className="login-link">
-        {t("registerPage.alreadyHaveAccount")} <a href="/">{t("registerPage.signIn")}</a>
-        </p>
+        )}
       </div>
-</div>
-     
 
-      <ToastContainer />
-    </div>
-    <ContactUs/>
-    </div>
+      {/* Confirm Password Field */}
+      <div className="input-box">
+        <div className="password-input">
+          <input
+            type={confirmPasswordVisible ? "text" : "password"}
+            placeholder={t("registerPage.confirmPassword")}
+            value={formData.confirmPassword}
+            onChange={handleConfirmPasswordChange}
+            required
+            className={confirmPasswordError ? "error" : ""}
+          />
+          <button
+            type="button"
+            className="password-toggle"
+            onClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+          >
+            {confirmPasswordVisible ? (
+              <AiOutlineEyeInvisible />
+            ) : (
+              <AiOutlineEye />
+            )}
+          </button>
+        </div>
+        {confirmPasswordError && (
+          <div className="password-error-container">
+            <div className="error-message">
+              <AiOutlineInfoCircle />
+              <span>{confirmPasswordError}</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Phone */}
+      <div className="input-box">
+        <PhoneInput
+          country={"us"}
+          value={formData.phone}
+          onChange={(phone) => setFormData({ ...formData, phone })}
+          inputProps={{
+            required: true,
+          }}
+        />
+      </div>
+
+      {/* Country */}
+      <div className="input-box">
+        <Select
+          options={countryOptions}
+          value={countryOptions.find((opt) => opt.value === formData.country)}
+          onChange={(selected) =>
+            setFormData({ ...formData, country: selected.value })
+          }
+          placeholder={t("registerPage.country")}
+          isSearchable
+        />
+      </div>
+
+      {/* University */}
+      <div className="input-box">
+        <input
+          type="text"
+          placeholder={t("registerPage.university")}
+          value={formData.university}
+          onChange={(e) =>
+            setFormData({ ...formData, university: e.target.value })
+          }
+          required
+        />
+      </div>
+
+      {/* Department */}
+      <div className="input-box">
+        <input
+          type="text"
+          placeholder={t("registerPage.department")}
+          value={formData.department}
+          onChange={(e) =>
+            setFormData({ ...formData, department: e.target.value })
+          }
+          required
+        />
+      </div>
+
+      {/* Profession */}
+      <div className="input-box">
+        <input
+          type="text"
+          placeholder={t("registerPage.profession")}
+          value={formData.profession}
+          onChange={(e) =>
+            setFormData({ ...formData, profession: e.target.value })
+          }
+        />
+      </div>
+
+      {/* Position */}
+      <div className="input-box">
+        <input
+          type="text"
+          placeholder={t("registerPage.position")}
+          value={formData.position}
+          onChange={(e) =>
+            setFormData({ ...formData, position: e.target.value })
+          }
+        />
+      </div>
+
+      {/* Checkboxes */}
+      <div className="checkbox-group">
+        <label>
+          <input
+            type="checkbox"
+            checked={formData.agreePersonalData}
+            onChange={(e) =>
+              setFormData({ ...formData, agreePersonalData: e.target.checked })
+            }
+            required
+          />
+          {t("registerPage.personalDataText")}{" "}
+          <a
+            href={t("registerPage.privacyPolicyUrl")}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t("registerPage.privacyPolicy")}
+          </a>
+        </label>
+      </div>
+
+      <div className="checkbox-group">
+        <label>
+          <input
+            type="checkbox"
+            checked={formData.acceptTerms}
+            onChange={(e) =>
+              setFormData({ ...formData, acceptTerms: e.target.checked })
+            }
+            required
+          />
+          {t("registerPage.termsText")}{" "}
+          <a
+            href={t("registerPage.termsUrl")}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {t("registerPage.termsOfUse")}
+          </a>
+        </label>
+      </div>
+
+      {/* Submit Button */}
+      <button type="submit" className="button" disabled={isLoading}>
+        {isLoading ? t("registerPage.registering") : t("registerPage.register")}
+      </button>
+    </form>
   );
 };
 

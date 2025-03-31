@@ -2,232 +2,163 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import { motion, AnimatePresence } from "framer-motion";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { FaGlobe, FaSignOutAlt } from "react-icons/fa";
-import "react-toastify/dist/ReactToastify.css"; // Toast styles
-import "./AdminLogin.css"; // Your CSS file for styling
-import ScrollingComponent from "../webinarComponents/ScrollingComponent";
-import "./Navbar.css";
+import { useTranslation } from "react-i18next";  // 🌍 Import translation hook
+import "react-toastify/dist/ReactToastify.css";
+import "./AdminLogin.css";
+import Navbar from "./Navbar";
+import SettingsButton from "./SettingsButton";
 
-const translations = {
-  English: {
-    admin_login: "Admin Login",
-    email_label: "Email",
-    email_placeholder: "Enter your admin email",
-    password_label: "Password",
-    password_placeholder: "Enter your password",
-    login_button: "Login",
-    logging_in: "Logging in...",
-    invalid_email: "Please enter a valid email address.",
-    short_password: "Password must be at least 8 characters long.",
-    access_denied: "Access denied. Admins only.",
-    login_success: "Login successful!",
-    login_failed: "Login failed. Please try again.",
-    welcome_message: "Welcome to EAFO Admin account!",
-    logo_alt: "Logo",
-    language: "Language",
-    english: "English",
-    russian: "Русский",
-    user_logout: "Logout",
-  },
-  Russian: {
-    admin_login: "Вход для администратора",
-    email_label: "Электронная почта",
-    email_placeholder: "Введите ваш email",
-    password_label: "Пароль",
-    password_placeholder: "Введите ваш пароль",
-    login_button: "Войти",
-    logging_in: "Вход...",
-    invalid_email: "Пожалуйста, введите действительный адрес электронной почты.",
-    short_password: "Пароль должен содержать не менее 8 символов.",
-    access_denied: "Доступ запрещен. Только администраторы.",
-    login_success: "Успешный вход!",
-    login_failed: "Ошибка входа. Пожалуйста, попробуйте снова.",
-    welcome_message: "Добро пожаловать в учетную запись администратора EAFO!",
-    logo_alt: "Логотип",
-    language: "Язык",
-    english: "English",
-    russian: "Русский",
-    user_logout: "Выход",
-  },
-};
-
-const AdminLogin = ({ setIsAuthenticated, selectedLanguage, setSelectedLanguage }) => {
+const AdminLogin = ({ setIsAuthenticated }) => {
+  const { t } = useTranslation();  // 🌍 Initialize translation
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState("ru");
+   const [selectedOS, setSelectedOS] = useState("Webinar");
+   const baseUrl = import.meta.env.VITE_BASE_URL;
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+   
   const navigate = useNavigate();
-
-  const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!isValidEmail(email)) {
-      toast.error(translations[selectedLanguage].invalid_email);
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      toast.error(t("login.invalidEmail"));
       return;
     }
 
     if (password.length < 8) {
-      toast.error(translations[selectedLanguage].short_password);
+      toast.error(t("login.shortPassword"));
       return;
     }
 
     setLoading(true);
+
     try {
-      const response = await axios.post("http://localhost:4000/api/user/login", { email, password });
+      const response = await axios.post(`${baseUrl}/api/user/login`, {
+        email,
+        password,
+      });
+
+      if (!response.data) throw new Error("Invalid response from server");
 
       const { token, role } = response.data;
 
-      if (!token || role !== "admin") {
-        setErrorMessage(translations[selectedLanguage].access_denied);
-        toast.error(translations[selectedLanguage].access_denied);
+      if (!token) {
+        toast.error(t("login.accessDenied"));
         return;
       }
 
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
 
-      toast.success(translations[selectedLanguage].login_success);
+      toast.success(t("login.success"));
       setIsAuthenticated(true);
-      setIsLoggedIn(true);
-      navigate("/webinar-dashboard");
+      setIsAnimating(true);
+
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message || translations[selectedLanguage].login_failed;
-      setErrorMessage(errorMessage);
-      toast.error(errorMessage);
+      console.error("Login Error:", err);
+      toast.error(t("login.failed"));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLanguageChange = (event) => {
-    setSelectedLanguage(event.target.value);
+  const handleAnimationComplete = () => {
+    const role = localStorage.getItem("role");
+    navigate(role === "admin" ? "/admin-dashboard" : "/user-dashboard");
   };
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    setIsAuthenticated(false);
-    setIsLoggedIn(false);
-    navigate("/");
-  };
-
-  const isFormValid = email && password;
 
   return (
-    <div className="admin-login-page">
+    <>
+    <Navbar/>
+    <SettingsButton
+            setSelectedLanguage={setSelectedLanguage}
+            setSelectedOS={setSelectedOS}
+          />
       <ToastContainer position="top-center" />
 
-      {/* Navbar */}
-      <nav className="navbar">
-        {/* Logo */}
-        <div className="logo" onClick={() => navigate("/")}>
-          <img
-            src="https://static.wixstatic.com/media/e6f22e_a90a0fab7b764c24805e7e43d165d416~mv2.png"
-            alt={translations[selectedLanguage].logo_alt}
+      <AnimatePresence>
+        {isAnimating && (
+          <motion.div
+            className="page-overlay"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            exit={{ scaleX: 0 }}
+            transition={{ duration: 1.8, ease: "easeInOut" }}
+            onAnimationComplete={handleAnimationComplete}
           />
-        </div>
+        )}
+      </AnimatePresence>
 
-        {/* Welcome Message */}
-        <div className="nav-welcome-msg">
-          <h1>{translations[selectedLanguage].welcome_message}</h1>
-        </div>
-
-        {/* Right Section */}
-        <div className="right-section">
-          {/* Language Selector */}
-          <div className="language-selector">
-            <FaGlobe className="language-icon" title={translations[selectedLanguage].language} />
-            <select
-              className="language-dropdown"
-              value={selectedLanguage}
-              onChange={handleLanguageChange}
-            >
-              <option value="English">{translations[selectedLanguage].english}</option>
-              <option value="Russian">{translations[selectedLanguage].russian}</option>
-            </select>
+      <div className="admin-container">
+        <div className="admin-login-box">
+          {/* Left Side */}
+          <div className="admin-overlay-container">
+            <div className="admin-overlay-content">
+              <h1 className="admin-welcome">{t("login.welcomeBack")}</h1>
+              <p className="admin-description">
+                {t("login.enterCredentials")}
+              </p>
+            </div>
           </div>
 
-          {/* Logout Button */}
-          {isLoggedIn && (
-            <FaSignOutAlt
-              className="user-icon"
-              onClick={handleLogout}
-              title={translations[selectedLanguage].user_logout}
-            />
-          )}
-        </div>
-      </nav>
-
-      <div className="login-container">
-        {/* Scrolling Columns */}
-        <div className="scrolling-columns">
-          <ScrollingComponent />
-        </div>
-
-        {/* Black Blur Overlay */}
-        <div className="black-blur-overlay"></div>
-
-        {/* Login Form */}
-        <div className="admin-login-form">
-          <h2>{translations[selectedLanguage].admin_login}</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="admin-login-form-group">
-              <label htmlFor="email">{translations[selectedLanguage].email_label}</label>
-              <input
-                type="email"
-                id="email"
-                placeholder={translations[selectedLanguage].email_placeholder}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="login-form-input"
-              />
-            </div>
-
-            <div className="admin-login-form-group">
-              <label htmlFor="password">{translations[selectedLanguage].password_label}</label>
-              <div className="password-container">
+          {/* Form Section */}
+          <div className="admin-form-container">
+            <h2 className="admin-form-title">{t("login.adminLogin")}</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="admin-form-group">
+                <label className="admin-label" htmlFor="email">
+                  {t("login.email")}
+                </label>
                 <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  placeholder={translations[selectedLanguage].password_placeholder}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  type="email"
+                  id="email"
+                  className="admin-input"
+                  placeholder={t("login.emailPlaceholder")}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="login-form-input"
                 />
-                <span
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  title={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-                </span>
               </div>
-            </div>
 
-            {errorMessage && <p className="error-message">{errorMessage}</p>}
+              <div className="admin-form-group">
+                <label className="admin-label" htmlFor="password">
+                  {t("login.password")}
+                </label>
+                <div className="admin-password-wrapper">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    id="password"
+                    className="admin-input password-input"
+                    placeholder={t("login.passwordPlaceholder")}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  <span
+                    className="admin-password-icon"
+                    onClick={() => setShowPassword(!showPassword)}
+                    title={showPassword ? t("login.hidePassword") : t("login.showPassword")}
+                  >
+                    {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+                  </span>
+                </div>
+              </div>
 
-            <button
-              type="submit"
-              className="login-form-submit-button"
-              disabled={loading || !isFormValid}
-            >
-              {loading
-                ? translations[selectedLanguage].logging_in
-                : translations[selectedLanguage].login_button}
-            </button>
-          </form>
+              <button type="submit" className="admin-btn" disabled={loading}>
+                {loading ? t("login.loggingIn") : t("login.login")}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

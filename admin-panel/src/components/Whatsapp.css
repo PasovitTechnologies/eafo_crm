@@ -1,0 +1,622 @@
+/* Container setup */
+.whatsapp-container {
+    display: flex;
+    height: 100vh;
+    padding-top: 60px;
+    overflow: hidden;
+    background-color: #f0f0f0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin-left: 80px;
+}
+
+/* Chat List Column */
+.chat-list-column {
+    width: 350px; /* Fixed width for the chat list */
+    background-color: #ffffff;
+    border-right: 1px solid #ddd;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    transition: all 0.3s;
+}
+.chat-link {
+    color: blue;
+    text-decoration: none;
+    transition: color 0.2s, text-decoration 0.2s;
+}
+
+.chat-link:hover {
+    color: darkblue;
+    text-decoration: underline;
+}
+
+.chat-list-column h2 {
+    padding: 15px;
+    margin: 0;
+    background-color: #075e54;
+    color: white;
+    font-size: 1.5rem;
+    text-align: left;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.date-divider {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+    color: #999;
+    font-size: 12px;
+}
+
+.message-meta {
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+    font-size: 10px;
+    color: #666;
+}
+.messages-container {
+    position: relative;
+    overflow-y: auto;
+    height: 100%;
+    padding-bottom: 50px;
+}
+
+.scroll-to-bottom-button {
+    position: fixed;
+    background-color: #25d366;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 30px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    padding: 5px;
+    right: 40px;
+    bottom:150px;
+
+}
+
+.scroll-to-bottom-button:hover {
+    background-color: #128c7e;
+    transform: scale(1.1);
+}
+
+/* Search Bar */
+/* Container for the search bar */
+.search-bar-container {
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Search bar with icon inside */
+.search-bar-chat {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+}
+
+/* Input styling */
+.search-bar-chat input {
+    border: none;
+    outline: none;
+    flex: 1;
+    padding: 8px;
+    font-size: 1rem;
+    background-color: transparent;
+    color: #333;
+}
+
+/* Search icon inside the input */
+.search-icon-whatsapp {
+    color: #888;
+    margin-right: 8px;
+    font-size: 1.2rem;
+}
+
+/* Placeholder styling */
+.search-bar-chat input::placeholder {
+    color: #aaa;
+}
+
+
+/* ===== Scrollbar Styling ===== */
+.chats-list {
+    overflow-y: auto;
+    flex-grow: 1;
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #ccc #f9f9f9; /* Thumb and track colors */
+    background-color: white;
+}
+
+/* Scrollbar styling for Chrome, Edge, and Safari */
+.chats-list::-webkit-scrollbar {
+    width: 6px; /* Thin scrollbar */
+    background-color: #f9f9f9; /* Scrollbar track color */
+}
+
+.chats-list::-webkit-scrollbar-thumb {
+    background-color: #ccc; /* Scrollbar thumb color */
+    border-radius: 10px; /* Rounded corners */
+}
+
+.chats-list::-webkit-scrollbar-thumb:hover {
+    background-color: #bbb; /* Darker on hover */
+}
+
+/* ===== Chat Item Styling ===== */
+.chat-item {
+    height: 70px; /* Fixed height for chat items */
+    padding: 10px 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.3s, padding-left 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.chat-item:hover {
+    background-color: #f9f9f9;
+    padding-left: 20px;
+}
+
+.chat-item.active {
+    background-color: #d4f1f4;
+    border-left: 4px solid #25d366;
+    padding-left: 15px; /* Maintain padding when active */
+}
+
+/* ===== Chat Item Content ===== */
+.chat-item-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    overflow: hidden;
+    gap: 15px;
+}
+
+/* Profile Image */
+.chat-thumbnail {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    flex-shrink: 0;
+}
+
+/* Chat Text */
+.chat-item strong {
+    display: block;
+    color: #075e54;
+    margin-bottom: 2px;
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+.chat-item p {
+    margin: 0;
+    color: #555;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
+
+/* Unread Message Count */
+.unread-count {
+    background-color: #25d366;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px;
+    margin-left: auto;
+}
+
+/* ===== Chat Window Styling ===== */
+.chat-window-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #e5ddd5;
+    overflow-y: hidden;
+    position: relative;
+    transition: all 0.3s;
+}
+
+/* Chat Header */
+.chat-header {
+    display: flex;
+    margin-top: 60px;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: #f1f1f1;
+    border-bottom: 1px solid #ddd;
+    position: fixed;
+    width: calc(100% - 300px); /* Adjust for sidebar */
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Profile Image in Chat Header */
+.profile-photo {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 2px solid #ddd;
+}
+
+/* Header Info */
+.chat-header-info h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #075e54;
+}
+
+.chat-header-info p {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    color: gray;
+}
+
+
+
+/* Messages Container */
+.messages-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    overflow-y: auto;
+    background-color: #e5ddd5;
+    max-height: calc(100vh - 160px);
+    scrollbar-width: thin;
+    scrollbar-color: #888 #e5ddd5;
+}
+
+/* Scrollbar for Chrome, Edge, and Safari */
+.messages-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 4px;
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+}
+
+/* Message Bubbles */
+.message-bubble {
+    width: fit-content;
+    max-width: 70%;
+    padding: 10px 14px;
+    margin: 8px 0;
+    border-radius: 12px;
+    font-size: 1rem;
+    line-height: 1.5;
+    word-wrap: break-word;
+    position: relative;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Sent Messages (Right Aligned) */
+.sent {
+    background-color: #dcf8c6;
+    align-self: flex-end;
+    border-radius: 12px 12px 0 12px;
+    margin-right: 10px;
+    color: #303030;
+    margin-left: auto;
+}
+
+/* Received Messages (Left Aligned) */
+.received {
+    background-color: #ffffff;
+    align-self: flex-start;
+    border: 1px solid #ddd;
+    border-radius: 12px 12px 12px 0;
+    margin-left: 10px;
+    color: #303030;
+    margin-right: auto;
+}
+.date-label {
+    text-align: center;
+    margin: 15px 0;
+    font-size: 14px;
+    color: #888;
+
+  }
+
+/* Media Styles */
+.media-image {
+    max-width: 200px;
+    border-radius: 8px;
+    margin-top: 5px;
+    
+}
+
+.media-video,
+.media-audio {
+    width: 100%;
+    margin-top: 5px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+
+.media-file {
+    display: block;
+    margin-top: 5px;
+    padding: 8px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    color: #128c7e;
+    text-decoration: none;
+    transition: background 0.2s;
+    font-weight: bold;
+}
+
+.media-file:hover {
+    background-color: #f1f1f1;
+}
+
+
+/* Message Input Container */
+/* Message Input Container */
+.message-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 15px;
+    background-color: #ffffff;
+    border-top: 1px solid #ddd;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Input Field */
+.message-input-container input {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 25px;
+    font-size: 1rem;
+    outline: none;
+    transition: all 0.2s;
+    background-color: #f9f9f9;
+    color: #333;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.message-input-container input:focus {
+    border-color: #128c7e;
+    box-shadow: 0 0 8px rgba(18, 140, 126, 0.2);
+    background-color: #fff;
+}
+
+/* Button Styles */
+.message-input-container .send-button {
+    background-color: #128c7e;
+    border: none;
+    padding: 10px;
+    color: white;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    min-width: 45px;
+    min-height: 45px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.message-input-container button:hover {
+    background-color: #0a6e58;
+    transform: scale(1.1);
+}
+
+.message-input-container button:active {
+    transform: scale(1);
+}
+/* No Chat Selected */
+.no-chat-selected {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    color: #888;
+    font-size: 1.5rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 1024px) {
+    .whatsapp-container {
+         margin-left: 0px;
+    }
+  }
+
+
+ /* Pin Icon */
+.pin-icon-wrapper {
+    position: relative;
+  }
+  
+  .pin-button {
+    padding: 8px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #6b7280; /* gray-500 */
+    transition: color 0.2s;
+  }
+  
+  .pin-button:hover {
+    color: #fff; /* blue-500 */
+  }
+  
+  /* Upload Tooltip */
+  .upload-tooltip {
+    position: absolute;
+    bottom: 40px;
+    left: -10px;
+    background-color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+    width: 300px;
+  }
+  
+  /* Upload Field */
+  .upload-field {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  /* Upload Label */
+  .upload-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: #6b7280; /* gray-500 */
+    transition: color 0.2s;
+  }
+  
+  .upload-label:hover {
+    color: #3b82f6; /* blue-500 */
+  }
+  .upload-content{
+    display: flex;
+    gap: 15px;
+  }
+  .upload-options {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.upload-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px;
+    transition: all 0.2s;
+}
+
+.upload-option:hover {
+    transform: scale(1.1);
+}
+
+.hidden-file-input {
+    display: none;
+}
+
+  .hidden-file-input {
+    display: none;
+  }
+  
+  /* File Name Input */
+  .file-name-input {
+    width: 120px;
+    padding: 6px 8px;
+    border: 1px solid #e5e7eb; /* gray-200 */
+    border-radius: 8px;
+    background-color: white;
+    color: #374151; /* gray-700 */
+    font-size: 12px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Upload Send Button */
+  .upload-send-button {
+    padding: 10px 15px;
+    background-color: #3b82f6; /* blue-500 */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .upload-send-button:hover {
+    background-color: #2563eb; /* blue-600 */
+  }
+  
+  .upload-send-button:disabled {
+    background-color: #9ca3af; /* gray-400 */
+    cursor: not-allowed;
+  }
+  
+  /* Message Input */
+  .message-input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #e5e7eb; /* gray-200 */
+    border-radius: 8px;
+    outline: none;
+  }
+  
+  /* Main Send Button */
+  .send-button {
+    padding: 8px;
+    color: white;
+    background-color: #3b82f6; /* blue-500 */
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    border: none;
+  }
+  
+  .send-button:hover {
+    background-color: #2563eb; /* blue-600 */
+  }
+
+ 

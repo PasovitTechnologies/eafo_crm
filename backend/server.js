@@ -1,48 +1,117 @@
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config();
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const Grid = require('gridfs-stream');
+const { GridFSBucket } = require('mongodb');
+const path = require('path');
 
+dotenv.config();
 const app = express();
 
-// CORS Configuration
+// ✅ CORS Configuration
 const corsOptions = {
-   origin: '*', // Allows all domains
-   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-   allowedHeaders: ['Content-Type', 'Authorization', 'Role'],
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Role'],
 };
 
 app.use(cors(corsOptions));
-app.use(express.json());
+app.use(express.json({ limit: "1gb" }));
+app.use(express.urlencoded({ limit: "1gb", extended: true }));
 
-// Import Routes
+// ✅ MongoDB Connection Function
+const connectMongoDB = async () => {
+  try {
+    // ⚠️ Removed deprecated options
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log('✅ MongoDB connected');
+
+    const conn = mongoose.connection;
+
+    // ✅ Setup GridFS for file uploads
+    let gfs, gridFSBucket;
+
+    conn.once('open', () => {
+      console.log('✅ GridFS initializing...');
+
+      try {
+        // Initialize GridFS
+        gfs = Grid(conn.db, mongoose.mongo);
+        gfs.collection('uploads');
+
+        gridFSBucket = new GridFSBucket(conn.db, {
+          bucketName: 'uploads'
+        });
+
+        console.log('✅ GridFS connected successfully!');
+        console.log(`📁 GridFS Bucket: ${gridFSBucket.bucketName}`);
+
+        // ✅ Attach GridFSBucket to each request
+        app.use((req, res, next) => {
+          req.gridFSBucket = gridFSBucket;
+          req.gfs = gfs;
+          next();
+        });
+
+      } catch (error) {
+        console.error('❌ Error initializing GridFS:', error);
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ MongoDB connection failed:', error);
+    process.exit(1);  // Stop the server if DB connection fails
+  }
+};
+
+// ✅ Connect to MongoDB
+connectMongoDB();
+
+// ✅ Import Routes
 const formRoutes = require('./routes/formRoutes');
 const courseRoutes = require("./routes/courseRoutes");
 const couponRoutes = require('./routes/couponRoutes');
 const userRoutes = require('./routes/userRoutes');
 const webinarRoutes = require('./routes/webinarRoutes');
+const paymentRoutes = require("./routes/paymentRoutes");
+const stripeRoutes = require("./routes/stripeRoutes");
+const emailRoutes = require("./routes/emailSenderRoutes");
+const telegramRoutes = require("./routes/telegramRoutes");
+const whatsappRoutes = require("./routes/whatsappRoutes");
+const enquiryRoutes = require("./routes/enquiryRoutes");
 
-// Access the BASE_URL from the .env file
+// ✅ Base URL Configuration
 const baseUrl = process.env.BASE_URL || 'http://localhost:4000';
 
-// Use routes with dynamically loaded base URL
+// ✅ Use Routes
 app.use(`/api/invoices`, formRoutes);
-app.use(`/api/forms`, formRoutes); // Form-related APIs
-app.use(`/api/courses`, courseRoutes); // Course-related APIs
-app.use(`/api/coupons`, couponRoutes); // Coupon-related APIs
-app.use(`/api/user`, userRoutes); // User-related APIs
-app.use(`/api/webinars`, webinarRoutes); // Webinar-related APIs
+app.use(`/api/form`, formRoutes);
+app.use(`/api/courses`, courseRoutes);
+app.use(`/api/coupons`, couponRoutes);
+app.use(`/api/user`, userRoutes);
+app.use(`/api/webinars`, webinarRoutes);
+app.use("/api/payment", paymentRoutes);
+app.use("/api/stripe", stripeRoutes);
+app.use("/api/email", emailRoutes);
+app.use("/api/telegram", telegramRoutes);
+app.use("/api/whatsapp", whatsappRoutes);
+app.use("/api/enquiries", enquiryRoutes);
 
-// Route for root (localhost:5000)
+// ✅ Serve Static Files
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// ✅ Root Route
 app.get('/', (req, res) => {
-  res.send('Server is working!');
+  res.send('Server is running!');
 });
 
-// Global Error Handler
+// ✅ Global Error Handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('❌ Error:', err.stack);
   res.status(500).send('Something went wrong!');
 });
 
-// Start Server
-const PORT = 4000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// ✅ Start Server
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

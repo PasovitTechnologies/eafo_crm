@@ -1,0 +1,216 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+
+/* Page Layout */
+
+.webinar-page {
+    width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: "Raleway", sans-serif;
+  }
+
+  .breadcrumb {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 20px;
+  }
+  
+  .breadcrumb span {
+    cursor: pointer;
+    color: #007bff;
+  }
+  
+  .breadcrumb span:last-child {
+    color: #333;
+    cursor: default;
+  }
+  
+  .breadcrumb span:hover {
+    text-decoration: underline;
+  }
+  
+  
+  /* Search & Filter Container */
+  .search-filter-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .search-filter-container input {
+    width: 70%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .search-filter-container select {
+    width: 25%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    background: white;
+    cursor: pointer;
+  }
+  /* Wrapper for Search Input (Aligns the Icon & Input) */
+.search-input-wrapper {
+    display: flex;
+    align-items: center;
+    width: 88%;
+    box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 25px 0px 0px 25px;
+    padding: 0px 15px;
+    background: white;
+  }
+  
+  /* Search Icon */
+  .search-icon {
+    font-size: 16px;
+    color: #666;
+    margin-right: 8px;
+  }
+  
+  /* Search Input */
+  .search-input-wrapper input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+  }
+
+  .custom-dropdown {
+    position: relative;
+    width: 12%;
+    
+  }
+  
+  /* 🏷️ Dropdown Select */
+  .custom-dropdown select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 0px 25px 25px 0px;
+    background: white;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.1);
+    appearance: none;
+  }
+  
+  
+  
+  /* Webinar List */
+  .webinar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  /* Webinar Card */
+  .webinar-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 1px 1px 4px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+    cursor: pointer;
+  }
+  
+  .webinar-card:hover {
+    transform: translateY(-3px);
+  }
+  
+  /* Webinar Image */
+  .webinar-image {
+    
+    height: 100px;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+  
+  /* Webinar Info */
+  .webinar-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    margin-left: 15px;
+    
+  }
+  
+  /* Buttons */
+  .webinar-actions {
+    display: flex;
+    flex-direction: column;
+    flex: 0.3;
+    
+  }
+  
+  .register-btn, .see-more-btn {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .register-btn {
+    background: #02408a;
+    color: white;
+    border: 3px solid #02408a;
+  }
+  
+  .see-more-btn {
+    background: #fff;
+    color: #02408a;
+    border: 3px solid #02408a;
+  }
+  
+  .register-btn:hover {
+    background: #082242;
+  }
+  
+  .see-more-btn:hover {
+    background: #082242;
+    color: #fff;
+  }
+  .no-webinars-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  .no-webinars-image {
+    width: 250px; /* Adjust size as needed */
+    height: auto;
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  .no-webinars-text {
+    font-size: 18px;
+    color: #666;
+    margin-top: 10px;
+    font-weight: 500;
+  }
+  
+  /* ✅ Smooth fade-in effect */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  

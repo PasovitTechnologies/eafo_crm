@@ -1,0 +1,245 @@
+.webinar-details-page-div {
+    background-color: #f6f6f6;
+    padding: 20px;
+}
+
+.webinar-details-page {
+    width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: "Raleway", sans-serif;
+}
+
+.webinar-details-div {
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+
+}
+
+.webinar-details-container {
+    display: flex;
+    flex-direction: column;
+    flex: 2;
+}
+
+.breadcrumb {
+    font-size: 16px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.breadcrumb span {
+    cursor: pointer;
+    color: #007bff;
+}
+
+.breadcrumb span:last-child {
+    color: #333;
+    cursor: default;
+}
+
+.breadcrumb span:hover {
+    text-decoration: underline;
+}
+
+.webinar-banner-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.webinar-banner {
+    width: 100%;
+    border-radius: 10px;
+}
+
+.webinar-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.webinar-description {
+    font-size: 16px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.expert-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1.5;
+
+}
+
+.webinar-expert {
+    display: flex;
+    justify-content: space-between;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    gap: 20px;
+    box-shadow: 1px 1px 3px 2px rgba(0, 0, 0, 0.1);
+
+
+}
+
+.expert-info h3 {
+    font-size: 20px;
+    margin: 0;
+}
+
+.expert-info p {
+    font-size: 16px;
+    color: #777;
+    margin: 5px 0 0;
+}
+
+.expert-photo img {
+    width: 200px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* Button Container */
+.button-container {
+    display: flex;
+    gap: 15px;
+    /* Space between buttons */
+    align-items: center;
+    flex-wrap: wrap;
+    /* Wrap if screen is too small */
+    margin-top: 20px;
+}
+
+/* Common Button Styles */
+.register-btn,
+.cancel-btn,
+.watch-btn,
+.registered-btn,
+.registration-closed-btn {
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    transition: 0.3s;
+    text-align: center;
+    flex: 1;
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+.registered-btn,
+.registration-closed-btn {
+    cursor: not-allowed;
+}
+
+/* Button Colors */
+.register-btn,
+.registered-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.register-btn:hover {
+    background-color: #218838;
+}
+
+.cancel-btn,
+.registration-closed-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.cancel-btn:hover {
+    background-color: #c82333;
+}
+
+.watch-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.watch-btn:hover {
+    background-color: #0056b3;
+}
+
+/* Disabled Button */
+.register-btn:disabled,
+.cancel-btn:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.disabled-btn {
+    background-color: #d3d3d3;
+    /* Light gray */
+    color: #777;
+    /* Darker gray */
+    border: none;
+    padding: 10px 15px;
+    cursor: not-allowed;
+    font-weight: bold;
+}
+
+
+
+/* ✅ Other Webinars Section */
+.other-webinar {
+    flex: 0.9;
+    padding: 0px 20px 20px 20px;
+    border-radius: 10px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+
+}
+
+.other-webinar h3 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+/* ✅ Show webinars in row */
+.other-webinar-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: space-between;
+    flex: 1;
+}
+
+.other-webinar-card {
+
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 1px 1px 4px 3px rgba(0, 0, 0, 0.1);
+
+}
+
+.other-webinar-card:hover {
+    background: #e9ecef;
+}
+
+.other-webinar-image {
+    width: 100%;
+    border-radius: 5px;
+}
+
+.other-webinar-info h4 {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 8px 0;
+}
+
+.other-webinar-info p {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 10px;
+}

@@ -1,0 +1,159 @@
+/* Center the entire dashboard */
+.dashboard-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full-screen height */
+    background: white; /* White Background */
+    padding: 20px;
+  }
+  
+  /* Bento Grid Layout - Unique sizes */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1.2fr; /* Adjusted column widths */
+    grid-template-rows: 200px 250px 180px; /* Adjusted row heights */
+    gap: 15px;
+    width: 85%;
+    max-width: 1100px;
+  }
+  
+  /* Common Style for Grid Items */
+  .dashboard-item {
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    color: white;
+    transition: transform 0.2s ease, box-shadow 0.3s ease, background 0.3s ease;
+  }
+  
+  /* Unique Colors for Each Section */
+  .profile {
+    grid-row: span 2;
+    background: #ff6b6b; /* Red */
+  }
+  
+  .courses {
+    grid-column: span 2;
+    grid-row: span 1;
+    background: #ffcc00; /* Yellow */
+  }
+  
+  .webinars {
+    grid-column: span 1;
+    grid-row: span 2;
+    background: #0077b6; /* Deep Blue */
+  }
+  
+  .payments {
+    grid-column: span 1;
+    grid-row: span 1;
+    background: #38b000; /* Green */
+  }
+  
+  .about {
+    grid-column: span 1;
+    background: #8338ec; /* Purple */
+  }
+  
+  .contact {
+    background: #ff9f1c; /* Orange */
+  }
+  
+  /* Hover Effect */
+  .dashboard-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    opacity: 0.9;
+  }
+  
+  /* 🔹 RESPONSIVE GRID SYSTEM */
+  
+  /* Tablets (max-width: 1024px) */
+  @media (max-width: 1024px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: auto;
+    }
+  
+    .profile {
+      grid-column: span 1;
+      grid-row: span 1;
+    }
+  
+    .courses {
+      grid-column: span 2;
+      grid-row: span 1;
+    }
+  
+    .webinars {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+  
+    .payments {
+      grid-column: span 1;
+    }
+  
+    .about {
+      grid-column: span 2;
+    }
+  }
+  
+  /* Mobile (max-width: 768px) */
+  @media (max-width: 768px) {
+    .dashboard-grid {
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: auto;
+      gap: 10px;
+    }
+  
+    .profile {
+      grid-column: span 2;
+      grid-row: span 1;
+    }
+  
+    .courses {
+      grid-column: span 2;
+    }
+  
+    .webinars {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+  
+    .payments,
+    .about,
+    .contact {
+      grid-column: span 1;
+    }
+  }
+  
+  /* Small Mobile (max-width: 480px) */
+  @media (max-width: 480px) {
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+  
+    .dashboard-item {
+      font-size: 16px;
+    }
+  
+    .profile,
+    .courses,
+    .webinars,
+    .payments,
+    .about,
+    .contact {
+      grid-column: span 1;
+      grid-row: span 1;
+    }
+  }
+  

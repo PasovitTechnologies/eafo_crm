@@ -1,0 +1,354 @@
+/* 🌐 Modal Overlay */
+.modal-overlay {
+    background: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* 🧊 Modal Content */
+.modal-content {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 10px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    position: relative;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* 🧠 Modal Header */
+.modal-content h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+/* 📋 Questions Container */
+.preview-questions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ❓ Individual Question */
+.modal-question {
+    padding: 1.2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* 💡 Question Label */
+.modal-question span {
+    display: block;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    color: #555;
+}
+
+/* 🔲 Input Wrapper */
+.question-input-wrapper {
+    margin-top: 0.8rem;
+}
+
+/* 🧠 General Input Styles */
+.preview-questions-container input[type="text"],
+.preview-questions-container input[type="email"],
+.preview-questions-container input[type="number"],
+.preview-questions-container input[type="tel"],
+.preview-questions-container input[type="date"],
+.preview-questions-container select,
+.preview-questions-container textarea,
+.preview-questions-container .multiselect-input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    color: #333;
+    background-color: #fff;
+    transition: border-color 0.2s;
+}
+
+/* 🖱️ Focus Styles */
+.preview-questions-container input[type="text"]:focus,
+.preview-questions-container input[type="email"]:focus,
+.preview-questions-container input[type="number"]:focus,
+.preview-questions-container input[type="tel"]:focus,
+.preview-questions-container input[type="date"]:focus,
+.preview-questions-container select:focus,
+.preview-questions-container textarea:focus,
+.preview-questions-container .multiselect-input:focus {
+    border-color: #3b82f6;
+    outline: none;
+}
+
+/* 📝 Textarea */
+.preview-questions-container textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* 🗃️ File Input */
+.preview-questions-container input[type="file"] {
+    padding: 0.4rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fff;
+    margin-top: 8px;
+}
+
+/* 🟦 Vertical Layout for Radio & Checkbox Options */
+.question-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 8px;
+}
+
+/* 🟢 Option Labels */
+.question-options label {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    color: #444;
+    cursor: pointer;
+}
+
+/* 🔘 Styled Radio & Checkbox Inputs */
+.preview-questions-container input[type="radio"],
+.preview-questions-container input[type="checkbox"] {
+    margin-right: 8px;
+    transform: scale(1.2);
+    accent-color: #3b82f6;
+}
+
+/* 🗃️ Multi-Select Container */
+.multiselect-container {
+    display: inline-block;
+    max-width: 100%;
+}
+
+/* 🧮 Dynamic Width Adjustment for Multi-Select */
+.multiselect-wrapper {
+    
+    width: 100%;
+}
+
+.multiselect-input {
+    width: auto !important;
+    min-width: 50px; 
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    color: #333;
+    background-color: #fff;
+    transition: border-color 0.2s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.multiselect-container .selected-item {
+    background-color: #e0f2fe;
+    color: #333;
+    border-radius: 4px;
+    padding: 0.2rem 0.5rem;
+    margin: 2px;
+    display: inline-flex;
+    align-items: center;
+    max-width: max-content; /* Ensures only as wide as the text */
+    white-space: nowrap; /* Prevents text wrapping */
+}
+
+.multiselect-container .selected-item .remove {
+    margin-left: 5px;
+    color: #888;
+    cursor: pointer;
+    font-weight: bold;
+}
+/* 🌟 Styling for Content Type */
+.content-display {
+    background-color: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin: 10px 0;
+    color: #333;
+    font-size: 14px;
+}
+
+.content-display p {
+    margin: 5px 0;
+    line-height: 1.5;
+}
+
+.content-display h3 {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    color: #555;
+}
+/* 🌟 Content Type Styling */
+.content-display {
+    background-color: #f9f9f9; /* Light background for content */
+    padding: 10px;
+    border: 1px solid #ddd; /* Consistent border */
+    border-radius: 4px;
+    margin: 10px 0;
+    color: #333;
+    font-size: 14px;
+}
+
+/* 🧽 Remove unwanted borders or focus styles */
+.content-display:focus,
+.content-display:empty {
+    border: none; /* No border on empty or focus */
+    outline: none;
+}
+
+/* 🧹 Ensure no empty input-like elements appear */
+/* Container to align items horizontally */
+.accept-container {
+    display: flex;
+    align-items: center; /* Vertically centers content */
+    margin-top: 10px;
+}
+
+/* Label styles with proper alignment */
+.accept-label {
+    display: flex;
+    align-items: center; /* Center checkbox and text */
+    gap: 8px; /* Space between checkbox and text */
+    cursor: pointer;
+}
+
+/* Ensuring checkbox is properly aligned */
+.accept-checkbox {
+    margin: 0;
+    vertical-align: middle; /* Vertical center alignment */
+    cursor: pointer;
+}
+
+/* Text styling */
+.accept-text {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.2;
+    margin-top: 10px;
+    display: inline-block; /* Ensures alignment with the checkbox */
+}
+
+/* Link styling within the text */
+.accept-text a {
+    color: #007bff;
+    text-decoration: none;
+    
+}
+
+.accept-text a:hover {
+    text-decoration: underline;
+}
+
+
+
+
+/* 🛑 No Questions Message */
+.no-questions-message {
+    font-size: 1rem;
+    color: #888;
+    padding: 1rem;
+    text-align: center;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    background-color: #f5f5f5;
+}
+
+/* 🚦 Modal Controls */
+.modal-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.preview-questions-container button {
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+/* 💾 Save Button */
+.preview-questions-container button.save-btn {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.preview-questions-container button.save-btn:hover {
+    background-color: #2563eb;
+}
+
+/* ❌ Close Button */
+.preview-questions-container button.close-btn {
+    background-color: #e5e7eb;
+    color: #333;
+}
+
+.preview-questions-container button.close-btn:hover {
+    background-color: #d1d5db;
+}
+
+/* 📱 Responsive Design */
+@media (max-width: 768px) {
+    .modal-content {
+        max-width: 90%;
+        padding: 1.5rem;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.5rem;
+    }
+
+    button {
+        width: 100%;
+    }
+}

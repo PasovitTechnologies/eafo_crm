@@ -1,166 +1,1024 @@
-const express = require('express');
-const multer = require('multer');
-const mongoose = require('mongoose');
-const Form = require('../models/Form'); // Your Form schema
-const path = require("path"); // Import the path module
+const express = require("express");
+const mongoose = require("mongoose");
+const { Form, Question } = require("../models/Form");
+const multer = require("multer");
+const path = require("path");
 const fs = require("fs");
-
 const router = express.Router();
+const Course = require("../models/Course"); // Import Course model
+const jwt = require("jsonwebtoken");
+const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+const User = require("../models/User");
+const axios = require("axios");
+const { GridFSBucket } = require("mongodb");
 
-// Generate unique ID for each submission
-const generateUniqueId = () => Math.floor(100000 + Math.random() * 900000).toString();
 
-// Configure Multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uniqueId = req.uniqueId || generateUniqueId();
-    req.uniqueId = uniqueId;
-
-    const uploadPath = path.join(__dirname, "../uploads/form-data", uniqueId);
-
-    // Ensure the directory exists
-    fs.mkdirSync(uploadPath, { recursive: true });
-
-    req.uploadPath = uploadPath;
-    cb(null, uploadPath);
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname); // Keep the original file name
-  },
+// ✅ Initialize GridFS bucket
+let gfs;
+mongoose.connection.once('open', () => {
+  gfs = new GridFSBucket(mongoose.connection.db, {
+    bucketName: 'uploads'
+  });
 });
 
-const upload = multer({ storage });
 
-// POST route to handle form submission and file uploads
-router.post("/", upload.any(), async (req, res) => {
-  try {
-    const formData = req.body; // Form data excluding files
-    const uniqueId = req.uniqueId;
-    const uploadPath = req.uploadPath;
+// ✅ JWT Authentication Middleware
+const authenticateJWT = (req, res, next) => {
+  const token = req.header("Authorization")?.split(" ")[1];
 
-    // Save form details as a JSON file inside the unique folder
-    const detailsPath = path.join(uploadPath, "details.json");
-
-    // Merge file details into formData
-    const uploadedFiles = req.files.map((file) => ({
-      originalName: file.originalname,
-      path: file.path,
-    }));
-    formData.uploadedFiles = uploadedFiles;
-
-    // Save the form data to MongoDB
-    const form = new Form({
-      ...formData,
-      uniqueId,
-    });
-    await form.save();
-
-    // Write the form details (including file paths) into details.json
-    fs.writeFileSync(detailsPath, JSON.stringify(formData, null, 2));
-
-    res.status(200).json({ message: "Form submitted successfully!", uniqueId });
-  } catch (error) {
-    console.error("Error submitting form:", error);
-    res.status(500).json({ error: "An error occurred while submitting the form." });
+  if (!token) {
+    return res.status(401).json({ message: "Access denied. No token provided." });
   }
-});
 
-// Route to fetch all submitted forms (excluding file data for now)
-router.get('/', async (req, res) => {
-  try {
-    const forms = await Form.find(); // Fetch all forms from DB
-    res.status(200).json(forms); // Return the form data
-  } catch (error) {
-    console.error('Error fetching forms:', error);
-    res.status(500).json({ error: 'Failed to fetch forms' });
-  }
-});
-
-// Route to fetch files for a specific user
-router.get('/files/:uniqueId', async (req, res) => {
-  try {
-    const { uniqueId } = req.params;
-    const folderPath = path.join(__dirname, '../uploads/form-data', uniqueId);
-
-    // Check if the folder exists
-    if (!fs.existsSync(folderPath)) {
-      return res.status(404).json({ error: 'No files found for this user.' });
+  jwt.verify(token, JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: "Invalid or expired token." });
     }
+    req.user = decoded;
+    next();
+  });
+};
 
-    // Read all files in the folder
-    const files = fs.readdirSync(folderPath).map((fileName) => ({
-      name: fileName,
-      path: `uploads/form-data/${uniqueId}/${fileName}`,
-    }));
 
-    res.status(200).json(files);
-  } catch (error) {
-    console.error('Error fetching files:', error);
-    res.status(500).json({ error: 'Failed to fetch files.' });
-  }
-});
+const RUSENDER_API = "https://api.beta.rusender.ru/api/v1/external-mails/send";
 
-// Route to fetch a specific form by its ID
-router.get('/:id', async (req, res) => {
-  try {
-    const form = await Form.findById(req.params.id); // Fetch form by ID
-    if (!form) {
-      return res.status(404).json({ error: 'Form not found' });
+// ✅ Helper function to send emails using Rusender
+const sendEmailRusender = async (recipient, mail) => {
+    const emailData = {
+        mail: {
+            to: { email: recipient.email },
+            from: { email: "eafo@e-registrar.org", name: "EAFO" },
+            subject: mail.subject,
+            previewTitle: mail.subject,  
+            html: mail.html.replace("{name}", recipient.firstName || "User")
+        }
+    };
+
+    try {
+        const response = await axios.post(RUSENDER_API, emailData, {
+            headers: {
+                "Content-Type": "application/json",
+                "X-Api-Key": process.env.RUSENDER_API_KEY
+            }
+        });
+
+        console.log(`✅ Email sent to ${recipient.email}:`, response.data);
+        return { email: recipient.email, status: "Success", data: response.data };
+    } catch (error) {
+        console.error(`❌ Failed to send email to ${recipient.email}:`, error.response?.data || error.message);
+        return { email: recipient.email, status: "Failed", error: error.message };
     }
+};
 
-    res.status(200).json(form);
-  } catch (error) {
-    console.error('Error fetching form:', error);
-    res.status(500).json({ error: 'Failed to fetch form.' });
-  }
-});
-
-// Endpoint for previewing the file (without forcing download)
-router.get('/files/:uniqueId/:fileName', async (req, res) => {
-  try {
-    const { uniqueId, fileName } = req.params;
-    const filePath = path.join(__dirname, '../uploads/form-data', uniqueId, fileName);
-
-    // Check if file exists
-    if (fs.existsSync(filePath)) {
-      return res.sendFile(filePath);  // Directly send the file
+// ✅ Function to choose email template with Registration Type & Category
+const getEmailTemplate = (lang, user, courseName, regType, category) => {
+    if (lang === "ru") {
+        return {
+            subject: "Вы зарегистрированы на курс",
+            html: `
+                <p>Здравствуйте, {name}!</p>
+                <p>Вы успешно зарегистрировались на курс: <strong>${courseName}</strong>.</p>
+                <p><strong>Тип регистрации:</strong> ${regType || "N/A"}</p>
+                <p><strong>Категория:</strong> ${category || "N/A"}</p>
+                <p><strong>Email:</strong> ${user.email}</p>
+                <p>Спасибо за регистрацию!</p>
+            `
+        };
     } else {
-      return res.status(404).json({ error: 'File not found' });
+        return {
+            subject: "You are registered for the course",
+            html: `
+                <p>Hello, {name}!</p>
+                <p>You have successfully registered for the course: <strong>${courseName}</strong>.</p>
+                <p><strong>Registration Type:</strong> ${regType || "N/A"}</p>
+                <p><strong>Category:</strong> ${category || "N/A"}</p>
+                <p><strong>Email:</strong> ${user.email}</p>
+                <p>Thank you for registering!</p>
+            `
+        };
     }
-  } catch (error) {
-    console.error('Error downloading file:', error);
-    res.status(500).json({ error: 'Failed to download the file.' });
+};
+
+// ✅ Extract Invoice Fields (Registration Type & Category)
+const extractInvoiceFields = (submissions) => {
+    const invoiceFields = submissions
+        .filter(sub => sub.isUsedForInvoice)
+        .map(sub => sub.answer)
+        .slice(0, 2);  // Get the first two fields
+
+    console.log("🛠️ Extracted Invoice Fields:", invoiceFields);
+
+    const regType = invoiceFields[0] || "N/A";
+    const category = invoiceFields[1] || "N/A";
+
+    return { regType, category };
+};
+
+
+
+// Configure multer for file uploads
+const upload = multer({
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+      return cb(new Error('Please upload an image (jpg, jpeg, or png)'));
+    }
+    cb(null, true);
   }
 });
 
-// Endpoint to update specific fields in form details
-router.put('/:id', async (req, res) => {
+// Upload form logo
+router.post('/:id/upload', authenticateJWT, upload.single('image'), async (req, res) => {
   try {
-    const { id } = req.params;
-    const updatedFields = req.body; // Get only the updated fields
-
-    // Find the form by its ID and update only the specific fields
-    const form = await Form.findById(id);
-
+    const form = await Form.findById(req.params.id);
     if (!form) {
-      return res.status(404).json({ error: 'Form not found' });
+      return res.status(404).send({ error: 'Form not found' });
     }
 
-    // Update each field in the form
-    Object.keys(updatedFields).forEach((key) => {
-      if (updatedFields[key] !== undefined) {
-        form[key] = updatedFields[key];
-      }
-    });
+    form.formLogo = {
+      data: req.file.buffer,
+      contentType: req.file.mimetype
+    };
 
-    // Save the updated form
+    await form.save();
+    res.send({ 
+      message: 'Image uploaded successfully',
+      imageData: form.formLogo.data.toString('base64'),
+      contentType: form.formLogo.contentType
+    });
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+});
+
+// Get form logo image
+router.get('/:id/image', async (req, res) => {
+  try {
+    const form = await Form.findById(req.params.id);
+    if (!form || !form.formLogo) {
+      return res.status(404).send();
+    }
+
+    res.set('Content-Type', form.formLogo.contentType);
+    res.send(form.formLogo.data);
+  } catch (error) {
+    res.status(400).send({ error: error.message });
+  }
+});
+
+
+
+// 🟢 Create a New Form or Duplicate an Existing Form
+router.post("/", authenticateJWT, async (req, res) => {
+  const { formName, duplicateFrom } = req.body;
+
+  if (!formName || formName.trim() === "") {
+    return res.status(400).json({ message: "Form name is required." });
+  }
+
+  try {
+    let newForm = new Form({ formName, questions: [] });
+
+    if (duplicateFrom) {
+      const originalForm = await Form.findById(duplicateFrom).populate("questions");
+
+      if (!originalForm) {
+        return res.status(404).json({ message: "Original form not found." });
+      }
+
+      console.log("🚀 Original Form:", originalForm);
+
+      const clonedQuestions = [];
+      const idMapping = {}; // Stores old question ID -> new question ID mapping
+
+      // Step 1: Clone questions and create new ID mappings
+      for (const question of originalForm.questions) {
+        const newQuestion = new Question({
+          label: question.label,
+          type: question.type,
+          description: question.description || "",
+          options: [...question.options],
+          isConditional: question.isConditional || false,
+          isRequired: question.isRequired || false,
+          rules: question.rules ? JSON.parse(JSON.stringify(question.rules)) : [], // Deep copy rules
+        });
+
+        // Save the cloned question
+        const savedQuestion = await newQuestion.save();
+        if (!savedQuestion) {
+          console.error("❌ Failed to save question:", newQuestion);
+          return res.status(500).json({ message: "Failed to clone some questions." });
+        }
+
+        idMapping[question._id.toString()] = savedQuestion._id.toString(); // Store old -> new ID mapping
+        clonedQuestions.push(savedQuestion);
+      }
+
+      // Step 2: Update rules with new question IDs
+      for (const question of clonedQuestions) {
+        if (question.rules && question.rules.length > 0) {
+          question.rules.forEach((rule) => {
+            rule.conditions.forEach((condition) => {
+              if (idMapping[condition.triggerQuestionId]) {
+                condition.triggerQuestionId = idMapping[condition.triggerQuestionId]; // ✅ Update triggerQuestionId
+              }
+            });
+            rule.targetQuestionIds = rule.targetQuestionIds.map(
+              (targetId) => idMapping[targetId] || targetId // ✅ Update targetQuestionIds
+            );
+          });
+
+          // Save updated question with new rules
+          await question.save();
+        }
+      }
+
+      newForm.questions = clonedQuestions;
+    }
+
+    console.log("📄 New Form to Save:", newForm);
+    await newForm.save();
+
+    res.status(201).json({ form: newForm });
+  } catch (error) {
+    console.error("🚨 Error creating form:", error);
+    res.status(500).json({ message: "An error occurred while creating the form." });
+  }
+});
+
+
+
+// 🟢 Get All Forms (Only Name & ID)
+router.get("/", authenticateJWT,async (req, res) => {
+  try {
+    const forms = await Form.find(); // Fetch all forms
+    res.json({ forms }); // Return as { forms: [...] }
+  } catch (error) {
+    console.error("Error fetching forms:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
+// 🟢 Fetch Form by _id
+router.get("/:id", authenticateJWT,async (req, res) => {
+  try {
+    const form = await Form.findById(req.params.id).populate("questions");
+    if (!form) return res.status(404).json({ message: "Form not found" });
+
+    res.json(form);
+  } catch (error) {
+    console.error("Error fetching form:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Import Form model
+
+// Update Form and Link to Course
+router.put("/:id", authenticateJWT, async (req, res) => {
+  try {
+    const updateData = {};
+    console.log("👉 Initial updateData:", updateData);
+
+    // ✅ Log the incoming request body
+    console.log("📥 Request Body:", req.body);
+
+    // ✅ Update text fields only if provided
+    if (req.body.formName) {
+      updateData.formName = req.body.formName;
+      console.log("📝 Updated formName:", req.body.formName);
+    }
+    if (req.body.description) {
+      updateData.description = req.body.description;
+      console.log("📝 Updated description:", req.body.description);
+    }
+    if (req.body.title) {
+      updateData.title = req.body.title;
+      console.log("📝 Updated title:", req.body.title);
+    }
+
+    // ✅ Handle course assignment/removal
+    if (req.body.courseId === "") {
+      updateData.courseId = null; // Remove course assignment
+      console.log("🚫 Removed course assignment.");
+    } else if (req.body.courseId) {
+      updateData.courseId = req.body.courseId;
+      console.log("🔗 Assigned new course ID:", req.body.courseId);
+    }
+
+    // ✅ Handle boolean fields explicitly
+    if (typeof req.body.isUsedForRussian !== "undefined") {
+      updateData.isUsedForRussian = req.body.isUsedForRussian;
+      console.log("🔘 isUsedForRussian:", req.body.isUsedForRussian);
+    }
+    if (typeof req.body.isUsedForRegistration !== "undefined") {
+      updateData.isUsedForRegistration = req.body.isUsedForRegistration;
+      console.log("🔘 isUsedForRegistration:", req.body.isUsedForRegistration);
+    }
+
+    // 📝 Log the final `updateData` before updating the form
+    console.log("🚀 Final updateData:", updateData);
+
+    // 📝 Update the form in the database
+    const updatedForm = await Form.findByIdAndUpdate(
+      req.params.id,
+      { $set: updateData },
+      { new: true }
+    );
+
+    // ✅ Log the updated form
+    console.log("✅ Updated Form:", updatedForm);
+
+    if (!updatedForm) {
+      console.log("❌ Form not found");
+      return res.status(404).json({ message: "Form not found" });
+    }
+
+    // 🛑 Remove form from any previous course
+    const removeResult = await Course.updateMany(
+      { "forms.formId": updatedForm._id },
+      { $pull: { forms: { formId: updatedForm._id } } }
+    );
+    console.log("🛑 Removed form from previous courses:", removeResult);
+
+    // ✅ Link form to new course if provided
+    if (req.body.courseId) {
+      const course = await Course.findById(req.body.courseId);
+      if (!course) {
+        console.log("❌ Course not found with ID:", req.body.courseId);
+        return res.status(404).json({ message: "Course not found" });
+      }
+
+      console.log("📚 Found Course:", course);
+
+      const existingFormIndex = course.forms.findIndex(
+        (f) => f.formId.toString() === updatedForm._id.toString()
+      );
+      console.log("🔎 Existing Form Index:", existingFormIndex);
+
+      const formData = {
+        formId: updatedForm._id,
+        formName: updatedForm.formName,
+        isUsedForRussian: updatedForm.isUsedForRussian,          // ✅ Added boolean field
+        isUsedForRegistration: updatedForm.isUsedForRegistration // ✅ Added boolean field
+      };
+
+      if (existingFormIndex === -1) {
+        // 🛠️ Push the form with booleans to the course
+        course.forms.push(formData);
+        console.log("➕ Added form to course with booleans.");
+      } else {
+        // ✅ Update existing form data, including booleans
+        course.forms[existingFormIndex] = formData;
+        console.log("🔧 Updated existing form in course with booleans.");
+      }
+
+      await course.save();
+      console.log("✅ Course saved successfully with boolean fields.");
+    }
+
+    // ✅ Return updated form
+    res.json({ form: updatedForm });
+    console.log("🚀 Response Sent Successfully.");
+
+  } catch (error) {
+    console.error("❗ Error updating form:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
+
+
+
+
+// 🟢 Delete a Form (and its Questions)
+router.delete("/:id", authenticateJWT,async (req, res) => {
+  try {
+    const deletedForm = await Form.findByIdAndDelete(req.params.id); // ✅ Use _id
+    if (!deletedForm) {
+      return res.status(404).json({ error: "Form not found" });
+    }
+    res.status(200).json({ message: "Form deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Server error deleting form" });
+  }
+});
+
+router.post("/:id/upload", authenticateJWT,upload.single("image"), async (req, res) => {
+  try {
+    const form = await Form.findById(req.params.id);
+    if (!form) return res.status(404).json({ message: "Form not found" });
+
+    // ✅ Save Image Path in Form
+    const fileExt = path.extname(req.file.originalname);
+    form.image = `/uploads/${form._id}_logo${fileExt}`;
     await form.save();
 
-    res.status(200).json({ message: 'Form updated successfully!', form });
+    res.json({ message: "Image uploaded successfully", imageUrl: form.image });
   } catch (error) {
-    console.error('Error updating form:', error);
-    res.status(500).json({ error: 'Failed to update form.' });
+    console.error("Error uploading image:", error);
+    res.status(500).json({ message: "Server error!" });
   }
 });
+
+
+router.post('/:formId/questions',authenticateJWT, async (req, res) => {
+  try {
+    const { formId } = req.params;
+    const { label, type, options, rules } = req.body;
+
+    const updatedForm = await Form.findByIdAndUpdate(
+      formId,
+      { $push: { questions: { label, type, options, rules } } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedForm) {
+      return res.status(404).json({ message: 'Form not found' });
+    }
+
+    res.status(201).json({ message: 'Question added successfully', form: updatedForm });
+  } catch (error) {
+    console.error('Error adding question:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+router.get('/:formId/questions', authenticateJWT,async (req, res) => {
+  try {
+    const { formId } = req.params;
+    const form = await Form.findById(formId);
+
+    if (!form) return res.status(404).json({ message: 'Form not found' });
+
+    res.status(200).json(form.questions);
+  } catch (error) {
+    console.error('Error fetching questions:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+router.put('/:formId/questions/:questionId', authenticateJWT,async (req, res) => {
+  try {
+    const { formId, questionId } = req.params;
+    const updateData = req.body;
+
+    const form = await Form.findById(formId);
+    if (!form) return res.status(404).json({ message: 'Form not found' });
+
+    const question = form.questions.id(questionId);
+    if (!question) return res.status(404).json({ message: 'Question not found' });
+
+    Object.assign(question, updateData);
+    await form.save();
+
+    res.status(200).json({ message: 'Question updated successfully', question });
+  } catch (error) {
+    console.error('Error updating question:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+router.delete('/:formId/questions/:questionId',authenticateJWT, async (req, res) => {
+  try {
+    const { formId, questionId } = req.params;
+
+    const updatedForm = await Form.findByIdAndUpdate(
+      formId,
+      { $pull: { questions: { _id: questionId } } },
+      { new: true }
+    );
+
+    if (!updatedForm) {
+      return res.status(404).json({ message: 'Form not found' });
+    }
+
+    res.status(200).json({ message: 'Question deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting question:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+router.delete('/:formId/questions/:questionId/options/:optionIndex', authenticateJWT, async (req, res) => {
+  try {
+    const { formId, questionId, optionIndex } = req.params;
+
+    const form = await Form.findById(formId);
+    if (!form) return res.status(404).json({ message: "Form not found" });
+
+    const question = form.questions.id(questionId);
+    if (!question) return res.status(404).json({ message: "Question not found" });
+
+    if (optionIndex < 0 || optionIndex >= question.options.length) {
+      return res.status(400).json({ message: "Invalid option index" });
+    }
+
+    question.options.splice(optionIndex, 1);
+    await form.save();
+
+    res.status(200).json({ message: "Option removed successfully", question });
+  } catch (error) {
+    console.error("Error removing option:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.post('/:formId/questions/:questionId/rules', authenticateJWT,async (req, res) => {
+  try {
+    const { formId, questionId } = req.params;
+    const newRule = req.body;
+
+    const form = await Form.findById(formId);
+    if (!form) return res.status(404).json({ message: "Form not found" });
+
+    const question = form.questions.id(questionId);
+    if (!question) return res.status(404).json({ message: "Question not found" });
+
+    question.rules.push(newRule);
+    await form.save();
+
+    res.status(201).json({ message: "Rule added successfully", question });
+  } catch (error) {
+    console.error("Error adding rule:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.put('/:formId/questions/:questionId/rules/:ruleId',authenticateJWT, async (req, res) => {
+  try {
+    const { formId, questionId, ruleId } = req.params;
+    const updatedRule = req.body;
+
+    const form = await Form.findById(formId);
+    if (!form) return res.status(404).json({ message: "Form not found" });
+
+    const question = form.questions.id(questionId);
+    if (!question) return res.status(404).json({ message: "Question not found" });
+
+    const rule = question.rules.id(ruleId);
+    if (!rule) return res.status(404).json({ message: "Rule not found" });
+
+    Object.assign(rule, updatedRule);
+    await form.save();
+
+    res.status(200).json({ message: "Rule updated successfully", rule });
+  } catch (error) {
+    console.error("Error updating rule:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.delete('/:formId/questions/:questionId/rules/:ruleId',authenticateJWT, async (req, res) => {
+  try {
+    const { formId, questionId, ruleId } = req.params;
+
+    const form = await Form.findById(formId);
+    if (!form) return res.status(404).json({ message: "Form not found" });
+
+    const question = form.questions.id(questionId);
+    if (!question) return res.status(404).json({ message: "Question not found" });
+
+    question.rules = question.rules.filter(rule => rule._id.toString() !== ruleId);
+    await form.save();
+
+    res.status(200).json({ message: "Rule deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting rule:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.put("/:formId/questions", authenticateJWT, async (req, res) => {
+  const { formId } = req.params;
+  const { questions } = req.body;
+
+  console.log("📋 Form ID:", formId);
+  console.log("🆕 Received Questions:", questions);
+
+  try {
+    // Validate input
+    if (!Array.isArray(questions)) {
+      console.warn("⚠️ Invalid request: questions should be an array");
+      return res.status(400).json({ error: "Invalid request: questions should be an array" });
+    }
+
+    // Ensure each question has a valid ObjectId if `_id` exists, or create a new one
+    const updatedQuestions = questions.map(q => ({
+      ...q,
+      _id: q._id ? new mongoose.Types.ObjectId(q._id) : new mongoose.Types.ObjectId(),
+    }));
+
+    console.log("🆔 Processed Questions:", updatedQuestions);
+
+    // Find and update the form
+    const updatedForm = await Form.findByIdAndUpdate(
+      formId,
+      { $set: { questions: updatedQuestions } },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedForm) {
+      console.warn("⚠️ Form not found");
+      return res.status(404).json({ error: "Form not found" });
+    }
+
+    console.log("✅ Questions updated successfully");
+    return res.status(200).json({ message: "Questions updated successfully", questions: updatedForm.questions });
+
+  } catch (error) {
+    console.error("🚨 Error updating questions:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    console.log("🔥 Incoming request to submit form:");
+    console.log("📌 Request params:", req.params);
+    console.log("📌 Request body:", JSON.stringify(req.body, null, 2));
+
+    const { formId } = req.params;
+    const { submissions, email } = req.body;
+
+    // ✅ Validation
+    if (!formId || !mongoose.Types.ObjectId.isValid(formId)) {
+      return res.status(400).json({ message: "Invalid or missing form ID" });
+    }
+
+    if (!Array.isArray(submissions) || submissions.length === 0) {
+      return res.status(400).json({ message: "Submissions cannot be empty" });
+    }
+
+    // ✅ Find the form
+    const form = await Form.findById(formId).session(session);
+    if (!form) {
+      return res.status(404).json({ message: "Form not found" });
+    }
+
+    console.log("✅ Form found:", form.formName);
+
+    const { isUsedForRegistration, isUsedForRussian, formName, description, courseId } = form;
+
+    if (!courseId) {
+      console.log("⚠️ No courseId found in form.");
+      return res.status(404).json({ message: "No course associated with this form." });
+    }
+
+    console.log("✅ Form linked to courseId:", courseId);
+
+    // ✅ Validate and process submissions
+    const processedSubmissions = [];
+
+    for (const submission of submissions) {
+      if (!submission.questionId) {
+        await session.abortTransaction();
+        return res.status(400).json({
+          message: "Each submission must include a questionId."
+        });
+      }
+
+      const response = {
+        formId: formId,
+        questionId: submission.questionId,
+        isUsedForInvoice: submission.isUsedForInvoice || false
+      };
+
+      // ✅ Handle file submissions with GridFS
+      if (submission.isFile && submission.fileData) {
+        console.log(`📁 Processing file for question ${submission.questionId}`);
+    
+        const { base64, contentType, fileName, size } = submission.fileData;
+    
+        if (!base64 || !contentType) {
+            await session.abortTransaction();
+            return res.status(400).json({
+                message: `Missing base64 data or contentType for file in question ${submission.questionId}`
+            });
+        }
+    
+        // Convert base64 to buffer
+        const fileBuffer = Buffer.from(base64, 'base64');
+        
+        // Create a unique filename
+        const uniqueFileName = `${Date.now()}-${Math.round(Math.random() * 1E9)}-${fileName}`;
+        
+        // Create a write stream to GridFS
+        const writeStream = gfs.openUploadStream(uniqueFileName, {
+          contentType: contentType || 'application/octet-stream',
+          metadata: {
+            questionId: submission.questionId,
+            formId: formId,
+            submittedBy: email || 'anonymous'
+          }
+        });
+        
+        // Write the file to GridFS
+        writeStream.write(fileBuffer);
+        writeStream.end();
+        
+        // Wait for the file to finish uploading
+        await new Promise((resolve, reject) => {
+          writeStream.on('finish', resolve);
+          writeStream.on('error', reject);
+        });
+        
+        // Store the file reference instead of the actual file
+        response.file = {
+          fileId: writeStream.id,
+          fileName: fileName,
+          contentType: contentType,
+          size: size || fileBuffer.length,
+          uploadDate: new Date()
+        };
+    
+        console.log(`✅ File stored in GridFS: ${response.file.fileName}, File ID: ${response.file.fileId}`);
+      } else {
+        // ✅ Handle regular answers
+        if (!submission.answer) {
+          await session.abortTransaction();
+          return res.status(400).json({
+            message: `Missing answer for question ${submission.questionId}`
+          });
+        }
+
+        response.answer = submission.answer;
+      }
+
+      processedSubmissions.push(response);
+    }
+
+    console.log("✅ All submissions processed:", processedSubmissions);
+
+    // ✅ Create a new grouped submission entry
+    const newSubmission = {
+      email: email || "N/A",
+      responses: processedSubmissions,
+      submittedAt: new Date(),
+    };
+
+    // ✅ Push the new submission into the form's `submissions[]`
+    form.submissions.push(newSubmission);
+
+    // ✅ Save the form with session
+    await form.save({ session });
+
+    console.log("✅ Submission saved successfully!");
+
+    // ✅ Update user only if email is provided
+    let updatedUser = null;
+
+    if (email) {
+      console.log("✅ Email provided, updating user's registeredForms...");
+
+      let user = await User.findOne({ email }).session(session);
+
+      if (!user) {
+        console.log("🚫 User not found, creating new user...");
+
+        // ✅ Create a new user if none exists
+        user = new User({
+          email,
+          courses: [{
+            courseId: courseId,
+            registeredForms: [{
+              formId,
+              formName,
+              formDescription: description,
+              isUsedForRegistration,
+              isUsedForRussian,
+              submittedAt: new Date()
+            }]
+          }]
+        });
+
+        await user.save({ session });
+        console.log("✅ New user created and linked to the form!");
+
+      } else {
+        console.log("✅ User found, updating courses...");
+
+        // ✅ Check if the course exists in the user's courses
+        let userCourse = user.courses.find(
+          (course) => course.courseId.toString() === courseId.toString()
+        );
+
+        if (userCourse) {
+          // ✅ Check if the form already exists in `registeredForms[]`
+          const existingForm = userCourse.registeredForms.find(
+            (form) => form.formId.toString() === formId.toString()
+          );
+
+          if (!existingForm) {
+            // ✅ Add the form to the existing course
+            userCourse.registeredForms.push({
+              formId,
+              formName,
+              formDescription: description,
+              isUsedForRegistration,
+              isUsedForRussian,
+              submittedAt: new Date()
+            });
+
+            console.log("✅ Form added to registeredForms successfully!");
+
+          } else {
+            console.log("🚫 Form already exists in registeredForms. Skipping...");
+          }
+        } else {
+          // ✅ Add a new course with `registeredForms[]`
+          user.courses.push({
+            courseId: courseId,
+            registeredForms: [{
+              formId,
+              formName,
+              formDescription: description,
+              isUsedForRegistration,
+              isUsedForRussian,
+              submittedAt: new Date()
+            }],
+            submittedAt: new Date()
+          });
+
+          console.log("✅ New course added with registeredForms!");
+        }
+
+        // ✅ Save the updated user
+        await user.save({ session });
+        updatedUser = user;
+
+        if (isUsedForRegistration) {
+          const { regType, category } = extractInvoiceFields(processedSubmissions);
+          
+          const emailTemplate = getEmailTemplate(
+              isUsedForRussian ? "ru" : "en",
+              user,
+              formName,
+              regType,
+              category
+          );
+
+          await sendEmailRusender({ email: user.email, firstName: user.firstName }, emailTemplate);
+          console.log("✅ Registration email sent with Invoice Fields!");
+        }
+      }
+    }
+
+    // ✅ Commit the transaction
+    await session.commitTransaction();
+
+    // ✅ Prepare response payload
+    const responsePayload = {
+      message: "Form submitted successfully with files!",
+      submission: newSubmission,
+      user: updatedUser || null,
+    };
+
+    console.log("✅ Returning final response:", responsePayload);
+
+    res.status(201).json(responsePayload);
+
+  } catch (error) {
+    await session.abortTransaction();
+    console.error("❌ Error submitting form:", error);
+    res.status(500).json({ message: "Internal server error", error: error.message });
+
+  } finally {
+    session.endSession();
+  }
+});
+
+router.get('/files/:fileId', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return res.status(401).json({ message: 'Authorization token required' });
+    }
+
+    // Verify token (optional, depending on your auth setup)
+    jwt.verify(token, JWT_SECRET, async (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ message: 'Invalid or expired token' });
+      }
+
+      const fileId = new mongoose.Types.ObjectId(req.params.fileId);
+      
+      // First check if file exists
+      const file = await mongoose.connection.db.collection('uploads.files').findOne({ _id: fileId });
+      if (!file) {
+        return res.status(404).json({ message: 'File not found' });
+      }
+
+      // Verify user has access to this file (optional)
+      // You might want to check if the user submitted this file
+      // This depends on your application logic
+
+      // Set proper headers
+      res.set('Content-Type', file.contentType);
+      res.set('Content-Length', file.length);
+      res.set('Content-Disposition', `attachment; filename="${file.filename}"`);
+
+      // Stream the file
+      const downloadStream = gfs.openDownloadStream(fileId);
+      downloadStream.pipe(res);
+      
+      downloadStream.on('error', (error) => {
+        console.error('Error streaming file:', error);
+        res.status(500).end();
+      });
+    });
+  } catch (error) {
+    console.error('Error retrieving file:', error);
+    res.status(500).json({ message: 'Error retrieving file', error: error.message });
+  }
+});
+
+
+router.get('/:formId/submission', authenticateJWT, async (req, res) => {
+  try {
+    const { formId } = req.params;
+    const email = req.user.email; // Get email from authenticated user
+
+    if (!formId) {
+      return res.status(400).json({ 
+        success: false,
+        message: "Form ID is required" 
+      });
+    }
+
+    const form = await Form.findOne({
+      _id: formId,
+      'submissions.email': email
+    }).select('submissions.$');
+
+    if (!form?.submissions?.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No submission found for this form and user"
+      });
+    }
+
+    const submission = form.submissions[0];
+    
+    res.json({
+      success: true,
+      formId: form._id,
+      email: submission.email,
+      responses: submission.responses,
+      submittedAt: submission.submittedAt,
+      isUsedForRegistration: submission.isUsedForRegistration,
+      isUsedForRussian: submission.isUsedForRussian
+    });
+
+  } catch (error) {
+    console.error('Error fetching submission:', error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message
+    });
+  }
+});
+
+
+router.get('/:formId/info', authenticateJWT, async (req, res) => {
+  const { formId } = req.params;
+
+  try {
+    const form = await Form.findById(formId);
+
+    if (!form) {
+      return res.status(404).json({ message: 'Form not found' });
+    }
+
+    res.status(200).json({
+      title: form.title,
+      description: form.description,
+      formLogo: form.formLogo || null,  // Send null if no logo exists
+      createdAt: form.createdAt,
+      updatedAt: form.updatedAt
+    });
+
+  } catch (error) {
+    console.error('Error fetching form details:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
+
+
+
+
+
 
 module.exports = router;

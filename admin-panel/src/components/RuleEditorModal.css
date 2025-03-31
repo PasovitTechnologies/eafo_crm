@@ -1,0 +1,289 @@
+/* -------------------------------- */
+/* Modal Overlay with Smooth Effects */
+/* -------------------------------- */
+.rule-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);  /* Darker overlay for contrast */
+    display: flex;
+    justify-content: flex-end;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, backdrop-filter 0.4s ease;
+    backdrop-filter: blur(1px);  /* Smooth glass effect */
+}
+
+.rule-modal-overlay.open {
+    opacity: 1;
+    pointer-events: auto;
+    backdrop-filter: blur(8px);
+}
+
+/* -------------------------------- */
+/* Modal Container with Smooth Slide-In */
+/* -------------------------------- */
+.rule-modal-container {
+    width: 600px;
+    max-width: 100%;
+    height: 100%;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    box-shadow: -6px 0 15px rgba(0, 0, 0, 0.2);
+    position: relative;
+    transform: translateX(100%);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+    overflow-y: auto; 
+}
+.rule-modal-container .condition-item .select{
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    transition: border 0.3s;
+}
+
+/* Light color scrollbar */
+.rule-modal-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.rule-modal-container::-webkit-scrollbar-track {
+    background: #f1f1f1;   /* Light gray track */
+    border-radius: 10px;    /* Rounded track */
+}
+
+.rule-modal-container::-webkit-scrollbar-thumb {
+    background: #d1d1d1;    /* Light thumb color */
+    border-radius: 10px;
+    transition: background 0.3s;
+}
+
+.rule-modal-container::-webkit-scrollbar-thumb:hover {
+    background: #b0b0b0;   /* Darker on hover */
+}
+
+
+.rule-modal-container.open {
+    transform: translateX(0);
+}
+
+/* -------------------------------- */
+/* Close Icon Styling */
+/* -------------------------------- */
+.rule-close-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 26px;
+    color: #555;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.rule-close-icon:hover {
+    color: #e74c3c;  /* Red on hover */
+}
+
+/* -------------------------------- */
+/* Modal Header Styling */
+/* -------------------------------- */
+.rule-modal-container h3 {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 20px;
+}
+
+/* -------------------------------- */
+/* Inner Container for Conditions */
+/* -------------------------------- */
+.rule-modal-inner-container {
+    flex: 1;
+    overflow-y: auto;
+}
+.rule-modal-inner-container h4{
+    font-size: 20px;
+}
+/* -------------------------------- */
+/* Conditions Styling */
+/* -------------------------------- */
+.condition-group {
+    border-radius: 8px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+
+
+/* Select fields */
+.condition-item select,
+.target-question-item select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: #fff;
+    transition: border 0.3s;
+    font-size: 16px;
+}
+
+.condition-item select:focus,
+.target-question-item select:focus {
+    outline: none;
+    border: 1px solid #3498db;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+}
+
+/* -------------------------------- */
+/* Buttons Styling */
+/* -------------------------------- */
+.add-option-btn,
+.remove-option-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #3498db;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+    font-size: 15px;
+}
+
+.add-option-btn:hover {
+    background: #2980b9;
+    transform: translateY(-3px);
+}
+
+.remove-option-btn {
+    background: #e74c3c;
+}
+
+.remove-option-btn:hover {
+    background: #c0392b;
+    transform: translateY(-3px);
+}
+.add-target-btn{
+    width: fit-content;
+    background: #3498db;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+    font-size: 15px;
+}
+/* -------------------------------- */
+/* Action Selector & Dropdowns */
+/* -------------------------------- */
+
+
+
+.action-selector, 
+.target-question-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.action-selector label, 
+.target-question-selector label {
+    font-size: 18px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.action-selector select,
+.target-question-selector select {
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    transition: border 0.3s;
+}
+
+.action-selector select:hover,
+.target-question-selector select:hover {
+    border: 1px solid #2980b9;
+}
+
+/* -------------------------------- */
+/* Save Button with Modern Style */
+/* -------------------------------- */
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+}
+
+.save-btn {
+    background: #27ae60;
+    color: #fff;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-right: 20px;
+}
+
+.save-btn:hover {
+    background: #219150;
+    transform: translateY(-3px);
+}
+.rule-modal-inner-container{
+    
+}
+/* -------------------------------- */
+/* Responsive Design */
+/* -------------------------------- */
+@media (max-width: 1024px) {
+    .rule-modal-container {
+        width: 90%;
+    }
+}
+
+@media (max-width: 768px) {
+    .rule-modal-container {
+        width: 100%;
+        border-radius: 0;
+    }
+
+    .save-btn {
+        width: 100%;
+        font-size: 16px;
+    }
+
+    .rule-close-icon {
+        font-size: 22px;
+    }
+}
+select {
+    width: 100% !important;
+    padding: 12px !important;
+    font-size: 16px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 8px !important;
+    background: #fff !important;
+    color: #333 !important;
+    margin-bottom: 10px;
+}

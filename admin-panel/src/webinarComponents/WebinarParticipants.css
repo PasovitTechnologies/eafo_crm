@@ -1,147 +1,175 @@
-/* Navbar - participants page */
+/* Container */
 .participants-page-container {
-  font-family: "Roboto", serif;
-  margin-left: 120px;
+  font-family: "Roboto", sans-serif;
+  margin-left: 80px;
+  padding: 20px;
+  color: #333;
+  margin-top: 60px;
 }
 
-.participants-navbar {
-  align-items: center;
-  padding: 15px 30px;
-  background-color: white; /* White background */
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); /* Border shadow */
-  border-bottom: 1px solid #ddd; /* Optional: Light border at the bottom */
-  flex-wrap: wrap; /* Ensure items wrap in case of small screen */
-}
-
-.navbar-heading {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-right: 20px; /* Add spacing between heading and search bar */
+/* Header */
+.participants-header h1 {
+  font-size: 24px;
   color: #033672;
-  flex: 1; /* Make the title take up available space */
-  text-align: left; /* Ensure it aligns left on smaller screens */
+  margin-bottom: 30px;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 10px;
 }
 
+/* Search and Export Container */
+.search-export-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
 
-
-.participants-page-container .search-bar-wrapper {
+/* Search Bar */
+.search-bar-wrapper {
   display: flex;
   align-items: center;
-  width: 100%;
-}
-
-.search-bar-wrapper p {
-  margin-right: 10px;
-  font-size: 18px;
-}
-
-.search-bar {
-  width: 250px; /* Fixed width for the search bar */
-  max-width: 100%; /* Ensure it doesn't exceed its container */
-  padding: 10px;
-  border: 1px solid #ddd;
+  background: #f5f5f5;
   border-radius: 8px;
-  font-size: 1rem;
-  transition: box-shadow 0.3s ease;
+  padding: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s;
 }
 
-.search-bar:focus {
-  outline: none;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+.search-bar-wrapper:hover {
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
 }
 
 .search-icon {
-  position: absolute;
-  top: 50%;
-  left: 10px; /* Position the icon inside the left edge of the input */
-  transform: translateY(-50%);
-  font-size: 1.2rem;
-  color: #aaa;
-  pointer-events: none; /* Prevent the icon from interfering with input clicks */
-}
-
-/* For responsive design */
-@media (max-width: 768px) {
-  .participants-navbar {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 10px; /* Adjust padding for small screens */
-  }
-
-  .navbar-heading {
-    font-size: 1.2rem;
-    margin-left: 0;
-    text-align: left;
-    margin-bottom: 10px;
-  }
-
-  .search-container {
-    width: 100%;
-    justify-content: flex-start;
-    margin-top: 10px;
-  }
-
-  .search-bar {
-    width: 100%; /* Full width on small screens */
-    margin-top: 10px;
-  }
-
-  .search-bar-wrapper p {
-    font-size: 16px;
-  }
-}
-
-/* If you want to apply other general styles for body and layout */
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-}
-
-/* For overall page container and participants list */
-.participants-container {
-  padding: 20px;
- 
-}
-
-.participants-header {
-  font-size: 1.8rem;
-  margin-bottom: 20px;
-  font-weight: bold;
-  color: #333;
-}
-
-.participants-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  cursor: pointer;
-}
-
-.participant-card {
-  padding: 25px;
-  background-color: #fff;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
-}
-
-.participant-card p {
-  margin-bottom: 5px;
   font-size: 18px;
-}
-
-.participant-card:hover {
-  transform: translateY(-8px);
-}
-
-.no-participants {
   color: #555;
+  margin-right: 10px;
+}
+
+.search-bar {
+  border: none;
+  outline: none;
+  width: 300px;
+  padding: 8px;
   font-size: 1rem;
-  text-align: center;
-  padding: 20px;
-  border: 1px dashed #ccc;
-  border-radius: 8px;
+  background: transparent;
+}
+
+/* Export Button */
+.export-btn-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.export-btn {
+  padding: 10px 20px;
+  background: #033672;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: 0.3s;
+  font-size: 1rem;
+}
+
+.export-btn:hover {
+  background: #025bb5;
+}
+
+/* Table Styles */
+.participants-table-wrapper {
+  overflow-x: auto;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  background: white;
+  margin: 20px 0;
+}
+
+.participants-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.participants-table th,
+.participants-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  font-size: 1rem;
+}
+
+/* No background color for thead */
+.participants-table th {
+  font-weight: bold;
+  color: #033672;
+}
+
+/* Alternate row colors */
+.participants-table tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
+.participants-table tr:hover {
+  background: #f1f1f1;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+/* Pagination */
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  margin: 20px 0;
+}
+
+.pagination-controls button {
+  margin: 0 5px;
+  padding: 10px 20px;
+  border: none;
+  background: #033672;
+  color: #fff;
+  cursor: pointer;
+  transition: 0.3s;
+  border-radius: 5px;
+}
+
+.pagination-controls button:hover {
+  background: #025bb5;
+}
+
+.pagination-controls button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-controls span {
+  font-size: 1rem;
+  color: #555;
+  margin: 0 10px;
+}
+
+/* No Participants */
+.no-participants {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #777;
+  margin: 40px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .search-bar {
+    width: 100%;
+  }
+
+  .participants-table th,
+  .participants-table td {
+    padding: 12px;
+    font-size: 0.9rem;
+  }
+
+  .pagination-controls {
+    justify-content: center;
+  }
+}

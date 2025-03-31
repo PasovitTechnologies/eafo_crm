@@ -1,94 +1,120 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import "./LoginPage.css";
-import { columnImages } from "./imageData";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
-import { jwtDecode } from "jwt-decode";
-import Navbar from "./Navbar";
-import ContactUs from "./ContactUs";
-import { useTranslation } from 'react-i18next'; // Import the useTranslation hook
-import ScrollingComponent from "./ScrollingComponent";
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import { AiOutlineEye, AiOutlineEyeInvisible } from 'react-icons/ai';
+import { jwtDecode } from 'jwt-decode';
+import { useTranslation } from 'react-i18next';
+import './AuthForm.css';
 
 const LoginPage = () => {
-  const { t } = useTranslation(); // Get translation function
-  const [columnsToShow, setColumnsToShow] = useState(7);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const navigate = useNavigate();
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
-
-  const updateColumns = () => {
-    const width = window.innerWidth;
-    if (width >= 1200) {
-      setColumnsToShow(7);
-    } else if (width >= 768) {
-      setColumnsToShow(5);
-    } else {
-      setColumnsToShow(3);
-    }
+  // Configure toast notifications with white text
+  const notify = {
+    success: (message) => toast.success(message, {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      className: 'toast-notification',
+      style: { color: '#ffffff' }
+    }),
+    error: (message) => toast.error(message, {
+      position: "top-right",
+      autoClose: 4000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      className: 'toast-notification',
+      style: { color: '#ffffff' }
+    }),
+    info: (message) => toast.info(message, {
+      position: "top-right",
+      autoClose: 2000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      className: 'toast-notification',
+      style: { color: '#ffffff' }
+    })
   };
 
+  // Validate JWT token
   const validateToken = (token) => {
     try {
       const decoded = jwtDecode(token);
-      if (decoded.exp > Date.now() / 1000) {
-        setIsLoggedIn(true);
-        return true;
-      } else {
-        localStorage.removeItem("token");
-        setIsLoggedIn(false);
-        return false;
+      const isValid = decoded.exp > Date.now() / 1000;
+
+      if (!isValid) {
+        localStorage.removeItem('token');
+        notify.error(t('loginPage.sessionExpired'));
       }
+
+      setIsLoggedIn(isValid);
+      return isValid;
     } catch (error) {
-      console.error("Token validation failed:", error);
-      localStorage.removeItem("token");
+      console.error('Token validation failed:', error);
+      localStorage.removeItem('token');
       setIsLoggedIn(false);
+      notify.error(t('loginPage.invalidToken'));
       return false;
     }
   };
 
+  // Check for existing valid token on mount
   useEffect(() => {
-    updateColumns();
-    window.addEventListener("resize", updateColumns);
-
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (token) {
+      notify.info(t('loginPage.checkingSession'));
       validateToken(token);
     }
-
-    return () => window.removeEventListener("resize", updateColumns);
   }, []);
 
+  // Redirect if logged in
   useEffect(() => {
     if (isLoggedIn) {
-      navigate("/dashboard");
+      notify.success(t('loginPage.welcomeBack'));
+      setTimeout(() => navigate('/dashboard'), 1500);
     }
   }, [isLoggedIn, navigate]);
 
+  // Email validation
   const isValidEmail = (email) => /\S+@\S+\.\S+/.test(email);
 
+  // Handle Form Submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!isValidEmail(email)) {
-      toast.error(t("loginPage.validEmail"), { ariaLive: "polite" });
+      notify.error(t('loginPage.validEmail'));
       return;
     }
 
     if (password.length < 8) {
-      toast.error(t("loginPage.validPassword"), { ariaLive: "polite" });
+      notify.error(t('loginPage.validPassword'));
       return;
     }
 
     setLoading(true);
+    
     try {
       const response = await axios.post(`${baseUrl}/api/user/login`, {
         email,
@@ -96,20 +122,24 @@ const LoginPage = () => {
       });
 
       const { token } = response.data;
-      if (!token) throw new Error("Invalid login response.");
+      if (!token) {
+        throw new Error(t('loginPage.invalidResponse'));
+      }
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("email", email);
+      localStorage.setItem('token', token);
+      localStorage.setItem('email', email);
       setIsLoggedIn(true);
 
-      toast.success(t("loginPage.login"), { ariaLive: "polite" });
-      
-        setTimeout(() => {
-          navigate("/dashboard"); // Navigate to home page after timeout
-        }, 2000);
+      notify.success(t('loginPage.loginSuccess'));
+
     } catch (error) {
-      const errorMessage = error.response?.data?.message || t("loginPage.loginFailed");
-      toast.error(errorMessage, { ariaLive: "polite" });
+      const errorMessage = error.response?.data?.message || t('loginPage.loginFailed');
+      notify.error(errorMessage);
+      
+      // Clear form on error
+      if (error.response?.status === 401) {
+        setPassword('');
+      }
     } finally {
       setLoading(false);
     }
@@ -118,92 +148,66 @@ const LoginPage = () => {
   const isFormValid = email && password;
 
   return (
-    <div>
-      <Navbar />
-      <div className="user-login-container">
-        <ToastContainer ariaLive="polite" />
+      
+      <form onSubmit={handleSubmit} className="login-form" style={{ zIndex: 20 }}>
+        <h1>{t('loginPage.title')}</h1>
 
-        {/* Scrolling Column Section */}
-        <div className="scrolling-columns">
-          <ScrollingComponent/>
+        {/* Email Input */}
+        <div className="input-box">
+          <input
+            type="email"
+            placeholder={t('loginPage.emailPlaceholder')}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            aria-label={t('loginPage.emailAriaLabel')}
+          />
         </div>
 
-        {/* Black Blur Overlay */}
-        <div className="black-blur-overlay"></div>
-
-        {/* Login Form */}
-        <div className="user-login-form">
-          <h2>{t("loginPage.login")}</h2>
-          <form onSubmit={handleSubmit}>
-            {/* Email Input */}
-            <div className="user-login-form-group">
-              <label htmlFor="email" className="user-login-form-label">{t("loginPage.email")}</label>
-              <input
-                type="email"
-                id="email"
-                placeholder={t("loginPage.enterEmail")}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="user-login-form-input"
-                aria-label="Enter your email address"
-              />
-            </div>
-
-            {/* Password Input */}
-            <div className="user-login-form-group">
-              <label htmlFor="password" className="user-login-form-label">{t("loginPage.password")}</label>
-              <div className="password-container">
-                <input
-                  type={showPassword ? "text" : "password"}
-                  id="password"
-                  placeholder={t("loginPage.enterPassword")}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="user-login-form-input"
-                  aria-label="Enter your password"
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                  title={showPassword ? t("loginPage.hidePassword") : t("loginPage.showPassword")}
-                  aria-label={showPassword ? t("loginPage.hidePassword") : t("loginPage.showPassword")}
-                >
-                  {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
-                </button>
-              </div>
-              <div className="forgot-password">
-                <a href="/forget-password" className="forgot-password-link" aria-label="Forgot password link">
-                  {t("loginPage.forgotPassword")}
-                </a>
-              </div>
-            </div>
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              className="user-login-form-submit-button"
-              disabled={loading || !isFormValid}
-            >
-              {loading ? `${t("loginPage.submit")}...` : t("loginPage.submit")}
-            </button>
-          </form>
-
-          {/* Register Link */}
-          <div className="register-link">
-            <p>
-              {t("loginPage.register")}{" "}
-              <a href="/register" className="register-text">
-                {t("loginPage.register_a")}
-              </a>
-            </p>
-          </div>
+        {/* Password Input */}
+        <div className="input-box">
+          <input
+            type={showPassword ? 'text' : 'password'}
+            placeholder={t('loginPage.passwordPlaceholder')}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            aria-label={t('loginPage.passwordAriaLabel')}
+          />
+          <button
+            type="button"
+            className="password-toggle"
+            onClick={() => {
+              setShowPassword(!showPassword);
+              notify.info(
+                showPassword 
+                  ? t('loginPage.passwordHidden') 
+                  : t('loginPage.passwordVisible')
+              );
+            }}
+            aria-label={showPassword ? t('loginPage.hidePassword') : t('loginPage.showPassword')}
+            style={{ zIndex: 30 }}
+          >
+            {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+          </button>
         </div>
-      </div>
-      <ContactUs />
-    </div>
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          className="button"
+          disabled={loading || !isFormValid}
+          aria-busy={loading}
+          style={{ zIndex: 20 }}
+        >
+          {loading ? t('loginPage.loading') : t('loginPage.loginButton')}
+        </button>
+        <ToastContainer 
+        style={{ color: '#ffffff' }}
+        toastStyle={{ color: '#ffffff' }}
+      />
+      </form>
+    
   );
 };
 

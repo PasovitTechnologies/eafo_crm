@@ -1,227 +1,139 @@
-/* Importing Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,800');
 
-/* Main container */
-.login-container {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: #000;
-  font-family: 'Roboto', sans-serif; /* Using the new font */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-/* Scrolling Columns Container */
-.scrolling-columns {
-  display: flex;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  z-index: 1; /* Ensure it stays behind the overlay */
+body {
+  font-family: 'Montserrat', sans-serif;
 }
 
-/* Individual Column */
-.scroll-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  overflow: hidden;
-}
-
-/* Images */
-.scroll-image {
-  flex: 0 0 auto;
-  height: 250px;
-  width: 100%;
-  background-size: cover;
-  background-position: center;
-  border: 4px solid #000;
-  border-radius: 10px;
-}
-
-/* Custom Scrolling Animations */
-.scroll-top-to-bottom {
-  animation: scroll-top-to-bottom 20s linear infinite;
-}
-
-.scroll-bottom-to-top {
-  animation: scroll-bottom-to-top 20s linear infinite;
-}
-
-/* Your Keyframes for Scroll Animations */
-@keyframes scroll-top-to-bottom {
-  0% {
-    transform: translateY(0%);
-  }
-  25% {
-    transform: translateY(20%);
-  }
-  50% {
-    transform: translateY(40%);
-  }
-  75% {
-    transform: translateY(60%);
-  }
-  100% {
-    transform: translateY(80%);
-  }
-}
-
-@keyframes scroll-bottom-to-top {
-  0% {
-    transform: translateY(0%);
-  }
-  25% {
-    transform: translateY(-20%);
-  }
-  50% {
-    transform: translateY(-40%);
-  }
-  75% {
-    transform: translateY(-60%);
-  }
-  100% {
-    transform: translateY(-80%);
-  }
-}
-
-/* Black Blur Overlay */
-.black-blur-overlay {
-  position: absolute;
+/* Page transition animation */
+.page-overlay {
+  position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(0px); /* Light blur */
-  background: rgba(0, 0, 0, 0.7); /* Semi-transparent black */
-  z-index: 5; /* Ensure it covers the scrolling columns */
+  width: 100vw;
+  height: 100vh;
+  background: #033672;   /* Same color as the overlay */
+  z-index: 9999;
+  transform-origin: left; /* Expand from left to right */
 }
 
-/* Login Form */
-.admin-login-form {
-  position: relative;
-  z-index: 10; /* Ensure it appears above the blur overlay */
-  background: #fff;
-  padding: 40px;
-  width: 400px; /* Set width */
-  height: auto; /* Adjust the height */
-  border-radius: 10px;
-  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
-  text-align: center;
+/* Container */
+.admin-container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-/* Title */
-.admin-login-form h2 {
-  margin-bottom: 40px;
+.admin-login-box {
+  display: flex;
+  width: 950px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+/* Left Section */
+.admin-overlay-container {
+  flex: 1;
+  background: linear-gradient(135deg, #033672, #0456a3);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.admin-overlay-content {
+  text-align: center;
+  padding: 40px;
+}
+
+.admin-welcome {
+  font-size: 36px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+.admin-description {
+  font-size: 18px;
+  opacity: 0.9;
+}
+
+/* Form Section */
+.admin-form-container {
+  flex: 1;
+  background: white;
+  padding: 60px;
+}
+
+.admin-form-title {
+  font-size: 30px;
+  margin-bottom: 30px;
   color: #033672;
-  font-size: 24px;
-  font-weight: 500;
   font-weight: bold;
 }
 
-/* Form Group (Email/Password) */
-.admin-login-form-group {
-  margin-bottom: 20px;
-  width: 100%;
-  text-align: left;
+.admin-form-group {
+  margin-bottom: 25px;
 }
 
-/* Label */
-.admin-login-form-group label {
-  
-  font-size: 14px;
-  margin-bottom: 5px;
-  color: #000000;
+.admin-label {
+  display: block;
   font-weight: bold;
+  margin-bottom: 10px;
+  color: #033672;
 }
 
-/* Input Fields */
-.admin-login-form .login-form-input{
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  border: 1px solid #cecccc;
-  border-radius: 5px;
-  box-sizing: border-box;
-}
-
-/* Password Input */
-.password-container {
+/* Password wrapper */
+.admin-password-wrapper {
   position: relative;
   display: flex;
   align-items: center;
 }
 
-.password-toggle {
+/* Input field styling */
+.admin-input {
+  width: 100%;
+  padding: 14px;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  transition: 0.3s;
+  padding-right: 40px; /* Space for icon */
+}
+
+/* Password icon inside input */
+.admin-password-icon {
   position: absolute;
   right: 10px;
   cursor: pointer;
-  font-size: 18px;
-  color: #333;
+  color: #033672;
+  font-size: 20px;
+  transition: 0.3s;
 }
 
-/* Submit Button */
-.login-form-submit-button {
+.admin-password-icon:hover {
+  color: #0456a3;
+}
+
+/* Button */
+.admin-btn {
   width: 100%;
   padding: 15px;
   background: #033672;
-  color: #fff;
+  color: white;
   border: none;
-  border-radius: 5px;
-  font-size: 16px;
+  border-radius: 30px;
   cursor: pointer;
-  box-sizing: border-box;
-  margin-top: 20px;
+  transition: 0.3s;
+  font-size: 16px;
 }
 
-.login-form-submit-button:hover {
-  background: #0e427e;
-}
-
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .admin-login-form {
-    width: 350px;
-    padding: 30px;
-  }
-
-  .admin-login-form h2 {
-    font-size: 20px;
-  }
-
-  .admin-login-form-group input {
-    font-size: 14px;
-  }
-
-  .admin-login-form-submit-button {
-    font-size: 14px;
-  }
-}
-
-@media (max-width: 480px) {
-  .admin-login-form {
-    width: 300px;
-    padding: 25px;
-  }
-
-  .admin-login-form h2 {
-    font-size: 18px;
-  }
-
-  .admin-login-form-group input {
-    font-size: 12px;
-  }
-
-  .admin-login-form-submit-button {
-    font-size: 12px;
-  }
+.admin-btn:hover {
+  background: #0456a3;
 }

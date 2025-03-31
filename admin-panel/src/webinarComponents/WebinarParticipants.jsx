@@ -1,201 +1,242 @@
 import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import "./WebinarParticipants.css";
 import { FaSearch } from "react-icons/fa";
-import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import PropTypes from "prop-types";
 
-// Translation object
+// Type definitions (if using TypeScript)
+// interface Participant {
+//   email: string;
+//   status?: string;
+//   registeredAt?: string;
+// }
+
 const translations = {
   English: {
     title: "{webinarTitle} - Participants",
-    search: "Search:",
-    searchPlaceholder: "Search by name or email",
-    name: "Name:",
-    email: "Email:",
-    phoneNumber: "Phone Number:",
-    registeredAt: "Registered At:",
+    searchPlaceholder: "Search by email",
+    email: "Email",
+    status: "Status",
+    registeredAt: "Registered At",
     noParticipants: "No participants found.",
     errorFetchingParticipants: "Error fetching participants",
-    errorFetchingDetails: "Error fetching details for",
+    previous: "Previous",
+    next: "Next",
+    export: "Export CSV",
+    loading: "Loading...",
   },
   Russian: {
     title: "{webinarTitle} - Участники",
-    search: "Поиск:",
-    searchPlaceholder: "Искать по имени или электронная почта",
-    name: "Имя:",
-    email: "Электронная почта:",
-    phoneNumber: "Телефонный номер:",
-    registeredAt: "Зарегистрирован в:",
+    searchPlaceholder: "Искать по электронной почте",
+    email: "Электронная почта",
+    status: "Статус",
+    registeredAt: "Зарегистрирован в",
     noParticipants: "Участники не найдены.",
     errorFetchingParticipants: "Ошибка при получении участников",
-    errorFetchingDetails: "Ошибка при получении данных для",
+    previous: "Назад",
+    next: "Далее",
+    export: "Экспорт CSV",
+    loading: "Загрузка...",
   },
 };
 
 const WebinarParticipants = ({ selectedLanguage = "English" }) => {
-
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const { webinarId } = useParams();
   const [participants, setParticipants] = useState([]);
   const [webinarTitle, setWebinarTitle] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [token] = useState(localStorage.getItem("token"));
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const recordsPerPage = 15;
 
-  // Fetch participants and webinar title
+  const token = localStorage.getItem("token");
+
+  const safeTranslate = (key) => {
+    const lang = translations[selectedLanguage] ? selectedLanguage : "English";
+    return translations[lang][key] || translations.English[key];
+  };
+
   const fetchParticipants = async () => {
+    setLoading(true);
     try {
-      // Get the token from localStorage or from the context (based on how you store it)
-      const token = localStorage.getItem('token'); // Or get it from your state management or context
-  
       const response = await fetch(`${baseUrl}/api/webinars/${webinarId}`, {
-        method: 'GET',
+        method: "GET",
         headers: {
-          'Authorization': `Bearer ${token}`, // Send the token in the Authorization header
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
-  
+
       if (!response.ok) {
-        throw new Error('Failed to fetch participants');
+        throw new Error("Failed to fetch participants");
       }
-  
+
       const data = await response.json();
-  
-      // Assuming the data contains participants and title information
-      setParticipants(data.participants || []);
+      setParticipants(
+        (data.participants || []).sort(
+          (a, b) => new Date(b.registeredAt) - new Date(a.registeredAt)
+        )
+      );
       setWebinarTitle(data.title || "");
-  
     } catch (error) {
       console.error("Error fetching participants:", error);
-      toast.error(translations[selectedLanguage].errorFetchingParticipants);
+      toast.error(safeTranslate("errorFetchingParticipants"));
+    } finally {
+      setLoading(false);
     }
-  };
-  
-
-  // Fetch additional details for a participant
-  const fetchUserDetails = async (email) => {
-    try {
-      const response = await fetch(`${baseUrl}/api/user/${email}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error(`${translations[selectedLanguage].errorFetchingDetails} ${email}:`, error);
-      toast.error(`${translations[selectedLanguage].errorFetchingDetails} ${email}`);
-      return null;
-    }
-  };
-
-  // Enrich participants with additional details
-  const enrichParticipants = async () => {
-    const enrichedParticipants = await Promise.all(
-      participants.map(async (participant) => {
-        const userDetails = await fetchUserDetails(participant.email);
-        return userDetails ? { ...participant, ...userDetails } : participant;
-      })
-    );
-    setParticipants(enrichedParticipants);
   };
 
   useEffect(() => {
-    fetchParticipants();
+    if (webinarId) {
+      fetchParticipants();
+    }
   }, [webinarId]);
 
-  useEffect(() => {
-    if (participants.length > 0) {
-      enrichParticipants();
-    }
-  }, [participants]);
-
-  // Format date to DD-MM-YYYY HH:MM
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, "0");
-    const minutes = String(date.getMinutes()).padStart(2, "0");
-    return `${day}-${month}-${year} ${hours}:${minutes}`;
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleString();
+    } catch {
+      return "N/A";
+    }
   };
 
-  // Filter participants based on search query
   const filteredParticipants = participants.filter((participant) =>
-    `${participant.firstName} ${participant.middleName} ${participant.lastName}`
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase()) ||
-    participant.email.toLowerCase().includes(searchQuery.toLowerCase())
+    participant.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredParticipants.length / recordsPerPage);
+  const startIndex = (currentPage - 1) * recordsPerPage;
+  const currentRecords = filteredParticipants.slice(
+    startIndex,
+    startIndex + recordsPerPage
+  );
+
+  // Export CSV Function
+  const exportCSV = () => {
+    const csvContent = [
+      [safeTranslate("email"), safeTranslate("status"), safeTranslate("registeredAt")],
+      ...participants.map((p) => [
+        p.email || "N/A",
+        p.status || "N/A",
+        formatDate(p.registeredAt),
+      ]),
+    ]
+      .map((e) => e.join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `${webinarTitle || "webinar"}_participants.csv`;
+    link.click();
+  };
 
   return (
     <div className="participants-page-container">
-      {/* Language Switcher */}
-     
-
-      {/* Navbar */}
-      <div className="participants-navbar">
-        <h1 className="navbar-heading">
-          {translations[selectedLanguage].title.replace("{webinarTitle}", webinarTitle)}
+      <div className="participants-header">
+        <h1>
+          {safeTranslate("title").replace("{webinarTitle}", webinarTitle)}
         </h1>
       </div>
 
-      <div className="search-container">
-          <div className="search-bar-wrapper">
-            <p>
-              <strong>{translations[selectedLanguage].search}</strong>
-            </p>
-            <FaSearch className="search-icon" />
-            <input
-              type="text"
-              className="search-bar"
-              placeholder={translations[selectedLanguage].searchPlaceholder}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+      {/* Search Bar & Export Button */}
+      <div className="search-export-container">
+        <div className="search-bar-wrapper">
+          <FaSearch className="search-icon" />
+          <input
+            type="text"
+            className="search-bar"
+            placeholder={safeTranslate("searchPlaceholder")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Search participants"
+          />
         </div>
-
-      {/* Main Content */}
-      <div className="main-content">
-        <div className="participants-container">
-          <div className="participants-list">
-            {filteredParticipants.length > 0 ? (
-              filteredParticipants.map((participant, index) => (
-                <Link
-                  key={index}
-                  to={`/webinar-dashboard/${webinarId}/webinar-participants/user-details/${participant.email}`}
-                  className="participant-card-link"
-                >
-                  <div className="participant-card">
-                    <p>
-                      <strong>{translations[selectedLanguage].name}</strong> {participant.firstName}{" "}
-                      {participant.middleName} {participant.lastName}
-                    </p>
-                    <p>
-                      <strong>{translations[selectedLanguage].email}</strong> {participant.email}
-                    </p>
-                    <p>
-                      <strong>{translations[selectedLanguage].phoneNumber}</strong>{" "}
-                      {participant.countryCode} {participant.phone}
-                    </p>
-                    <p>
-                      <strong>{translations[selectedLanguage].registeredAt}</strong>{" "}
-                      {formatDate(participant["registered at"])}
-                    </p>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <p className="no-participants">{translations[selectedLanguage].noParticipants}</p>
-            )}
-          </div>
+        
+        {/* Export Button */}
+        <div className="export-btn-wrapper">
+          <button 
+            className="export-btn" 
+            onClick={exportCSV}
+            disabled={participants.length === 0}
+          >
+            {safeTranslate("export")}
+          </button>
         </div>
       </div>
+
+      {loading ? (
+        <p>{safeTranslate("loading")}</p>
+      ) : (
+        <div>
+          {currentRecords.length > 0 ? (
+            <div className="participants-table-wrapper">
+              <table className="participants-table">
+                <thead>
+                  <tr>
+                    <th>{safeTranslate("email")}</th>
+                    <th>{safeTranslate("status")}</th>
+                    <th>{safeTranslate("registeredAt")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentRecords.map((participant, index) => (
+                    <tr key={`${participant.email}-${index}`}>
+                      <td>{participant.email || "N/A"}</td>
+                      <td>{participant.status || "N/A"}</td>
+                      <td>{formatDate(participant.registeredAt)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="pagination-controls">
+                  <button
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    aria-label={safeTranslate("previous")}
+                  >
+                    {safeTranslate("previous")}
+                  </button>
+                  <span>
+                    {currentPage} / {totalPages}
+                  </span>
+                  <button
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    aria-label={safeTranslate("next")}
+                  >
+                    {safeTranslate("next")}
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="no-participants">
+              {safeTranslate("noParticipants")}
+            </p>
+          )}
+        </div>
+      )}
       <ToastContainer />
     </div>
   );
 };
 
-export default WebinarParticipants;
+WebinarParticipants.propTypes = {
+  selectedLanguage: PropTypes.oneOf(Object.keys(translations)),
+};
 
+WebinarParticipants.defaultProps = {
+  selectedLanguage: "English",
+};
+
+export default WebinarParticipants;

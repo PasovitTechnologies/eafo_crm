@@ -2,14 +2,27 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&family=Russo+One&display=swap');
 .app-container {
-  display: flex;
-  height: 100vh;
+  
   font-family: "Roboto", serif;
 }
 
-.main-content {
-  margin-left: 250px; /* Space for the collapsed sidebar */
-  width: calc(100% - 60px); /* Remaining space for content */
-  overflow-y: auto;
+
+
+
+/* Main content area */
+
+
+:root {
+  --edit-btn: #FFA500;
+  --edit-btn-hover: #FF8C00;
+  --delete-btn: #f44336;
+  --delete-btn-hover: #e53935;
+  --white: white;
+  --add-webinar-green:#4CAF50;
+  --add-webinar-green-hover:#45a049;
+  --btn-blue:#033672;
+  --btn-blue-hover:#041428;
+
 }
+
 

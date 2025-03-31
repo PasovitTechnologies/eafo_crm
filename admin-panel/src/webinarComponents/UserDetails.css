@@ -1,4 +1,5 @@
 /* Container for the user details page */
+.user-details-container-page{
 .user-details-container {
     margin-left: 120px;
   }
@@ -209,5 +210,5 @@
     font-weight: 600;
     margin: 0;
   }
-  
+}
   

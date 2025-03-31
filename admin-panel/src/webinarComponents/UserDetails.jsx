@@ -221,6 +221,7 @@ const UserDetails = ({ selectedLanguage = "English" }) => {
   }
 
   return (
+    <div user-details-container-page>
     <div className="user-details-container">
       <div className="user-details-navbar">
         <h1 className="user-details-title">
@@ -333,6 +334,7 @@ const UserDetails = ({ selectedLanguage = "English" }) => {
           Delete User
         </button>
       </div>
+    </div>
     </div>
   );
 };

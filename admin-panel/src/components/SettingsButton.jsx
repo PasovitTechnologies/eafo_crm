@@ -1,90 +1,90 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FaCog, FaTimes } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";  // ✅ Import useNavigate
+import { useTranslation } from "react-i18next";   // ✅ Import translation hook
 import "./SettingsButton.css";
 
 const SettingsButton = ({ setSelectedLanguage, setSelectedOS }) => {
   const [showPopup, setShowPopup] = useState(false);
-  const [selectedLanguage, setLocalSelectedLanguage] = useState("Russian");
-  const [selectedOS, setLocalSelectedOS] = useState("EAFO CRM");
+  const [selectedLanguage, setLocalSelectedLanguage] = useState(
+    localStorage.getItem("selectedLanguage") || "ru"
+  );
+  const [selectedOS, setLocalSelectedOS] = useState(
+    localStorage.getItem("selectedOS") || "EAFO CRM"
+  );
 
-  const togglePopup = () => setShowPopup(!showPopup);
+  const { i18n } = useTranslation();   // ✅ Get i18n instance
+  const navigate = useNavigate();  
+  const popupRef = useRef(null);
 
   useEffect(() => {
-    try {
-      const languageFromStorage = localStorage.getItem("selectedLanguage");
-      const osFromStorage = localStorage.getItem("selectedOS");
+    setSelectedLanguage(selectedLanguage);
+    setSelectedOS(selectedOS);
+    i18n.changeLanguage(selectedLanguage);   // ✅ Update i18n language globally
+  }, [selectedLanguage, selectedOS, setSelectedLanguage, setSelectedOS, i18n]);
 
-      if (languageFromStorage) {
-        setLocalSelectedLanguage(languageFromStorage);
-        setSelectedLanguage(languageFromStorage);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        setShowPopup(false);
       }
+    };
 
-      if (osFromStorage) {
-        setLocalSelectedOS(osFromStorage);
-        setSelectedOS(osFromStorage);
-      }
-    } catch (error) {
-      console.error("Error accessing localStorage:", error);
+    if (showPopup) {
+      document.addEventListener("mousedown", handleClickOutside);
     }
-  }, [setSelectedLanguage, setSelectedOS]);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showPopup]);
 
   const toggleLanguage = () => {
-    const newLanguage = selectedLanguage === "Russian" ? "English" : "Russian";
+    const newLanguage = selectedLanguage === "ru" ? "en" : "ru";
     setLocalSelectedLanguage(newLanguage);
-    setSelectedLanguage(newLanguage);
-    try {
-      localStorage.setItem("selectedLanguage", newLanguage);
-    } catch (error) {
-      console.error("Error saving language to localStorage:", error);
-    }
+    localStorage.setItem("selectedLanguage", newLanguage);
+    i18n.changeLanguage(newLanguage);  // ✅ Change language globally
   };
 
   const toggleOS = () => {
     const newOS = selectedOS === "EAFO CRM" ? "Webinar" : "EAFO CRM";
     setLocalSelectedOS(newOS);
-    setSelectedOS(newOS);
-    try {
-      localStorage.setItem("selectedOS", newOS);
-    } catch (error) {
-      console.error("Error saving OS to localStorage:", error);
-    }
+    localStorage.setItem("selectedOS", newOS);
+    const path = newOS === "EAFO CRM" ? "/admin-dashboard" : "/webinar-dashboard";
+    navigate(path);
   };
-
-  useEffect(() => {
-    const handleOutsideClick = (event) => {
-      if (!event.target.closest(".popup-content")) {
-        setShowPopup(false);
-      }
-    };
-    document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
-  }, []);
 
   return (
     <div className="settings-div">
-      <div className="settings-button" onClick={togglePopup} aria-label="Open Settings">
+      <button
+        className="settings-button"
+        onClick={() => setShowPopup(!showPopup)}
+        aria-label="Open Settings"
+      >
         <FaCog className="settings-icon" />
-      </div>
+      </button>
 
       {showPopup && (
-        <div className="popup">
-          <div className="popup-content">
-            <div className="close-button" onClick={togglePopup} aria-label="Close Settings">
+        <div className="settings-popup">
+          <div className="settings-popup-content" ref={popupRef}>
+            <button
+              className="close-button"
+              onClick={() => setShowPopup(false)}
+              aria-label="Close Settings"
+            >
               <FaTimes />
-            </div>
-            <h3>{selectedLanguage === "Russian" ? "Выберите предпочтения" : "Select Your Preferences"}</h3>
+            </button>
+
+            <h3>{selectedLanguage === "ru" ? "Выберите предпочтения" : "Select Your Preferences"}</h3>
 
             <div className="question">
-              <label>{selectedLanguage === "Russian" ? "Язык" : "Language"}</label>
+              <label>{selectedLanguage === "ru" ? "Язык" : "Language"}</label>
               <div className="toggle-switch" onClick={toggleLanguage}>
-                <span className={`toggle-label ${selectedLanguage === "Russian" ? "active" : ""}`}>
-                  {selectedLanguage === "Russian" ? "Русский" : "Russian"}
+                <span className={`toggle-label ${selectedLanguage === "ru" ? "active" : ""}`}>
+                  Русский
                 </span>
                 <div className="switch-background">
-                  <div className={`switch ${selectedLanguage === "Russian" ? "left" : "right"}`} />
+                  <div className={`switch ${selectedLanguage === "ru" ? "left" : "right"}`} />
                 </div>
-                <span className={`toggle-label ${selectedLanguage === "English" ? "active" : ""}`}>
-                  {selectedLanguage === "Russian" ? "English" : "English"}
+                <span className={`toggle-label ${selectedLanguage === "en" ? "active" : ""}`}>
+                  English
                 </span>
               </div>
             </div>
@@ -92,7 +92,7 @@ const SettingsButton = ({ setSelectedLanguage, setSelectedOS }) => {
             <div className="border-separator"></div>
 
             <div className="question">
-              <label>{selectedLanguage === "Russian" ? "Операционная система" : "Operating System"}</label>
+              <label>{selectedLanguage === "ru" ? "Операционная система" : "Operating System"}</label>
               <div className="toggle-switch" onClick={toggleOS}>
                 <span className={`toggle-label ${selectedOS === "EAFO CRM" ? "active" : ""}`}>
                   EAFO CRM
