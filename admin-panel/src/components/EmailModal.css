@@ -127,3 +127,32 @@
     }
   }
   
+.toast-notification{
+  color: #fff;
+}
+.Toastify__toast-container {
+  width: auto;
+  max-width: 400px;
+  color: #fff;
+  font-weight: bold;
+}
+
+.Toastify__toast {
+  border-radius: 8px;
+  font-family: inherit;
+  padding: 12px 20px;
+}
+
+.Toastify__toast--success {
+  background-color: #4CAF50;
+}
+
+.Toastify__toast--error {
+  background-color: #F44336;
+}
+
+.Toastify__toast--info {
+  background-color: #2196F3;
+}
+
+  

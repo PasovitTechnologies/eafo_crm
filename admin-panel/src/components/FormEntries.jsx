@@ -215,110 +215,104 @@ const FormEntries = () => {
 
   const handleExport = (type) => {
     if (!submissions.length) {
-      alert("No data available to export.");
+      toast.warning(t("FormEntries.noData"));
       return;
     }
-
+  
     let exportData = [];
-
+  
     if (type === "all") {
       exportData = submissions.map((submission) => {
         const row = {
-          "Submission ID": submission._id,
-          "Submitted At": new Date(submission.submittedAt).toLocaleString(),
+          [t("FormEntries.submissionId")]: submission._id,
+          [t("FormEntries.submittedAt")]: new Date(submission.submittedAt).toLocaleString(),
         };
+  
         questions.forEach((q) => {
-          row[q.label] =
-            submission.responses.find((r) => r.questionId === q._id)?.answer ||
-            "";
+          row[t(`FormEntries.${q.label}`)] =
+            submission.responses.find((r) => r.questionId === q._id)?.answer || "";
         });
+  
         return row;
       });
     } else {
       if (!selectedQuestions.length) {
-        alert("Please select at least one question to export.");
+        toast.warning(t("FormEntries.selectQuestion"));
         return;
       }
-
+  
       exportData = submissions.map((submission) => {
         const row = {
-          "Submission ID": submission._id,
-          "Submitted At": new Date(submission.submittedAt).toLocaleString(),
+          [t("FormEntries.submissionId")]: submission._id,
+          [t("FormEntries.submittedAt")]: new Date(submission.submittedAt).toLocaleString(),
         };
+  
         selectedQuestions.forEach((qId) => {
           const question = questions.find((q) => q._id === qId);
           if (question) {
-            row[question.label] =
-              submission.responses.find((r) => r.questionId === qId)?.answer ||
-              "";
+            row[t(`FormEntries.${question.label}`)] =
+              submission.responses.find((r) => r.questionId === qId)?.answer || "";
           }
         });
+  
         return row;
       });
     }
+  
+    exportCSV(exportData, "submissions.csv");
+  };
 
-    // Convert to CSV format
+  const handleManualExport = () => {
+    if (!selectedQuestions.length) {
+      toast.warning(t("FormEntries.selectQuestion"));
+      return;
+    }
+  
+    const exportData = submissions.map((submission) => {
+      const row = {
+        [t("FormEntries.submissionId")]: submission._id,
+        [t("FormEntries.submittedAt")]: new Date(submission.submittedAt).toLocaleString(),
+      };
+  
+      selectedQuestions.forEach((qId) => {
+        const question = questions.find((q) => q._id === qId);
+        row[t(`FormEntries.${question?.label}`)] =
+          submission.responses.find((r) => r.questionId === qId)?.answer || "";
+      });
+  
+      return row;
+    });
+  
+    exportCSV(exportData, "filtered_submissions.csv");
+  
+    setSelectedQuestions([]);
+    setShowManualExport(false);
+  };
+  
+  // ✅ Reusable CSV Export Function
+  const exportCSV = (data, filename) => {
+    if (!data.length) return;
+  
     const csvContent = [
-      Object.keys(exportData[0]).join(","), // Header row
-      ...exportData.map((row) =>
+      Object.keys(data[0]).join(","), // Header row with translations
+      ...data.map((row) =>
         Object.values(row)
           .map((val) => `"${val}"`)
           .join(",")
       ), // Data rows
     ].join("\n");
-
-    // Create and trigger download
+  
     const blob = new Blob([csvContent], { type: "text/csv" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = "submissions.csv";
+    link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    toast.success(t("FormEntries.exportSuccess"));
   };
-
-  const handleManualExport = () => {
-    if (selectedQuestions.length === 0) {
-      alert("Please select at least one question to export.");
-      return;
-    }
-
-    const exportData = submissions.map((submission) => {
-      let row = {
-        "Submission ID": submission._id,
-        "Submitted At": new Date(submission.submittedAt).toLocaleString(),
-      };
-
-      selectedQuestions.forEach((qId) => {
-        const question = questions.find((q) => q._id === qId);
-        row[question?.label] =
-          submission.responses.find((r) => r.questionId === qId)?.answer || "";
-      });
-
-      return row;
-    });
-
-    const csvContent = [
-      Object.keys(exportData[0]).join(","),
-      ...exportData.map((row) =>
-        Object.values(row)
-          .map((val) => `"${val}"`)
-          .join(",")
-      ),
-    ].join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "filtered_submissions.csv";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Reset selection after export
-    setSelectedQuestions([]);
-    setShowManualExport(false);
-  };
+  
 
   useEffect(() => {
     const handleClickOutside = (event) => {

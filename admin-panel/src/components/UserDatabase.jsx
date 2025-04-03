@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaSearch, FaFileExport, FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";  // Import useNavigate
 import "./UserDatabase.css";
 
 const UserDatabase = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();  // Initialize navigate
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -13,7 +15,6 @@ const UserDatabase = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
   const baseUrl = import.meta.env.VITE_BASE_URL;
-
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -80,6 +81,10 @@ const UserDatabase = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const handleRowClick = (email) => {
+    navigate(`/userbase/userbase-details/${email}`);  // Navigate to UserDatabaseDetails
+  };
+
   return (
     <div className="user-database-container">
 
@@ -123,7 +128,11 @@ const UserDatabase = () => {
               <tbody>
                 {currentItems.length > 0 ? (
                   currentItems.map((user, index) => (
-                    <tr key={user._id || index} className="table-row">
+                    <tr 
+                      key={user._id || index} 
+                      className="table-row clickable-row"  
+                      onClick={() => handleRowClick(user.email)}
+                    >
                       <td>{user._id || indexOfFirstItem + index + 1}</td>
                       <td>{getFullName(user.personalDetails)}</td>
                       <td>{user.email}</td>

@@ -1,34 +1,39 @@
 import React, { useState, useEffect } from "react";
-import { FaCloudUploadAlt, FaEdit } from "react-icons/fa"; // Import icons
+import { FaCloudUploadAlt, FaEdit, FaTrash } from "react-icons/fa";
 import "./FormInfoModal.css";
-import { useTranslation } from "react-i18next";  
+import { useTranslation } from "react-i18next";
 
 const FormInfoModal = ({ form, onClose, onUpdate }) => {
   const baseUrl = import.meta.env.VITE_BASE_URL;
+  const { t } = useTranslation();
+
+  // Form state
   const [formName, setFormName] = useState(form.formName);
   const [title, setTitle] = useState(form.title || "");
   const [description, setDescription] = useState(form.description || "");
-  const [imageFile, setImageFile] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const [courses, setCourses] = useState([]);
-  const [selectedCourse, setSelectedCourse] = useState(form.courseId || ""); // Ensure `_id` is stored
-  const { t } = useTranslation(); 
-  
-  // New Checkboxes State
+  const [selectedCourse, setSelectedCourse] = useState(form.courseId || "");
   const [isUsedForRussian, setIsUsedForRussian] = useState(form.isUsedForRussian || false);
   const [isUsedForRegistration, setIsUsedForRegistration] = useState(form.isUsedForRegistration || false);
+
+  // Image state
+  const [imageFile, setImageFile] = useState(null);
   const [image, setImage] = useState(form.formLogo ? `${baseUrl}/api/form/${form._id}/image` : null);
+  const [removeImage, setRemoveImage] = useState(false);
+  const [hovered, setHovered] = useState(false);
+
+  // Data and loading state
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     setImage(form.formLogo ? `${baseUrl}/api/form/${form._id}/image` : null);
-  }, [form.formLogo]);
+  }, [form.formLogo, form._id]);
 
   useEffect(() => {
-    // Fetch courses from API
     const fetchCourses = async () => {
       try {
-        const token = localStorage.getItem("token"); // Assuming the token is stored in localStorage
+        const token = localStorage.getItem("token");
         const response = await fetch(`${baseUrl}/api/courses`, {
           method: "GET",
           headers: {
@@ -36,80 +41,104 @@ const FormInfoModal = ({ form, onClose, onUpdate }) => {
             "Content-Type": "application/json"
           }
         });
-  
-        if (!response.ok) throw new Error("Failed to fetch courses");
-  
+
+        if (!response.ok) throw new Error(t("errors.fetchCoursesFailed"));
         const data = await response.json();
-        setCourses(data); // Assuming data is an array of courses with `_id` and `name`
-      } catch (error) {
-        console.error("Error fetching courses:", error);
+        setCourses(data);
+      } catch (err) {
+        setError(err.message);
       }
     };
-  
-    fetchCourses();
-  }, []);
-  
 
-  // Handle image selection
+    fetchCourses();
+  }, [baseUrl, t]);
+
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onload = () => setImage(reader.result);
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Validate image
+    if (!file.type.match('image.*')) {
+      setError(t("errors.invalidImageType"));
+      return;
     }
+
+    if (file.size > 2 * 1024 * 1024) { // 2MB limit
+      setError(t("errors.imageTooLarge"));
+      return;
+    }
+
+    setError(null);
+    setImageFile(file);
+    setRemoveImage(false);
+    
+    const reader = new FileReader();
+    reader.onload = () => setImage(reader.result);
+    reader.readAsDataURL(file);
   };
 
-  // Handle Save (Update Form)
-  const handleSave = async () => {
-    setLoading(true);
+  const handleRemoveImage = async () => {
     try {
       const token = localStorage.getItem("token");
-      let formLogo = form.image ? { // Maintain existing structure if no new image
-        data: form.image.data,
-        contentType: form.image.contentType
-      } : null;
+      if (!token) throw new Error(t("errors.unauthorized"));
   
-      // 🖼️ Upload Image (if changed)
-      if (imageFile) {
+      // Send DELETE request to remove image from backend
+      const deleteResponse = await fetch(`${baseUrl}/api/form/${form._id}/image`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` },
+      });
+  
+      if (!deleteResponse.ok) throw new Error(t("errors.imageDeleteFailed"));
+  
+      // Update frontend state
+      setImage(null);
+      setImageFile(null);
+      setRemoveImage(true);
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+  
+  const handleSave = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error(t("errors.unauthorized"));
+
+      let formLogo = null;
+
+      // Handle image operations
+      if (!removeImage && imageFile) {
         const formData = new FormData();
         formData.append("image", imageFile);
-  
-        const response = await fetch(`${baseUrl}/api/form/${form._id}/upload`, {
+
+        const uploadResponse = await fetch(`${baseUrl}/api/form/${form._id}/upload`, {
           method: "POST",
-          headers: {
-            "Authorization": `Bearer ${token}`
-          },
+          headers: { "Authorization": `Bearer ${token}` },
           body: formData,
         });
-  
-        if (!response.ok) throw new Error("Failed to upload image");
-        const data = await response.json();
-        
-        // Format the image data as formLogo object
-        formLogo = {
-          data: data.imageData, // Assuming backend returns base64 encoded data
-          contentType: data.contentType // e.g., "image/png"
-        };
-      } else if (!image) {
-        formLogo = null; // Clear image if removed
+
+        if (!uploadResponse.ok) throw new Error(t("errors.imageUploadFailed"));
+        const uploadData = await uploadResponse.json();
+        formLogo = { data: uploadData.imageData, contentType: uploadData.contentType };
+      } else if (!removeImage && form.formLogo) {
+        // Keep existing image if not removed and no new image uploaded
+        formLogo = form.formLogo;
       }
-  
-      // 📝 Prepare updated form data
+
       const updatedForm = {
         formName,
         title,
         description,
-        formLogo, // Use the formatted formLogo object
-        courseId: selectedCourse || "",
+        formLogo,
+        courseId: selectedCourse,
         isUsedForRussian,
         isUsedForRegistration,
       };
-  
-      console.log("Sending Data:", updatedForm);
-  
-      // 🔄 Send Update Request
+
       const updateResponse = await fetch(`${baseUrl}/api/form/${form._id}`, {
         method: "PUT",
         headers: {
@@ -118,116 +147,171 @@ const FormInfoModal = ({ form, onClose, onUpdate }) => {
         },
         body: JSON.stringify(updatedForm),
       });
-  
-      if (!updateResponse.ok) throw new Error("Failed to update form");
-  
+
+      if (!updateResponse.ok) throw new Error(t("errors.formUpdateFailed"));
+
       const updatedData = await updateResponse.json();
       onUpdate(updatedData.form);
       onClose();
-    } catch (error) {
-      console.error("Error updating form:", error);
-      alert("Failed to update form. Please try again.");
+    } catch (err) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="form-info-sidebar-overlay" onClick={onClose}>
       <div className="form-info-sidebar" onClick={(e) => e.stopPropagation()}>
-        <span className="form-info-close-btn" onClick={onClose}>✖</span>
-        <h2>{t("formInfoModel.formDetails")}</h2>
-        <div className="form-info-content">
-
-        {/* Image Upload */}
-        <div 
-          className="image-upload" 
-          onMouseEnter={() => setHovered(true)} 
-          onMouseLeave={() => setHovered(false)}
-        >
-          {image ? (
-            <div className="image-preview">
-              <img src={image} alt="Form" className="uploaded-image" />
-              {hovered && (
-                <div className="image-hover-overlay">
-                  <label className="update-image-text">
-                    <FaEdit className="update-icon" /> {t("formInfoModel.updateImage")}
-                    <input type="file" accept="image/*" onChange={handleImageUpload} />
-                  </label>
-                </div>
-              )}
-            </div>
-          ) : (
-            <label className="upload-placeholder">
-              <FaCloudUploadAlt className="upload-icon" />
-              <p>{t("formInfoModel.uploadImage")}</p>
-              <input type="file" accept="image/*" onChange={handleImageUpload} />
-            </label>
-          )}
-        </div>
-
-        {/* Form Name Field */}
-        <label className="input-label">{t("formInfoModel.formName")}</label>
-        <input type="text" value={formName} onChange={(e) => setFormName(e.target.value)} className="form-input" />
-
-        {/* Title Field */}
-        <label className="input-label">{t("formInfoModel.title")}</label>
-        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="form-input" />
-
-        {/* Description Field */}
-        <label className="input-label">{t("formInfoModel.description")}</label>
-        <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="form-textarea" />
-
-        {/* Course Selection Field */}
-        <label className="input-label">{t("formInfoModel.assignTo")}</label>
-        <select
-          value={selectedCourse}
-          onChange={(e) => setSelectedCourse(e.target.value)} // Store `_id`
-          className="form-select"
-        >
-          {selectedCourse ? (
-            <>
-              <option value={selectedCourse} disabled>
-                {courses.find(course => course._id === selectedCourse)?.name || "Assigned Course"}
-              </option>
-              <option value="">{t("formInfoModel.removeCourse")}</option>
-            </>
-          ) : (
-            <option value="">{t("formInfoModel.selectCourse")}</option>
-          )}
-          {courses
-            .filter(course => course._id !== selectedCourse)
-            .map(course => (
-              <option key={course._id} value={course._id}>
-                {course.name}
-              </option>
-            ))}
-        </select>
-
-        {/* New Checkboxes */}
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={isUsedForRussian}
-            onChange={() => setIsUsedForRussian(!isUsedForRussian)}
-          />
-          {t("formInfoModel.isUsedForRussian")}
-        </label>
-
-        <label className="checkbox-label">
-          <input
-            type="checkbox"
-            checked={isUsedForRegistration}
-            onChange={() => setIsUsedForRegistration(!isUsedForRegistration)}
-          />
-          {t("formInfoModel.isUsedForRegistration")}
-        </label>
-
-        {/* Save Button */}
-        <button className="save-btn" onClick={handleSave} disabled={loading}>
-          {loading ? t("formInfoModel.saving") : t("formInfoModel.save")}
+        <button className="form-info-close-btn" onClick={onClose} aria-label={t("common.close")}>
+          ✖
         </button>
+        
+        <h2>{t("formInfoModel.formDetails")}</h2>
+        
+        {error && <div className="form-error-message">{error}</div>}
+
+        <div className="form-info-content">
+          {/* Image Upload Section */}
+          <div 
+            className="image-upload-container"
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+          >
+            {image ? (
+              <div className="image-preview-wrapper">
+                <img 
+                  src={image} 
+                  alt={t("formInfoModel.formImageAlt")} 
+                  className="uploaded-image" 
+                />
+                {hovered && (
+                  <div className="image-actions-overlay">
+                    <label className="image-action-button">
+                      <FaEdit />
+                      <span>{t("formInfoModel.updateImage")}</span>
+                      <input 
+                        type="file" 
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="visually-hidden"
+                      />
+                    </label>
+                    <button 
+                      className="image-action-button delete-button"
+                      onClick={handleRemoveImage}
+                      aria-label={t("formInfoModel.removeImage")}
+                    >
+                      <FaTrash />
+                      <span>{t("formInfoModel.removeImage")}</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <label className="image-upload-prompt">
+                <FaCloudUploadAlt className="upload-icon" />
+                <span>{t("formInfoModel.uploadImage")}</span>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="visually-hidden"
+                />
+              </label>
+            )}
+          </div>
+
+          {/* Form Fields */}
+          <div className="form-field-group">
+            <label htmlFor="form-name" className="form-field-label">
+              {t("formInfoModel.formName")}
+            </label>
+            <input
+              id="form-name"
+              type="text"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              className="form-input"
+              required
+            />
+          </div>
+
+          <div className="form-field-group">
+            <label htmlFor="form-title" className="form-field-label">
+              {t("formInfoModel.title")}
+            </label>
+            <input
+              id="form-title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="form-input"
+            />
+          </div>
+
+          <div className="form-field-group">
+            <label htmlFor="form-description" className="form-field-label">
+              {t("formInfoModel.description")}
+            </label>
+            <textarea
+              id="form-description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="form-textarea"
+              rows="4"
+            />
+          </div>
+
+          <div className="form-field-group">
+            <label htmlFor="form-course" className="form-field-label">
+              {t("formInfoModel.assignTo")}
+            </label>
+            <select
+              id="form-course"
+              value={selectedCourse}
+              onChange={(e) => setSelectedCourse(e.target.value)}
+              className="form-select"
+            >
+              <option value="">{t("formInfoModel.selectCourse")}</option>
+              {courses.map((course) => (
+                <option key={course._id} value={course._id}>
+                  {course.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="form-checkbox-group">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={isUsedForRussian}
+                onChange={() => setIsUsedForRussian(!isUsedForRussian)}
+                className="checkbox-input"
+              />
+              <span>{t("formInfoModel.isUsedForRussian")}</span>
+            </label>
+
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={isUsedForRegistration}
+                onChange={() => setIsUsedForRegistration(!isUsedForRegistration)}
+                className="checkbox-input"
+              />
+              <span>{t("formInfoModel.isUsedForRegistration")}</span>
+            </label>
+          </div>
+
+          <button 
+            className="save-button" 
+            onClick={handleSave} 
+            disabled={loading}
+            aria-busy={loading}
+          >
+            {loading ? t("formInfoModel.saving") : t("formInfoModel.save")}
+          </button>
         </div>
       </div>
     </div>

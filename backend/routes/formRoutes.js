@@ -72,32 +72,53 @@ const sendEmailRusender = async (recipient, mail) => {
 
 // ✅ Function to choose email template with Registration Type & Category
 const getEmailTemplate = (lang, user, courseName, regType, category) => {
-    if (lang === "ru") {
-        return {
-            subject: "Вы зарегистрированы на курс",
-            html: `
-                <p>Здравствуйте, {name}!</p>
-                <p>Вы успешно зарегистрировались на курс: <strong>${courseName}</strong>.</p>
-                <p><strong>Тип регистрации:</strong> ${regType || "N/A"}</p>
-                <p><strong>Категория:</strong> ${category || "N/A"}</p>
-                <p><strong>Email:</strong> ${user.email}</p>
-                <p>Спасибо за регистрацию!</p>
-            `
-        };
-    } else {
-        return {
-            subject: "You are registered for the course",
-            html: `
-                <p>Hello, {name}!</p>
-                <p>You have successfully registered for the course: <strong>${courseName}</strong>.</p>
-                <p><strong>Registration Type:</strong> ${regType || "N/A"}</p>
-                <p><strong>Category:</strong> ${category || "N/A"}</p>
-                <p><strong>Email:</strong> ${user.email}</p>
-                <p>Thank you for registering!</p>
-            `
-        };
-    }
+  if (lang === "ru") {
+      return {
+          subject: `${courseName}. Регистрация`,
+          html: `
+              <p>${user.personalDetails.title} ${user.personalDetails.lastName} ${user.personalDetails.firstName} ${user.personalDetails.middleName},</p>
+              <br>
+              Благодарим Вас за регистрацию на <strong>${courseName}</strong>, который пройдет в Архангельске с 13 по 17 июня 2025г.
+              <p><strong>Вы подали заявку на:</strong> ${category || "N/A"}</p>
+
+              <p>Мы с нетерпением ждем Вашего участия. Оставайтесь с нами для получения более подробной информации. Если у Вас есть какие-либо вопросы, пожалуйста, свяжитесь с нами по адресу <a href="mailto:travel@eafo.info">travel@eafo.info</a></p>
+
+              <p><strong>Важно:</strong> Для всех видов регистраций (кроме льготной конкурсной) Оргкомитет вышлет счет на оплату в течение 48 часов. Просим Вас прислать подтверждение платежа в течение 72 часов на <a href="mailto:travel@eafo.info">travel@eafo.info</a> (также указав Ваши ФИО).</p>
+
+              <p>Если Вы не получили письмо, пожалуйста, проверьте папку "Спам".</p>
+
+              <p>Для доступа к запланированным онлайн мероприятиям, пожалуйста, войдите в личный кабинет EAFO:</p>
+              <a href="https://testui.eafo.info">Войти в личный кабинет</a>
+
+              <p>С наилучшими пожеланиями,</p>
+              <p>Команда EAFO</p>
+          `
+      };
+  } else {
+      return {
+          subject: `${courseName}. Registration`,
+          html: `
+              <p>${user.personalDetails.title} ${user.personalDetails.firstName} ${user.personalDetails.middleName} ${user.personalDetails.lastName},</p>
+              <br>
+              Thank you for registering for <strong>${courseName}</strong>, which will be held in Arkhangelsk from June 13 to 17, 2025.
+              <p><strong>You have registered for the category:</strong> ${category || "N/A"}</p>
+
+              <p>We look forward to your participation. Stay tuned for further details. If you have any questions, feel free to contact us at <a href="mailto:travel@eafo.info">travel@eafo.info</a>.</p>
+
+              <p><strong>Important Information:</strong> If you have registered in any of the categories except competitive, we will send you the invoice within 48 hours. Please arrange the payment within 3 weekdays and send the bank confirmation of payment by email to <a href="mailto:travel@eafo.info">travel@eafo.info</a>.</p>
+
+              <p>If you have not received an email, please check the Spam folder.</p>
+
+              <p>To access the scheduled online events, please log in to your EAFO account:</p>
+              <a href="https://testui.eafo.info">Go to Dashboard</a>
+
+              <p>Best regards,</p>
+              <p>Team EAFO</p>
+          `
+      };
+  }
 };
+
 
 // ✅ Extract Invoice Fields (Registration Type & Category)
 const extractInvoiceFields = (submissions) => {
@@ -396,17 +417,45 @@ router.put("/:id", authenticateJWT, async (req, res) => {
 
 
 // 🟢 Delete a Form (and its Questions)
-router.delete("/:id", authenticateJWT,async (req, res) => {
+router.delete("/:id", authenticateJWT, async (req, res) => {
+  const { id } = req.params;
+
   try {
-    const deletedForm = await Form.findByIdAndDelete(req.params.id); // ✅ Use _id
+    // Find the form to get its formId
+    const deletedForm = await Form.findByIdAndDelete(id);
+
     if (!deletedForm) {
       return res.status(404).json({ error: "Form not found" });
     }
-    res.status(200).json({ message: "Form deleted successfully" });
+
+    // Find and update all courses that contain the formId in their forms array
+    const updatedCourses = await Course.updateMany(
+      { "forms.formId": id }, // Find courses where forms array contains the formId
+      { $pull: { forms: { formId: id } } } // Remove the form entry from the array
+    );
+
+    res.status(200).json({
+      message: "Form deleted successfully",
+      coursesUpdated: updatedCourses.modifiedCount,
+    });
   } catch (error) {
+    console.error("Error deleting form:", error);
     res.status(500).json({ error: "Server error deleting form" });
   }
 });
+
+
+router.delete("/:formId/image", async (req, res) => {
+  try {
+    const formId = req.params.formId;
+    await Form.findByIdAndUpdate(formId, { formLogo: null }); // Remove image from DB
+    res.json({ message: "Image deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error deleting image" });
+  }
+});
+
+
 
 router.post("/:id/upload", authenticateJWT,upload.single("image"), async (req, res) => {
   try {
@@ -1004,7 +1053,8 @@ router.get('/:formId/info', authenticateJWT, async (req, res) => {
       description: form.description,
       formLogo: form.formLogo || null,  // Send null if no logo exists
       createdAt: form.createdAt,
-      updatedAt: form.updatedAt
+      updatedAt: form.updatedAt,
+      isUsedForRussian:form.isUsedForRussian
     });
 
   } catch (error) {

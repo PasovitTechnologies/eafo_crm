@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FiSend, FiX } from "react-icons/fi";
 import { RiSendPlane2Fill } from "react-icons/ri";
 import { motion, AnimatePresence } from "framer-motion";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./WhatsAppChatBot.css";
 import MessagesContainer from "./MessagesContainer";
 
@@ -28,6 +30,7 @@ const WhatsAppChatBot = ({ isOpen, onClose, phoneNumber }) => {
       setMessages(response.data.reverse() || []);
     } catch (error) {
       console.error("Error fetching messages:", error.response?.data || error.message);
+      toast.error("❌ Failed to load messages!");
     } finally {
       setLoading(false);
     }
@@ -47,11 +50,12 @@ const WhatsAppChatBot = ({ isOpen, onClose, phoneNumber }) => {
         { body: message, fromMe: true, type: "chat", time: Math.floor(Date.now() / 1000) },
       ]);
 
+      toast.success("✅ Message sent successfully!");
       setMessage("");
       fetchMessages();
     } catch (error) {
       console.error("Error sending message:", error.message);
-      alert("Failed to send message!");
+      toast.error("❌ Failed to send message!");
     }
   };
 
@@ -67,6 +71,9 @@ const WhatsAppChatBot = ({ isOpen, onClose, phoneNumber }) => {
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
         >
+          {/* ✅ Toast Notifications */}
+          <ToastContainer position="top-right" autoClose={3000} />
+
           {/* ✅ Fixed Header */}
           <motion.div
             className="chatbot-header"

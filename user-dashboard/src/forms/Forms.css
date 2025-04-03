@@ -358,3 +358,76 @@ button.submit-btn:hover {
         width: 100%;
     }
 }
+/* File Remove Button Styles */
+.file-preview-with-remove,
+.file-info-with-remove {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.remove-file-btn {
+  align-self: flex-start;
+  padding: 5px 10px;
+  background: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.2s;
+  margin-top: 5px;
+}
+
+.remove-file-btn:hover {
+  background: #cc0000;
+}
+
+/* Adjust existing styles */
+.file-preview-container,
+.file-info-container {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+.file-preview-container {
+    margin-top: 10px;
+    text-align: center;
+  }
+  
+  .preview-image {
+    max-width: 100px;
+    height: 100px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+
+.file-details {
+  flex-grow: 1;
+}
+/* Loading spinner */
+.spinner {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 1s ease-in-out infinite;
+    margin-right: 8px;
+  }
+  
+  .file-info-message{
+    color: #cc0000;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Disabled button state */
+  .submit-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }

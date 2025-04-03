@@ -4,7 +4,11 @@ import "./CourseManager.css";
 import "../App.css";
 import { FiPlus, FiArrowLeft } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
+import "react-toastify/dist/ReactToastify.css";
+import { toast, ToastContainer } from "react-toastify";
+import Swal from "sweetalert2";
 import i18n from "../i18n";
+
 
 const CourseManager = () => {
   const { t } = useTranslation();  
@@ -31,11 +35,10 @@ const CourseManager = () => {
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem("token");
-
       const response = await fetch(`${baseUrl}/api/courses`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
@@ -44,7 +47,7 @@ const CourseManager = () => {
       const data = await response.json();
       setCourses(data);
     } catch (error) {
-      setError("Failed to load courses. Please try again later.");
+      toast.error(t("CourseManager.fetchError"), { style: { color: "#fff" } });
     }
   };
 
@@ -58,13 +61,12 @@ const CourseManager = () => {
 
     try {
       const token = localStorage.getItem("token");
-
       const courseData = {
         name,
         nameRussian,
         description,
         descriptionRussian,
-        date: courseDate,   // ✅ Include date in submission
+        date: courseDate,
         bannerUrl,
         bannerUrlRussian,
         invoiceNumber,
@@ -77,7 +79,7 @@ const CourseManager = () => {
         {
           method: modalType === "edit" ? "PUT" : "POST",
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify(courseData),
@@ -87,35 +89,68 @@ const CourseManager = () => {
       if (response.ok) {
         fetchCourses();
         setIsModalOpen(false);
+        toast.success(t("CourseManager.addSuccess"), { style: { color: "#fff" } });
       } else {
         throw new Error("Error adding/updating course");
       }
     } catch (error) {
-      setError(error.message || "An error occurred.");
+      toast.error(t("CourseManager.addError"), { style: { color: "#fff" } });
     }
   };
 
   // Handle Course Deletion
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this course?")) return;
-
+  
+    // ✅ Show confirmation popup using SweetAlert2
+    const confirmDelete = await Swal.fire({
+      title: t("CourseManager.deleteConfirmTitle"), // Translated title
+      text: t("CourseManager.deleteConfirmText"), // Translated warning message
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: t("CourseManager.confirmDelete"), // "Yes, delete it!"
+      cancelButtonText: t("CourseManager.cancel"), // "Cancel"
+    });
+  
+    if (!confirmDelete.isConfirmed) return; // If user cancels, stop here
+  
     try {
       const token = localStorage.getItem("token");
-
+      if (!token) {
+        toast.error(t("CourseManager.sessionExpired"), { position: "top-right", autoClose: 3000 });
+        return;
+      }
+  
       const response = await fetch(`${baseUrl}/api/courses/${id}`, {
         method: "DELETE",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-
-      if (response.ok) {
-        fetchCourses();
-      } else {
+  
+      if (!response.ok) {
         throw new Error("Error deleting course");
       }
+  
+      // ✅ Refresh courses list after deletion
+      fetchCourses();
+  
+      // ✅ Show success notification
+      toast.success(t("CourseManager.deleteSuccess"), {
+        position: "top-right",
+        autoClose: 3000,
+        style: { color: "#fff" },
+      });
     } catch (error) {
-      setError("Failed to delete course.");
+      console.error("🚨 Error deleting course:", error);
+  
+      // ❌ Show error notification
+      toast.error(t("CourseManager.deleteError"), {
+        position: "top-right",
+        autoClose: 3000,
+        style: { color: "#fff" },
+      });
     }
   };
 
@@ -155,6 +190,7 @@ const CourseManager = () => {
 
   return (
     <div className="course-manager-page">
+       <ToastContainer position="top-right"  className="custom-toast-container" autoClose={3000} />
       <div className="course-manager-page-container">
         <div className="course-manager-header">
           <div className="course-manager-left-header">

@@ -37,6 +37,7 @@
   transition: transform 0.5s ease-in-out, opacity 0.3s ease-in-out;
   opacity: 0;
   z-index: 1000;
+  padding-top: 40px;
 }
 
 /* When modal is open */
@@ -187,8 +188,46 @@
 .send-icon {
   font-size: 20px;
 }
+.whatsapp-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
+.whatsapp-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
 
+.whatsapp-status {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-timestamp {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #666;
+}
+
+/* Animation for sending state */
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.whatsapp-btn.sending {
+  animation: pulse 1.5s infinite;
+}
 
 /* ================================
    Payment Link
@@ -325,4 +364,23 @@
     right: 15px;
     padding: 10px 18px;
   }
+}
+/* Custom Toast Styles */
+.custom-toast-container .Toastify__toast {
+  background-color: #0d224f !important; 
+  color: white !important;
+  border-radius: 8px !important;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+}
+
+/* Customize Progress Bar */
+.custom-toast-container .Toastify__progress-bar {
+  background-color: white !important;
+}
+
+/* Close button styling */
+.custom-toast-container .Toastify__close-button {
+  color: white !important;
 }

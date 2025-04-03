@@ -1,0 +1,91 @@
+/* Ensure proper spacing and layout */
+.user-database-details-container {
+    margin: 20px auto;
+    padding: 100px 20px 20px 100px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  }
+  
+  /* General section styling */
+  .section-heading {
+    font-size: 22px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 5px;
+  }
+  
+  .user-details-section, .webinars-section, .courses-details-section {
+    margin-bottom: 30px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 10px;
+  }
+  
+  /* Space between user details */
+  .user-info-section{
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 20px;
+  }
+  .user-info-section p {
+    margin: 5px 0;
+  }
+  
+  /* Webinars and courses should take full width */
+  .user-list-item {
+    background: #fff;
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Payment Table Styles */
+  .payment-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  
+  .payment-table th, .payment-table td {
+    padding: 10px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .payment-table th {
+    background: #007bff;
+    color: white;
+  }
+  
+  .payment-table .status-paid {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .payment-table .status-pending {
+    color: orange;
+    font-weight: bold;
+  }
+  
+  /* Spacing between courses */
+  .courses-section .user-list-item {
+    margin-bottom: 20px;
+  }
+  
+  /* Payment buttons */
+  .pay-now-btn {
+    background: orange;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .paid-label {
+    color: green;
+    font-weight: bold;
+  }
+  

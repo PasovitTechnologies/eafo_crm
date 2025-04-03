@@ -62,6 +62,8 @@ body {
 .admin-description {
   font-size: 18px;
   opacity: 0.9;
+  color: #fff;
+  font-weight: bold;
 }
 
 /* Form Section */

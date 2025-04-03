@@ -135,7 +135,7 @@ const CoursesItem = ({ expandingSection, setExpandingSection }) => {
             </AnimatePresence>
           </div>
         ) : (
-          !loading && <p className="no-courses-text">No upcoming courses.</p>
+          !loading && <p className="no-courses-text">{t('no_upcoming_courses')}</p>
         )}
       </div>
       <div className="image-container">

@@ -48,11 +48,7 @@ const Sidebar = ({ selectedOS }) => {
         icon: <MdDescription className="sidebar-icon" />,
         label: t("sidebar.webinarManagement"),
       },
-      {
-        to: "/webinar-settings",
-        icon: <MdSettings className="sidebar-icon" />,
-        label: t("sidebar.settings"),
-      },
+      
     ];
 
     const crmNav = [

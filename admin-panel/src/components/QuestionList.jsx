@@ -140,7 +140,7 @@ const moveQuestionDown = (index) => {
           ))
         ) : (
           <p className="empty-message">
-            {t('QuestionList.noQuestion')}
+            {t('QuestionList.noQuestions')}
           </p>
         )}
       </div>

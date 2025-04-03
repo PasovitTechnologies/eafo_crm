@@ -13,8 +13,10 @@ import {
 import "./CourseForms.css";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import FormInfoModal from "./FormInfoModal";
+import Swal from "sweetalert2";
 
 
 const CourseForms = () => {
@@ -30,6 +32,7 @@ const CourseForms = () => {
   const [hoveredForm, setHoveredForm] = useState(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [selectedForm, setSelectedForm] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const searchRef = useRef(null);
   const inputRef = useRef(null);
   const { t } = useTranslation();
@@ -68,45 +71,57 @@ const CourseForms = () => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!formName.trim()) {
-      alert("⚠️ Please enter a valid Form Name.");
+      toast.warn(t("courseForms.formNameRequired"), {
+        position: "top-right",
+        autoClose: 3000,
+      });
       return;
     }
-
+  
+    setIsLoading(true);
+  
     try {
-      const token = localStorage.getItem("token"); // Retrieve token
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error(t("CourseForms.authError"), {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        setIsLoading(false);
+        return;
+      }
+  
       let response, data;
       const formData = { formName };
-
+  
       if (isDuplicate && duplicateFrom) {
         formData.duplicateFrom = duplicateFrom;
       }
-
+  
       const url = editingForm
         ? `${baseUrl}/api/form/${editingForm._id}`
         : `${baseUrl}/api/form`;
-
+  
       const method = editingForm ? "PUT" : "POST";
-
+  
       response = await fetch(url, {
         method,
         headers: {
-          Authorization: `Bearer ${token}`, // ✅ Include token for security
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
-
+  
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(
-          `Failed to ${editingForm ? "update" : "add"} form: ${errorText}`
-        );
+        throw new Error(errorText);
       }
-
+  
       data = await response.json();
-
+  
       setForms((prevForms) =>
         editingForm
           ? prevForms.map((form) =>
@@ -114,7 +129,15 @@ const CourseForms = () => {
             )
           : [...prevForms, data.form]
       );
-
+  
+      toast.success(
+        t(editingForm ? "courseForms.updateSuccess" : "courseForms.formSuccess"),
+        {
+          position: "top-right",
+          autoClose: 3000,
+        }
+      );
+  
       // Reset form states
       setFormName("");
       setEditingForm(null);
@@ -123,7 +146,18 @@ const CourseForms = () => {
       setShowPopup(false);
     } catch (error) {
       console.error("🚨 Error adding/editing form:", error);
-      alert(error.message || "Something went wrong. Please try again.");
+  
+      toast.error(
+        error.message.includes("Unauthorized")
+          ? t("courseForms.sessionExpired")
+          : t("courseForms.generalError"),
+        {
+          position: "top-right",
+          autoClose: 3000,
+        }
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -143,31 +177,51 @@ const CourseForms = () => {
   };
 
   const handleDeleteForm = async (_id) => {
-    if (!window.confirm("⚠️ Are you sure you want to delete this form?"))
-      return;
-
+  
+    // ✅ Show confirmation popup using SweetAlert2
+    const confirmDelete = await Swal.fire({
+      title: t("courseForms.deleteConfirmTitle"), // Translated title
+      text: t("courseForms.deleteConfirmText"), // Translated warning message
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: t("courseForms.confirmDelete"), // "Yes, delete it!"
+      cancelButtonText: t("courseForms.cancel"), // "Cancel"
+    });
+  
+    if (!confirmDelete.isConfirmed) return; // If user cancels, stop here
+  
     try {
-      const token = localStorage.getItem("token"); // Retrieve stored auth token
-
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.error(t("courseForms.sessionExpired"), { position: "top-right", autoClose: 3000 });
+        return;
+      }
+  
       const response = await fetch(`${baseUrl}/api/form/${_id}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${token}`, // ✅ Secure API request
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
-
+  
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Failed to delete form: ${errorText}`);
+        throw new Error(errorText);
       }
-
-      // ✅ Remove the deleted form from the state
+  
+      // ✅ Remove the deleted form from state
       setForms((prevForms) => prevForms.filter((form) => form._id !== _id));
-      alert("✅ Form deleted successfully.");
+  
+      // ✅ Show success notification
+      toast.success(t("courseForms.deleteSuccess"), { position: "top-right", autoClose: 3000 });
     } catch (error) {
       console.error("🚨 Error deleting form:", error);
-      alert("❌ Failed to delete form. Please try again.");
+  
+      // ❌ Show error notification
+      toast.error(t("courseForms.deleteFailed"), { position: "top-right", autoClose: 3000 });
     }
   };
 
@@ -206,37 +260,38 @@ const CourseForms = () => {
   };
 
   const handleUpdateForm = async (updatedForm) => {
-    const token = localStorage.getItem("token"); // Retrieve auth token
-
-    // ✅ Optimistically update UI
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error(t("courseForms.authError"), { position: "top-right", autoClose: 3000 });
+      return;
+    }
+  
+    // ✅ Optimistic UI Update
     const prevForms = [...forms]; // Store previous state in case of failure
-    setForms(
-      forms.map((form) => (form._id === updatedForm._id ? updatedForm : form))
-    );
-
+    setForms(forms.map((form) => (form._id === updatedForm._id ? updatedForm : form)));
+  
     try {
-      const response = await fetch(
-        `${baseUrl}/api/form/${updatedForm._id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`, // ✅ Secure API request
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updatedForm),
-        }
-      );
-
+      const response = await fetch(`${baseUrl}/api/form/${updatedForm._id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`, // ✅ Secure API request
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedForm),
+      });
+  
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Failed to update form: ${errorText}`);
+        throw new Error(errorText);
       }
-
+  
+      toast.success(t("courseForms.updateSuccess"), { position: "top-right", autoClose: 3000 });
       console.log("✅ Form updated successfully.");
     } catch (error) {
       console.error("🚨 Error updating form:", error);
-      alert("❌ Update failed. Please try again.");
-
+  
+      toast.error(t("courseForms.updateFailed"), { position: "top-right", autoClose: 3000 });
+  
       // 🔄 Revert UI back to the previous state
       setForms(prevForms);
     }
@@ -244,6 +299,7 @@ const CourseForms = () => {
 
   return (
     <div className="form-page">
+       <ToastContainer     className="custom-toast-container"/>
       <div className="forms-page">
         <div className="course-forms-container">
           {loading ? (

@@ -234,7 +234,10 @@
     "akt":"AKT",
     "contract":"Contract",
     "orderId":"Order Id",
-    "invoiceNumber":"Invoice Number"
+    "invoiceNumber":"Invoice Number",
+    "whatsappSuccess": "WhatsApp message queued successfully!",
+    "whatsappError": "Failed to send WhatsApp: {{error}}",
+    "paymentMethod":"Payment Method"
   },
   "CourseManager": {
     "title": "Course Manager",
@@ -258,7 +261,41 @@
     "errorDelete": "Error deleting course.",
     "failedDelete": "Failed to delete course.",
     "genericError": "An error occurred. Please try again later.",
-    "confirmDelete": "Are you sure you want to delete this course?"
+    "addSuccess": "Course added successfully!",
+      "addError": "Failed to add course. Please try again.",
+      "updateSuccess": "Course updated successfully!",
+      "updateError": "Failed to update course.",
+      "fetchError": "Error loading courses. Please try again later.",
+      "deleteConfirmTitle": "⚠️ Are you sure?",
+      "deleteConfirmText": "This action cannot be undone!",
+      "confirmDelete": "Yes, delete it!",
+      "cancel": "Cancel",
+      "sessionExpired": "❌ Session expired. Please log in.",
+      "deleteSuccess": "✅ Course deleted successfully!",
+      "deleteError": "❌ Failed to delete course. Please try again."
+  },
+  "Rules": {
+    "selectQuestionWarning": "⚠️ Please select a question to save the rule.",
+    "addSuccess": "✅ Rule added successfully!",
+    "updateSuccess": "✅ Rule updated successfully!",
+    "saveError": "❌ Error saving rule. Please try again.",
+    "deleteConfirmTitle": "Are you sure?",
+    "deleteConfirmText": "This action cannot be undone.",
+    "confirmDelete": "Yes, delete it!",
+    "cancel": "Cancel",
+    "deleteSuccess": "✅ Rule deleted successfully!",
+    "deleteError": "❌ Failed to delete rule."
+  },
+  "Questions": {
+    "addSuccess": "✅ Question added successfully!",
+    "updateSuccess": "✅ Question updated successfully!",
+    "saveError": "❌ Error saving question. Please try again.",
+    "deleteConfirmTitle": "Delete this question?",
+    "deleteConfirmText": "This action is permanent.",
+    "confirmDelete": "Delete",
+    "cancel": "Cancel",
+    "deleteSuccess": "✅ Question deleted successfully!",
+    "deleteError": "❌ Failed to delete question."
   },
 
   "CourseQuestionsDetail": {
@@ -305,7 +342,11 @@
     "required": "Required",
     "conditional": "Conditional",
     "usedForInvoice": "Used for Invoice",
-    "save": "Save"
+    "save": "Save",
+    "labelRequired": "Question label is required!",
+    "optionsRequired": "Options are required for Select, Radio, Checkbox, and Multi-Select types!",
+     "fillExistingOptions": "Please fill out existing options before adding new ones."
+
   },
   "QuestionList": {
     "preview": "Preview",
@@ -329,9 +370,12 @@
     "hide": "Hide",
     "targetQuestions": "Target Questions",
     "selectTarget": "Select Target Question",
-    "addTargetQuestion": "Add Target Question",
     "save": "Save Rule",
-    "update": "Update Rule"
+    "update": "Update Rule",
+    
+    "completeConditions": "Please complete all condition fields.",
+    "addTargetQuestion": "Please add at least one target question.",
+    "selectAllTargets": "Please select all target questions."
   },
 
   "courseDetail": {
@@ -358,6 +402,14 @@
     "itemName": "Item Name",
     "amount": "Amount",
     "currency": "Currency",
+    "confirmTitle": "Are you sure?",
+    "confirmText": "⚠️ You won't be able to undo this!",
+    "confirmButton": "Yes, delete it!",
+    "cancelButton": "Cancel",
+    "successTitle": "Deleted!",
+    "successText": "✅ Rule deleted successfully.",
+    "errorTitle": "Error",
+    "errorText": "An error occurred while deleting the rule.",
     "confirmDelete": "⚠️ Are you sure you want to delete this item?",
     "deleteSuccess": "✅ Item deleted successfully!",
     "deleteFailed": "❌ Failed to delete item.",
@@ -381,7 +433,23 @@
     "modalEditItems": "Edit Item",
     "modalAddItems": "Add Item",
     "closeModal": "Close",
-    "submit": "Submit"
+    "submit": "Submit",
+    "selectFormAndCondition": "⚠️ Please select a form and add at least one condition.",
+    "addedSuccess": "✅ Rule added successfully!",
+    "updatedSuccess": "✅ Rule updated successfully!",
+    "addError": "Failed to add rule.",
+    "updateError": "Failed to update rule.",
+    "errorOccurred": "An error occurred. Please try again.",
+    "itemAdded": "✅ Item added successfully!",
+    "itemUpdated": "✅ Item updated successfully!",
+    "requestError": "Failed to process request.",
+    "requestFailed": "An error occurred while processing the request.",
+    "confirmDeleteItem": "⚠️ Are you sure you want to delete this item?",
+    "confirmYes": "Yes, Delete",
+    "confirmNo": "Cancel",
+    "itemDeleted": "✅ Item deleted successfully!",
+    "deleteError": "An error occurred while deleting the item."
+
   },
 
   "courseForms": {
@@ -397,7 +465,6 @@
     "create": "Create",
     "formNamePlaceholder": "Form Name",
     "selectDuplicate": "-- Select Form to Duplicate --",
-    "confirmDelete": "⚠️ Are you sure you want to delete this form?",
     "deleteSuccess": "✅ Form deleted successfully.",
     "deleteFailed": "❌ Failed to delete form. Please try again.",
     "editSuccess": "✅ Form updated successfully.",
@@ -408,6 +475,16 @@
     "allEntries": "All Entries",
     "formDetails": "Form Details",
     "totalSubmissions": "Total Submissions",
+    "formNameRequired": "⚠️ Please enter a valid Form Name.",
+    "authError": "❌ Authentication error. Please log in again.",
+    "formSuccess": "🎉 Form successfully saved!",
+    "updateSuccess": "🎉 Form updated successfully!",
+    "sessionExpired": "🔒 Your session has expired. Please log in again.",
+    "generalError": "Something went wrong. Please try again.",
+    "deleteConfirmTitle": "⚠️ Are you sure?",
+    "deleteConfirmText": "This action cannot be undone!",
+    "confirmDelete": "Yes, delete it!",
+    "cancel": "Cancel",
     "tooltip": {
       "edit": "Edit Form",
       "duplicate": "Duplicate Form",
@@ -424,6 +501,7 @@
     "formDetails": "Form Details",
     "uploadImage": "Click to Upload Image",
     "updateImage": "Update Image",
+    "removeImage":"Remove Image",
     "formName": "Form Name",
     "title": "Title",
     "description": "Description",
@@ -469,7 +547,12 @@
     "submission_responses": "Submission Responses",
     "previous": "Previous",
     "next": "Next",
-    "records_per_page": "Records per page"
+    "records_per_page": "Records per page",
+    "submissionId": "Submission ID",
+    "submittedAt": "Submitted At",
+    "noData": "No data available to export.",
+    "selectQuestion": "Please select at least one question to export.",
+    "exportSuccess": "Export completed successfully!"
   },
   "submissionDetails": {
     "title": "Submission Details",
@@ -493,6 +576,10 @@
     "statusUpdateFail": "Failed to update status.",
     "downloadFail": "Failed to download file.",
     "fetchError": "Failed to fetch enquiries.",
+    "statusUpdateSuccess": "✅ Status updated successfully!",
+    "statusUpdateError": "❌ Failed to update status. Please try again.",
+    "downloadSuccess": "✅ File downloaded successfully!",
+    "downloadError": "❌ Failed to download file. Please try again.",
     "modal": {
     "details": "Enquiry Details",
     "message": "Enquiry Message",
@@ -520,5 +607,93 @@
     "previousPage": "Previous",
     "nextPage": "Next",
     "notAvailable": "N/A"
+  },
+
+  "WebinarDashboard": {
+    "title": "Webinar Dashboard",
+    "searchPlaceholder": "Search webinars...",
+    "date": "Date:",
+    "time": "Time:",
+    "totalRegistrations": "Total Registrations",
+    "noWebinars": "No webinars found",
+    "errorFetching": "Error fetching webinars"
+  },
+
+  "webinarParticipants": {
+    "title": "{{webinarTitle}} - Participants",
+    "searchPlaceholder": "Search by email",
+    "email": "Email",
+    "status": "Status",
+    "registeredAt": "Registered At",
+    "noParticipants": "No participants found.",
+    "errorFetchingParticipants": "Error fetching participants",
+    "previous": "Previous",
+    "next": "Next",
+    "export": "Export CSV",
+    "loading": "Loading..."
+  },
+
+  "webinarManagement": {
+    "title": "Webinar Management",
+    "searchPlaceholder": "Search webinars...",
+    "addWebinar": "Add Webinar",
+    "edit": "Edit",
+    "delete": "Delete",
+    "modal": {
+      "addTitle": "Add Webinar",
+      "editTitle": "Edit Webinar",
+      "submitAdd": "Add Webinar",
+      "submitEdit": "Update Webinar"
+    },
+    "fields": {
+      "title": "Title (English)",
+      "titleRussian": "Title (Russian)",
+      "date": "Date",
+      "time": "Time",
+      "liveEmbed": "Live Embed Code",
+      "eventSiteURL": "Event Site URL",
+      "chatEmbed": "Chat Embed Code",
+      "bannerUrl": "Banner URL (English)",
+      "bannerRussianURL": "Banner URL (Russian)",
+      "chiefGuestName": "Chief Guest Name (English)",
+      "chiefGuestNameRussian": "Chief Guest Name (Russian)",
+      "photoUrl": "Photo URL",
+      "regalia": "Regalia (English)",
+      "regaliaRussian": "Regalia (Russian)"
+    }
+  },
+
+  "pdfExport": {
+    "title": "User & Submission Details",
+    "sections": {
+      "personalDetails": "Personal Details",
+      "professionalDetails": "Professional Details",
+      "invoiceInfo": "Invoice Information",
+      "registrationResponses": "Registration Responses",
+      "otherForms": "Other Forms"
+    },
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "country": "Country",
+      "university": "University",
+      "department": "Department",
+      "profession": "Profession",
+      "position": "Position",
+      "invoiceType": "Invoice Type",
+      "categoryType": "Category Type",
+      "unknownQuestion": "Unknown Question",
+      "noAnswer": "No answer",
+      "file": "File",
+      "unknownForm": "Unknown Form",
+      "label": "Label",
+      "answer": "Answer",
+      "value": "Value"
+    },
+    "values": {
+      "notAvailable": "N/A"
+    }
   }
 }

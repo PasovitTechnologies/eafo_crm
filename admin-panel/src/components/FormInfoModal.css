@@ -1,146 +1,214 @@
-/* Sidebar Overlay */
+/* Base Styles */
 .form-info-sidebar-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: flex-end;
     z-index: 1000;
-}
-
-/* Sidebar Panel */
-.form-info-sidebar {
-    background: white;
-    width: 600px;
-    height: 100vh;
-    padding: 20px 30px;
-    box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
-    transform: translateX(100%);
-    animation: slideIn 0.3s forwards;
-    position: relative;
-    padding-top: 100px;
-}
-.form-info-content {
-    flex: 1;
-    overflow-y: auto; /* Enable vertical scrolling */
-    max-height: 70vh;
-    padding-right: 10px;
   }
-/* Close Button */
-.form-info-close-btn {
-    position: absolute;
-    top: 80px;
-    right: 25px;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-/* Image Upload */
-.image-upload {
-    text-align: center;
-    margin-bottom: 20px;
-    position: relative;
-    border: 2px dashed #ccc; /* Dotted border */
-    padding: 10px;
-    border-radius: 10px;
-}
-
-/* Upload Placeholder */
-.upload-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 30px;
-    background: #f9f9f9;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 8px;
-}
-
-.upload-placeholder input {
-    display: none;
-}
-
-/* Upload Icon */
-.upload-icon {
-    font-size: 40px;
-    color: #007bff;
-}
-
-/* Uploaded Image */
-.uploaded-image {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-}
-.form-info-sidebar h2{
-    text-align: left;
-    font-size: 24px;
-}
-/* Hover Effect */
-.image-hover-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+  
+  .form-info-sidebar {
+    width: 600px;
+    max-width: 90vw;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background-color: white;
+    padding: 2rem;
+    overflow-y: auto;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .form-info-close-btn {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+  }
+  
+  .form-info-close-btn:hover {
+    color: #9b0000;
+  }
+  
+  /* Image Upload Section */
+  .image-upload-container {
+    margin-bottom: 2rem;
+    position: relative;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+    padding: 1rem;
     display: flex;
     justify-content: center;
     align-items: center;
-    color: white;
-    font-weight: bold;
-    font-size: 14px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-/* Update Image Text */
-.update-image-text {
+    min-height: 200px;
+    transition: border-color 0.3s;
+  }
+  
+  .image-upload-container:hover {
+    border-color: #999;
+  }
+  
+  .image-preview-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .uploaded-image {
+    max-width: 200px;
+    max-height: 300px;
+    display: block;
+    margin: 0 auto;
+    border-radius: 4px;
+  }
+  
+  .image-actions-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    border-radius: 4px;
+  }
+  
+  .image-action-button {
     display: flex;
     align-items: center;
-    background: rgba(0, 0, 0, 0.6);
-    padding: 10px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.update-image-text input {
-    display: none;
-}
-
-/* Update Icon */
-.update-icon {
-    margin-right: 8px;
-    font-size: 16px;
-}
-
-/* Form Inputs */
-.input-label {
-    display: block;
-    margin-top: 15px;
-    font-weight: bold;
-}
-
-.form-input,
-.form-textarea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 5px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-}
-
-/* Save Button */
-.save-btn {
-    background: #007bff;
-    color: white;
-    padding: 10px;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: rgba(255, 255, 255, 0.9);
     border: none;
-    width: 100%;
+    border-radius: 4px;
     cursor: pointer;
-    margin-top: 20px;
-}
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+  }
+  
+  .image-action-button:hover {
+    background-color: white;
+  }
+  
+  .delete-button {
+    background-color: rgba(255, 0, 0, 0.1);
+    color: #d32f2f;
+  }
+  
+  .delete-button:hover {
+    background-color: rgba(255, 0, 0, 0.2);
+  }
+  
+  .image-upload-prompt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    text-align: center;
+    color: #666;
+  }
+  
+  .upload-icon {
+    font-size: 3rem;
+    color: #aaa;
+  }
+  
+  /* Form Fields */
+  .form-field-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-field-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #444;
+  }
+  
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .form-textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  /* Checkboxes */
+  .form-checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  
+  .checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+  
+  .checkbox-input {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+  
+  /* Save Button */
+  .save-button {
+    width: 100%;
+    padding: 1rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .save-button:hover {
+    background-color: #3e8e41;
+  }
+  
+  .save-button:disabled {
+    background-color: #a5d6a7;
+    cursor: not-allowed;
+  }
+  
+  /* Error Message */
+  .form-error-message {
+    padding: 1rem;
+    background-color: #ffebee;
+    color: #c62828;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Accessibility */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }

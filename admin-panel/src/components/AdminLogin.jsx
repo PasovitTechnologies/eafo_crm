@@ -18,8 +18,8 @@ const AdminLogin = ({ setIsAuthenticated }) => {
   const [loading, setLoading] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("ru");
-   const [selectedOS, setSelectedOS] = useState("Webinar");
-   const baseUrl = import.meta.env.VITE_BASE_URL;
+  const [selectedOS, setSelectedOS] = useState("Webinar");
+  const baseUrl = import.meta.env.VITE_BASE_URL;
 
    
   const navigate = useNavigate();

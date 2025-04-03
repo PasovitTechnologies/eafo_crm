@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next"; // Import translation hook
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./WebinarManagement.css"; // Ensure styles are updated
+import "./WebinarManagement.css";
 import { FiArrowLeft } from "react-icons/fi";
 import { FaSearch } from "react-icons/fa";
 
@@ -54,7 +55,8 @@ const initialFormData = {
   regaliaRussian: "",
 };
 
-const WebinarManagement = ({ selectedLanguage = "English" }) => {
+const WebinarManagement = ({ selectedLanguage = "en" }) => {
+  const { t, i18n } = useTranslation(); // Initialize translations
   const navigate = useNavigate();
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const [webinars, setWebinars] = useState([]);
@@ -62,6 +64,13 @@ const WebinarManagement = ({ selectedLanguage = "English" }) => {
   const [formData, setFormData] = useState(initialFormData);
   const [editingWebinar, setEditingWebinar] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const currentLanguage = i18n.language;
+
+  // Change language when selectedLanguage prop changes
+  useEffect(() => {
+    i18n.changeLanguage(selectedLanguage);
+  }, [selectedLanguage, i18n]);
 
   // Fetch webinars on mount
   useEffect(() => {
@@ -85,10 +94,10 @@ const WebinarManagement = ({ selectedLanguage = "English" }) => {
 
       return await response.json();
     } catch (error) {
-      toast.error("Something went wrong!");
+      toast.error(t("error.general"));
       return [];
     }
-  }, []);
+  }, [t]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -119,9 +128,9 @@ const WebinarManagement = ({ selectedLanguage = "English" }) => {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) throw new Error("Error saving webinar");
+      if (!response.ok) throw new Error(t("error.savingWebinar"));
 
-      toast.success(editingWebinar ? "Webinar updated!" : "Webinar added!");
+      toast.success(editingWebinar ? t("success.webinarUpdated") : t("success.webinarAdded"));
       setIsModalOpen(false);
       setFormData(initialFormData);
 
@@ -129,12 +138,11 @@ const WebinarManagement = ({ selectedLanguage = "English" }) => {
         setWebinars(data || [])
       );
     } catch (error) {
-      toast.error("Error saving webinar");
+      toast.error(t("error.savingWebinar"));
     }
   };
 
   const handleEdit = (webinar) => {
-    console.log("Editing webinar:", webinar._id); // Debugging log
     setEditingWebinar(webinar);
     setFormData({
       ...webinar,
@@ -148,10 +156,10 @@ const WebinarManagement = ({ selectedLanguage = "English" }) => {
   const handleDelete = async (id) => {
     try {
       await fetchData(`${baseUrl}/api/webinars/${id}`, { method: "DELETE" });
-      toast.success("Webinar deleted!");
+      toast.success(t("success.webinarDeleted"));
       setWebinars((prev) => prev.filter((webinar) => webinar._id !== id));
     } catch (error) {
-      toast.error("Error deleting webinar");
+      toast.error(t("error.deletingWebinar"));
     }
   };
 
@@ -172,22 +180,14 @@ const WebinarManagement = ({ selectedLanguage = "English" }) => {
           <div className="go-back">
             <FiArrowLeft className="go-back-icon" onClick={handleGoBack} />
           </div>
-          <h2 className="">
-            {selectedLanguage === "Russian"
-              ? "Управление вебинарами"
-              : "Webinar Management"}
-          </h2>
+          <h2>{t("webinarManagement.title")}</h2>
         </div>
         <div className="webinar-management-right-header">
           <div className="search-bar-wrapper">
             <FaSearch className="search-icon" />
             <input
               type="text"
-              placeholder={
-                selectedLanguage === "Russian"
-                  ? "Поиск вебинаров..."
-                  : "Search webinars..."
-              }
+              placeholder={t("webinarManagement.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="webinar-search-bar"
@@ -201,9 +201,7 @@ const WebinarManagement = ({ selectedLanguage = "English" }) => {
               setIsModalOpen(true);
             }}
           >
-            {selectedLanguage === "Russian"
-              ? "Добавить вебинар"
-              : "Add Webinar"}
+            {t("webinarManagement.addWebinar")}
           </button>
         </div>
       </div>
@@ -212,19 +210,22 @@ const WebinarManagement = ({ selectedLanguage = "English" }) => {
         {filteredWebinars.map((webinar) => (
           <li key={webinar._id} className="webinar-item">
             <div className="webinar-item-content">
-            <img src={webinar.bannerUrl} alt={webinar.title} />
-            <div className="webinar-model-details">
-              <h3>{webinar.title}</h3>
-              <p>
-                {formatDateForInput(webinar.date)} | {webinar.time}
-              </p>
+              <img src={currentLanguage==="ru" ? webinar.bannerRussianURL : webinar.bannerUrl} alt={webinar.title} />
+              <div className="webinar-model-details">
+                <h3>{currentLanguage === "ru" ? webinar.titleRussian : webinar.title}</h3>
+                <p>
+                  {formatDateForInput(webinar.date)} | {webinar.time}
+                </p>
+              </div>
             </div>
-            </div>
-            
             
             <div className="webinar-actions">
-              <button onClick={() => handleEdit(webinar)}>Edit</button>
-              <button onClick={() => handleDelete(webinar._id)}>Delete</button>
+              <button onClick={() => handleEdit(webinar)}>
+                {t("webinarManagement.edit")}
+              </button>
+              <button onClick={() => handleDelete(webinar._id)}>
+                {t("webinarManagement.delete")}
+              </button>
             </div>
           </li>
         ))}
@@ -234,7 +235,11 @@ const WebinarManagement = ({ selectedLanguage = "English" }) => {
         <div className="webinar-modal">
           <div className="webinar-modal-content">
             <div className="webinar-modal-header">
-              <h3>{editingWebinar ? "Edit Webinar" : "Add Webinar"}</h3>
+              <h3>
+                {editingWebinar
+                  ? t("webinarManagement.modal.editTitle")
+                  : t("webinarManagement.modal.addTitle")}
+              </h3>
               <button
                 className="webinar-close-btn"
                 onClick={() => setIsModalOpen(false)}
@@ -256,16 +261,17 @@ const WebinarManagement = ({ selectedLanguage = "English" }) => {
                         : "text"
                     }
                     name={field}
-                    placeholder={field.replace(/([A-Z])/g, " $1").trim()}
+                    placeholder={t(`webinarManagement.fields.${field}`)}
                     value={formData[field] || ""}
                     onChange={handleChange}
-                    // ✅ Only "title", "date", and "time" are required, the rest are optional
                     required={["title", "date", "time"].includes(field)}
                   />
                 ))}
 
                 <button type="submit" className="submit-btn">
-                  {editingWebinar ? "Update Webinar" : "Add Webinar"}
+                  {editingWebinar
+                    ? t("webinarManagement.modal.submitEdit")
+                    : t("webinarManagement.modal.submitAdd")}
                 </button>
               </form>
             </div>

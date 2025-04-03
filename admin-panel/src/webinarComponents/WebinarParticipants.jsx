@@ -4,60 +4,22 @@ import "./WebinarParticipants.css";
 import { FaSearch } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
 
-// Type definitions (if using TypeScript)
-// interface Participant {
-//   email: string;
-//   status?: string;
-//   registeredAt?: string;
-// }
-
-const translations = {
-  English: {
-    title: "{webinarTitle} - Participants",
-    searchPlaceholder: "Search by email",
-    email: "Email",
-    status: "Status",
-    registeredAt: "Registered At",
-    noParticipants: "No participants found.",
-    errorFetchingParticipants: "Error fetching participants",
-    previous: "Previous",
-    next: "Next",
-    export: "Export CSV",
-    loading: "Loading...",
-  },
-  Russian: {
-    title: "{webinarTitle} - Участники",
-    searchPlaceholder: "Искать по электронной почте",
-    email: "Электронная почта",
-    status: "Статус",
-    registeredAt: "Зарегистрирован в",
-    noParticipants: "Участники не найдены.",
-    errorFetchingParticipants: "Ошибка при получении участников",
-    previous: "Назад",
-    next: "Далее",
-    export: "Экспорт CSV",
-    loading: "Загрузка...",
-  },
-};
-
-const WebinarParticipants = ({ selectedLanguage = "English" }) => {
+const WebinarParticipants = () => {
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const { webinarId } = useParams();
+  const { t, i18n } = useTranslation();
   const [participants, setParticipants] = useState([]);
   const [webinarTitle, setWebinarTitle] = useState("");
+  const [webinarTitleRussian, setWebinarTitleRussian] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 15;
 
+  const currentLanguage = i18n.language;
   const token = localStorage.getItem("token");
-
-  const safeTranslate = (key) => {
-    const lang = translations[selectedLanguage] ? selectedLanguage : "English";
-    return translations[lang][key] || translations.English[key];
-  };
 
   const fetchParticipants = async () => {
     setLoading(true);
@@ -81,9 +43,10 @@ const WebinarParticipants = ({ selectedLanguage = "English" }) => {
         )
       );
       setWebinarTitle(data.title || "");
+      setWebinarTitleRussian(data.titleRussian || ""); // Store Russian title separately
     } catch (error) {
       console.error("Error fetching participants:", error);
-      toast.error(safeTranslate("errorFetchingParticipants"));
+      toast.error(t("webinarParticipants.errorFetchingParticipants"));
     } finally {
       setLoading(false);
     }
@@ -109,7 +72,6 @@ const WebinarParticipants = ({ selectedLanguage = "English" }) => {
     participant.email?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Pagination logic
   const totalPages = Math.ceil(filteredParticipants.length / recordsPerPage);
   const startIndex = (currentPage - 1) * recordsPerPage;
   const currentRecords = filteredParticipants.slice(
@@ -117,10 +79,9 @@ const WebinarParticipants = ({ selectedLanguage = "English" }) => {
     startIndex + recordsPerPage
   );
 
-  // Export CSV Function
   const exportCSV = () => {
     const csvContent = [
-      [safeTranslate("email"), safeTranslate("status"), safeTranslate("registeredAt")],
+      [t("webinarParticipants.email"), t("webinarParticipants.status"), t("webinarParticipants.registeredAt")],
       ...participants.map((p) => [
         p.email || "N/A",
         p.status || "N/A",
@@ -141,38 +102,33 @@ const WebinarParticipants = ({ selectedLanguage = "English" }) => {
     <div className="participants-page-container">
       <div className="participants-header">
         <h1>
-          {safeTranslate("title").replace("{webinarTitle}", webinarTitle)}
+          {currentLanguage === "ru"
+            ? t("webinarParticipants.title", { webinarTitle: webinarTitleRussian || webinarTitle })
+            : t("webinarParticipants.title", { webinarTitle })}
         </h1>
       </div>
 
-      {/* Search Bar & Export Button */}
       <div className="search-export-container">
         <div className="search-bar-wrapper">
           <FaSearch className="search-icon" />
           <input
             type="text"
             className="search-bar"
-            placeholder={safeTranslate("searchPlaceholder")}
+            placeholder={t("webinarParticipants.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            aria-label="Search participants"
           />
         </div>
-        
-        {/* Export Button */}
+
         <div className="export-btn-wrapper">
-          <button 
-            className="export-btn" 
-            onClick={exportCSV}
-            disabled={participants.length === 0}
-          >
-            {safeTranslate("export")}
+          <button className="export-btn" onClick={exportCSV} disabled={participants.length === 0}>
+            {t("webinarParticipants.export")}
           </button>
         </div>
       </div>
 
       {loading ? (
-        <p>{safeTranslate("loading")}</p>
+        <p>{t("webinarParticipants.loading")}</p>
       ) : (
         <div>
           {currentRecords.length > 0 ? (
@@ -180,9 +136,9 @@ const WebinarParticipants = ({ selectedLanguage = "English" }) => {
               <table className="participants-table">
                 <thead>
                   <tr>
-                    <th>{safeTranslate("email")}</th>
-                    <th>{safeTranslate("status")}</th>
-                    <th>{safeTranslate("registeredAt")}</th>
+                    <th>{t("webinarParticipants.email")}</th>
+                    <th>{t("webinarParticipants.status")}</th>
+                    <th>{t("webinarParticipants.registeredAt")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -195,48 +151,16 @@ const WebinarParticipants = ({ selectedLanguage = "English" }) => {
                   ))}
                 </tbody>
               </table>
-
-              {/* Pagination Controls */}
-              {totalPages > 1 && (
-                <div className="pagination-controls">
-                  <button
-                    disabled={currentPage === 1}
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                    aria-label={safeTranslate("previous")}
-                  >
-                    {safeTranslate("previous")}
-                  </button>
-                  <span>
-                    {currentPage} / {totalPages}
-                  </span>
-                  <button
-                    disabled={currentPage === totalPages}
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                    aria-label={safeTranslate("next")}
-                  >
-                    {safeTranslate("next")}
-                  </button>
-                </div>
-              )}
             </div>
           ) : (
-            <p className="no-participants">
-              {safeTranslate("noParticipants")}
-            </p>
+            <p>{t("webinarParticipants.noParticipants")}</p>
           )}
         </div>
       )}
+
       <ToastContainer />
     </div>
   );
-};
-
-WebinarParticipants.propTypes = {
-  selectedLanguage: PropTypes.oneOf(Object.keys(translations)),
-};
-
-WebinarParticipants.defaultProps = {
-  selectedLanguage: "English",
 };
 
 export default WebinarParticipants;

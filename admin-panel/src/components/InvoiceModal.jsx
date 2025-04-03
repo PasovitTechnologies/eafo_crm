@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./InvoiceModal.css";
-import { FaEnvelope, FaWhatsapp, FaTrashAlt } from "react-icons/fa"; // Import icons
+import {
+  FaEnvelope,
+  FaWhatsapp,
+  FaTrashAlt,
+  FaCheckCircle,
+  FaTimesCircle,
+} from "react-icons/fa"; // Import icons
 import AktDocument from "./AktDocument";
 import { useTranslation } from "react-i18next";
 import ContractDocument from "./ContractDocument";
+import { useCallback } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   const [items, setItems] = useState([]);
@@ -21,9 +30,25 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   const [isContractOpen, setIsContractOpen] = useState(false);
   const [userData, setUserData] = useState(null);
   const [emailSending, setEmailSending] = useState(false);
-  const { t } = useTranslation();  // Translation hook
+  const [whatsappLoading, setWhatsappLoading] = useState(false);
+  const [whatsappStatus, setWhatsappStatus] = useState(null);
+  const { t } = useTranslation(); // Translation hook
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
+  const paymentMethods = [
+    {
+      id: "stripe",
+      name: "Stripe",
+      currencies: ["USD", "EUR", "INR"],
+      defaultCurrency: "USD",
+    },
+    {
+      id: "alfabank",
+      name: "Alfa Bank",
+      currencies: ["RUB"],
+      defaultCurrency: "RUB",
+    },
+  ];
 
   useEffect(() => {
     if (isOpen && submission) {
@@ -41,7 +66,18 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
           : [{ name: "", amount: 0, currency }]
       );
 
-      setSelectedMethod(currency === "RUP" ? "alfabank" : "stripe");
+      // Set initial payment method based on currency
+      if (currency === "RUP") {
+        setSelectedMethod("alfabank");
+      } else if (currency === "INR") {
+        setSelectedMethod("stripe");
+      } else {
+        const defaultMethod =
+          paymentMethods.find((method) => method.currencies.includes(currency))
+            ?.id || "stripe";
+        setSelectedMethod(defaultMethod);
+      }
+
       setPaymentUrl("");
       setOrderId("");
       setError(null);
@@ -53,69 +89,61 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   }, [isOpen, submission, courseId]);
 
   const fetchPaymentHistory = async () => {
-    if (!submission?.email || !courseId || !formId) {
-      setError("Invalid submission or missing course ID.");
-      return;
-    }
-
     try {
-      const token = localStorage.getItem("token");
+      // Validate required data
+      if (!submission?.email || !courseId) {
+        setError("Missing required data (email or course ID)");
+        return;
+      }
 
+      const token = localStorage.getItem("token");
       if (!token) {
-        setError("No token found. Please log in.");
+        setError("Authentication required");
         return;
       }
 
       const response = await axios.get(
-        `${baseUrl}/user/${submission.email}`,
+        `${baseUrl}/api/user/${submission.email}`, // Note: Added /api/
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
         }
       );
 
-      if (response.data && response.data.courses) {
-        setUserData(response.data);
-        const courses = response.data.courses;
-        const matchingCourse = courses.find(
-          (course) => course.courseId === courseId
-        );
-
-        if (matchingCourse && matchingCourse.payments?.length > 0) {
-          const payments = matchingCourse.payments.map((payment) => ({
-            invoiceNumber: payment.invoiceNumber || "N/A",
-            paymentId: payment.paymentId || "N/A",
-            paymentLink: payment.paymentLink || "#",
-            package: payment.package || "Unknown",
-            amount: payment.amount || 0,
-            currency: payment.currency || "USD",
-            status: payment.status || "Unknown",
-            time: new Date(payment.time).toLocaleString(),
-          }));
-
-          setPaymentHistory(payments);
-          setError(null);
-        } else {
-          setPaymentHistory([]);
-          setError("No payment history found for this course and form.");
-        }
-      } else {
-        setError("Failed to fetch payment history.");
+      if (!response.data?.courses) {
+        setPaymentHistory([]);
+        setError("No course data found for this user");
+        return;
       }
-    } catch (error) {
-      setError("Failed to fetch payment history.");
-    }
-  };
 
-  const handleItemChange = (index, field, value) => {
-    const updatedItems = [...items];
-    updatedItems[index] = {
-      ...updatedItems[index],
-      [field]: field === "amount" ? parseFloat(value) || 0 : value,
-    };
-    setItems(updatedItems);
+      const course = response.data.courses.find((c) => c.courseId === courseId);
+      if (!course?.payments) {
+        setPaymentHistory([]);
+        setError("No payment history for this course");
+        return;
+      }
+
+      const formattedPayments = course.payments.map((payment) => ({
+        invoiceNumber: payment.invoiceNumber || `INV-${Date.now()}`,
+        paymentId: payment.paymentId || "N/A",
+        paymentLink: payment.paymentLink || "#",
+        package: payment.package || submission.package || "Unknown",
+        amount: payment.amount || submission.amount || 0,
+        currency: payment.currency || submission.currency || "USD",
+        status: payment.status || "Unknown",
+        time: payment.time ? new Date(payment.time).toLocaleString() : "N/A",
+      }));
+
+      setPaymentHistory(formattedPayments);
+      setUserData(response.data);
+      setError(null);
+    } catch (error) {
+      console.error("Payment history error:", error);
+      setError(
+        error.response?.data?.message || "Failed to fetch payment history"
+      );
+    }
   };
 
   const addNewItem = () => {
@@ -149,7 +177,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     const orderDetails = {
       orderNumber: `order-${Date.now()}`,
       amount: totalAmount,
-      currency,
+      currency: selectedMethod === "stripe" ? "INR" : "RUP",
       email: submission.email,
       course: items.map((item) => item.name).join(", "),
       returnUrl: "http://localhost:3000/payment-success",
@@ -170,6 +198,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       });
 
       if (response.data.success) {
+        toast.success("Payment link generated")
         setPaymentUrl(response.data.paymentUrl);
         setOrderId(response.data.orderId);
       } else {
@@ -183,129 +212,147 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   };
 
   const handleSendEmail = async () => {
-    console.log("📤 Email send is started...");
+    console.log("📤 Email send process started...");
   
     if (!submission?.email) {
-      alert("❌ No recipient email found.");
       console.error("❌ Missing recipient email.");
       return;
     }
   
     if (!paymentUrl) {
       alert("❌ No payment URL generated. Please generate a payment link first.");
-      console.error("❌ Payment URL is missing.");
       return;
     }
   
-    // Constructing email payload
+    // 🔥 Pass the full submission object instead of extracting fields
     const emailData = {
-      formId,
       courseId,
       orderId,
-      package: submission.package,
-      amount: submission.amount,
-      currency: submission.currency,
-      recipients: [
-        {
-          email: submission.email,
-          name: submission.email.split("@")[0],
-        },
-      ],
-      mail: {
-        subject: "Your Payment Invoice from EAFO",
-        previewTitle: "Payment Details",
-        html: `
-          <h2>Dear ${submission.email.split("@")[0]},</h2>
-          <p>We have generated an invoice for your registration.</p>
-          <p><strong>Package:</strong> ${submission.package}</p>
-          <p><strong>Amount:</strong> ${submission.amount} ${submission.currency}</p>
-          <p>Click the link below to complete your payment:</p>
-          <a href="${paymentUrl}" style="font-size:16px; color:blue;">Complete Payment</a>
-          <br><br>
-          <p>Best regards,<br>EAFO Team</p>
-        `,
-      },
       paymentUrl,
+      submission,
+      currency // ✅ Send the entire submission object
     };
   
-    console.log("📥 Sending Email Data:", JSON.stringify(emailData, null, 2));
+    console.log("📥 Sending email request:", JSON.stringify(emailData, null, 2));
   
     try {
-      const response = await axios.post(
-        `${baseUrl}/api/email/send`,
-        emailData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // Added Authorization header
-          },
-        }
-      );
+      const response = await axios.post(`${baseUrl}/api/email/send`, emailData, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
   
       if (response.data.success) {
-        console.log("✅ Email sent successfully:", response.data);
+        console.log("✅ Invoice email sent successfully:", response.data);
         setShowPopup(true);
         fetchPaymentHistory();
-        setPaymentUrl("");
-        alert("✅ Payment link sent successfully via Email!");
+        setPaymentUrl(""); // Clear payment URL after sending
       } else {
-        console.error("❌ Failed emails:", response.data.results.filter(r => r.status === "Failed"));
-        alert("❌ Some emails failed to send. Check console for details.");
+        console.error("❌ Failed to send invoice email:", response.data.message);
       }
     } catch (error) {
-      console.error("❌ Email sending error:", error.response?.data || error.message);
-  
-      if (error.response) {
-        alert(`❌ Error: ${error.response.data.message || "Failed to send email"}`);
-      } else {
-        alert("❌ An unexpected error occurred while sending email.");
-      }
+      console.error("❌ Error sending email request:", error.response?.data || error.message);
+      alert(`❌ Error: ${error.response?.data?.message || "Failed to send invoice"}`);
     }
   };
   
+  
+  
+  
+  
 
+  const handleSendWhatsApp = useCallback(async () => {
+    console.log("🚀 WhatsApp button clicked");
 
-  const handleSendWhatsApp = async () => {
+    if (whatsappLoading) {
+      console.log("⚠️ WhatsApp is already sending, please wait.");
+      return;
+    }
+
     if (!paymentUrl) {
-      alert("❌ No payment URL generated. Please generate a payment link first.");
+      console.log("❌ No payment URL generated.");
+      alert("❌ No payment URL. Generate it first!");
       return;
     }
-  
+
     if (!userData?.personalDetails?.phone) {
-      alert("❌ Recipient phone number not found.");
+      console.log("❌ No phone number found in user data.");
+      alert("❌ Missing phone number.");
       return;
     }
-  
-    // Format phone number (remove all non-digit characters)
-    const phoneNumber = userData.personalDetails.phone.replace(/\D/g, '');
-  
-    const message = `*Payment Invoice*\n\n` +
-      `Package: ${submission.package}\n` +
-      `Amount: ${submission.amount} ${submission.currency}\n\n` +
-      `Pay here: ${paymentUrl}`;
-  
+
+    const phoneNumber = userData.personalDetails.phone.replace(/\D/g, "");
+    if (!/^\d{10,15}$/.test(phoneNumber)) {
+      console.log("❌ Invalid phone number format.");
+      alert("❌ Invalid phone number.");
+      return;
+    }
+
+    if (!courseId || !orderId || !submission.currency) {
+      console.log(
+        "❌ Missing required payment details (courseId, orderId, currency)."
+      );
+      alert("❌ Payment details missing. Please try again.");
+      return;
+    }
+
+    setWhatsappLoading(true);
+    setWhatsappStatus(null);
+
     try {
+      console.log("📨 Sending WhatsApp message to:", phoneNumber);
+
       const response = await axios.post(
-        `${baseUrl}/api/whatsapp/send`, // Relative path to your backend endpoint
+        `${baseUrl}/api/whatsapp/send-wp`,
         {
           to: phoneNumber,
-          message: message
+          email: userData.personalDetails.email, // ✅ Send email separately
+          message:
+            `*Payment Invoice*\n\n` +
+            `Package: ${submission.package}\n` +
+            `Amount: ${submission.amount} ${submission.currency}\n\n` +
+            `Pay here: ${paymentUrl}`,
+          package: submission.package,
+          amount: submission.amount,
+          currency: submission.currency, // ✅ Added currency
+          formId,
+          courseId,
+          orderId,
+          paymentUrl: paymentUrl,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+          timeout: 30000,
         }
-        // No need for headers here - axios will automatically include the JWT 
-        // if you've set it up with an interceptor or default headers
       );
-  
-      if (response.data.status === 'success') {
-        alert("✅ WhatsApp message sent successfully!");
+
+      console.log("✅ WhatsApp API Response:", response.data);
+
+      if (response.data.success) {
+        setWhatsappStatus({
+          type: "success",
+          message: `WhatsApp message delivered successfully! Invoice Number: ${response.data.invoiceNumber}`,
+          timestamp: new Date().toLocaleTimeString(),
+        });
+        fetchPaymentHistory();
       } else {
-        throw new Error(response.data.detail || 'Failed to send message');
+        throw new Error(response.data.error || "Failed to send message");
       }
     } catch (error) {
-      console.error("WhatsApp Error:", error.response?.data || error.message);
-      alert(`❌ Failed to send WhatsApp: ${error.response?.data?.detail || error.message}`);
+      console.error("❌ Error Sending WhatsApp Message:", error);
+
+      setWhatsappStatus({
+        type: "error",
+        message: error.response?.data?.error || error.message,
+      });
+    } finally {
+      setWhatsappLoading(false);
     }
-  };
-  
+  }, [paymentUrl, whatsappLoading, userData, submission]);
 
   const handleViewAkt = (payment) => {
     if (payment.status === "Paid" && userData) {
@@ -333,7 +380,8 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   };
 
   const handleViewContract = (payment) => {
-    if (payment.status === "Paid" && userData) {
+    if (userData) {
+      // Removed the check for payment status
       const aktDetails = {
         full_name: `${userData.personalDetails.title} ${userData.personalDetails.firstName} ${userData.personalDetails.lastName}`,
         date_of_birth: new Date(
@@ -357,8 +405,46 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     setIsContractOpen(false);
   };
 
+  const handleMethodChange = (method) => {
+    setSelectedMethod(method);
+
+    setItems(
+      items.map((item) => ({
+        ...item,
+        currency: method === "stripe" ? "INR" : "RUP",
+      }))
+    );
+  };
+
+  // Update the handleItemChange function for currency changes
+  const handleItemChange = (index, field, value) => {
+    const updatedItems = [...items];
+    updatedItems[index] = {
+      ...updatedItems[index],
+      [field]: field === "amount" ? parseFloat(value) || 0 : value,
+    };
+    setItems(updatedItems);
+
+    // When currency changes, update payment method if needed
+    if (field === "currency") {
+      const compatibleMethod = paymentMethods.find((method) =>
+        method.currencies.includes(value)
+      );
+      if (compatibleMethod && compatibleMethod.id !== selectedMethod) {
+        setSelectedMethod(compatibleMethod.id);
+      }
+    }
+  };
+
+  // Add this function to your component
+  const isCurrentMethodValid = () => {
+    const method = paymentMethods.find((m) => m.id === selectedMethod);
+    return method?.currencies.includes(items[0]?.currency);
+  };
+
   return (
     <>
+    <ToastContainer     className="custom-toast-container"/>
       <div
         className={`invoice-modal-overlay ${isOpen ? "open" : ""}`}
         onClick={onClose}
@@ -367,6 +453,21 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
         <button className="close-modal-btn" onClick={onClose}>
           &times;
         </button>
+
+        <div className="payment-method-selector">
+          <h4>{t("InvoiceModal.paymentMethod")}</h4>
+          <select
+            value={selectedMethod}
+            onChange={(e) => handleMethodChange(e.target.value)}
+            className="payment-method-dropdown"
+          >
+            {paymentMethods.map((method) => (
+              <option key={method.id} value={method.id}>
+                {method.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
         <div className="items-container">
           <h4>{t("InvoiceModal.item")}</h4>
@@ -401,19 +502,20 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
         </div>
 
         <h3 className="invoice-total-amt">
-        {t("InvoiceModal.addItem")}: {totalAmount.toFixed(2)} {currency}
+          {t("InvoiceModal.addItem")}: {totalAmount.toFixed(2)} {currency}
         </h3>
 
         <button onClick={handlePayment} disabled={loading || totalAmount <= 0}>
-          {loading ? t("InvoiceModal.generateLink") : t("InvoiceModal.generateLink")}
+          {loading
+            ? t("InvoiceModal.generateLink")
+            : t("InvoiceModal.generateLink")}
         </button>
 
         {paymentUrl && (
           <div className="payment-details">
             <div className="payment-info">
-              <p>{t("InvoiceModal.orderId")}: {orderId}</p>
               <p>
-              {t("InvoiceModal.paymentLink")}:{" "}
+                {t("InvoiceModal.paymentLink")}:{" "}
                 <a href={paymentUrl} target="_blank" rel="noopener noreferrer">
                   View Link
                 </a>
@@ -421,18 +523,36 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
             </div>
 
             <div className="invoice-send-actions">
-            <button onClick={handleSendEmail} disabled={emailSending}>
-              <FaEnvelope /> {emailSending ? "Sending..." : "Send via Email"}
-            </button>
-
-              <button className="send-invoice-btn">
-                Send Via
-                <FaWhatsapp
-                  className="whatsapp-icon send-icon"
-                  onClick={handleSendWhatsApp}
-                  title="Send via WhatsApp"
-                />
+              <button onClick={handleSendEmail} disabled={emailSending}>
+                <FaEnvelope /> {emailSending ? "Sending..." : "Send via Email"}
               </button>
+
+              <button
+                className="send-invoice-btn whatsapp-btn"
+                onClick={handleSendWhatsApp}
+                disabled={whatsappLoading}
+              >
+                <FaWhatsapp className="whatsapp-icon" />
+                {whatsappLoading ? "Sending..." : "Send via WhatsApp"}
+              </button>
+
+              {whatsappStatus && (
+                <div className={`whatsapp-status ${whatsappStatus.type}`}>
+                  <div className="status-header">
+                    {whatsappStatus.type === "success" ? (
+                      <FaCheckCircle twoToneColor="#52c41a" />
+                    ) : (
+                      <FaTimesCircle twoToneColor="#ff4d4f" />
+                    )}
+                    <span>{whatsappStatus.message}</span>
+                  </div>
+                  {whatsappStatus.timestamp && (
+                    <div className="status-timestamp">
+                      <small>Sent at: {whatsappStatus.timestamp}</small>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -446,18 +566,21 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
               {paymentHistory.map((payment, index) => (
                 <li key={index} className="payment-info-item">
                   <div>
-                  <p>
-                      <strong>{t("InvoiceModal.invoiceNumber")}:</strong> {payment.invoiceNumber}
+                    <p>
+                      <strong>{t("InvoiceModal.invoiceNumber")}:</strong>{" "}
+                      {payment.invoiceNumber}
                     </p>
                     <p>
-                      <strong>{t("InvoiceModal.package")}:</strong> {payment.package}
+                      <strong>{t("InvoiceModal.package")}:</strong>{" "}
+                      {payment.package}
                     </p>
                     <p>
-                      <strong>{t("InvoiceModal.amount")}:</strong> {payment.amount}{" "}
-                      {payment.currency}
+                      <strong>{t("InvoiceModal.amount")}:</strong>{" "}
+                      {payment.amount} {payment.currency}
                     </p>
                     <p>
-                      <strong>{t("InvoiceModal.status")}:</strong> {payment.status}
+                      <strong>{t("InvoiceModal.status")}:</strong>{" "}
+                      {payment.status}
                     </p>
                     <p>
                       <strong>{t("InvoiceModal.date")}:</strong> {payment.time}
@@ -472,6 +595,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
                   </div>
 
                   <div className="payment-actions">
+                    {/* AKT Button - Only Available for Paid Invoices */}
                     <button
                       onClick={() => handleViewAkt(payment)}
                       disabled={payment.status !== "Paid"}
@@ -484,22 +608,15 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
                           : ""
                       }
                     >
-                      {payment.status === "Paid" ? t("InvoiceModal.akt") : t("InvoiceModal.akt")}
+                      {t("InvoiceModal.akt")}
                     </button>
-                    
+
+                    {/* Contract Button - Always Enabled */}
                     <button
                       onClick={() => handleViewContract(payment)}
-                      disabled={payment.status !== "Paid"}
-                      className={
-                        payment.status === "Paid" ? "btn-paid" : "btn-disabled"
-                      }
-                      title={
-                        payment.status !== "Paid"
-                          ? "Contract only available for paid invoices"
-                          : ""
-                      }
+                      className="btn-paid" // Always show as enabled
                     >
-                      {payment.status === "Paid" ? t("InvoiceModal.contract") : t("InvoiceModal.contract")}
+                      {t("InvoiceModal.contract")}
                     </button>
                   </div>
                 </li>
@@ -513,20 +630,19 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
         {showPopup && (
           <div className="popup">✅ {t("InvoiceModal.successPopup")}</div>
         )}
-
-        
       </div>
       {isAktOpen && aktData && (
-          <div className="akt-fullscreen-overlay">
-            <AktDocument data={aktData} onClose={handleCloseAkt} />
-          </div>
-        )}
+        <div className="akt-fullscreen-overlay">
+          <AktDocument data={aktData} onClose={handleCloseAkt} />
+        </div>
+      )}
 
-{isContractOpen && contractData && (
-          <div className="akt-fullscreen-overlay">
-            <ContractDocument data={contractData} onClose={handleCloseContract} />
-          </div>
-        )}
+      {isContractOpen && contractData && (
+        <div className="akt-fullscreen-overlay">
+          <ContractDocument data={contractData} onClose={handleCloseContract} />
+        </div>
+      )}
+      
     </>
   );
 };

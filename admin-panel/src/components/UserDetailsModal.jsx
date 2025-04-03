@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import "./UserDetailsModal.css";
-import { jsPDF } from "jspdf"; // 📄 PDF Library
-import "jspdf-autotable";      // 📄 Auto-table for PDF
-import Papa from "papaparse";   // 📊 CSV Library
-import { useTranslation } from "react-i18next";  
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
+import Papa from "papaparse";
+import { useTranslation } from "react-i18next";
+import PTSansNarrowBase64 from "../assets/fonts/PTSansNarrow.base64.js";
+
 
 const UserDetailsModal = ({ submission, userData, closeModal }) => {
   const { courseId } = useParams();
@@ -16,17 +18,18 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
   const [fullUserData, setFullUserData] = useState(null);
   const [formQuestions, setFormQuestions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const {t, i18n} =useTranslation();
+  const { t, i18n } = useTranslation();
   const [otherForms, setOtherForms] = useState([]);
-  const [otherFormsSubmissions, setOtherFormsSubmissions] = useState({});  const token = localStorage.getItem("token");
+  const [otherFormsData, setOtherFormsData] = useState({});
+  const [otherFormsSubmissions, setOtherFormsSubmissions] = useState({});
+  const token = localStorage.getItem("token");
   const baseUrl = import.meta.env.VITE_BASE_URL;
-
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         if (!userData?.email || !courseId) return;
-  
+
         // Fetch full user data
         const userResponse = await fetch(`${baseUrl}/api/user/${userData.email}`, {
           method: "GET",
@@ -35,16 +38,16 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
             "Content-Type": "application/json",
           },
         });
-  
+
         if (!userResponse.ok) throw new Error("Failed to fetch full user data");
         const fullUser = await userResponse.json();
         setFullUserData(fullUser);
-  
+
         // Extract invoice fields
         const invoiceFields = submission.responses.filter((res) => res.isUsedForInvoice === true);
         setInvoiceType(invoiceFields[0]?.answer || "N/A");
         setCategoryType(invoiceFields[1]?.answer || "N/A");
-  
+
         // Find the course by courseId
         const course = fullUser.courses.find((c) => c.courseId === courseId);
         if (!course) {
@@ -52,16 +55,16 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
           setIsLoading(false);
           return;
         }
-  
+
         // Separate registration forms from other forms
         const registrationForms = course.registeredForms.filter((form) => form.isUsedForRegistration);
         const otherFormsList = course.registeredForms.filter((form) => !form.isUsedForRegistration);
         setOtherForms(otherFormsList);
-  
+
         // Fetch registration form questions
         const registrationFormIds = registrationForms.map((form) => form.formId);
         const allQuestions = [];
-  
+
         for (const formId of registrationFormIds) {
           const formResponse = await fetch(`${baseUrl}/api/form/${formId}`, {
             method: "GET",
@@ -70,16 +73,16 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
               "Content-Type": "application/json",
             },
           });
-  
+
           if (formResponse.ok) {
             const formData = await formResponse.json();
             allQuestions.push(...(formData.questions || []));
           }
         }
-  
+
         setFormQuestions(allQuestions);
-  
-        // Process other forms - no additional API calls needed
+
+        // Process other forms
         const formsSubmissions = {};
         for (const form of otherFormsList) {
           try {
@@ -91,16 +94,16 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
                 "Content-Type": "application/json",
               },
             });
-  
+
             if (!formResponse.ok) continue;
             const formData = await formResponse.json();
-  
+
             // Find the user's submission in the form's submissions array
             if (formData.submissions && Array.isArray(formData.submissions)) {
               const userSubmission = formData.submissions.find(
                 sub => sub.email.toLowerCase() === userData.email.toLowerCase()
               );
-  
+
               if (userSubmission) {
                 formsSubmissions[form.formId] = {
                   questions: formData.questions || [],
@@ -113,16 +116,16 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
             console.error(`Error processing form ${form.formId}:`, error);
           }
         }
-  
+
         setOtherFormsSubmissions(formsSubmissions);
         setIsLoading(false);
-  
+
       } catch (error) {
         console.error("Error fetching data:", error);
         setIsLoading(false);
       }
     };
-  
+
     fetchData();
   }, [courseId, userData, submission.responses, token]);
 
@@ -130,14 +133,12 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
     setActiveTab(tab);
   };
 
-  // 🔥 Function to sanitize labels by removing HTML tags
   const sanitizeLabel = (label) => {
     const div = document.createElement("div");
     div.innerHTML = label;
     return div.textContent || div.innerText || "Unknown Question";
   };
 
-  // 🔥 Match submission responses with form questions
   const getQuestionLabel = (questionId, formId = null) => {
     let questions = formQuestions;
     
@@ -149,147 +150,399 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
     return question ? sanitizeLabel(question.label) : "Unknown Question";
   };
 
+  const renderFileResponse = (fileData) => {
+    if (!fileData || !fileData.fileId) {
+      return <span className="file-missing">No file available</span>;
+    }
+  
+    return (
+      <div className="file-response">
+        <a 
+          href="#" 
+          className="file-link" 
+          onClick={(e) => {
+            e.preventDefault();  // Prevent page refresh
+            downloadFile(fileData);
+          }}
+        >
+          <i className="fas fa-file"></i> {`File (${(fileData.size / 1024).toFixed(2)} KB)`}
+        </a>
+        <button className="download-btn" onClick={() => downloadFile(fileData)}>
+          <i className="fas fa-download"></i> Download
+        </button>
+      </div>
+    );
+  };
+  
+
+  const downloadFile = async (file) => {
+    try {
+      if (!file.fileId) {
+        alert("File download link is not available");
+        return;
+      }
+  
+      const token = localStorage.getItem("token"); // Retrieve token if needed
+  
+      const response = await fetch(`${baseUrl}/api/form/files/${file.fileId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Include token if required
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+  
+      // Detect file type
+      const contentType = response.headers.get("Content-Type") || "application/octet-stream";
+  
+      // Extract filename from Content-Disposition header
+      let filename = file.name || "downloaded_file";
+      const contentDisposition = response.headers.get("Content-Disposition");
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?(.+?)"?(;|$)/);
+        if (match && match[1]) {
+          filename = decodeURIComponent(match[1]); // Decode special characters
+        }
+      }
+  
+      // Ensure the correct file extension
+      const extensionMap = {
+        "application/pdf": "pdf",
+        "image/png": "png",
+        "image/jpeg": "jpg",
+        "image/svg+xml": "svg",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+        "application/msword": "doc",
+        "application/vnd.ms-excel": "xls",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+        "text/plain": "txt",
+        "application/zip": "zip",
+      };
+  
+      const fileExtension = extensionMap[contentType] || contentType.split("/")[1] || "bin";
+  
+      // Add extension if missing
+      if (!filename.includes(".")) {
+        filename += `.${fileExtension}`;
+      }
+  
+      // Convert response to blob
+      const blob = await response.blob();
+      const fileBlob = new Blob([blob], { type: contentType });
+  
+      // Create download link
+      const url = window.URL.createObjectURL(fileBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      setTimeout(() => {
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      }, 100);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      alert(`Failed to download file: ${error.message}`);
+    }
+  };
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  const loadFont = async () => {
+    const response = await fetch("/fonts/PTSansNarrow-Regular.ttf");
+    const fontData = await response.arrayBuffer();
+    const fontBase64 = btoa(
+      new Uint8Array(fontData).reduce((data, byte) => data + String.fromCharCode(byte), "")
+    );
+    
+    return fontBase64;
+  };
+  
+  
+
   const exportToCSV = () => {
+    if (!submission) {
+      console.error("No submission data available.");
+      return;
+    }
+  
     const csvData = [];
   
-    // ➡️ Add Section Headers with empty row for styling effect
+    // Add Section Headers
     csvData.push(["Section", "Label", "Value"]);
   
-    // 🟢 Personal Details
-    csvData.push(["Personal", "", ""]);  // Section header
+    // Personal Details
+    csvData.push(["Personal", "", ""]);
     csvData.push(["", "First Name", fullUserData?.personalDetails?.firstName || "N/A"]);
     csvData.push(["", "Last Name", fullUserData?.personalDetails?.lastName || "N/A"]);
-    csvData.push(["", "Email", submission.email]);
+    csvData.push(["", "Email", submission?.email || "N/A"]);
     csvData.push(["", "Phone", fullUserData?.personalDetails?.phone || "N/A"]);
     csvData.push(["", "Country", fullUserData?.personalDetails?.country || "N/A"]);
   
-    // 🟡 Invoice Info
-    csvData.push(["Invoice", "", ""]);  // Section header
-    csvData.push(["", "Invoice Type", invoiceType]);
-    csvData.push(["", "Category Type", categoryType]);
+    // Invoice Info
+    csvData.push(["Invoice", "", ""]);
+    csvData.push(["", "Invoice Type", invoiceType || "N/A"]);
+    csvData.push(["", "Category Type", categoryType || "N/A"]);
   
-    // 🔥 Registration Responses
-    csvData.push(["Registration", "", ""]);  // Section header
-    submission.responses.forEach((res) => {
-      const label = getQuestionLabel(res.questionId);
-      csvData.push(["", label, JSON.stringify(res.answer)]);
+    // Registration Responses
+    csvData.push(["Registration", "", ""]);
+    if (submission.responses && submission.responses.length > 0) {
+      submission.responses.forEach((res) => {
+        const label = getQuestionLabel(res.questionId) || `Unknown (${res.questionId})`;
+        let answer = res.file 
+          ? `[FILE] ${res.file.fileName} (${(res.file.size / 1024).toFixed(2)} KB)`
+          : Array.isArray(res.answer) 
+            ? res.answer.join(", ")
+            : res.answer;
+  
+        csvData.push(["", label, answer || "N/A"]);
+      });
+    } else {
+      csvData.push(["", "No responses available", "N/A"]);
+    }
+  
+    // Other Forms
+    Object.entries(otherFormsSubmissions).forEach(([formId, formData]) => {
+      csvData.push([formData.formName, "", ""]);
+      if (formData.submission.responses && formData.submission.responses.length > 0) {
+        formData.submission.responses.forEach((res) => {
+          const label = getQuestionLabel(res.questionId, formId) || `Unknown (${res.questionId})`;
+          let answer = res.file 
+            ? `[FILE] ${res.file.fileName} (${(res.file.size / 1024).toFixed(2)} KB)`
+            : Array.isArray(res.answer) 
+              ? res.answer.join(", ")
+              : res.answer;
+    
+          csvData.push(["", label, answer || "N/A"]);
+        });
+      } else {
+        csvData.push(["", "No responses available", "N/A"]);
+      }
     });
   
-    // 🚀 Convert to CSV format
-    const csv = Papa.unparse(csvData);
+    // Convert to CSV format
+    const BOM = "\uFEFF";
+    const csv = BOM + Papa.unparse(csvData);
   
-    // 🟠 Create CSV Blob and Trigger Download
+    // Create CSV Blob and Trigger Download
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download", `user_data_${userData.email}.csv`);
+    link.setAttribute("download", `user_data_${submission.email || "unknown"}.csv`);
+    document.body.appendChild(link);
     link.click();
-  
+    document.body.removeChild(link);
+    
     URL.revokeObjectURL(url);
   };
 
-  // 📄 Export to PDF
   const exportToPDF = () => {
     const doc = new jsPDF();
     const margin = 10;
     let startY = 25;
   
-    // 🛠️ Utility function for text wrapping
+    // Load custom font
+    doc.addFileToVFS("PTSansNarrow.ttf", PTSansNarrowBase64);
+    doc.addFont("PTSansNarrow.ttf", "PTSansNarrow", "normal");
+    doc.setFont("PTSansNarrow", "normal");
+  
+    // Helper function to handle undefined values safely
     const splitText = (text, maxWidth) => {
-      return doc.splitTextToSize(text, maxWidth);
+      const safeText = text ? String(text) : t("pdfExport.values.notAvailable");
+      return doc.splitTextToSize(safeText, maxWidth);
     };
   
-    // 🔥 PDF Header
+    // PDF Header
     doc.setFontSize(18);
-    doc.text("User & Submission Details", margin, startY);
+    doc.text(t("pdfExport.title"), margin, startY);
     startY += 10;
   
-    // 🟢 Personal Details
+    // Personal Details
     doc.setFontSize(14);
     doc.setTextColor(40, 40, 40);
-    doc.text("Personal Details", margin, startY);
+    doc.text(t("pdfExport.sections.personalDetails"), margin, startY);
     startY += 5;
   
     doc.autoTable({
       startY: startY,
-      head: [["Label", "Value"]],
+      head: [[
+        t("pdfExport.fields.label"), 
+        t("pdfExport.fields.value")
+      ]],
       body: [
-        ["First Name", fullUserData?.personalDetails?.firstName || "N/A"],
-        ["Last Name", fullUserData?.personalDetails?.lastName || "N/A"],
-        ["Email", submission.email],
-        ["Phone", fullUserData?.personalDetails?.phone || "N/A"],
-        ["Country", fullUserData?.personalDetails?.country || "N/A"],
+        [
+          t("pdfExport.fields.firstName"), 
+          splitText(fullUserData?.personalDetails?.firstName, 160)
+        ],
+        [
+          t("pdfExport.fields.lastName"), 
+          splitText(fullUserData?.personalDetails?.lastName, 160)
+        ],
+        [
+          t("pdfExport.fields.email"), 
+          splitText(submission?.email, 160)
+        ],
+        [
+          t("pdfExport.fields.phone"), 
+          splitText(fullUserData?.personalDetails?.phone, 160)
+        ],
+        [
+          t("pdfExport.fields.country"), 
+          splitText(fullUserData?.personalDetails?.country, 160)
+        ],
       ],
-      margin: { top: 10, left: margin, right: margin },
-      styles: { cellPadding: 4, fontSize: 10, overflow: "linebreak" },
+      styles: { font: "PTSansNarrow", fontSize: 10, overflow: "linebreak" },
     });
   
     startY = doc.lastAutoTable.finalY + 10;
   
-    // 🟡 Invoice Information
+    // Professional Details
     doc.setFontSize(14);
-    doc.text("Invoice Information", margin, startY);
+    doc.text(t("pdfExport.sections.professionalDetails"), margin, startY);
     startY += 5;
   
     doc.autoTable({
       startY: startY,
-      head: [["Label", "Value"]],
+      head: [[
+        t("pdfExport.fields.label"), 
+        t("pdfExport.fields.value")
+      ]],
       body: [
-        ["Invoice Type", splitText(invoiceType, 160)],  // Wrap long text
-        ["Category Type", splitText(categoryType, 160)],  // Wrap long text
+        [
+          t("pdfExport.fields.university"), 
+          splitText(fullUserData?.professionalDetails?.university, 160)
+        ],
+        [
+          t("pdfExport.fields.department"), 
+          splitText(fullUserData?.professionalDetails?.department, 160)
+        ],
+        [
+          t("pdfExport.fields.profession"), 
+          splitText(fullUserData?.professionalDetails?.profession, 160)
+        ],
+        [
+          t("pdfExport.fields.position"), 
+          splitText(fullUserData?.professionalDetails?.position, 160)
+        ],
       ],
-      margin: { top: 10, left: margin, right: margin },
-      styles: { cellPadding: 4, fontSize: 10, overflow: "linebreak" },
+      styles: { font: "PTSansNarrow", fontSize: 10, overflow: "linebreak" },
     });
   
     startY = doc.lastAutoTable.finalY + 10;
   
-    // 🔥 Registration Responses
+    // Invoice Information
     doc.setFontSize(14);
-    doc.text("Registration Responses", margin, startY);
+    doc.text(t("pdfExport.sections.invoiceInfo"), margin, startY);
     startY += 5;
   
-    const registrationData = submission.responses.map((res) => [
-      splitText(getQuestionLabel(res.questionId), 80),  // Wrap label
-      splitText(JSON.stringify(res.answer), 160),       // Wrap answer
+    doc.autoTable({
+      startY: startY,
+      head: [[
+        t("pdfExport.fields.label"), 
+        t("pdfExport.fields.value")
+      ]],
+      body: [
+        [
+          t("pdfExport.fields.invoiceType"), 
+          splitText(invoiceType, 160)
+        ],
+        [
+          t("pdfExport.fields.categoryType"), 
+          splitText(categoryType, 160)
+        ],
+      ],
+      styles: { font: "PTSansNarrow", fontSize: 10, overflow: "linebreak" },
+    });
+  
+    startY = doc.lastAutoTable.finalY + 10;
+  
+    // Registration Responses
+    doc.setFontSize(14);
+    doc.text(t("pdfExport.sections.registrationResponses"), margin, startY);
+    startY += 5;
+  
+    const registrationData = (submission?.responses || []).map((res) => [
+      splitText(
+        getQuestionLabel(res?.questionId) ?? t("pdfExport.fields.unknownQuestion"), 
+        80
+      ),
+      splitText(
+        res?.file
+          ? `${t("pdfExport.fields.file")} ${res.file.fileName} (${(res.file.size / 1024).toFixed(2)} KB)`
+          : JSON.stringify(res?.answer ?? t("pdfExport.fields.noAnswer")),
+        160
+      ),
     ]);
   
     doc.autoTable({
       startY: startY,
-      head: [["Label", "Answer"]],
-      body: registrationData,
-      margin: { top: 10, left: margin, right: margin },
-      styles: { cellPadding: 4, fontSize: 10, overflow: "linebreak" },
+      head: [[
+        t("pdfExport.fields.label"), 
+        t("pdfExport.fields.answer")
+      ]],
+      body: registrationData.length ? registrationData : [
+        [
+          t("pdfExport.values.notAvailable"), 
+          t("pdfExport.values.notAvailable")
+        ]
+      ],
+      styles: { font: "PTSansNarrow", fontSize: 10, overflow: "linebreak" },
     });
   
-    // Add other forms data to PDF
-    Object.entries(otherFormsData).forEach(([formId, formData]) => {
+    startY = doc.lastAutoTable.finalY + 10;
+  
+    // Other Forms Submissions
+    Object.entries(otherFormsSubmissions || {}).forEach(([formId, formData]) => {
       startY = doc.lastAutoTable.finalY + 10;
-      
+  
       doc.setFontSize(14);
-      doc.text(formData.formName, margin, startY);
+      doc.text(formData.formName || t("pdfExport.fields.unknownForm"), margin, startY);
       startY += 5;
-      
-      const formSubmissionData = formData.submission.responses.map((res) => [
-        splitText(getQuestionLabel(res.questionId, formId), 80),
-        splitText(JSON.stringify(res.answer), 160)
+  
+      const formSubmissionData = (formData.submission?.responses || []).map((res) => [
+        splitText(
+          getQuestionLabel(res?.questionId, formId) ?? t("pdfExport.fields.unknownQuestion"), 
+          80
+        ),
+        splitText(
+          res?.file
+            ? `${t("pdfExport.fields.file")} ${res.file.fileName} (${(res.file.size / 1024).toFixed(2)} KB)`
+            : JSON.stringify(res?.answer ?? t("pdfExport.fields.noAnswer")),
+          160
+        ),
       ]);
-      
+  
       doc.autoTable({
         startY: startY,
-        head: [["Label", "Answer"]],
-        body: formSubmissionData,
-        margin: { top: 10, left: margin, right: margin },
-        styles: { cellPadding: 4, fontSize: 10, overflow: "linebreak" },
+        head: [[
+          t("pdfExport.fields.label"), 
+          t("pdfExport.fields.answer")
+        ]],
+        body: formSubmissionData.length ? formSubmissionData : [
+          [
+            t("pdfExport.values.notAvailable"), 
+            t("pdfExport.values.notAvailable")
+          ]
+        ],
+        styles: { font: "PTSansNarrow", fontSize: 10, overflow: "linebreak" },
       });
     });
   
-    // 💾 Save PDF
-    doc.save(`user_data_${userData.email}.pdf`);
+    // Save PDF
+    doc.save(`user_data_${submission?.email || "unknown"}.pdf`);
   };
+  
 
-  // Render form submissions
   const renderFormSubmissions = (formId) => {
     const formData = otherFormsSubmissions[formId];
     if (!formData) return <div>No submission data found for this form.</div>;
@@ -297,16 +550,23 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
     return (
       <div className="content-info">
         <h3>{formData.formName}</h3>
-        <ul>
-          {formData.submission.responses.map((res, idx) => {
-            const label = getQuestionLabel(res.questionId, formId);
-            return (
-              <li key={idx}>
-                <strong>{label}:</strong> {JSON.stringify(res.answer)}
-              </li>
-            );
-          })}
-        </ul>
+        <ul className="submission-responses">
+  {submission.responses.map((res, idx) => {
+    const label = getQuestionLabel(res.questionId);
+
+    return (
+      <li key={idx} className="response-item">
+        <div className="response-question">
+          <strong>{label}:</strong>
+        </div>
+        <div className="response-answer">
+          {res.file ? renderFileResponse(res.file) : res.answer || "N/A"}
+        </div>
+      </li>
+    );
+  })}
+</ul>
+
       </div>
     );
   };
@@ -315,13 +575,13 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
     <div className="userdeatils-modal-overlay" onClick={closeModal}>
       <div className="userdeatils-modal-content" onClick={(e) => e.stopPropagation()}>
 
-        {/* 🟠 Header */}
+        {/* Header */}
         <div className="modal-header">
           <h2>{t("userDetailsModal.header")}</h2>
           <span className="user-details-close-btn" onClick={closeModal}>&times;</span>
         </div>
 
-        {/* 🟡 User Info with Photo */}
+        {/* User Info with Photo */}
         <div className="user-info-header">
           <div className="user-info">
             <div className="user-photo-frame">
@@ -350,10 +610,9 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
           </div>
         </div>
 
-        {/* 🚀 Navigation Bar */}
+        {/* Navigation Bar */}
         <div className="nav-bar">
           {["Personal", "Invoice", "Registration", ...otherForms.map(form => form.formId)].map((tab) => {
-            // For other forms, use formId as tab identifier and display formName
             const form = otherForms.find(f => f.formId === tab);
             return (
               <div
@@ -367,7 +626,7 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
           })}
         </div>
 
-        {/* 🔥 Scrollable Content */}
+        {/* Scrollable Content */}
         <div className="userdetails-content-section">
           {isLoading ? (
             <div>{t("userDetailsModal.loading")}</div>
@@ -414,13 +673,23 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
               {activeTab === "Registration" && (
                 <div className="content-info">
                   <h3>{t("userDetailsModal.submissionDetails")}</h3>
-                  <ul>
+                  <ul className="submission-responses">
                     {submission.responses.map((res, idx) => {
                       const label = getQuestionLabel(res.questionId);
 
                       return (
-                        <li key={idx}>
-                          <strong>{label}:</strong> {JSON.stringify(res.answer)}
+                        <li key={idx} className="response-item">
+                          <div className="response-question">
+                            <strong>{label}:</strong>
+                          </div>
+                          <div className="response-answer">
+                            {res.file 
+                              ? renderFileResponse(res.file)
+                              : (Array.isArray(res.answer)) 
+                                ? res.answer.join(", ")
+                                : res.answer || "N/A"
+                            }
+                          </div>
                         </li>
                       );
                     })}

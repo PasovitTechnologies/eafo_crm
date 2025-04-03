@@ -107,10 +107,15 @@ const ProfileItem = ({ user, expandingSection, setExpandingSection }) => {
           transition={{ duration: 1.5, ease: "easeInOut" }}
         >
           <img
-            src={imageUrl || "https://static.wixstatic.com/media/df6cc5_dc3fb9dd45a9412fb831f0b222387da1~mv2.jpg"}
-            alt="Profile"
-            className="profile-image"
-          />
+  src={imageUrl || "https://static.wixstatic.com/media/df6cc5_dc3fb9dd45a9412fb831f0b222387da1~mv2.jpg"}
+  alt="Profile"
+  className="profile-image"
+  onError={(e) => {
+    e.target.onerror = null; // Prevent infinite loop
+    e.target.src = "https://static.wixstatic.com/media/df6cc5_dc3fb9dd45a9412fb831f0b222387da1~mv2.jpg"; // Default image
+  }}
+/>
+
         </motion.div>
 
         <div className="profile-text">

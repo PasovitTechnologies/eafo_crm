@@ -61,33 +61,34 @@ const RuleEditorModal = ({ questions, initialRule, onSave, onCancel, isOpen }) =
 
   const handleSave = () => {
     if (!editingRule.conditions.length) {
-      alert("Please add at least one condition.");
+      toast.warning(t("RuleEditorModal.addCondition"));
       return;
     }
-
+  
     const hasUnsetConditions = editingRule.conditions.some(
       (cond) => !cond.triggerQuestionId || !cond.condition
     );
-
+  
     if (hasUnsetConditions) {
-      alert("Please complete all condition fields.");
+      toast.warning(t("RuleEditorModal.completeConditions"));
       return;
     }
-
+  
     if (!editingRule.targetQuestionIds.length) {
-      alert("Please add at least one target question.");
+      toast.warning(t("RuleEditorModal.addTargetQuestion"));
       return;
     }
-
+  
     const hasUnsetTargets = editingRule.targetQuestionIds.some((target) => !target);
-
+  
     if (hasUnsetTargets) {
-      alert("Please select all target questions.");
+      toast.warning(t("RuleEditorModal.selectAllTargets"));
       return;
     }
-
+  
     onSave(editingRule);
   };
+  
 
   return (
     <div className={`rule-modal-overlay ${isOpen ? "open" : ""}`} onClick={onCancel}>

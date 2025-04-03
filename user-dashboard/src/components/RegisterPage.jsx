@@ -477,7 +477,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
       {/* Phone */}
       <div className="input-box">
         <PhoneInput
-          country={"us"}
+          country={"ru"}
           value={formData.phone}
           onChange={(phone) => setFormData({ ...formData, phone })}
           inputProps={{

@@ -117,7 +117,7 @@ const WebinarsItem = ({ expandingSection, setExpandingSection }) => {
             </AnimatePresence>
           </div>
         ) : (
-          !loading && <p>No upcoming webinars.</p>
+          !loading && <p>{t('webinar.no_upcoming_webinar')}</p>
         )}
 
         {/* 📌 Add Image in Bottom Right */}

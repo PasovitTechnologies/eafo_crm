@@ -6,6 +6,8 @@ import { MdOutlineSupportAgent } from "react-icons/md";
 import { FiSearch, FiDownload, FiMail, FiFilter } from "react-icons/fi"; // 🔎 Search & Download Icons
 import "./Enquiry.css";
 import { useTranslation } from "react-i18next";
+import "react-toastify/dist/ReactToastify.css";
+import { toast, ToastContainer } from "react-toastify";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -71,30 +73,35 @@ const Enquiry = () => {
   const handleDownload = async (id) => {
     try {
       const token = localStorage.getItem("token");
-
+  
       const response = await fetch(`${baseUrl}/api/enquiries/file/${id}`, {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
+  
       if (!response.ok) {
-        throw new Error("Failed to download file.");
+        throw new Error(t("enquiry.downloadError"));
       }
-
+  
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "file";
+      a.download = "file"; // Adjust filename if needed
+      document.body.appendChild(a);
       a.click();
+      document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+  
+      toast.success(t("enquiry.downloadSuccess"));
     } catch (error) {
       console.error("🚨 Error downloading file:", error);
-      alert("Failed to download file.");
+      toast.error(t("enquiry.downloadError"));
     }
   };
+  
 
   const openModal = (enquiry) => {
     setSelectedEnquiry(enquiry);
@@ -109,10 +116,10 @@ const Enquiry = () => {
   const handleStatusChangeInModal = async (newStatus) => {
     const updatedEnquiry = { ...selectedEnquiry, status: newStatus };
     setSelectedEnquiry(updatedEnquiry);
-
+  
     try {
       const token = localStorage.getItem("token");
-
+  
       const response = await fetch(`${baseUrl}/api/enquiries/${selectedEnquiry._id}`, {
         method: "PUT",
         headers: {
@@ -121,16 +128,16 @@ const Enquiry = () => {
         },
         body: JSON.stringify({ status: newStatus }),
       });
-
+  
       if (!response.ok) {
-        throw new Error("Failed to update status.");
+        throw new Error(t("enquiry.statusUpdateError"));
       }
-
-      alert("Status updated successfully!");
-      fetchEnquiries(); // Re-fetch the enquiries after update
+  
+      toast.success(t("enquiry.statusUpdateSuccess"));
+      fetchEnquiries(); // Re-fetch enquiries after update
     } catch (error) {
       console.error("🚨 Error updating status:", error);
-      alert("Failed to update status.");
+      toast.error(t("enquiry.statusUpdateError"));
     }
   };
 
@@ -167,6 +174,8 @@ const Enquiry = () => {
       transition={{ duration: 0.8 }}
     >
       <div className="enquiry-page">
+               <ToastContainer position="top-right"  className="custom-toast-container" autoClose={3000} />
+        
         <div className="enquiry-header">
           <div className="enquiry-left-header">
             <div className="enquiry-search-container">

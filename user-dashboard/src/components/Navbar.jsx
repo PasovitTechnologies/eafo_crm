@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
 import { useTranslation } from "react-i18next";
 import { FaSignOutAlt } from "react-icons/fa";
-import Flag from "react-world-flags";  // Import flag component
+import Flag from "react-world-flags";  
 import "./Navbar.css";
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation(); // Get current route
 
   useEffect(() => {
     const userId = localStorage.getItem("email");
@@ -34,11 +35,10 @@ const Navbar = () => {
     localStorage.setItem("language", lang);
   };
 
-  // Map language codes to country codes
   const getCountryCode = (lang) => {
     const map = {
-      en: "US",  // 🇺🇸 English
-      ru: "RU",  // 🇷🇺 Russian
+      en: "US",
+      ru: "RU",
     };
     return map[lang] || "US";
   };
@@ -61,7 +61,7 @@ const Navbar = () => {
 
         {/* Right Section */}
         <div className="right-section">
-          {/* Language Selector with Flags */}
+          {/* Language Selector */}
           <div className="language-selector">
             <div className="flag-dropdown">
               <Flag code={getCountryCode(i18n.language)} className="flag-icon" />
@@ -76,8 +76,8 @@ const Navbar = () => {
             </div>
           </div>
 
-          {/* Logout Button */}
-          {isLoggedIn && (
+          {/* Logout Button (Hidden Only on Home Page) */}
+          {location.pathname !== "/" && (
             <FaSignOutAlt
               className="user-icon"
               onClick={handleLogout}

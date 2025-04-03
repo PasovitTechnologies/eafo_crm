@@ -13,9 +13,10 @@ const CourseEntriesManager = () => {
   const [error, setError] = useState(null);
   const [activeFilter, setActiveFilter] = useState("All");
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const { t } = useTranslation(); 
+  const { t, i18n } = useTranslation(); 
   const navigate = useNavigate();
   const filterRef = useRef(null); // ✅ Ref to detect clicks outside
+  const currentLanguage = i18n.language;
 
   // ✅ Fetch courses
   useEffect(() => {
@@ -173,7 +174,7 @@ const CourseEntriesManager = () => {
               className="course-details-row"
               onClick={() => handleCourseClick(course._id)}
             >
-              <h3>{course.name}</h3>
+              <h3>{currentLanguage === "ru" ? course.nameRussian : course.name}</h3>
             </div>
           ))
         ) : (

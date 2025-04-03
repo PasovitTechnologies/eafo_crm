@@ -12,7 +12,8 @@ const InvoiceManager = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [showFilterModal, setShowFilterModal] = useState(false);
   
-  const { t } = useTranslation();  // 🌍 Translation hook
+  const { t, i18n } = useTranslation();  // 🌍 Translation hook
+  const currentLanguage=i18n.language;
   const navigate = useNavigate();
   const filterRef = useRef(null);
 
@@ -157,8 +158,8 @@ const InvoiceManager = () => {
               className="invoice-course-card"
               onClick={() => handleCourseClick(course._id)}
             >
-              <h3 className="invoice-course-name">{course.name}</h3>
-              <p>{new Date(course.startDate).toLocaleDateString()}</p>
+              <h3 className="invoice-course-name">{currentLanguage === "ru"? course.nameRussian : course.name}</h3>
+            
             </div>
           ))
         ) : (

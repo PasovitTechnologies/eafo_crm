@@ -42,7 +42,7 @@ const InvoiceEntries = () => {
 
   useEffect(() => {
     if (!courseId) return;
-
+  
     const fetchCourseData = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -53,24 +53,27 @@ const InvoiceEntries = () => {
             "Content-Type": "application/json",
           },
         });
-
+  
         if (!response.ok) throw new Error("Failed to fetch course data");
-
+  
         const data = await response.json();
         setCourseData(data);
-
-        const validForm = await findValidForm(data.forms, token);
-        if (validForm) {
-          setValidFormId(validForm._id);
-          fetchFormData(validForm._id, token);
+  
+        // 🔥 Filter forms with isUsedForRegistration === true
+        const registrationForms = data.forms.filter((form) => form.isUsedForRegistration);
+  
+        if (registrationForms.length > 0) {
+          const allSubmissions = await fetchAllRegistrationSubmissions(registrationForms, token);
+          setSubmissions(allSubmissions);
         }
       } catch (error) {
         console.error("❌ Error fetching course data:", error);
       }
     };
-
+  
     fetchCourseData();
   }, [courseId]);
+  
 
   useEffect(() => {
     if (submissions.length > 0) {
@@ -79,6 +82,29 @@ const InvoiceEntries = () => {
       fetchAllUserNames(); 
     }
   }, [submissions]);
+
+
+  const findValidForm = async (forms, token) => {
+    for (let form of forms) {
+      try {
+        const response = await fetch(`${baseUrl}/api/form/${form.formId}`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) continue;
+
+        const formData = await response.json();
+        if (formData.isUsedForRegistration) return formData;
+      } catch (error) {
+        console.error(`❌ Error fetching form ${form.formId}:`, error);
+      }
+    }
+    return null;
+  };
 
   const fetchAllUserNames = async () => {
     const token = localStorage.getItem("token");
@@ -197,8 +223,11 @@ const InvoiceEntries = () => {
     setRegistrationDetails(detailsMap); // ✅ Store registration details in state
   };
 
-  const findValidForm = async (forms, token) => {
-    for (let form of forms) {
+  
+  const fetchAllRegistrationSubmissions = async (forms, token) => {
+    let allSubmissions = [];
+  
+    await Promise.all(forms.map(async (form) => {
       try {
         const response = await fetch(`${baseUrl}/api/form/${form.formId}`, {
           method: "GET",
@@ -207,18 +236,20 @@ const InvoiceEntries = () => {
             "Content-Type": "application/json",
           },
         });
-
-        if (!response.ok) continue;
-
+  
+        if (!response.ok) throw new Error(`Failed to fetch form ${form.formId}`);
+  
         const formData = await response.json();
-        if (formData.isUsedForRegistration) return formData;
+        allSubmissions = [...allSubmissions, ...formData.submissions];
+  
       } catch (error) {
-        console.error(`❌ Error fetching form ${form.formId}:`, error);
+        console.error(`❌ Error fetching submissions for form ${form.formId}:`, error);
       }
-    }
-    return null;
+    }));
+  
+    return allSubmissions;
   };
-
+  
   const fetchFormData = async (validFormId, token) => {
     try {
       const response = await fetch(`${baseUrl}/api/form/${validFormId}`, {

@@ -5,8 +5,13 @@ import {
   FiArrowLeft,
 } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
+import Swal from "sweetalert2";
 
 const CourseDetail = () => {
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+
   const { t , i18n} = useTranslation();
   const currentLanguage = i18n.language;
   const { courseId } = useParams();
@@ -25,7 +30,6 @@ const CourseDetail = () => {
   const [activeItem, setActiveItem] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const baseUrl = import.meta.env.VITE_BASE_URL;
 
 
   const [formData, setFormData] = useState({
@@ -121,8 +125,9 @@ const CourseDetail = () => {
   };
 
   const saveRule = async () => {
+  
     if (!selectedForm || !conditions.length) {
-      alert("⚠️ Please select a form and add at least one condition.");
+      toast.warn(t("courseDetail.selectFormAndCondition")); // Translation for warning
       return;
     }
   
@@ -146,17 +151,17 @@ const CourseDetail = () => {
         body: JSON.stringify(ruleData),
       });
   
-      const responseData = await response.json().catch(() => null);  // ✅ Handle invalid JSON
-      fetchCourseDetails();
+      const responseData = await response.json().catch(() => null);
   
       if (!response.ok || !responseData) {
-        throw new Error(responseData?.message || `Failed to ${editingRule ? "update" : "add"} rule.`);
+        throw new Error(
+          responseData?.message || t(`courseDetail.${editingRule ? "updateError" : "addError"}`)
+        );
       }
   
-      alert(`✅ Rule ${editingRule ? "updated" : "added"} successfully!`);
-      resetRuleForm();
+      toast.success(t(`courseDetail.${editingRule ? "updatedSuccess" : "addedSuccess"}`));
   
-      // ✅ Always use fallback values to prevent `.map()` errors
+      resetRuleForm();
       setRules((prevRules = []) =>
         editingRule
           ? prevRules.map((rule) =>
@@ -165,8 +170,11 @@ const CourseDetail = () => {
           : [...prevRules, responseData || {}]
       );
   
+      fetchCourseDetails(); // Refresh course details
+  
     } catch (error) {
       console.error("🚨 Error:", error);
+      toast.error(error.message || t("courseDetail.errorOccurred"));
       setError(error.message);
     } finally {
       setLoading(false);
@@ -185,36 +193,46 @@ const CourseDetail = () => {
   };
 
   const deleteRule = async (ruleId) => {
-    if (!window.confirm("⚠️ Are you sure you want to delete this rule?")) return;
+  
+    const result = await Swal.fire({
+      title: t("courseDetail.confirmTitle"),
+      text: t("courseDetail.confirmText"),
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: t("courseDetail.confirmButton"),
+      cancelButtonText: t("courseDetail.cancelButton"),
+    });
+  
+    if (!result.isConfirmed) return;
   
     try {
-      setLoading(true); // 🔄 Show loading state
-      const token = localStorage.getItem("token"); // 🔒 Secure API request
+      setLoading(true);
+      const token = localStorage.getItem("token");
   
       const response = await fetch(
         `${baseUrl}/api/courses/${courseId}/rules/${ruleId}`,
         {
           method: "DELETE",
-          headers: { "Authorization": `Bearer ${token}` },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
   
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText || "Failed to delete rule.");
+        throw new Error(errorText || t("courseDetail.errorText"));
       }
   
-      alert("✅ Rule deleted successfully!");
+      Swal.fire(t("courseDetail.successTitle"), t("courseDetail.successText"), "success");
   
-      // ✅ Remove deleted rule from state instead of full re-fetch
       setRules((prevRules) => prevRules.filter((rule) => rule._id !== ruleId));
-  
     } catch (error) {
       console.error("🚨 Error deleting rule:", error);
-      alert(error.message || "An error occurred while deleting the rule.");
+      Swal.fire(t("courseDetail.errorTitle"), error.message || t("courseDetail.errorText"), "error");
       setError(error.message);
     } finally {
-      setLoading(false); // ✅ Hide loading state
+      setLoading(false);
     }
   };
   
@@ -235,13 +253,14 @@ const CourseDetail = () => {
 
 
   const handleSubmit = async () => {
+
     const isEditing = modalType === "editItem";
     const url = isEditing
       ? `/api/courses/${courseId}/items/${activeItem}`
       : `/api/courses/${courseId}/items`;
   
     try {
-      setLoading(true); 
+      setLoading(true);
   
       const response = await fetch(`${baseUrl}${url}`, {
         method: isEditing ? "PUT" : "POST",
@@ -254,64 +273,74 @@ const CourseDetail = () => {
   
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(errorText || "Failed to process request.");
+        throw new Error(errorText || t("courseDetail.requestError"));
       }
   
       const updatedItem = await response.json();
       fetchCourseDetails();
   
-      // ✅ Immediately update local state without re-fetching
-      setItems((prevItems) => {
-        if (isEditing) {
-          return prevItems.map((item) =>
-            item._id === activeItem ? updatedItem : item
-          );
-        } else {
-          return [...prevItems, updatedItem];
-        }
-      });
-  
-      alert(`✅ Item ${isEditing ? "updated" : "added"} successfully!`);
-      closeModal();
-    } catch (error) {
-      console.error("🚨 Error processing request:", error);
-      setError(error.message || "An error occurred while processing the request.");
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  
-  
-  const handleDelete = async (itemId) => {
-    if (!window.confirm("⚠️ Are you sure you want to delete this item?")) return;
-  
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `${baseUrl}/api/courses/${courseId}/items/${itemId}`,
-        {
-          method: "DELETE",
-          headers: { "Authorization": `Bearer ${localStorage.getItem("token")}` }, // 🔒 Optional
-        }
+      // ✅ Update local state without full re-fetch
+      setItems((prevItems) =>
+        isEditing
+          ? prevItems.map((item) => (item._id === activeItem ? updatedItem : item))
+          : [...prevItems, updatedItem]
       );
   
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Failed to delete item.");
-      }
-  
-      // ✅ Remove deleted item from state instead of full re-fetch
-      setItems((prevItems) => prevItems.filter((item) => item._id !== itemId));
-  
-      alert("✅ Item deleted successfully!");
+      toast.success(t(`courseDetail.${isEditing ? "itemUpdated" : "itemAdded"}`));
+      closeModal();
     } catch (error) {
-      console.error("🚨 Error deleting item:", error);
-      setError(error.message || "An error occurred while deleting the item.");
+      console.error("🚨 Error:", error);
+      toast.error(error.message || t("courseDetail.requestFailed"));
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
+  
+  
+  
+ const handleDelete = async (itemId) => {
+
+  const result = await Swal.fire({
+    title: t("courseDetail.confirmTitle"),
+    text: t("courseDetail.confirmDeleteItem"),
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: t("courseDetail.confirmYes"),
+    cancelButtonText: t("courseDetail.confirmNo"),
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+  });
+
+  if (!result.isConfirmed) return; // If user cancels, exit function
+
+  try {
+    setLoading(true);
+    const response = await fetch(
+      `${baseUrl}/api/courses/${courseId}/items/${itemId}`,
+      {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(errorText || t("courseDetail.deleteFailed"));
+    }
+
+    // ✅ Remove item from state
+    setItems((prevItems) => prevItems.filter((item) => item._id !== itemId));
+
+    toast.success(t("courseDetail.itemDeleted"));
+  } catch (error) {
+    console.error("🚨 Error deleting item:", error);
+    toast.error(error.message || t("courseDetail.deleteError"));
+    setError(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
   
 
 
@@ -344,6 +373,7 @@ const CourseDetail = () => {
 
   return (
     <div className="course-detail-page">
+       <ToastContainer     className="custom-toast-container"/>
       <div className="course-details-header">
       <div className="go-back">
                   <FiArrowLeft

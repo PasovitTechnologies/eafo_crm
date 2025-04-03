@@ -7,7 +7,10 @@ import { FiArrowLeft,   FiSearch, } from "react-icons/fi";
 import RuleEditorModal from "./RuleEditorModal";
 import QuestionModal from "./QuestionModal";
 import QuestionList from "./QuestionList";
-import { useTranslation } from "react-i18next";  
+import { useTranslation } from "react-i18next";
+import Swal from "sweetalert2";
+import "react-toastify/dist/ReactToastify.css";
+import { toast, ToastContainer } from "react-toastify";
 
 
 const CourseQuestionsDetail = () => {
@@ -28,7 +31,7 @@ const CourseQuestionsDetail = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const baseUrl = import.meta.env.VITE_BASE_URL;
+  const baseUrlMain = import.meta.env.VITE_BASE_URL;
  
   
 
@@ -44,7 +47,7 @@ const CourseQuestionsDetail = () => {
   const fetchQuestions = async () => {
     try {
       const token = localStorage.getItem("token"); // Retrieve token from localStorage
-      const url = `${baseUrl}/api/form/${formId}/questions`;
+      const url = `${baseUrlMain}/api/form/${formId}/questions`;
       
       const response = await fetch(url, {
         method: "GET",
@@ -73,7 +76,7 @@ const CourseQuestionsDetail = () => {
       const token = localStorage.getItem("token"); // Retrieve token
   
       // Fetch form details
-      const formResponse = await fetch(`${baseUrl}/api/form/${formId}`, {
+      const formResponse = await fetch(`${baseUrlMain}/api/form/${formId}`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -125,31 +128,40 @@ const CourseQuestionsDetail = () => {
 
   // ❌ Delete Question
   const deleteQuestion = async (questionId) => {
-    if (!window.confirm("Are you sure you want to delete this question?")) return;
+    const confirmDelete = await Swal.fire({
+      title: t("Questions.deleteConfirmTitle"),
+      text: t("Questions.deleteConfirmText"),
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: t("Questions.confirmDelete"),
+      cancelButtonText: t("Questions.cancel"),
+    });
+  
+    if (!confirmDelete.isConfirmed) return;
   
     try {
-      const token = localStorage.getItem("token"); // Retrieve token
+      const token = localStorage.getItem("token");
   
       const response = await fetch(
-        `${baseUrl}/api/form/${formId}/questions/${questionId}`,
+        `${baseUrlMain}/api/form/${formId}/questions/${questionId}`,
         {
           method: "DELETE",
           headers: {
-            "Authorization": `Bearer ${token}`, // Include authorization header
-            "Content-Type": "application/json"
-          }
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         }
       );
   
-      if (response.ok) {
-        await fetchData();
-        setErrorMessage(null);
-      } else {
-        console.error("Delete failed");
-      }
+      if (!response.ok) throw new Error(t("Questions.deleteError"));
+  
+      toast.success(t("Questions.deleteSuccess"));
+      await fetchData();
     } catch (error) {
-      console.error("Error deleting question:", error);
-      setErrorMessage(error.message);
+      console.error("🚨 Error deleting question:", error);
+      toast.error(t("Questions.deleteError"));
     }
   };
   
@@ -185,45 +197,36 @@ const CourseQuestionsDetail = () => {
 
   const saveQuestion = async (question) => {
     try {
-      const token = localStorage.getItem("token"); // Retrieve token
+      const token = localStorage.getItem("token");
       const isUpdating = !!question._id;
       const method = isUpdating ? "PUT" : "POST";
       const url = isUpdating
-        ? `${baseUrl}/api/form/${formId}/questions/${question._id}`
-        : `${baseUrl}/api/form/${formId}/questions`;
+        ? `${baseUrlMain}/api/form/${formId}/questions/${question._id}`
+        : `${baseUrlMain}/api/form/${formId}/questions`;
   
       const response = await fetch(url, {
         method,
         headers: {
-          "Authorization": `Bearer ${token}`, // Include authorization header
-          "Content-Type": "application/json"
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(question),
       });
   
-      const responseData = await response.json();
-  
       if (!response.ok) {
-        throw new Error(
-          `Failed to ${isUpdating ? "update" : "save"} question: ${
-            response.status
-          } - ${responseData?.message || response.statusText}`
-        );
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP ${response.status}`);
       }
   
-      console.log(
-        `✅ Question ${isUpdating ? "updated" : "saved"} successfully:`,
-        responseData
+      toast.success(
+        t(`Questions.${isUpdating ? "updateSuccess" : "addSuccess"}`)
       );
   
-      await fetchData(); // Refresh data
+      await fetchData();
       closeModal();
-      setErrorMessage(null);
-  
-      return responseData; // Return updated/saved question for potential state updates
     } catch (error) {
-      console.error("🚨 Error saving/updating question:", error);
-      setErrorMessage(error.message);
+      console.error("🚨 Error saving question:", error);
+      toast.error(t("Questions.saveError"));
     }
   };
   
@@ -236,79 +239,83 @@ const CourseQuestionsDetail = () => {
 
   const saveRule = async (rule) => {
     if (!selectedQuestionId) {
-      alert("⚠️ Please select a question to save the rule.");
+      toast.warn(t("Rules.selectQuestionWarning"));
       return;
     }
   
     try {
-      const token = localStorage.getItem("token"); // Retrieve token
-      const baseUrl = `${baseUrl}/api/form/${formId}/questions/${selectedQuestionId}/rules`;
+      const token = localStorage.getItem("token");
+      const endpoint = rule._id
+        ? `${baseUrlMain}/api/form/${formId}/questions/${selectedQuestionId}/rules/${rule._id}`
+        : `${baseUrlMain}/api/form/${formId}/questions/${selectedQuestionId}/rules`;
+  
       const method = rule._id ? "PUT" : "POST";
-      const endpoint = rule._id ? `${baseUrl}/${rule._id}` : baseUrl;
   
       const response = await fetch(endpoint, {
         method,
         headers: {
-          "Authorization": `Bearer ${token}`, // Include authorization header
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(rule),
       });
   
-      const responseData = await response.json();
-  
       if (!response.ok) {
-        throw new Error(
-          `Failed to ${rule._id ? "update" : "add"} rule: ${
-            response.status
-          } - ${responseData?.message || response.statusText}`
-        );
+        const errorData = await response.json();
+        throw new Error(errorData.message || `HTTP ${response.status}`);
       }
   
-      console.log(
-        `✅ Rule ${rule._id ? "updated" : "added"} successfully:`,
-        responseData
+      toast.success(
+        t(`Rules.${rule._id ? "updateSuccess" : "addSuccess"}`)
       );
   
-      // ✅ Only close the modal & reload questions after a successful request
       setIsRuleModalOpen(false);
-      alert(`✅ Rule ${rule._id ? "updated" : "added"} successfully!`);
-      await fetchQuestions(); // Reload fresh question data
-      cancelEditRule(); // Close modal & reset rule state
-  
-      return responseData; // Return response in case you need it later
+      await fetchQuestions();
+      cancelEditRule();
     } catch (error) {
       console.error("🚨 Error while saving rule:", error);
-      alert(`❌ Error: ${error.message}`);
+      toast.error(t("Rules.saveError"));
     }
   };
   
   // 🆕 ❌ Delete Rule
   const deleteRule = async (rule, questionId) => {
-    if (!window.confirm("Are you sure you want to delete this rule?")) return;
+    const confirmDelete = await Swal.fire({
+      title: t("Rules.deleteConfirmTitle"),
+      text: t("Rules.deleteConfirmText"),
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: t("Rules.confirmDelete"),
+      cancelButtonText: t("Rules.cancel"),
+    });
+  
+    if (!confirmDelete.isConfirmed) return;
   
     try {
-      const token = localStorage.getItem("token"); // Retrieve token
+      const token = localStorage.getItem("token");
       const response = await fetch(
-        `${baseUrl}/api/form/${formId}/questions/${questionId}/rules/${rule._id}`,
+        `${baseUrlMain}/api/form/${formId}/questions/${questionId}/rules/${rule._id}`,
         {
           method: "DELETE",
           headers: {
-            "Authorization": `Bearer ${token}`, // Include authorization header
+            Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
         }
       );
   
-      if (response.ok) {
-        await fetchData();
-      } else {
-        console.error("Failed to delete rule.");
-      }
+      if (!response.ok) throw new Error(t("Rules.deleteError"));
+  
+      toast.success(t("Rules.deleteSuccess"));
+      await fetchData();
     } catch (error) {
-      console.error("Error while deleting rule:", error);
+      console.error("🚨 Error deleting rule:", error);
+      toast.error(t("Rules.deleteError"));
     }
   };
+  
   
 
   const openPreview = () => setIsPreviewOpen(true);
@@ -339,7 +346,7 @@ const CourseQuestionsDetail = () => {
       return;
     }
   
-    const url = `${baseUrl}/api/form/${formId}/questions`;
+    const url = `${baseUrlMain}/api/form/${formId}/questions`;
     const token = localStorage.getItem("token"); // Retrieve token
   
     console.log("🚀 API URL:", url);
@@ -381,6 +388,7 @@ const CourseQuestionsDetail = () => {
 
   return (
     <div className="course-questions-manage-page">
+       <ToastContainer position="top-right"  className="custom-toast-container" autoClose={3000} />
       <div className="course-questions-manage-container">
         <div className="course-question-header">
           <div className="left-header">

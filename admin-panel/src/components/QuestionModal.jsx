@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import "./QuestionModal.css";
 import { Multiselect } from "multiselect-react-dropdown"; // ✅ MultiSelect Component
 import { useTranslation } from "react-i18next";
+import "react-toastify/dist/ReactToastify.css";
+import { toast, ToastContainer } from "react-toastify";
 
 
 
@@ -39,21 +41,19 @@ const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
   }, [initialQuestion]);
 
   const handleSave = () => {
-    if (!question.label) {
-      alert("Question label is required!");
+    if (!question.label.trim()) {
+      toast.error(t("QuestionModal.labelRequired"));
       return;
     }
-
+  
     if (
       ["select", "radio", "checkbox", "multi-select"].includes(question.type) &&
       question.options.length === 0
     ) {
-      alert(
-        "Options are required for Select, Radio, Checkbox, and Multi-Select types!"
-      );
+      toast.error(t("QuestionModal.optionsRequired"));
       return;
     }
-
+  
     if (onSave) onSave(question);
   };
 
@@ -117,11 +117,12 @@ const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
 
   const addOption = () => {
     if (question.options.some((opt) => opt.trim() === "")) {
-      alert("Please fill out existing options before adding new ones.");
+      toast.warning(t("FormEntries.fillExistingOptions"));
       return;
     }
     setQuestion({ ...question, options: [...question.options, ""] });
   };
+  
 
   const removeOption = (index) => {
     const updatedOptions = question.options.filter((_, i) => i !== index);

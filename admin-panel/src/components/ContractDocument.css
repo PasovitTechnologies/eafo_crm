@@ -1,4 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@400;700&display=swap');
 
+.contract-page{
+    font-family: "PT Sans Narrow", sans-serif;
+}
 .top-table {
     width: 100%;
     border-collapse: collapse;

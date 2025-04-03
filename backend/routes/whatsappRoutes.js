@@ -1,5 +1,7 @@
 const express = require("express");
 const axios = require("axios");
+const User = require("../models/User"); 
+const Course = require("../models/Course"); 
 
 const router = express.Router();
 
@@ -71,16 +73,20 @@ router.get("/chats/filter", async (req, res) => {
 });
 
 // 🟢 Send WhatsApp Message
+// routes/whatsapp.js
 router.post("/send", async (req, res) => {
   const { to, message } = req.body;
 
   if (!to || !message) {
-    return res.status(400).json({ error: "'to' and 'message' are required" });
+    return res.status(400).json({ 
+      success: false,
+      error: "'to' and 'message' are required" 
+    });
   }
 
   try {
     const response = await axios.post(
-      `${WAPPI_BASE_URL}/api/async/message/send`,
+      `${WAPPI_BASE_URL}/api/sync/message/send`, // Changed to sync endpoint
       {
         body: message,
         recipient: to,
@@ -88,17 +94,150 @@ router.post("/send", async (req, res) => {
       {
         headers: { Authorization: API_TOKEN },
         params: { profile_id: PROFILE_ID },
+        timeout: 30000 // 30 second timeout for synchronous operation
       }
     );
 
-    res.json(response.data);
+    if (response.data?.sent) {
+      res.json({
+        success: true,
+        status: 'sent',
+        message: 'Message delivered successfully',
+        data: response.data
+      });
+    } else {
+      throw new Error(response.data?.message || 'Failed to send message');
+    }
+
   } catch (error) {
     console.error("Error sending message:", error.message);
-    res
-      .status(error.response?.status || 500)
-      .json(error.response?.data || { error: "Server error" });
+    res.status(500).json({
+      success: false,
+      error: error.response?.data?.message || error.message
+    });
   }
 });
+
+router.post("/send-wp", async (req, res) => {
+  console.log("📥 Incoming Request Body:", req.body);
+
+  const requiredFields = ["to", "message", "courseId", "orderId", "package", "amount", "currency", "paymentUrl"];
+  const missingFields = requiredFields.filter(field => !req.body[field]);
+
+  if (missingFields.length > 0) {
+    console.log("🚨 Missing Fields:", missingFields);
+    return res.status(400).json({
+      success: false,
+      error: `Missing required fields: ${missingFields.join(", ")}`
+    });
+  }
+
+  const { to, message, courseId, orderId, package, amount, currency, paymentUrl } = req.body;
+
+  try {
+    console.log("📨 Sending WhatsApp Message to:", to);
+
+    const response = await axios.post(
+      `${WAPPI_BASE_URL}/api/sync/message/send`,
+      { body: message, recipient: to },
+      {
+        headers: { Authorization: API_TOKEN },
+        params: { profile_id: PROFILE_ID },
+        timeout: 30000
+      }
+    );
+
+    console.log("✅ WhatsApp API Response:", response.data);
+
+    if (response.data?.status === "done") {
+      // 🔥 Fetch the course
+      const course = await Course.findById(courseId);
+      if (!course) {
+        console.log("❌ Course not found for ID:", courseId);
+        return res.status(404).json({ success: false, error: "Course not found." });
+      }
+
+      console.log(`📌 Course found: ${course.name}`);
+
+      // 🔥 Generate new Invoice Number
+      let currentInvoiceNumber = course.currentInvoiceNumber || "INV/EAFO-000-00001";
+      const match = currentInvoiceNumber.match(/(\d{5})$/);
+      let nextInvoiceNumber = match
+        ? currentInvoiceNumber.replace(/\d{5}$/, (parseInt(match[0], 10) + 1).toString().padStart(5, "0"))
+        : "INV/EAFO-000-00001";
+
+      course.currentInvoiceNumber = nextInvoiceNumber;
+      await course.save();
+      console.log(`✅ New Invoice Number: ${nextInvoiceNumber}`);
+
+      // 🔥 Find the User
+      let user = await User.findOne({ "personalDetails.phone": to });
+      if (!user) {
+        console.log(`🚫 User not found for phone number: ${to}`);
+      } else {
+        console.log(`📌 User found: ${user.email}`);
+
+        // 🔥 Find or Create User Course
+        let userCourse = user.courses.find(c => c.courseId?.toString() === courseId?.toString());
+        if (userCourse) {
+          console.log("✅ Course found in User schema, adding payment.");
+          userCourse.payments.push({
+            invoiceNumber: nextInvoiceNumber,
+            paymentId: orderId,
+            package,
+            amount,
+            currency,
+            paymentLink: paymentUrl,
+            status: "Pending",
+            time: new Date(),
+          });
+        } else {
+          console.log("🚫 Course not found in User schema, skipping user payment.");
+        }
+        await user.save();
+      }
+
+      // 🔥 Save Payment in Course Schema
+      course.payments.push({
+        invoiceNumber: nextInvoiceNumber,
+        paymentId: orderId,
+        package,
+        amount,
+        currency,
+        paymentLink: paymentUrl,
+        status: "Pending",
+        time: new Date(),
+      });
+
+      await course.save();
+      console.log(`✅ Payment saved in course: ${courseId}`);
+
+      return res.json({
+        success: true,
+        status: "sent",
+        message: "WhatsApp message delivered and invoice data saved.",
+        invoiceNumber: nextInvoiceNumber
+      });
+
+    } else {
+      console.error("⚠️ Unexpected API Response Structure:", response.data);
+      return res.status(500).json({
+        success: false,
+        error: response.data?.message || "Unexpected response format from WhatsApp API"
+      });
+    }
+
+  } catch (error) {
+    console.error("❌ Error sending message:", error.message, error.response?.data);
+    return res.status(500).json({
+      success: false,
+      error: error.response?.data?.message || error.message
+    });
+  }
+});
+
+
+
 
 // 🟢 Fetch All Messages of a Chat
 router.get("/chat/messages", async (req, res) => {

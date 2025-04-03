@@ -26,6 +26,10 @@ import WhatsApp from "./components/Whatsapp";
 import Enquiry from "./components/Enquiry";
 import './i18n'; // Import the i18n configuration
 import UserDatabase from "./components/UserDatabase";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import UserDatabaseDetails from "./components/UserDatabaseDetails";
+
 
 
 const App = () => {
@@ -85,6 +89,7 @@ const App = () => {
       <div className="app-container">
         {isAuthenticated ? (
           <>
+           <ToastContainer position="top-right" autoClose={3000} />
             {/* Navbar */}
             <Navbar
               handleSidebarToggle={handleSidebarToggle}
@@ -164,9 +169,14 @@ const App = () => {
                     element={<Enquiry selectedLanguage={selectedLanguage} />}
                   />
 
-<Route
+                  <Route
                     path="/userbase"
                     element={<UserDatabase selectedLanguage={selectedLanguage} />}
+                  />
+
+<Route
+                    path="/userbase/userbase-details/:email"
+                    element={<UserDatabaseDetails selectedLanguage={selectedLanguage} />}
                   />
 
                   {/* Webinar Routes */}

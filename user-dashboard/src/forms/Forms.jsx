@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Multiselect } from "multiselect-react-dropdown";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import "./Forms.css";
 
 const Forms = () => {
@@ -16,20 +18,18 @@ const Forms = () => {
   const [formDetails, setFormDetails] = useState({
     title: "",
     description: "",
-    hasLogo: false
+    hasLogo: false,
+    isUsedForRussian:false
   });
   const baseUrl = import.meta.env.VITE_BASE_URL;
-
 
   useEffect(() => {
     // ✅ Check if token is available in localStorage
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/");  // Redirect to / if token is missing
+      navigate("/"); // Redirect to / if token is missing
     }
   }, [navigate]);
-
-
 
   useEffect(() => {
     if (!formId) return;
@@ -68,7 +68,7 @@ const Forms = () => {
         }
 
         const data = await response.json();
-        console.log(data)
+        console.log(data);
         setQuestions(data);
         setVisibleQuestions(data.filter((q) => !q.isConditional));
         setAnswers({});
@@ -85,7 +85,6 @@ const Forms = () => {
 
     return () => controller.abort(); // 🛑 Cleanup function to cancel requests on unmount
   }, [formId]);
-
 
   useEffect(() => {
     if (!formId) {
@@ -111,7 +110,8 @@ const Forms = () => {
         setFormDetails({
           title: data.title || "Untitled Form",
           description: data.description || "",
-          hasLogo: !!data.formLogo // Just check if logo exists
+          hasLogo: !!data.formLogo, // Just check if logo exists
+          isUsedForRussian: data.isUsedForRussian,
         });
       } catch (err) {
         setError(err.message);
@@ -124,12 +124,10 @@ const Forms = () => {
     fetchFormDetails();
   }, [formId]);
 
-
   const handleAnswerChange = (questionId, answer) => {
     const updatedAnswers = { ...answers, [questionId]: answer };
     setAnswers(updatedAnswers);
 
-    // 🔥 Determine visible questions based on current answers
     const updatedVisibleQuestions = questions.filter((q) => {
       if (!q.isConditional) return true;
 
@@ -150,6 +148,13 @@ const Forms = () => {
       );
     });
 
+    // 🔥 Update the required status dynamically
+    updatedVisibleQuestions.forEach((q) => {
+      if (q.isConditional) {
+        q.isRequired = true; // ✅ Mark conditional questions as required when shown
+      }
+    });
+
     // 🔥 Clean up old answers: Remove answers for hidden questions
     const visibleQuestionIds = updatedVisibleQuestions.map((q) => q._id);
     const cleanedAnswers = Object.keys(updatedAnswers).reduce((acc, key) => {
@@ -159,119 +164,126 @@ const Forms = () => {
       return acc;
     }, {});
 
-    setAnswers(cleanedAnswers); // ✅ Save only relevant answers
+    setAnswers(cleanedAnswers);
     setVisibleQuestions(updatedVisibleQuestions);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    // Authentication and validation (same as before)
+
+    // Show submitting state
+    setLoading(true);
+
+    // Authentication and validation
     const email = localStorage.getItem("email");
     const token = localStorage.getItem("token");
     if (!email || !token) {
-      alert("You must be logged in to submit this form.");
+      toast.error("You must be logged in to submit this form.");
+      setLoading(false);
       return;
     }
-  
+
     // Validate required fields
     let newErrors = {};
-    questions.forEach((question) => {
+    visibleQuestions.forEach((question) => {
       if (question.isRequired) {
         if (question.type === "file") {
           if (!answers[question._id]?.file) {
             newErrors[question._id] = "This field is required";
           }
-        } else if (!answers[question._id] || answers[question._id].length === 0) {
+        } else if (
+          !answers[question._id] ||
+          answers[question._id].length === 0
+        ) {
           newErrors[question._id] = "This field is required";
         }
       }
     });
-  
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      alert("Please fill in all required fields.");
+      toast.error("Please fill in all required fields.");
+      setLoading(false);
       return;
     }
-  
-    setLoading(true);
-  
+
     try {
       // Prepare submissions with base64 data for files
       const submissions = await Promise.all(
         Object.keys(answers).map(async (questionId) => {
           const question = questions.find((q) => q._id === questionId);
           const answer = answers[questionId];
-  
+
           if (question.type === "file" && answer?.file) {
-            // Convert file to base64
             const base64Data = await fileToBase64(answer.file);
             return {
               questionId,
               isUsedForInvoice: question?.isUsedForInvoice || false,
               isFile: true,
               fileData: {
-                base64: base64Data.split(',')[1], // Remove data URL prefix
-                contentType: answer.file.type
+                base64: base64Data.split(",")[1],
+                contentType: answer.file.type,
               },
-              fileName: answer.file.name
+              fileName: answer.file.name,
             };
           } else {
             return {
               questionId,
               answer: answer,
               isUsedForInvoice: question?.isUsedForInvoice || false,
-              isFile: false
+              isFile: false,
             };
           }
         })
       );
-  
+
       const submissionData = {
         formId,
         email,
-        submissions
+        submissions,
       };
-       console.log(submissionData)
+
       const response = await fetch(
         `${baseUrl}/api/form/${formId}/submissions`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(submissionData)
+          body: JSON.stringify(submissionData),
         }
       );
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Submission failed");
       }
-  
+
       const result = await response.json();
-      alert("✅ Form submitted successfully!");
+      toast.success("Form submitted successfully!");
       setAnswers({});
       setErrors({});
       navigate(-1);
       return result;
     } catch (error) {
-      console.error("🚨 Error submitting form:", error);
-      alert(error.message || "An error occurred while submitting the form.");
+      console.error("Error submitting form:", error);
+      toast.error(
+        error.message || "An error occurred while submitting the form."
+      );
       throw error;
     } finally {
       setLoading(false);
     }
   };
-  
+
   // Helper function to convert file to base64
   const fileToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
       reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
+      reader.onerror = (error) => reject(error);
     });
   };
 
@@ -288,6 +300,22 @@ const Forms = () => {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Return true if no errors
+  };
+
+  const getFileIcon = (fileType) => {
+    if (!fileType) return <span>📄</span>;
+
+    if (fileType.startsWith("image/")) return <span>🖼️</span>;
+    if (fileType.startsWith("video/")) return <span>🎬</span>;
+    if (fileType.startsWith("audio/")) return <span>🎵</span>;
+    if (fileType.includes("pdf")) return <span>📕</span>;
+    if (fileType.includes("word")) return <span>📄</span>;
+    if (fileType.includes("excel") || fileType.includes("spreadsheet"))
+      return <span>📊</span>;
+    if (fileType.includes("zip") || fileType.includes("compressed"))
+      return <span>🗜️</span>;
+
+    return <span>📄</span>;
   };
 
   const renderInputField = (question) => {
@@ -425,46 +453,99 @@ const Forms = () => {
         case "file":
             return (
               <div className="file-upload-container">
+                {/* Info message about file size */}
+                <p className="file-info-message">
+                  {formDetails.isUsedForRussian 
+                    ? "Максимальный размер файла: 5MB" 
+                    : "Max file size: 5MB"}
+                </p>
+          
                 <input
                   type="file"
                   onChange={(e) => {
                     const file = e.target.files[0];
-                    if (file) {
-                      // Create a preview if it's an image
-                      if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                          handleAnswerChange(question._id, {
-                            file,
-                            preview: event.target.result
-                          });
-                        };
-                        reader.readAsDataURL(file);
-                      } else {
-                        handleAnswerChange(question._id, { file });
-                      }
+                    if (!file) return;
+          
+                    // Check file size (5MB limit)
+                    if (file.size > 5 * 1024 * 1024) {
+                        toast.error(
+                        formDetails.isUsedForRussian
+                          ? "Размер файла превышает 5MB" 
+                          : "File size exceeds 5MB limit"
+                      );
+                      e.target.value = ""; // Clear file input
+                      return;
+                    }
+          
+                    const fileName =
+                      file.name.length > 15
+                        ? file.name.substring(0, 10) + "..." + file.name.split('.').pop()
+                        : file.name;
+          
+                    if (file.type.startsWith("image/")) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        handleAnswerChange(question._id, {
+                          file,
+                          preview: event.target.result, // Store preview
+                          name: fileName,
+                          size: file.size,
+                          type: file.type,
+                        });
+                      };
+                      reader.readAsDataURL(file);
+                    } else {
+                      handleAnswerChange(question._id, {
+                        file,
+                        name: fileName,
+                        size: file.size,
+                        type: file.type,
+                      });
                     }
                   }}
-                  required={question.required}
+                  required={question.required && !answers[question._id]}
                   className="form-file"
+                  accept={question.acceptedFileTypes?.join(",") || "*"}
                 />
+          
+                {/* File details */}
+                {value?.file && (
+                  <div className="file-info-container">
+                    <div className="file-icon">{getFileIcon(value.type)}</div>
+                    <div className="file-details">
+                      <p className="file-name">{value.name}</p>
+                      <p className="file-type">{value.type}</p>
+                      <p className="file-size">
+                        {(value.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                  
+                  </div>
+                )}
+          
+                {/* Show image preview at the bottom */}
                 {value?.preview && (
-                  <div className="file-preview">
-                    <img src={value.preview} alt="Preview" className="preview-image" />
-                    <p className="file-name">{value.file.name}</p>
+                  <div className="file-preview-container">
+                    <img
+                      src={value.preview}
+                      alt="Preview"
+                      className="preview-image"
+                    />
                   </div>
                 )}
-                {value?.file && !value.preview && (
-                  <div className="file-info">
-                    <p className="file-name">{value.file.name}</p>
-                    <p className="file-size">
-                      {(value.file.size / 1024).toFixed(2)} KB
-                    </p>
-                  </div>
-                )}
+                  <button
+                      type="button"
+                      className="remove-file-btn"
+                      onClick={() => {
+                        handleAnswerChange(question._id, null);
+                        document.querySelector(`input[type="file"]`).value = "";
+                      }}
+                    >
+                      {formDetails.isUsedForRussian ? "Удалить" : "Remove"}
+                    </button>
               </div>
             );
-
+          
       case "content":
         return (
           <div
@@ -501,22 +582,22 @@ const Forms = () => {
 
   return (
     <div className="form-container">
-       <div className="form-header">
+      <div className="form-header">
         <div className="logo-container">
-        {formDetails.hasLogo && (
-          <div className="form-logo-container">
-            <img 
-              src={`${baseUrl}/api/form/${formId}/image`}
-              alt="Form Logo"
-              className="form-logo"
-              onError={(e) => {
-                e.target.style.display = 'none'; // Hide if image fails to load
-              }}
-            />
-          </div>
-        )}
+          {formDetails.hasLogo && (
+            <div className="form-logo-container">
+              <img
+                src={`${baseUrl}/api/form/${formId}/image`}
+                alt="Form Logo"
+                className="form-logo"
+                onError={(e) => {
+                  e.target.style.display = "none"; // Hide if image fails to load
+                }}
+              />
+            </div>
+          )}
         </div>
-        
+
         <div className="form-title-description">
           <h1 className="form-title">{formDetails.title}</h1>
           {formDetails.description && (
@@ -556,11 +637,29 @@ const Forms = () => {
         </div>
 
         <div className="form-controls">
-          <button type="submit" className="submit-btn">
-            Submit
+          <button type="submit" className="submit-btn" disabled={loading}>
+            {loading ? (
+              <>
+                <span className="spinner"></span>
+                Submitting...
+              </>
+            ) : (
+              "Submit"
+            )}
           </button>
         </div>
       </form>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
     </div>
   );
 };

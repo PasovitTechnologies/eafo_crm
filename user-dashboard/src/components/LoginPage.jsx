@@ -20,10 +20,10 @@ const LoginPage = () => {
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
-  // Configure toast notifications with white text
+  // Configure toast notifications with z-index
   const notify = {
     success: (message) => toast.success(message, {
-      position: "top-right",
+      position: "top-center",
       autoClose: 3000,
       hideProgressBar: false,
       closeOnClick: true,
@@ -31,10 +31,9 @@ const LoginPage = () => {
       draggable: true,
       progress: undefined,
       className: 'toast-notification',
-      style: { color: '#ffffff' }
     }),
     error: (message) => toast.error(message, {
-      position: "top-right",
+      position: "top-center",
       autoClose: 4000,
       hideProgressBar: false,
       closeOnClick: true,
@@ -42,10 +41,9 @@ const LoginPage = () => {
       draggable: true,
       progress: undefined,
       className: 'toast-notification',
-      style: { color: '#ffffff' }
     }),
     info: (message) => toast.info(message, {
-      position: "top-right",
+      position: "top-center",
       autoClose: 2000,
       hideProgressBar: false,
       closeOnClick: true,
@@ -53,7 +51,6 @@ const LoginPage = () => {
       draggable: true,
       progress: undefined,
       className: 'toast-notification',
-      style: { color: '#ffffff' }
     })
   };
 
@@ -65,7 +62,7 @@ const LoginPage = () => {
 
       if (!isValid) {
         localStorage.removeItem('token');
-        notify.error(t('loginPage.sessionExpired'));
+        toast.error(t('loginPage.sessionExpired'));
       }
 
       setIsLoggedIn(isValid);
@@ -74,7 +71,7 @@ const LoginPage = () => {
       console.error('Token validation failed:', error);
       localStorage.removeItem('token');
       setIsLoggedIn(false);
-      notify.error(t('loginPage.invalidToken'));
+      toast.error(t('loginPage.invalidToken'));
       return false;
     }
   };
@@ -83,7 +80,7 @@ const LoginPage = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      notify.info(t('loginPage.checkingSession'));
+      toast.info(t('loginPage.checkingSession'));
       validateToken(token);
     }
   }, []);
@@ -91,7 +88,7 @@ const LoginPage = () => {
   // Redirect if logged in
   useEffect(() => {
     if (isLoggedIn) {
-      notify.success(t('loginPage.welcomeBack'));
+      toast.success(t('loginPage.welcomeBack'));
       setTimeout(() => navigate('/dashboard'), 1500);
     }
   }, [isLoggedIn, navigate]);
@@ -104,12 +101,12 @@ const LoginPage = () => {
     e.preventDefault();
 
     if (!isValidEmail(email)) {
-      notify.error(t('loginPage.validEmail'));
+      toast.error(t('loginPage.validEmail'));
       return;
     }
 
     if (password.length < 8) {
-      notify.error(t('loginPage.validPassword'));
+      toast.error(t('loginPage.validPassword'));
       return;
     }
 
@@ -130,11 +127,11 @@ const LoginPage = () => {
       localStorage.setItem('email', email);
       setIsLoggedIn(true);
 
-      notify.success(t('loginPage.loginSuccess'));
+      toast.success(t('loginPage.loginSuccess'));
 
     } catch (error) {
       const errorMessage = error.response?.data?.message || t('loginPage.loginFailed');
-      notify.error(errorMessage);
+      toast.error(errorMessage);
       
       // Clear form on error
       if (error.response?.status === 401) {
@@ -148,7 +145,8 @@ const LoginPage = () => {
   const isFormValid = email && password;
 
   return (
-      
+    <div className="auth-container" style={{ zIndex: 10 }}>
+      <ToastContainer style={{color:"#fff"}}/>
       <form onSubmit={handleSubmit} className="login-form" style={{ zIndex: 20 }}>
         <h1>{t('loginPage.title')}</h1>
 
@@ -179,11 +177,6 @@ const LoginPage = () => {
             className="password-toggle"
             onClick={() => {
               setShowPassword(!showPassword);
-              notify.info(
-                showPassword 
-                  ? t('loginPage.passwordHidden') 
-                  : t('loginPage.passwordVisible')
-              );
             }}
             aria-label={showPassword ? t('loginPage.hidePassword') : t('loginPage.showPassword')}
             style={{ zIndex: 30 }}
@@ -202,12 +195,8 @@ const LoginPage = () => {
         >
           {loading ? t('loginPage.loading') : t('loginPage.loginButton')}
         </button>
-        <ToastContainer 
-        style={{ color: '#ffffff' }}
-        toastStyle={{ color: '#ffffff' }}
-      />
       </form>
-    
+    </div>
   );
 };
 

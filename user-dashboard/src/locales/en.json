@@ -71,7 +71,8 @@
         "course_date": "Course Date",
         "course_time": "Course Time",
         "registration_failed": "Failed to register. Please try again.",
-        "no_token": "No token found. Please log in."
+        "no_token": "No token found. Please log in.",
+        "no_upcoming_courses":"No upcoming courses."
     },
     "course_details": {
         "breadcrumb_dashboard": "Dashboard",
@@ -102,6 +103,7 @@
         "type": "Type",
         "bytes": "bytes",
         "no_payments_available": "No payment options are currently available"
+        
     },
     "webinar": {
     "breadcrumb_dashboard": "Dashboard",
@@ -122,7 +124,8 @@
     "other_webinars": "Other Webinars",
     "no_other_webinars": "No other webinars available.",
     "successfully_registered": "Successfully registered!",
-    "login_to_register": "Error: Please log in to register."
+    "login_to_register": "Error: Please log in to register.",
+    "no_upcoming_webinar":"No upcoming webinars."
   },
 
   "webinarDetails": {
@@ -365,7 +368,19 @@
     "loading": "Loading...",
     "loginButton": "Login",
     "title": "Login to your account"
-  }
+  },
+  "submissionPopup": {
+  "title": "Submission Details",
+  "submittedOn": "Submitted on:",
+  "responses": "Responses:",
+  "noAnswer": "No answer provided",
+  "noResponses": "No responses found for this submission",
+  "file": "File:",
+  "size": "Size:",
+  "type": "Type:",
+  "download": "Download",
+  "close": "Close"
+}
   
   
 }

@@ -201,9 +201,9 @@ const CourseEntries = () => {
 
   const exportToCSV = async () => {
     if (submissions.length === 0) return;
-
+  
     const token = localStorage.getItem("token");
-
+  
     // ✅ Fetch form questions to map labels
     const fetchFormQuestions = async () => {
       try {
@@ -214,71 +214,67 @@ const CourseEntries = () => {
             "Content-Type": "application/json",
           },
         });
-
-        if (!formsResponse.ok)
-          throw new Error("Failed to fetch form questions.");
-
+  
+        if (!formsResponse.ok) throw new Error("Failed to fetch form questions.");
+  
         const formsData = await formsResponse.json();
-        const formsArray = Array.isArray(formsData.forms)
-          ? formsData.forms
-          : [];
-
+        const formsArray = Array.isArray(formsData.forms) ? formsData.forms : [];
+  
         // ✅ Filter only the forms linked to the current course
         const courseForms = formsArray.filter(
           (form) => form.courseId === courseId && form.isUsedForRegistration
         );
-
+  
         const labelMap = {};
         const invoiceLabels = [];
-
+  
         courseForms.forEach((form) => {
           form.questions.forEach((question) => {
             const label = question.label.trim().replace(/<[^>]*>/g, ""); // Remove HTML tags
             labelMap[question._id] = label;
-
+  
             if (question.isUsedForInvoice) {
-              // ✅ Add invoice labels in order (1st → Type, 2nd → Category)
               invoiceLabels.push(label);
             }
           });
         });
-
+  
         return { labelMap, invoiceLabels };
       } catch (error) {
         console.error("Error fetching form questions:", error);
         return { labelMap: {}, invoiceLabels: [] };
       }
     };
-
+  
     // ✅ Get label map and invoice fields
     const { labelMap, invoiceLabels } = await fetchFormQuestions();
-
+  
     // ✅ Prepare submission data with invoice and normal fields separated
     const submissionData = submissions.map((submission) => {
       const invoiceFields = [];
       const normalFields = {};
-
+  
       // ✅ Separate invoice & normal fields
       submission.responses.forEach((res) => {
         const questionId = res.questionId;
         const label = labelMap[questionId] || `Unknown (${questionId})`;
-
+  
         let answer = Array.isArray(res.answer)
           ? res.answer.join(", ") // Join array answers with comma
           : `${res.answer}`.trim();
-
+  
         if (res.isUsedForInvoice) {
           invoiceFields.push(answer);
         } else {
           normalFields[label] = answer;
         }
       });
-
+  
       // Ensure there are always two invoice fields (add "N/A" if missing)
       while (invoiceFields.length < 2) {
         invoiceFields.push("N/A");
       }
-
+  
       return {
         name: userNames[submission.email] || "Unknown",
         email: submission.email,
@@ -287,7 +283,7 @@ const CourseEntries = () => {
         normalFields,
       };
     });
-
+  
     // ✅ Collect all unique normal field labels
     const normalLabels = new Set();
     submissionData.forEach((submission) => {
@@ -295,9 +291,9 @@ const CourseEntries = () => {
         normalLabels.add(label);
       });
     });
-
+  
     const sortedNormalLabels = Array.from(normalLabels).sort();
-
+  
     // ✅ Create CSV headers
     const headers = [
       "Name",
@@ -307,15 +303,15 @@ const CourseEntries = () => {
       "Category of Registration", // Second invoice field
       ...sortedNormalLabels, // Normal fields
     ];
-
-    // ✅ Escape and wrap fields in quotes
+  
+    // ✅ Escape and wrap fields in quotes for proper CSV format
     const escapeCSV = (value) => {
       if (value == null) return '""'; // Handle empty fields
       const strValue = `${value}`.replace(/"/g, '""'); // Escape double quotes
       return `"${strValue}"`; // Wrap with quotes
     };
-
-    // ✅ Generate CSV rows with proper escaping
+  
+    // ✅ Generate CSV rows
     const rows = submissionData.map((submission) => {
       const row = [
         escapeCSV(submission.name),
@@ -323,33 +319,37 @@ const CourseEntries = () => {
         escapeCSV(submission.submittedAt),
         ...submission.invoiceFields.map(escapeCSV), // Invoice fields
       ];
-
+  
       // ✅ Add normal fields in consistent order
       sortedNormalLabels.forEach((label) => {
         row.push(escapeCSV(submission.normalFields[label] || "N/A"));
       });
-
+  
       return row;
     });
-
-    // ✅ Generate CSV content
+  
+    // ✅ Generate CSV content with UTF-8 BOM
+    const BOM = "\uFEFF"; // ✅ Forces Excel to recognize UTF-8
     const csvContent = [
-      headers.map(escapeCSV).join(","), // Header row
-      ...rows.map((row) => row.join(",")), // Data rows
+      headers.join(","), // ✅ Comma-separated headers
+      ...rows.map((row) => row.join(",")), // ✅ Comma-separated rows
     ].join("\n");
-
-    // ✅ Add UTF-8 BOM for special characters
-    const BOM = "\uFEFF";
-    const csvBlob = new Blob([BOM + csvContent], {
-      type: "text/csv;charset=utf-8;",
-    });
-
+  
+    const csvBlob = new Blob([BOM + csvContent], { type: "text/csv;charset=utf-8;" });
+  
     // ✅ Create downloadable link
     const link = document.createElement("a");
     link.href = URL.createObjectURL(csvBlob);
     link.download = `course_entries_${courseId}.csv`;
+  
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   };
+  
+  
+  
+  
 
   const filteredSubmissions = submissions.filter((submission) => {
     const email = submission.email.toLowerCase();
