@@ -131,7 +131,10 @@ const InvoiceEntries = () => {
             const personalDetails = userData.personalDetails || {};
   
             // 🔥 Extracting country, full name, and phone number
-            const fullName = `${personalDetails.title || ""} ${personalDetails.firstName || ""} ${personalDetails.middleName || ""} ${personalDetails.lastName || ""}`.trim();
+            const fullName =
+            userData.dashboardLang === "ru"
+              ? `${personalDetails.title || ""} ${personalDetails.lastName || ""} ${personalDetails.firstName || ""} ${personalDetails.middleName || ""}`.trim()
+              : `${personalDetails.title || ""} ${personalDetails.firstName || ""} ${personalDetails.middleName || ""} ${personalDetails.lastName || ""}`.trim();
             const phoneNumber = personalDetails?.phone ? `${personalDetails.phone}` : "N/A";
             const country = personalDetails?.country || "N/A";  // ✅ Get country
   
@@ -356,20 +359,31 @@ const InvoiceEntries = () => {
     setShowFilterModal(false);
   };
 
+
   const filteredSubmissions = submissions
-  .filter((submission) =>
-    getEmailFromSubmission(submission).toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  .filter((submission) => {
+    const email = getEmailFromSubmission(submission);
+    const name = userNames[email]?.fullName || "";
+    const searchTermLower = searchTerm.toLowerCase();
+    
+    return (
+      email.toLowerCase().includes(searchTermLower) || 
+      name.toLowerCase().includes(searchTermLower)
+    );
+  })
   .filter((submission) => {
     const email = getEmailFromSubmission(submission);
     let status = paymentStatuses[email] || "Unknown";
 
-    // ✅ Normalize the "Invoice not created (Send)" to "Not Created"
+    // Normalize status
     if (status.toLowerCase() === "invoice not created (send)") {
       status = "Not Created";
     }
 
-    return activeFilter === "All" || status.toLowerCase() === activeFilter.toLowerCase();
+    return (
+      activeFilter === "All" || 
+      status.toLowerCase() === activeFilter.toLowerCase()
+    );
   });
 
   useEffect(() => {

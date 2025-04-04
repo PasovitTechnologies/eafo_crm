@@ -478,19 +478,70 @@ const CourseDetails = () => {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1 }}
             >
-              <img
-                src={
-                  currentLanguage === "ru"
-                    ? course?.bannerUrlRussian || course?.bannerUrl // ✅ Fallback to main banner if Russian one is missing
-                    : course?.bannerUrl
-                }
-                className="course-banner-img"
-              />
+              <a 
+  href={course?.websiteLink} 
+  target="_blank" 
+  rel="noopener noreferrer"
+  onClick={(e) => {
+    if (!course?.websiteLink) {
+      e.preventDefault(); // Prevent navigation if no link exists
+    }
+  }}
+>
+  <img
+    src={
+      currentLanguage === "ru"
+        ? course?.bannerUrlRussian || course?.bannerUrl
+        : course?.bannerUrl
+    }
+    className="course-banner-img"
+    style={{ cursor: course?.websiteLink ? "pointer" : "default" }}
+    alt={currentLanguage === "ru" ? course?.nameRussian : course?.name}
+  />
+</a>
             </motion.div>
 
             <h2 className="course-title">
-              {currentLanguage === "ru" ? course.nameRussian : course.name}
-            </h2>
+  {currentLanguage === "ru" ? course.nameRussian : course.name}
+</h2>
+
+{/* Add this new section for description and dates */}
+<div className="course-meta-section">
+  <div className="course-description">
+    {currentLanguage === "ru" 
+      ? course.descriptionRussian || course.description 
+      : course.description}
+  </div>
+  
+  <div className="course-dates">
+    <div className="date-item">
+      <span className="date-label">{t("course_details.start_date")}:</span>
+      <span className="date-value">
+        {course.date ? new Date(course.date).toLocaleDateString("en-GB") : "N/A"}
+      </span>
+    </div>
+    <div className="date-item">
+      <span className="date-label">{t("course_details.end_date")}:</span>
+      <span className="date-value">
+        {course.endDate ? new Date(course.endDate).toLocaleDateString("en-GB") : "N/A"}
+      </span>
+    </div>
+  </div>
+</div>
+
+{course.websiteLink && (
+  <div className="website-link-container">
+    <a 
+      href={course.websiteLink} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="website-link-button"
+    >
+      <i className="fas fa-external-link-alt"></i>
+      {t("course_details.visit_website")}
+    </a>
+  </div>
+)}
 
             {/* ✅ Display Available Forms */}
             <div className="available-forms">

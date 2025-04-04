@@ -64,8 +64,17 @@ const ProfileItem = ({ user, expandingSection, setExpandingSection }) => {
 
   // 🌟 Friendly welcome message with "Hi 👋" emoji
   const getWelcomeMessage = () => {
-    const firstName = user?.personalDetails?.firstName || "Guest";
-    return `${t('profile.welcome')} 👋, ${firstName}!`;
+    if (!user?.personalDetails) return `${t('profile.welcome')} 👋, Guest!`;
+  
+    const { firstName, lastName, middleName } = user.personalDetails;
+    const dashboardLang = user?.dashboardLang; // Get dashboardLang from user
+  
+    const nameFormat =
+      dashboardLang === "ru"
+        ? `${lastName || ""} ${firstName || ""} ${middleName || ""}`
+        : `${firstName || ""} ${middleName || ""} ${lastName || ""}`;
+  
+    return `${t('profile.welcome')} 👋, ${nameFormat.trim() || "Guest"}!`;
   };
 
   return (

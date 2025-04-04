@@ -16,6 +16,7 @@ import {
   AiOutlineInfoCircle,
 } from "react-icons/ai";
 import { useTranslation } from "react-i18next";
+
 import "./AuthForm.css";
 
 // Register country languages

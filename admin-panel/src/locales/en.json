@@ -190,7 +190,7 @@
       "loading": "Loading..."
     },
     "InvoiceEntries": {
-    "searchPlaceholder": "Search courses...",
+    "searchPlaceholder": "Search email , name...",
     "filterAll": "All",
     "filterPaid": "Paid",
     "filterPending": "Pending",
@@ -251,8 +251,10 @@
     "descEn": "Description (EN)",
     "descRu": "Description (RU)",
     "date": "Date",
+    "endDate": "End Date",
     "bannerUrlEn": "Banner URL (EN)",
     "bannerUrlRu": "Banner URL (RU)",
+    "websiteLink": "Website Link",
     "invoiceNumber": "Invoice Number",
     "save": "Save",
     "errorFetch": "Failed to load courses.",

@@ -191,7 +191,7 @@
     }
     ,
     "InvoiceEntries": {
-    "searchPlaceholder": "Поиск курсов...",
+    "searchPlaceholder": "Поиск по электронной почте, имени",
     "filterAll": "Все",
     "filterPaid": "Оплачено",
     "filterPending": "В ожидании",
@@ -252,8 +252,10 @@
     "descEn": "Описание (EN)",
     "descRu": "Описание (RU)",
     "date": "Дата",
+    "endDate": "Дата окончания",
     "bannerUrlEn": "URL баннера (EN)",
     "bannerUrlRu": "URL баннера (RU)",
+    "websiteLink": "Ссылка на сайт",
     "invoiceNumber": "Номер счета",
     "save": "Сохранить",
     "errorFetch": "Не удалось загрузить курсы.",

@@ -592,12 +592,20 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
               />
             </div>
             <div className="user-details">
-              <h3>
-                {`${fullUserData?.personalDetails?.firstName || "N/A"} 
-                ${fullUserData?.personalDetails?.lastName || ""}`}
-              </h3>
-              <p>{submission.email}</p>
-            </div>
+  <h3>
+    {fullUserData?.dashboardLang === "ru"
+      ? `${fullUserData?.personalDetails?.title || ""} 
+         ${fullUserData?.personalDetails?.lastName || ""} 
+         ${fullUserData?.personalDetails?.firstName || ""} 
+         ${fullUserData?.personalDetails?.middleName || ""}`.trim()
+      : `${fullUserData?.personalDetails?.title || ""} 
+         ${fullUserData?.personalDetails?.firstName || ""} 
+         ${fullUserData?.personalDetails?.middleName || ""} 
+         ${fullUserData?.personalDetails?.lastName || ""}`.trim()}
+  </h3>
+  <p>{submission.email}</p>
+</div>
+
           </div>
 
           <div className="export-buttons">

@@ -18,13 +18,13 @@ const Courses = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [registeredCourses, setRegisteredCourses] = useState(new Set());
-  const currentLanguage = i18n.language; 
+  const currentLanguage = i18n.language;
 
   useEffect(() => {
     // ✅ Check if token is available in localStorage
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/");  // Redirect to / if token is missing
+      navigate("/"); // Redirect to / if token is missing
     }
   }, [navigate]);
 
@@ -67,13 +67,26 @@ const Courses = () => {
 
       const processedCourses = data.map((course) => {
         const courseDate = course.date ? new Date(course.date) : null;
+        const courseEndDate = course.endDate ? new Date(course.endDate) : null;
+
         return {
           ...course,
           fullDate: courseDate,
-          formattedDate: courseDate ? courseDate.toLocaleDateString("en-GB") : "N/A",
-          formattedTime: courseDate
-            ? courseDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+          fullEndDate: courseEndDate,
+          formattedDate: courseDate
+            ? courseDate.toLocaleDateString("en-GB")
             : "N/A",
+          formattedEndDate: courseEndDate
+            ? courseEndDate.toLocaleDateString("en-GB")
+            : "N/A",
+          dateRange:
+            courseDate && courseEndDate
+              ? `${courseDate.toLocaleDateString(
+                  "en-GB"
+                )} - ${courseEndDate.toLocaleDateString("en-GB")}`
+              : courseDate
+              ? courseDate.toLocaleDateString("en-GB")
+              : "N/A",
         };
       });
 
@@ -135,7 +148,6 @@ const Courses = () => {
 
       console.log("✅ Final registered courses:", registeredSet);
       setRegisteredCourses(registeredSet);
-
     } catch (error) {
       console.error("🚨 Error fetching registration status:", error);
     }
@@ -165,7 +177,7 @@ const Courses = () => {
 
   const handleRegister = async (courseId, slug) => {
     console.log(`🚀 Registering for course: ${courseId}, Slug: ${slug}`);
-    
+
     const token = localStorage.getItem("token");
     const userEmail = localStorage.getItem("email");
 
@@ -188,9 +200,10 @@ const Courses = () => {
 
       const language = localStorage.getItem("language") || "en";
 
-      const form = course.forms?.find((f) =>
-        f.isUsedForRegistration &&
-        (language === "ru" ? f.isUsedForRussian : !f.isUsedForRussian)
+      const form = course.forms?.find(
+        (f) =>
+          f.isUsedForRegistration &&
+          (language === "ru" ? f.isUsedForRussian : !f.isUsedForRussian)
       );
 
       if (!form) {
@@ -204,9 +217,8 @@ const Courses = () => {
       console.log(`🔗 Navigating to form: ${formId}`);
 
       navigate(`/dashboard/courses/${slug}/forms/${formId}`, {
-        state: { formId: formId }
+        state: { formId: formId },
       });
-
     } catch (error) {
       console.error("🚨 Error registering:", error);
       alert("Failed to register. Please try again.");
@@ -219,9 +231,13 @@ const Courses = () => {
   };
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+    >
       <div className="courses-page">
-      <div className="breadcrumb">
+        <div className="breadcrumb">
           <span onClick={() => navigate("/")}>{t("courses.dashboard")}</span> /{" "}
           <span>{t("courses.courses")}</span>
         </div>
@@ -251,33 +267,51 @@ const Courses = () => {
         <div className="courses-list">
           {loading && <Loading />}
           {error && <p className="error">{error}</p>}
-          {!loading && filteredCourses.length === 0 && <p>{t("courses.no_results")}</p>}
+          {!loading && filteredCourses.length === 0 && (
+            <p>{t("courses.no_results")}</p>
+          )}
 
           {filteredCourses.map((course) => {
             const isRegistered = registeredCourses.has(course._id);
 
             return (
-              <div className="course-card" key={course._id} onClick={() => navigateToCourseDetails(course)}>
-                <img src={
-                  currentLanguage === "ru" 
-                    ? course?.bannerUrlRussian || course?.bannerUrl  // ✅ Fallback to main banner if Russian one is missing
-                    : course?.bannerUrl
-                } alt={course.name} className="course-banner" />
+              <div
+                className="course-card"
+                key={course._id}
+                onClick={() => navigateToCourseDetails(course)}
+              >
+                <img
+                  src={
+                    currentLanguage === "ru"
+                      ? course?.bannerUrlRussian || course?.bannerUrl // ✅ Fallback to main banner if Russian one is missing
+                      : course?.bannerUrl
+                  }
+                  alt={course.name}
+                  className="course-banner"
+                />
                 <div className="course-info">
-                  <h3>{currentLanguage==="ru" ? course.nameRussian:course.name}</h3>
-                  <p><strong>{t('courses.date')}:</strong>{course.formattedDate} | <strong>{t('courses.time')}:</strong>{course.formattedTime}</p>
+                  <h3>
+                    {currentLanguage === "ru"
+                      ? course.nameRussian
+                      : course.name}
+                  </h3>
+                  <p>
+                    <strong>{t("courses.date")}:</strong> {course.dateRange}
+                  </p>
                 </div>
-                
+
                 <div className="course-actions">
-                <button
-                  className={`register-btn ${isRegistered ? "disabled" : ""}`}
-                  disabled={isRegistered}
-                >
-                  {isRegistered ? t("courses.registered_status") : t("courses.register_now")}
-                </button>
-                <button className="see-more-btn">
-                {t("courses.see_more")}
-                </button>
+                  <button
+                    className={`register-btn ${isRegistered ? "disabled" : ""}`}
+                    disabled={isRegistered}
+                  >
+                    {isRegistered
+                      ? t("courses.registered_status")
+                      : t("courses.register_now")}
+                  </button>
+                  <button className="see-more-btn">
+                    {t("courses.see_more")}
+                  </button>
                 </div>
               </div>
             );

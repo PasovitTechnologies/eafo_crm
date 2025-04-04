@@ -93,7 +93,14 @@ const UserDatabaseDetails = () => {
         <h2 className="section-heading">User Details</h2>
         <div className="user-info-section">
           <h3 className="sub-heading">Personal Information</h3>
-          <p><strong>Name:</strong> {userData.personalDetails?.title} {userData.personalDetails?.firstName} {userData.personalDetails?.lastName}</p>
+          <p>
+  <strong>Name:</strong> 
+  {userData.dashboardLang === "ru"
+    ? `${userData.personalDetails?.title || ""} ${userData.personalDetails?.lastName || ""} ${userData.personalDetails?.firstName || ""} ${userData.personalDetails?.middleName || ""}`.trim()
+    : `${userData.personalDetails?.title || ""} ${userData.personalDetails?.firstName || ""} ${userData.personalDetails?.middleName || ""} ${userData.personalDetails?.lastName || ""}`.trim()
+  }
+</p>
+
           <p><strong>Email:</strong> {userData.email}</p>
           <p><strong>Phone:</strong> {userData.personalDetails?.phone}</p>
           <p><strong>DOB:</strong> {new Date(userData.personalDetails?.dob).toLocaleDateString()}</p>

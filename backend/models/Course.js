@@ -43,11 +43,12 @@ const courseSchema = new mongoose.Schema(
     slug: { type: String, required: true, unique: true },                   // Unique slug for URL-friendly name
 
     date: { type: Date, required: true },                                   // Course date
-
+    endDate: { type: Date, required: true },
     bannerUrl: { type: String, required: true, trim: true },                // Banner URL (EN)
     bannerUrlRussian: { type: String, required: true, trim: true },         // Banner URL (RU)
-
+    websiteLink: { type: String, required: true, trim: true }, 
     invoiceNumber: { type: String, required: true, trim: true }, 
+    
     currentInvoiceNumber: { type: String, required: false, trim: true },            // Invoice number
     // Invoice number
     items: [itemSchema], // Array of items

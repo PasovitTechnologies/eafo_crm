@@ -101,7 +101,10 @@
         "file": "Файл",
         "type": "Тип",
         "bytes": "байт",
-        "no_payments_available": "В настоящее время нет доступных вариантов оплаты."
+        "no_payments_available": "В настоящее время нет доступных вариантов оплаты.",
+        "start_date": "Дата начала",
+        "end_date": "Дата окончания",
+        "visit_website": "Посетить сайт курса"
     },
     "webinar": {
     "breadcrumb_dashboard": "Панель управления",
@@ -171,7 +174,20 @@
     "position": "Должность",
     "male": "Мужчина",
     "female": "Женщина",
-    "other": "Другое"
+    "other": "Другое",
+    "editName": "Редактировать имя",
+    "selectTitle": "Выберите обращение",
+    "title": "Обращение",
+    "firstName": "Имя",
+    "middleName": "Отчество",
+    "lastName": "Фамилия",
+    "firstNamePlaceholder": "Введите имя",
+    "middleNamePlaceholder": "Введите отчество",
+    "lastNamePlaceholder": "Введите фамилию",
+    "updateSuccess": "Профиль успешно обновлен!",
+    "updateError": "Ошибка при обновлении профиля",
+    "saving": "Сохранение..."
+
   },
   
   "loginPage": {

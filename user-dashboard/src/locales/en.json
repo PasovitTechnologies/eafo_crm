@@ -102,7 +102,10 @@
         "file": "File",
         "type": "Type",
         "bytes": "bytes",
-        "no_payments_available": "No payment options are currently available"
+        "no_payments_available": "No payment options are currently available",
+        "start_date": "Start Date",
+        "end_date": "End Date",
+        "visit_website": "Visit Course Website"
         
     },
     "webinar": {
@@ -172,7 +175,19 @@
     "position": "Position",
     "male": "Male",
     "female": "Female",
-    "other": "Other"
+    "other": "Other",
+    "title": "Title",
+    "firstName": "First Name",
+    "middleName": "Middle Name",
+    "lastName": "Last Name",
+    "firstNamePlaceholder": "Enter first name",
+    "middleNamePlaceholder": "Enter middle name",
+    "lastNamePlaceholder": "Enter last name",
+    "editName": "Edit Name",
+    "selectTitle": "Select Title",
+    "updateSuccess": "Profile updated successfully!",
+    "updateError": "Failed to update profile",
+    "saving": "Saving..."
   },
 
     "dashboard": {

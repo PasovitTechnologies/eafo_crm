@@ -226,8 +226,67 @@
   .save-button svg {
     font-size: 16px; /* Adjust icon size */
   }
+  /* Name Edit Section */
+.name-edit-section {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.07);
+  border: 1px solid #ddd;
+   
+    margin: 20px 0;
+    overflow: visible; /* Changed from hidden to visible */
+    position: relative; /* Establish new stacking context */
+    z-index: 1; /* Base z-index for the section */
   
+}
 
+.section-subheading {
+  color: #495057;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.name-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+/* Make sure the inputs in the name edit section look good */
+.name-edit-section .profile-field input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.name-edit-section .profile-field label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #495057;
+}
+/* Title select dropdown styling with high z-index */
+.react-select__menu {
+  z-index: 9999 !important;
+}
+
+.react-select__control {
+  z-index: 999 !important;
+}
+
+/* Ensure the dropdown appears above other elements */
+.react-select__menu-list {
+  position: relative;
+  z-index: 9999 !important;
+}
+
+/* If you have any other dropdowns (like country select) */
+.react-select__menu {
+  z-index: 9999 !important;
+}
 /* 🌟 Responsive Design */
 @media (max-width: 768px) {
     .profile-header-div {

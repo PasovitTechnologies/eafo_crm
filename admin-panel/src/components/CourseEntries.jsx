@@ -24,7 +24,7 @@ const CourseEntries = () => {
   const [showModal, setShowModal] = useState(false);
   const [searchParams] = useSearchParams();
   const location = useLocation();
-  const { t } = useTranslation(); 
+  const { t , i18n } = useTranslation(); 
   const initialState =
     location.state || JSON.parse(localStorage.getItem("modalState")) || null;
   const [showEmailModal, setShowEmailModal] = useState(false); // ✅ Toggle email modal
@@ -109,7 +109,7 @@ const CourseEntries = () => {
     const fetchUserNames = async (submissions, token) => {
       const names = {};
       const users = {};
-
+    
       const userFetchPromises = submissions.map(async (submission) => {
         const email = submission.email;
         if (!names[email]) {
@@ -121,20 +121,26 @@ const CourseEntries = () => {
                 "Content-Type": "application/json",
               },
             });
-
+    
             if (userResponse.ok) {
               const userData = await userResponse.json();
-              const fullName = `${userData.personalDetails?.title || ""} ${
-                userData.personalDetails?.firstName
-              } ${userData.personalDetails?.middleName || ""} ${
-                userData.personalDetails?.lastName
-              }`.trim();
+    
+              const { title, firstName, middleName, lastName, country } = userData.personalDetails || {};
+              let fullName;
+    
+              // ✅ Check the country and format accordingly
+              if (userData.dashboardLang === "ru") {
+                fullName = `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim();
+              } else {
+                fullName = `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
+              }
+    
               const phoneNumber = `${userData.personalDetails?.phone || ""}`.trim();
-
+    
               names[email] = fullName || "Unknown User";
               users[email] = {
                 ...userData,
-                phoneNumber: phoneNumber || "N/A", // ✅ Store phone number
+                phoneNumber: phoneNumber || "N/A",
               };
             } else {
               names[email] = "Unknown User";
@@ -146,11 +152,12 @@ const CourseEntries = () => {
           }
         }
       });
-
+    
       await Promise.all(userFetchPromises);
       setUserNames(names);
       setUserData(users);
     };
+    
 
     fetchCourseDetails();
   }, [courseId]);

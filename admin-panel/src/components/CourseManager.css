@@ -183,7 +183,8 @@
 
 
 /* Modal Overlay */
-.course-manager-page .modal-overlay {
+/* Modal Overlay */
+.modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
@@ -193,53 +194,109 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000; 
+  z-index: 1000;
+ 
 }
 
 /* Modal Container */
 .course-manager-modal {
   background: white;
-  padding: 40px 30px;
   border-radius: 12px;
-  width: 600px;                  /* Slightly larger width for better spacing */
-  max-width: 90%;
-  position: relative;
-  text-align: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-/* Modal Title */
-.course-manager-modal h3 {
-  margin-bottom: 25px;
-  font-size: 22px;
-  color: #333;
-}
-
-/* Form Styling */
-.course-manager-modal form {
+  width: 600px;
+  max-width: 90vw;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
-  gap: 15px;                      /* Consistent spacing between form fields */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease-in-out;
+  position: relative; /* Added for absolute positioning of close button */
+  overflow: hidden; /* Prevent content from overflowing rounded corners */
 }
 
-.course-manager-modal label {
-  font-weight: bold;
-  text-align: left;
-  font-size: 14px;
-  color: #555;
+/* Modal Header */
+.course-manager-modal h3 {
+  padding: 20px 30px 10px;
+  margin: 0;
+  font-size: 22px;
+  color: #333;
+  border-bottom: 1px solid #eee;
 }
 
-/* Input Fields */
-.course-manager-modal input,
-.course-manager-modal textarea {
-  padding: 12px;
-  border: 1px solid #ccc;
+/* Form Container */
+.course-form {
+  padding: 15px 30px;
+  overflow-y: auto;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  position: relative;
+}
+
+/* Form Elements */
+.course-form input,
+.course-form textarea {
+  padding: 12px 15px;
+  border: 1px solid #ddd;
   border-radius: 6px;
-  width: 100%;
-  font-size: 14px;
-  transition: border 0.3s ease;
+  font-size: 16px;
 }
+
+/* Textarea Specific Styles */
+.course-form textarea {
+  min-height: 120px; /* Increased minimum height */
+  resize: vertical; /* Allows user to resize vertically */
+}
+
+/* Save Button */
+.save-btn {
+  padding: 12px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin: 10px 0 20px;
+}
+
+/* Close Button */
+.course-close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10; /* Ensure it stays above scrolling content */
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+/* Scrollbar Styling */
+.course-form::-webkit-scrollbar {
+  width: 8px;
+}
+
+.course-form::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.course-form::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.course-form::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 
 .course-manager-modal input:focus,
 .course-manager-modal textarea:focus {
@@ -282,18 +339,7 @@
   background-color: #0056b3;
 }
 
-/* Close Modal Button */
-.course-manager-modal .close-modal-btn {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  font-size: 28px;
-  color: #333;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: color 0.3s;
-}
+
 
 .course-manager-modal .close-modal-btn:hover {
   color: red;

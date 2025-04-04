@@ -19,8 +19,10 @@ const CourseManager = () => {
   const [description, setDescription] = useState("");
   const [descriptionRussian, setDescriptionRussian] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState("");
-  const [courseDate, setCourseDate] = useState("");  // ✅ Added date field
+  const [courseDate, setCourseDate] = useState("");
+  const [courseEndDate, setCourseEndDate] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
+  const [websiteLink, setWebsiteLink] = useState("");
   const [bannerUrlRussian, setBannerUrlRussian] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState(null);
@@ -67,9 +69,11 @@ const CourseManager = () => {
         description,
         descriptionRussian,
         date: courseDate,
+        endDate: courseEndDate,
         bannerUrl,
         bannerUrlRussian,
         invoiceNumber,
+        websiteLink
       };
 
       const response = await fetch(
@@ -163,9 +167,11 @@ const CourseManager = () => {
     setDescription("");
     setDescriptionRussian("");
     setInvoiceNumber("");
-    setCourseDate("");         // ✅ Clear date when opening add modal
+    setCourseDate("");
+    setCourseEndDate("");
     setBannerUrl("");
     setBannerUrlRussian("");
+    setWebsiteLink("");
     setIsModalOpen(true);
   };
 
@@ -179,8 +185,10 @@ const CourseManager = () => {
     setDescriptionRussian(course.descriptionRussian || "");
     setInvoiceNumber(course.invoiceNumber || "");
     setCourseDate(course.date.split("T")[0]);  // ✅ Pre-fill date field
+    setCourseEndDate(course.endDate ? course.endDate.split("T")[0] : "");
     setBannerUrl(course.bannerUrl || "");
     setBannerUrlRussian(course.bannerUrlRussian || "");
+    setWebsiteLink(course.websiteLink || "");
     setIsModalOpen(true);
   };
 
@@ -240,16 +248,18 @@ const CourseManager = () => {
         {isModalOpen && (
           <div className="modal-overlay">
             <div className="course-manager-modal">
-              <button className="close-btn" onClick={() => setIsModalOpen(false)}>×</button>
+              <button className="course-close-btn" onClick={() => setIsModalOpen(false)}>×</button>
               <h3>{modalType === "edit" ? t('CourseManager.editTitle') : t('CourseManager.addTitle')}</h3>
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} className="course-form">
                 <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={t('CourseManager.courseNameEn')} required />
                 <input type="text" value={nameRussian} onChange={(e) => setNameRussian(e.target.value)} placeholder={t('CourseManager.courseNameRu')} required />
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('CourseManager.descEn')} required />
                 <textarea value={descriptionRussian} onChange={(e) => setDescriptionRussian(e.target.value)} placeholder={t('CourseManager.descRu')} required />
                 <input type="date" value={courseDate} onChange={(e) => setCourseDate(e.target.value)} placeholder={t('CourseManager.date')} required />   {/* ✅ Date Picker */}
+                <input type="date" value={courseEndDate} onChange={(e) => setCourseEndDate(e.target.value)} placeholder={t('CourseManager.endDate')} required />   {/* ✅ Date Picker */}
                 <input type="text" value={bannerUrl} onChange={(e) => setBannerUrl(e.target.value)} placeholder={t('CourseManager.bannerUrlEn')} required />
                 <input type="text" value={bannerUrlRussian} onChange={(e) => setBannerUrlRussian(e.target.value)} placeholder={t('CourseManager.bannerUrlRu')} required />
+                <input type="text" value={websiteLink} onChange={(e) => setWebsiteLink(e.target.value)} placeholder={t('CourseManager.websiteLink')} required />
                 <input type="text" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} placeholder={t('CourseManager.invoiceNumber')} required />
                 <button className="save-btn" type="submit">{t('CourseManager.save')}</button>
               </form>
