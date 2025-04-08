@@ -51,6 +51,9 @@
     flex-direction: column;
     position: relative;
   }
+  .settings-popup-content h3{
+    color: #000;
+  }
   
   .settings-popup-content .close-button {
     position: absolute;
@@ -60,6 +63,7 @@
     cursor: pointer;
     background-color: transparent;
     border: none;
+    color: #000;
   }
   .settings-popup-content  h3{
     font-size: 20px;

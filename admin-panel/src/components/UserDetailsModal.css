@@ -143,8 +143,8 @@
     padding: 0px 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 10px;
-
   }
+
   
   .content-info {
     display: flex;
@@ -152,9 +152,8 @@
     gap: 15px;
     padding: 15px;
     border-radius: 8px;
-
-    
   }
+
   .subcontent-info{
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     padding: 15px 20px;
@@ -175,9 +174,15 @@
   .content-info ul{
     list-style-type: none;
   }
+
   .content-info ul li{
     margin-bottom: 8px;
   }
+
+  .content-info .submission-responses,.content-info .response-answer{
+    color: #000;
+  }
+
   /* 🔥 Animations */
   @keyframes slideIn {
     from {
@@ -188,6 +193,7 @@
     }
   }
   
+
   @keyframes fadeIn {
     from {
       opacity: 0;

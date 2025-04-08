@@ -1,6 +1,7 @@
 /* Container */
 .webinar-participants-page{
   background-color: #fff;
+  height: 100vh;
 }
 .participants-page-container {
   font-family: "Roboto", sans-serif;
