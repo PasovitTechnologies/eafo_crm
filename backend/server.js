@@ -80,6 +80,8 @@ const emailRoutes = require("./routes/emailSenderRoutes");
 const telegramRoutes = require("./routes/telegramRoutes");
 const whatsappRoutes = require("./routes/whatsappRoutes");
 const enquiryRoutes = require("./routes/enquiryRoutes");
+const notificationRoutes = require("./routes/notificationsRoutes");
+
 
 // ✅ Base URL Configuration
 const baseUrl = process.env.BASE_URL || 'http://localhost:4000';
@@ -97,6 +99,7 @@ app.use("/api/email", emailRoutes);
 app.use("/api/telegram", telegramRoutes);
 app.use("/api/whatsapp", whatsappRoutes);
 app.use("/api/enquiries", enquiryRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 // ✅ Serve Static Files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

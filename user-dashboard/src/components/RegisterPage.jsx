@@ -240,6 +240,64 @@ const RegisterPage = ({ onSwitchToLogin }) => {
     }
   };
 
+
+  const lang = i18n.language;
+
+  const privacyPolicyUrl = "/privacy-policy"; // or t("registerPage.privacyPolicyUrl")
+  const termsUrl = "/terms"; // or t("registerPage.termsUrl")
+
+
+  const termsText =
+  lang === "ru" ? (
+    <>
+      Я принимаю условия использования <strong>EAFO</strong>{" "}
+      <a
+        href={termsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Условия использования
+      </a>
+    </>
+  ) : (
+    <>
+      I accept the Terms & Conditions of <strong>EAFO</strong> in submitting this registration.{" "}
+      <a
+        href={termsUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Terms of Use
+      </a>
+    </>
+  );
+
+  const personalDataText =
+  lang === "ru" ? (
+    <>
+      Я даю согласие на обработку персональных данных <strong>EAFO</strong>.{" "}
+      <a
+        href={privacyPolicyUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Политика конфиденциальности
+      </a>
+    </>
+  ) : (
+    <>
+      I grant permission to <strong>EAFO</strong> to use my personal data.{" "}
+      <a
+        href={privacyPolicyUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Privacy Policy
+      </a>
+    </>
+  );
+
+
   return (
     <form className="register-form" onSubmit={handleSubmit}>
 
@@ -561,14 +619,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
             }
             required
           />
-          {t("registerPage.personalDataText")}{" "}
-          <a
-            href={t("registerPage.privacyPolicyUrl")}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t("registerPage.privacyPolicy")}
-          </a>
+          <span>{personalDataText}</span>
         </label>
       </div>
 
@@ -582,16 +633,12 @@ const RegisterPage = ({ onSwitchToLogin }) => {
             }
             required
           />
-          {t("registerPage.termsText")}{" "}
-          <a
-            href={t("registerPage.termsUrl")}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {t("registerPage.termsOfUse")}
-          </a>
+          <span>{termsText}</span>
         </label>
       </div>
+
+
+
 
       {/* Submit Button */}
       <button type="submit" className="button" disabled={isLoading}>

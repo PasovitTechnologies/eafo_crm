@@ -130,9 +130,9 @@ const CourseEntries = () => {
     
               // ✅ Check the country and format accordingly
               if (userData.dashboardLang === "ru") {
-                fullName = `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim();
+                fullName = `${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim();
               } else {
-                fullName = `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
+                fullName = `${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
               }
     
               const phoneNumber = `${userData.personalDetails?.phone || ""}`.trim();

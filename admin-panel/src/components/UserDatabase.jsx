@@ -45,11 +45,16 @@ const UserDatabase = () => {
     setCurrentPage(1);
   };
 
-  const getFullName = (personalDetails) => {
+  const getFullName = (personalDetails, dashboardLang) => {
     if (!personalDetails) return t('userDatabase.notAvailable');
+  
     const { title, firstName, middleName, lastName } = personalDetails;
-    return `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
+  
+    return dashboardLang === "ru"
+      ? `${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()
+      : `${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
   };
+  
 
   const exportToCSV = () => {
     if (users.length === 0) return;

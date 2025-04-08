@@ -52,7 +52,7 @@ const AutoRedirect = () => {
       }
     }, 5000); // Check every 5 seconds
 
-    return () => clearInterval(interval); 
+    return () => clearInterval(interval);
   }, [navigate]);
 
   return null;
@@ -63,6 +63,7 @@ const PrivateRoute = ({ element }) => {
   return isTokenValid() ? element : <Navigate to="/" replace />;
 };
 
+// Layout with conditional Navbar
 const Layout = ({ children }) => {
   const location = useLocation();
 
@@ -96,7 +97,6 @@ const Layout = ({ children }) => {
 const App = () => {
   return (
     <Router>
-      <AutoRedirect /> {/* ✅ Auto Token Expiry Handler */}
       <Layout>
         <Routes>
           {/* 🔑 Authentication Routes */}
@@ -107,53 +107,152 @@ const App = () => {
           {/* 🔒 Protected Routes */}
           <Route
             path="/dashboard"
-            element={<PrivateRoute element={<Dashboard />} />}
+            element={
+              <PrivateRoute
+                element={
+                  <>
+                    <AutoRedirect />
+                    <Dashboard />
+                  </>
+                }
+              />
+            }
           />
           <Route
             path="/profile"
-            element={<PrivateRoute element={<Profile />} />}
+            element={
+              <PrivateRoute
+                element={
+                  <>
+                    <AutoRedirect />
+                    <Profile />
+                  </>
+                }
+              />
+            }
           />
           <Route
             path="/scroll"
-            element={<PrivateRoute element={<ScrollingComponent />} />}
+            element={
+              <PrivateRoute
+                element={
+                  <>
+                    <AutoRedirect />
+                    <ScrollingComponent />
+                  </>
+                }
+              />
+            }
           />
 
           {/* 🎥 Webinars */}
           <Route
             path="/dashboard/webinars"
-            element={<PrivateRoute element={<Webinar />} />}
+            element={
+              <PrivateRoute
+                element={
+                  <>
+                    <AutoRedirect />
+                    <Webinar />
+                  </>
+                }
+              />
+            }
           />
           <Route
             path="/dashboard/webinars/:id"
-            element={<PrivateRoute element={<WebinarDetails />} />}
+            element={
+              <PrivateRoute
+                element={
+                  <>
+                    <AutoRedirect />
+                    <WebinarDetails />
+                  </>
+                }
+              />
+            }
           />
           <Route
             path="/dashboard/webinars/:id/watch-webinar"
-            element={<PrivateRoute element={<WebinarPage />} />}
+            element={
+              <PrivateRoute
+                element={
+                  <>
+                    <AutoRedirect />
+                    <WebinarPage />
+                  </>
+                }
+              />
+            }
           />
 
           {/* 📚 Courses & Forms */}
           <Route
             path="/dashboard/courses"
-            element={<PrivateRoute element={<Courses />} />}
+            element={
+              <PrivateRoute
+                element={
+                  <>
+                    <AutoRedirect />
+                    <Courses />
+                  </>
+                }
+              />
+            }
           />
           <Route
             path="/dashboard/courses/:slug"
-            element={<PrivateRoute element={<CourseDetails />} />}
+            element={
+              <PrivateRoute
+                element={
+                  <>
+                    <AutoRedirect />
+                    <CourseDetails />
+                  </>
+                }
+              />
+            }
           />
           <Route
             path="/dashboard/courses/:courseName/forms/:formName"
-            element={<PrivateRoute element={<Forms />} />}
+            element={
+              <PrivateRoute
+                element={
+                  <>
+                    <AutoRedirect />
+                    <Forms />
+                  </>
+                }
+              />
+            }
           />
 
           {/* 📧 Enquiry & About */}
           <Route
             path="/dashboard/enquiry"
-            element={<PrivateRoute element={<Enquiry />} />}
+            element={
+              <PrivateRoute
+                element={
+                  <>
+                    <AutoRedirect />
+                    <Enquiry />
+                  </>
+                }
+              />
+            }
           />
           <Route
             path="/dashboard/about"
-            element={<PrivateRoute element={<About />} />}
+            element={
+              <PrivateRoute
+                element={
+                  <>
+                    <AutoRedirect />
+                    <About />
+                  </>
+                }
+              />
+            }
           />
 
           {/* 🌐 Catch-All Route */}

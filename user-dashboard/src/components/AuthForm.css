@@ -46,7 +46,6 @@
     display: flex;
     align-items: center;
     color: #333;
-    text-align: center;
     padding: 30px 10px;
     z-index: 1;
     margin-right: 20px;
@@ -92,6 +91,9 @@
     .container.active .form-box.forget-password {
       transform: none;
     }
+  }
+  .register-form h1{
+    text-align: center;
   }
   
   /* Button styles */
@@ -511,34 +513,43 @@
     margin: 15px 0;
     display: flex;
     align-items: flex-start;
-}
-
-.checkbox-group label {
+  }
+  
+  .checkbox-group label {
     display: flex;
-    align-items: flex-start;
+    align-items: flex-start;  /* ✅ important: aligns text to top of checkbox */
     font-size: 13px;
     color: #555;
     line-height: 1.4;
     cursor: pointer;
-}
-
-.checkbox-group input[type="checkbox"] {
-    margin-right: 10px;
-    margin-top: 2px;
+    gap: 10px;
+    flex-wrap: nowrap;
+  }
+  
+  .checkbox-group input[type="checkbox"] {
+    margin-top: 3px;           /* ✅ slight top nudge */
+    flex-shrink: 0;
     cursor: pointer;
-}
-
-.checkbox-group a {
+  }
+  
+  .checkbox-group span {
+    display: block;
+    flex: 1;                   /* ✅ takes up remaining space for wrapping */
+    min-width: 0;
+  }
+  
+  .checkbox-group a {
     color: #033672;
     text-decoration: none;
     transition: color 0.2s;
     font-weight: bold;
-}
-
-.checkbox-group a:hover {
+  }
+  
+  .checkbox-group a:hover {
     color: #033672;
     text-decoration: underline;
-}
+  }
+  
 
 /* =============== SOCIAL ICONS =============== */
 .social-icons {

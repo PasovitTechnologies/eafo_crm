@@ -535,11 +535,12 @@ const CourseDetail = () => {
             <button className="add-condition-btn" onClick={addCondition}>+ {t("courseDetail.addCondition")}</button>
 
             {/* Select Items */}
-            <h4>{t("courseDetail.selectItem")}:</h4>
+            <h4 className="add-item-package">{t("courseDetail.selectItem")}:</h4>
             <div className="items-selection-box">
               {course?.items?.map((item) => (
                 <label key={item._id}>
                   <input
+                    className="select-package"
                     type="checkbox"
                     value={item._id}
                     checked={linkedItems.includes(item._id)}

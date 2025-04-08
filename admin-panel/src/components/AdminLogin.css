@@ -8,6 +8,7 @@
 
 body {
   font-family: 'Montserrat', sans-serif;
+  background-color: #fff;
 }
 
 /* Page transition animation */
@@ -107,6 +108,7 @@ body {
   border-radius: 5px;
   transition: 0.3s;
   padding-right: 40px; /* Space for icon */
+  color: #000;
 }
 
 /* Password icon inside input */

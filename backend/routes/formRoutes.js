@@ -11,7 +11,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 const User = require("../models/User");
 const axios = require("axios");
 const { GridFSBucket } = require("mongodb");
-
+const UserNotification = require("../models/UserNotificationSchema");
 
 // ✅ Initialize GridFS bucket
 let gfs;
@@ -700,16 +700,19 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
 
     // ✅ Validation
     if (!formId || !mongoose.Types.ObjectId.isValid(formId)) {
+      await session.abortTransaction();
       return res.status(400).json({ message: "Invalid or missing form ID" });
     }
 
     if (!Array.isArray(submissions) || submissions.length === 0) {
+      await session.abortTransaction();
       return res.status(400).json({ message: "Submissions cannot be empty" });
     }
 
     // ✅ Find the form
     const form = await Form.findById(formId).session(session);
     if (!form) {
+      await session.abortTransaction();
       return res.status(404).json({ message: "Form not found" });
     }
 
@@ -718,6 +721,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
     const { isUsedForRegistration, isUsedForRussian, formName, description, courseId } = form;
 
     if (!courseId) {
+      await session.abortTransaction();
       console.log("⚠️ No courseId found in form.");
       return res.status(404).json({ message: "No course associated with this form." });
     }
@@ -777,10 +781,13 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
         // Wait for the file to finish uploading
         await new Promise((resolve, reject) => {
           writeStream.on('finish', resolve);
-          writeStream.on('error', reject);
+          writeStream.on('error', (error) => {
+            console.error("❌ Error uploading file to GridFS:", error);
+            reject(error);
+          });
         });
         
-        // Store the file reference instead of the actual file
+        // Store the file reference
         response.file = {
           fileId: writeStream.id,
           fileName: fileName,
@@ -819,7 +826,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
 
     // ✅ Save the form with session
     await form.save({ session });
-
     console.log("✅ Submission saved successfully!");
 
     // ✅ Update user only if email is provided
@@ -833,7 +839,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
       if (!user) {
         console.log("🚫 User not found, creating new user...");
 
-        // ✅ Create a new user if none exists
+        // ✅ Create a new user
         user = new User({
           email,
           courses: [{
@@ -851,7 +857,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
 
         await user.save({ session });
         console.log("✅ New user created and linked to the form!");
-
       } else {
         console.log("✅ User found, updating courses...");
 
@@ -876,9 +881,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
               isUsedForRussian,
               submittedAt: new Date()
             });
-
             console.log("✅ Form added to registeredForms successfully!");
-
           } else {
             console.log("🚫 Form already exists in registeredForms. Skipping...");
           }
@@ -896,7 +899,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             }],
             submittedAt: new Date()
           });
-
           console.log("✅ New course added with registeredForms!");
         }
 
@@ -905,18 +907,52 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
         updatedUser = user;
 
         if (isUsedForRegistration) {
-          const { regType, category } = extractInvoiceFields(processedSubmissions);
-          
-          const emailTemplate = getEmailTemplate(
+          try {
+            const { regType, category } = extractInvoiceFields(processedSubmissions);
+            
+            const emailTemplate = getEmailTemplate(
               isUsedForRussian ? "ru" : "en",
               user,
               formName,
               regType,
               category
-          );
+            );
 
-          await sendEmailRusender({ email: user.email, firstName: user.firstName }, emailTemplate);
-          console.log("✅ Registration email sent with Invoice Fields!");
+            await sendEmailRusender({ email: user.email, firstName: user.firstName }, emailTemplate);
+            console.log("✅ Registration email sent with Invoice Fields!");
+          } catch (emailError) {
+            console.error("⚠️ Failed to send email (non-critical):", emailError.message);
+          }
+
+          // 🔔 Create or update user notification
+          const notification = {
+            type: "form_submission",
+            formId: formId,
+            formName: formName,
+            courseId: courseId,
+            message: {
+              en: `Your submission for ${formName} was received`,
+              ru: `Ваша заявка на форму "${formName}" получена`,
+            },
+            read: false,
+            createdAt: new Date()
+          };
+
+          let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
+
+          if (!userNotification) {
+            userNotification = new UserNotification({
+              userId: user._id,
+              notifications: [notification]
+            });
+            console.log("📬 Created new UserNotification doc for user.");
+          } else {
+            userNotification.notifications.push(notification);
+            console.log("📬 Appended new notification to existing UserNotification.");
+          }
+
+          await userNotification.save({ session });
+          console.log("🔔 Notification saved for user:", user.email);
         }
       }
     }
@@ -926,24 +962,26 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
 
     // ✅ Prepare response payload
     const responsePayload = {
-      message: "Form submitted successfully with files!",
+      message: "Form submitted successfully!",
       submission: newSubmission,
       user: updatedUser || null,
     };
 
     console.log("✅ Returning final response:", responsePayload);
-
     res.status(201).json(responsePayload);
 
   } catch (error) {
     await session.abortTransaction();
     console.error("❌ Error submitting form:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
-
+    res.status(500).json({ 
+      message: "Internal server error", 
+      error: error.message 
+    });
   } finally {
     session.endSession();
   }
 });
+
 
 router.get('/files/:fileId', async (req, res) => {
   try {

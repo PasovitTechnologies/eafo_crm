@@ -14,7 +14,7 @@ import { useSpring, animated } from "@react-spring/web";
 import "./Users.css";
 import { useTranslation } from "react-i18next";
 
-const baseUrl = "http://localhost:4000";
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const Users = () => {
   const [users, setUsers] = useState([]);

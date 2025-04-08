@@ -113,6 +113,7 @@ const CourseEntriesManager = () => {
   if (error) return <div className="error">Error: {error}</div>;
 
   return (
+    <div className="course-manager-page">
     <div className="course-manager-wrapper">
 
       {/* 🔎 Search Bar & Filter */}
@@ -181,6 +182,7 @@ const CourseEntriesManager = () => {
           <p className="no-courses">{t("courseManager.noCourses")}</p>
         )}
       </div>
+    </div>
     </div>
   );
 };

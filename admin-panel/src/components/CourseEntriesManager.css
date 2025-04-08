@@ -1,4 +1,7 @@
 /* ✅ Wrapper Layout */
+.course-manager-page{
+  background-color: #fff;
+}
 .course-manager-wrapper {
   display: flex;
   flex-direction: column;
@@ -97,6 +100,7 @@
   transition: 0.3s;
   width: 100%;
   border-radius: 5px;
+  background-color: #fff;
 }
 
 .filter-option:hover,
