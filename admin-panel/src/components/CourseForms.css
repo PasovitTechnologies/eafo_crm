@@ -110,6 +110,7 @@
     flex-grow: 1;
     font-size: 14px;
     padding-left: 8px;
+    color: #000;
 }
 
 /* ➕ New Form Button */
@@ -256,6 +257,7 @@
     font-weight: bold;
     transition: color 0.3s ease;
     margin-bottom: 5px;
+    color: #fff;
 }
 
 
@@ -393,6 +395,8 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 14px;
+    background-color: #fff;
+    color: #000;
 }
 
 /* 🔹 Submit Button */

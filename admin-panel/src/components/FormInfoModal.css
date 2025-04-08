@@ -142,6 +142,8 @@
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
+    background-color: #fff;
+    color: #000;
   }
   
   .form-textarea {
@@ -155,6 +157,7 @@
     flex-direction: column;
     gap: 1rem;
     margin: 2rem 0;
+    background-color: #fff;
   }
   
   .checkbox-label {
@@ -162,11 +165,13 @@
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;
+    color: #000;
   }
   
   .checkbox-input {
     width: 1.2rem;
     height: 1.2rem;
+    background-color: #fff;
   }
   
   /* Save Button */

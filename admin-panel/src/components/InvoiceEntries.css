@@ -87,7 +87,9 @@
   transition: all 0.3s ease-in-out;
   animation: fadeIn 0.3s forwards;
 }
-
+.invoice-filter-icon{
+  color: #000;
+}
 @keyframes fadeIn {
   from {
     opacity: 0;

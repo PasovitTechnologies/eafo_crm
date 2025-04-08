@@ -240,6 +240,8 @@
   border: 1px solid #ddd;
   border-radius: 6px;
   font-size: 16px;
+  background-color: #fff;
+  color: #000;
 }
 
 /* Textarea Specific Styles */
@@ -277,6 +279,7 @@
   justify-content: center;
   border-radius: 50%;
   transition: background 0.2s;
+  color: #000;
 }
 
 /* Scrollbar Styling */

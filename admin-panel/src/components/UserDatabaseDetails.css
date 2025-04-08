@@ -28,6 +28,9 @@
     margin-bottom: 20px;
     padding: 20px;
   }
+  .user-info-section h2{
+    color: #000;
+  }
   .user-info-section p {
     margin: 5px 0;
   }
@@ -52,6 +55,7 @@
     padding: 10px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+    color: #000;
   }
   
   .payment-table th {

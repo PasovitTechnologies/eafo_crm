@@ -61,6 +61,8 @@
     border-radius: 6px;
     transition: border 0.3s;
     font-size: 14px;
+    background-color: #fff;
+    color: #000;
   }
   
   .email-form input:focus,

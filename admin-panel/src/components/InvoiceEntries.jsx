@@ -133,8 +133,8 @@ const InvoiceEntries = () => {
             // 🔥 Extracting country, full name, and phone number
             const fullName =
             userData.dashboardLang === "ru"
-              ? `${personalDetails.title || ""} ${personalDetails.lastName || ""} ${personalDetails.firstName || ""} ${personalDetails.middleName || ""}`.trim()
-              : `${personalDetails.title || ""} ${personalDetails.firstName || ""} ${personalDetails.middleName || ""} ${personalDetails.lastName || ""}`.trim();
+              ? `${personalDetails.lastName || ""} ${personalDetails.firstName || ""} ${personalDetails.middleName || ""}`.trim()
+              : `${personalDetails.firstName || ""} ${personalDetails.middleName || ""} ${personalDetails.lastName || ""}`.trim();
             const phoneNumber = personalDetails?.phone ? `${personalDetails.phone}` : "N/A";
             const country = personalDetails?.country || "N/A";  // ✅ Get country
   
@@ -465,7 +465,7 @@ const InvoiceEntries = () => {
         
                 {/* 🛠️ Filter Icon */}
                 <div className="filter-icon-wrapper" ref={filterRef}>
-            <FiFilter onClick={toggleFilterModal} />
+            <FiFilter onClick={toggleFilterModal} className="invoice-filter-icon"/>
             
             {showFilterModal && (
   <div className="filter-bubble">
