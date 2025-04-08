@@ -241,6 +241,9 @@
     color: #033672;
     border-left: 5px solid #033672;
 }
+.form-card-content .form-name{
+    color: #000;
+}
 
 .form-card:hover .form-name {
     text-decoration: underline;

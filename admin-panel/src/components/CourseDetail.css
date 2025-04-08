@@ -111,6 +111,7 @@
 .rules-section h3 {
   font-size: 20px;
   padding: 20px 10px;
+  color: #000;
 }
 
 .rule-box-actions,
@@ -164,7 +165,9 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
+.item-card-content h4{
+  color: #000;
+}
 /* Rule Form Overlay */
 
 
@@ -302,6 +305,8 @@
   border: 1px solid #ccc;
   border-radius: 8px;
   transition: border 0.3s;
+  background-color: #fff;
+  color: #000;
 }
 
 .item-form input:focus,
@@ -396,6 +401,7 @@
   gap: 5px;
   font-size: 14px;
   margin-bottom: 5px;
+  color: #000;
 }
 
 /* Checkbox Styling */
