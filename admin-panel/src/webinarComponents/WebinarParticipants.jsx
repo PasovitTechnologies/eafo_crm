@@ -99,7 +99,8 @@ const WebinarParticipants = () => {
   };
 
   return (
-    <div className="participants-page-container">
+    <div className="webinar-participants-page">
+      <div className="participants-page-container">
       <div className="participants-header">
         <h1>
           {currentLanguage === "ru"
@@ -160,6 +161,8 @@ const WebinarParticipants = () => {
 
       <ToastContainer />
     </div>
+    </div>
+    
   );
 };
 
