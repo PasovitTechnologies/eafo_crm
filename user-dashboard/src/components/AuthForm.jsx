@@ -39,9 +39,6 @@ const AuthForm = () => {
 
   return (
     <div className="auth-page">
-      {/* Help Button */}
-     
-
       {/* Help Popup */}
       {showHelpPopup && <HelpPopup onClose={toggleHelpPopup} />}
 

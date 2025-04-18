@@ -711,3 +711,119 @@
 .social-icon.whatsapp {
   background-color: #25D366;
 }
+
+@media (max-width: 768px) {
+  .dashboard-page {
+    padding: 20px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 20px;
+    width: 100%;
+  }
+
+  .dashboard-item {
+    padding: 15px;
+    font-size: 16px;
+  }
+
+  .profile-image-container {
+    width: 80px;
+    height: 80px;
+  }
+
+  .profile-welcome {
+    font-size: 18px;
+  }
+
+  .courses-text {
+    font-size: 20px;
+  }
+
+  .course-details p,
+  .webinar-details p {
+    font-size: 13px;
+  }
+
+  .dashboard-item.courses,
+  .dashboard-item.webinars {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+}
+@media (max-width: 480px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .profile-welcome span {
+    font-size: 20px;
+  }
+
+  .dashboard-item {
+    font-size: 15px;
+    padding: 10px;
+  }
+
+  .dashboard-item.courses,
+  .dashboard-item.webinars {
+    padding: 15px;
+  }
+
+  .courses-text {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .courses-image,
+  .webinar-icon,
+  .about-image,
+  .contact-image,
+  .enquiry-image {
+    height: 100px;
+    width: auto;
+    opacity: 0.8;
+  }
+
+  .profile-arrow-right,
+  .profile-arrow-right-top {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .arrow-icon,
+  .arrow-icon-top {
+    font-size: 16px;
+  }
+
+  .profile-image-container {
+    width: 70px;
+    height: 70px;
+  }
+
+  .dashboard-item.profile-div {
+    padding: 20px 15px;
+  }
+
+  .contact-popup-content {
+    padding: 1rem;
+  }
+
+  .contact-method {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .social-media-icons {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .social-icon {
+    width: 35px;
+    height: 35px;
+  }
+}
