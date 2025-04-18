@@ -2,6 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const User = require("../models/User"); 
 const Course = require("../models/Course"); 
+const UserNotification = require("../models/UserNotificationSchema");
 
 const router = express.Router();
 
@@ -134,6 +135,9 @@ router.post("/send-wp", async (req, res) => {
 
   const { to, message, courseId, orderId, package, amount, currency, paymentUrl } = req.body;
 
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     console.log("📨 Sending WhatsApp Message to:", to);
 
@@ -150,9 +154,10 @@ router.post("/send-wp", async (req, res) => {
     console.log("✅ WhatsApp API Response:", response.data);
 
     if (response.data?.status === "done") {
-      // 🔥 Fetch the course
-      const course = await Course.findById(courseId);
+      // 🔥 Fetch the course with session
+      const course = await Course.findById(courseId).session(session);
       if (!course) {
+        await session.abortTransaction();
         console.log("❌ Course not found for ID:", courseId);
         return res.status(404).json({ success: false, error: "Course not found." });
       }
@@ -167,14 +172,14 @@ router.post("/send-wp", async (req, res) => {
         : "INV/EAFO-000-00001";
 
       course.currentInvoiceNumber = nextInvoiceNumber;
-      await course.save();
+      await course.save({ session });
       console.log(`✅ New Invoice Number: ${nextInvoiceNumber}`);
 
-      // 🔥 Find the User
-      let user = await User.findOne({ "personalDetails.phone": to });
-      if (!user) {
-        console.log(`🚫 User not found for phone number: ${to}`);
-      } else {
+      // 🔥 Find the User with session
+      let user = await User.findOne({ "personalDetails.phone": to }).session(session);
+      let notificationSaved = false;
+
+      if (user) {
         console.log(`📌 User found: ${user.email}`);
 
         // 🔥 Find or Create User Course
@@ -192,9 +197,61 @@ router.post("/send-wp", async (req, res) => {
             time: new Date(),
           });
         } else {
-          console.log("🚫 Course not found in User schema, skipping user payment.");
+          console.log("🚫 Course not found in User schema, creating new course entry.");
+          user.courses.push({
+            courseId: courseId,
+            payments: [{
+              invoiceNumber: nextInvoiceNumber,
+              paymentId: orderId,
+              package,
+              amount,
+              currency,
+              paymentLink: paymentUrl,
+              status: "Pending",
+              time: new Date(),
+            }],
+            registeredAt: new Date()
+          });
         }
-        await user.save();
+
+        await user.save({ session });
+
+        // 🔥 Create Payment Notification
+        const notification = {
+          type: "payment_created",
+          courseId: courseId,
+          courseName: course.name,
+          invoiceNumber: nextInvoiceNumber,
+          message: {
+            en: `Payment invoice #${nextInvoiceNumber} has been generated for ${course.name}`,
+            ru: `Счет на оплату #${nextInvoiceNumber} был создан для ${course.name}`,
+          },
+          read: false,
+          createdAt: new Date(),
+          paymentLink: paymentUrl,
+          amount: amount,
+          currency: currency,
+          viaWhatsApp: true
+        };
+
+        let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
+
+        if (!userNotification) {
+          userNotification = new UserNotification({
+            userId: user._id,
+            notifications: [notification]
+          });
+          console.log("📬 Created new UserNotification doc for user.");
+        } else {
+          userNotification.notifications.push(notification);
+          console.log("📬 Appended new notification to existing UserNotification.");
+        }
+
+        await userNotification.save({ session });
+        notificationSaved = true;
+        console.log("🔔 Payment notification saved for user:", user.email);
+      } else {
+        console.log(`🚫 User not found for phone number: ${to}`);
       }
 
       // 🔥 Save Payment in Course Schema
@@ -207,19 +264,24 @@ router.post("/send-wp", async (req, res) => {
         paymentLink: paymentUrl,
         status: "Pending",
         time: new Date(),
+        viaWhatsApp: true
       });
 
-      await course.save();
+      await course.save({ session });
       console.log(`✅ Payment saved in course: ${courseId}`);
+
+      await session.commitTransaction();
 
       return res.json({
         success: true,
         status: "sent",
         message: "WhatsApp message delivered and invoice data saved.",
-        invoiceNumber: nextInvoiceNumber
+        invoiceNumber: nextInvoiceNumber,
+        notificationCreated: notificationSaved
       });
 
     } else {
+      await session.abortTransaction();
       console.error("⚠️ Unexpected API Response Structure:", response.data);
       return res.status(500).json({
         success: false,
@@ -228,11 +290,14 @@ router.post("/send-wp", async (req, res) => {
     }
 
   } catch (error) {
+    await session.abortTransaction();
     console.error("❌ Error sending message:", error.message, error.response?.data);
     return res.status(500).json({
       success: false,
       error: error.response?.data?.message || error.message
     });
+  } finally {
+    session.endSession();
   }
 });
 

@@ -18,7 +18,8 @@
     "whatsapp": "Whatsapp",
     "enquiry": "Запросы",
     "logout": "Выход",
-    "userbase": "База данных"
+    "userbase": "База данных",
+    "telegram": "Телеграмма"
 
   },
   "login": {

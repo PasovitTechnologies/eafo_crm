@@ -37,7 +37,21 @@
     "welcomeBack": "Welcome Back!",
     "haveAccount": "Already have an account?",
     "login": "Login",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "help": "How to Register?",
+    "helpCenter": "How to Register?",
+    "guideText": "Text Guide",
+    "guideVideo": "Video Guide",
+    "registrationGuide": "How to Register",
+    "step1": "Click on the 'Register' button to begin",
+    "step2": "Fill in all required fields with accurate information",
+    "step3": "Verify your email address is correct",
+    "step4": "Create a strong, unique password",
+    "step5": "Complete registration by clicking the 'Register' button",
+    "contactSupport": "Need more help? Contact our support team anytime.",
+    "registrationVideo": "Step-by-Step Registration Video",
+    "videoDescription": "Watch this 2-minute video to see how to complete your registration."
+  
   },
  
 
@@ -396,6 +410,7 @@
   "download": "Download",
   "close": "Close"
 }
+
   
   
 }

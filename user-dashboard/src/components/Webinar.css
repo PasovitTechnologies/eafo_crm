@@ -1,216 +1,289 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
 
+/* Base Styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Raleway", sans-serif;
+  margin: 0;
+  padding: 0;
+}
 
 /* Page Layout */
-
 .webinar-page {
-    width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: "Raleway", sans-serif;
-  }
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 15px;
+}
 
-  .breadcrumb {
-    font-size: 16px;
-    color: #555;
-    margin-bottom: 20px;
-  }
-  
-  .breadcrumb span {
-    cursor: pointer;
-    color: #007bff;
-  }
-  
-  .breadcrumb span:last-child {
-    color: #333;
-    cursor: default;
-  }
-  
-  .breadcrumb span:hover {
-    text-decoration: underline;
-  }
-  
-  
-  /* Search & Filter Container */
+/* Breadcrumb */
+.breadcrumb {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 15px;
+  white-space: nowrap;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.breadcrumb span {
+  cursor: pointer;
+  color: #007bff;
+  margin-right: 5px;
+}
+
+.breadcrumb span:last-child {
+  color: #333;
+  cursor: default;
+}
+
+.breadcrumb span:hover {
+  text-decoration: underline;
+}
+
+/* Search & Filter Container */
+.search-filter-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+@media (min-width: 768px) {
   .search-filter-container {
-    display: flex;
+    flex-direction: row;
     justify-content: space-between;
-    margin-bottom: 20px;
   }
-  
-  .search-filter-container input {
-    width: 70%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-  }
-  
-  .search-filter-container select {
-    width: 25%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    background: white;
-    cursor: pointer;
-  }
-  /* Wrapper for Search Input (Aligns the Icon & Input) */
-.search-input-wrapper {
-    display: flex;
-    align-items: center;
-    width: 88%;
-    box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.1);
-    border-radius: 25px 0px 0px 25px;
-    padding: 0px 15px;
-    background: white;
-  }
-  
-  /* Search Icon */
-  .search-icon {
-    font-size: 16px;
-    color: #666;
-    margin-right: 8px;
-  }
-  
-  /* Search Input */
-  .search-input-wrapper input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 16px;
-  }
+}
 
+/* Search Input Wrapper */
+.search-input-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 25px;
+  padding: 0 15px;
+  background: white;
+}
+
+@media (min-width: 768px) {
+  .search-input-wrapper {
+    width: 70%;
+    border-radius: 25px 0 0 25px;
+  }
+}
+
+.search-icon {
+  font-size: 16px;
+  color: #666;
+  margin-right: 8px;
+}
+
+.search-input-wrapper input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  padding: 10px 0;
+}
+
+/* Dropdown */
+.custom-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
   .custom-dropdown {
-    position: relative;
-    width: 12%;
-    
+    width: 28%;
   }
-  
-  /* 🏷️ Dropdown Select */
+}
+
+.custom-dropdown select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 25px;
+  background: white;
+  font-size: 14px;
+  cursor: pointer;
+  box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.1);
+  appearance: none;
+  border: none;
+}
+
+@media (min-width: 768px) {
   .custom-dropdown select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 0px 25px 25px 0px;
-    background: white;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.1);
-    appearance: none;
+    border-radius: 0 25px 25px 0;
+  font-size: 16px;
+  width: 100%;
+  max-width: 200px;
+  margin-left: auto;
+  display: block;
+  padding: 10px 15px;
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 12px;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  padding-right: 30px;
   }
-  
-  
-  
-  /* Webinar List */
-  .webinar-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  /* Webinar Card */
+}
+
+/* Webinar List */
+.webinar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Webinar Card */
+.webinar-card {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 1px 1px 4px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+  cursor: pointer;
+}
+
+@media (min-width: 768px) {
   .webinar-card {
-    display: flex;
+    flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 1px 1px 4px 3px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
-    cursor: pointer;
   }
-  
-  .webinar-card:hover {
-    transform: translateY(-3px);
-  }
-  
-  /* Webinar Image */
+}
+
+.webinar-card:hover {
+  transform: translateY(-3px);
+}
+
+/* Webinar Image */
+.webinar-image {
+  width: 100%;
+  height: auto;
+  max-height: 180px;
+  border-radius: 8px;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+@media (min-width: 768px) {
   .webinar-image {
-    
-    height: 100px;
-    border-radius: 8px;
-    object-fit: cover;
+    width: 120px;
+    height: 80px;
+    margin-bottom: 0;
   }
-  
-  /* Webinar Info */
+}
+
+/* Webinar Info */
+.webinar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+}
+
+@media (min-width: 768px) {
   .webinar-info {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    flex: 1;
     margin-left: 15px;
-    
   }
-  
-  /* Buttons */
+}
+
+/* Buttons */
+.webinar-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+@media (min-width: 768px) {
   .webinar-actions {
-    display: flex;
     flex-direction: column;
+    gap: 10px;
+    margin-top: 0;
     flex: 0.3;
-    
   }
-  
+}
+
+.register-btn, .see-more-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  text-align: center;
+  flex: 1;
+}
+
+@media (min-width: 768px) {
   .register-btn, .see-more-btn {
     padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
+    font-size: 16px;
   }
-  
-  .register-btn {
-    background: #02408a;
-    color: white;
-    border: 3px solid #02408a;
+}
+
+.register-btn {
+  background: #02408a;
+  color: white;
+  border: 3px solid #02408a;
+}
+
+.see-more-btn {
+  background: #fff;
+  color: #02408a;
+  border: 3px solid #02408a;
+}
+
+.register-btn:hover {
+  background: #082242;
+}
+
+.see-more-btn:hover {
+  background: #082242;
+  color: #fff;
+}
+
+/* No Webinars */
+.no-webinars-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  margin: 30px 0;
+  padding: 20px;
+}
+
+.no-webinars-image {
+  width: 100%;
+  max-width: 200px;
+  height: auto;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.no-webinars-text {
+  font-size: 16px;
+  color: #666;
+  margin-top: 15px;
+  font-weight: 500;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
   }
-  
-  .see-more-btn {
-    background: #fff;
-    color: #02408a;
-    border: 3px solid #02408a;
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
-  
-  .register-btn:hover {
-    background: #082242;
-  }
-  
-  .see-more-btn:hover {
-    background: #082242;
-    color: #fff;
-  }
-  .no-webinars-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    margin-top: 50px;
-  }
-  
-  .no-webinars-image {
-    width: 250px; /* Adjust size as needed */
-    height: auto;
-    animation: fadeIn 0.5s ease-in-out;
-  }
-  
-  .no-webinars-text {
-    font-size: 18px;
-    color: #666;
-    margin-top: 10px;
-    font-weight: 500;
-  }
-  
-  /* ✅ Smooth fade-in effect */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-  
+}

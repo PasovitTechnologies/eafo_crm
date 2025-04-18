@@ -1,244 +1,255 @@
 /* 🌟 Full Page Setup */
 .profile-page {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: #f4f6f9;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f4f6f9;
 }
 
 /* 🌟 Container */
 .profile-container {
-    max-width: 1000px;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    margin: auto;
-    padding: 20px;
-    flex-grow: 1; /* Ensures full height usage */
+  max-width: 1000px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  margin: auto;
+  padding: 20px;
+  flex-grow: 1;
+  /* Ensures full height usage */
 }
 
 /* 🌟 Profile Grid */
 .profile-grid {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: 24px;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 24px;
 }
 
 /* 🌟 Profile Header */
 .profile-header-div {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 30px;
-    padding: 20px;
-    border-radius: 12px;
-    background: white;
-    border: 1px solid #ddd;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
-    margin-top: 20px; /* Adds spacing from top */
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 20px;
+  border-radius: 12px;
+  background: white;
+  border: 1px solid #ddd;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  margin-top: 20px;
+  /* Adds spacing from top */
 }
-.details-div{
-    display: flex;
-    gap: 20px;
+
+.details-div {
+  display: flex;
+  gap: 20px;
 }
+
 /* 🌟 Profile Image with Hover Upload Effect */
 .profile-image-wrapper {
-    position: relative;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    overflow: hidden;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease-in-out;
-    cursor: pointer;
-  }
-  
-  .profile-image-wrapper:hover {
-    transform: scale(1.05);
-  }
-  
-  .profile-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-    transition: opacity 0.3s;
-  }
-  
-  .upload-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    color: #fff;
-    font-size: 14px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  
-  .profile-image-wrapper:hover .upload-overlay {
-    opacity: 1;
-  }
-  
-  
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.profile-image-wrapper:hover {
+  transform: scale(1.05);
+}
+
+.profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  transition: opacity 0.3s;
+}
+
+.upload-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.profile-image-wrapper:hover .upload-overlay {
+  opacity: 1;
+}
+
+
 
 /* 🌟 Name & Profession */
 .profile-name-profession {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
 
 .profile-name {
-    font-size: 24px;
-    font-weight: 600;
-    color: #033672;
-    margin: 0;
-    font-weight: bold;
+  font-size: 24px;
+  font-weight: 600;
+  color: #033672;
+  margin: 0;
+  font-weight: bold;
 }
 
 .profile-profession {
-    font-size: 18px;
-    color: #777;
-    margin-top: 5px;
+  font-size: 18px;
+  color: #777;
+  margin-top: 5px;
 }
 
 /* 🌟 Sections */
 .profile-section {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.07);
-    border: 1px solid #ddd;
-    flex: 1;
-    padding: 30px;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.07);
+  border: 1px solid #ddd;
+  flex: 1;
+  padding: 30px;
 
 }
 
 /* 🌟 Section Heading */
 .section-heading {
-    font-size: 20px;
-    font-weight: 600;
-    color: #033672;
-    margin-bottom: 15px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #033672;
+  margin-bottom: 15px;
 }
 
 /* 🌟 Form Fields: Display One by One */
 .profile-info-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 /* 🌟 Label & Input Styling */
 .profile-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .profile-field label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #555;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
 }
 
 .profile-field input,
 .profile-field select {
-    font-size: 16px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    background: #fafafa;
-    border-radius: 6px;
-    color: #333;
-    transition: all 0.2s ease-in-out;
+  font-size: 16px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+  border-radius: 6px;
+  color: #333;
+  transition: all 0.2s ease-in-out;
 }
 
 /* Focus Effect */
 .profile-field input:focus,
 .profile-field select:focus {
-    border-color: #007bff;
-    background: white;
-    outline: none;
-    box-shadow: 0px 2px 6px rgba(0, 123, 255, 0.2);
+  border-color: #007bff;
+  background: white;
+  outline: none;
+  box-shadow: 0px 2px 6px rgba(0, 123, 255, 0.2);
 }
 
 /* 🌟 Edit Mode Input */
 .editable-input {
-    background: white;
-    border-color: #007bff;
+  background: white;
+  border-color: #007bff;
 }
 
 .profile-edit-icon {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px; /* Space between text & icon */
-  }
-  
-  .edit-button,
-  .save-button {
-    display: flex;
-    align-items: center;
-    gap: 5px; /* Space between text & icon */
-    padding: 8px 12px;
-    font-size: 14px;
-    font-weight: bold;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  /* Edit button styles */
-  .edit-button {
-    background-color: #3498db;
-    color: white;
-  }
-  
-  .edit-button:hover {
-    background-color: #2980b9;
-  }
-  
-  /* Save button styles */
-  .save-button {
-    background-color: #2ecc71;
-    color: white;
-  }
-  
-  .save-button:hover {
-    background-color: #27ae60;
-  }
-  
-  /* Icon styles */
-  .edit-button svg,
-  .save-button svg {
-    font-size: 16px; /* Adjust icon size */
-  }
-  /* Name Edit Section */
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* Space between text & icon */
+}
+
+.edit-button,
+.save-button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  /* Space between text & icon */
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Edit button styles */
+.edit-button {
+  background-color: #3498db;
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: #2980b9;
+}
+
+/* Save button styles */
+.save-button {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.save-button:hover {
+  background-color: #27ae60;
+}
+
+/* Icon styles */
+.edit-button svg,
+.save-button svg {
+  font-size: 16px;
+  /* Adjust icon size */
+}
+
+/* Name Edit Section */
 .name-edit-section {
   background: white;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.07);
   border: 1px solid #ddd;
-   
-    margin: 20px 0;
-    overflow: visible; /* Changed from hidden to visible */
-    position: relative; /* Establish new stacking context */
-    z-index: 1; /* Base z-index for the section */
-  
+
+  margin: 20px 0;
+  overflow: visible;
+  /* Changed from hidden to visible */
+  position: relative;
+  /* Establish new stacking context */
+  z-index: 1;
+  /* Base z-index for the section */
+
 }
 
 .section-subheading {
@@ -268,6 +279,7 @@
   font-weight: 500;
   color: #495057;
 }
+
 /* Title select dropdown styling with high z-index */
 .react-select__menu {
   z-index: 9999 !important;
@@ -287,19 +299,34 @@
 .react-select__menu {
   z-index: 9999 !important;
 }
+
 /* 🌟 Responsive Design */
 @media (max-width: 768px) {
-    .profile-header-div {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-    }
+  .profile-header-div {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
 
-    .profile-name-profession {
-        align-items: center;
-    }
+  .profile-name-profession {
+    align-items: center;
+  }
 
-    .profile-info-grid {
-        flex-direction: column;
-    }
+  .profile-info-grid {
+    flex-direction: column;
+  }
+
+  .details-div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .profile-edit-icon {
+    position: relative;
+    margin-left: auto;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
 }

@@ -1,4 +1,4 @@
-/* Navbar container */
+/* Navbar container - responsive */
 .navbar-page {
   width: 100%;
   background: #f8f9fa;
@@ -7,42 +7,55 @@
 
 .ui-navbar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 30px;
+  padding: 15px 5%;
+  max-width: 1600px;
+  margin: 0 auto;
+  gap: 15px; /* Added gap for better spacing when wrapped */
 }
 
-/* Logo */
+/* Logo - responsive */
 .logo img {
   height: 40px;
+  max-height: 8vw;
+  min-height: 30px;
   cursor: pointer;
+  transition: transform 0.3s;
 }
 
-/* Welcome message */
+.logo img:hover {
+  transform: scale(1.05);
+}
+
+/* Welcome message - hidden on mobile */
 .nav-welcome-msg h1 {
-  font-size: 24px;
+  font-size: clamp(18px, 4vw, 24px);
   color: #033672;
   font-weight: bold;
+  margin: 0;
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
-/* Right section */
+/* Right section - responsive */
 .right-section {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 10px;
 }
 
-/* Language selector with flags */
+/* Flag dropdown - responsive */
 .flag-dropdown {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  padding: 5px 10px;
+  padding: 5px 8px;
   cursor: pointer;
   background: #fff;
-  transition: 0.3s;
+  transition: all 0.3s;
 }
 
 .flag-dropdown:hover {
@@ -52,21 +65,24 @@
 .flag-icon {
   width: 24px;
   height: 16px;
+  max-width: 6vw;
   border-radius: 3px;
 }
 
 .language-dropdown {
   border: none;
   background: transparent;
-  font-size: 16px;
+  font-size: clamp(14px, 3vw, 16px);
   color: #333;
   cursor: pointer;
   outline: none;
+  width: auto;
+  max-width: 80px;
 }
 
-/* User icon */
+/* User icon - responsive */
 .user-icon {
-  font-size: 24px;
+  font-size: clamp(20px, 5vw, 24px);
   color: #555;
   cursor: pointer;
   transition: 0.3s;
@@ -74,4 +90,41 @@
 
 .user-icon:hover {
   color: #007bff;
+  transform: scale(1.1);
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .ui-navbar {
+    padding: 12px 5%;
+    gap: 10px;
+  }
+  
+  .right-section {
+    gap: 8px;
+  }
+  
+  .flag-dropdown {
+    padding: 4px 6px;
+  }
+}
+
+@media (max-width: 600px) {
+  .nav-welcome-msg {
+    display: none; /* Hide welcome message on small devices */
+  }
+  
+  .ui-navbar {
+    justify-content: space-between; /* Keep logo and right section spaced */
+  }
+}
+
+@media (max-width: 480px) {
+  .logo img {
+    height: 35px; /* Slightly smaller logo on very small screens */
+  }
+  
+  .flag-dropdown {
+    padding: 3px 5px; /* More compact on tiny screens */
+  }
 }

@@ -274,7 +274,7 @@ const Enquiry = () => {
     ) : error ? (
       <p className="error">{error}</p>
     ) : filteredEnquiries.length === 0 ? (
-      <p className="no-results">{t("enquiry.no_result")}</p>
+      <p className="no-results">{t("enquiry.no_results")}</p>
     ) : (
       filteredEnquiries.map((enquiry) => (
         <div
@@ -286,7 +286,7 @@ const Enquiry = () => {
 
           {enquiry.file && (
             <div className="file-container">
-              <FaFileAlt className="file-icon" />
+              <FaFileAlt className="file-icon"/>
               <button
                 className="file-btn"
                 onClick={() => handleDownload(enquiry._id)}

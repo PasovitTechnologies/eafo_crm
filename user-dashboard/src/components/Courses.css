@@ -1,155 +1,226 @@
-/* 📌 Page Layout */
+/* 📌 Base Styles */
 .courses-page {
-    width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: "Raleway", sans-serif;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: "Raleway", sans-serif;
+  box-sizing: border-box;
 }
 
+.breadcrumb {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+}
 
+.breadcrumb span {
+  cursor: pointer;
+  color: #007bff;
+  transition: color 0.3s;
+}
+
+.breadcrumb span:hover {
+  color: #0056b3;
+}
+
+.breadcrumb .active {
+  color: #333;
+  font-weight: bold;
+}
+
+/* 🔍 Search & Filter Container */
+.course-search-filter-container {
+  display: flex;
+  flex-direction: column;
+  margin: 20px 0;
+  gap: 15px;
+}
+
+@media (min-width: 768px) {
   .course-search-filter-container {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
+      flex-direction: row;
+      justify-content: space-between;
   }
-  
-  .course-search-filter-container input {
-    width: 70%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-  }
-  
-  .course-search-filter-container select {
-    width: 25%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    background: white;
-    cursor: pointer;
-  }
-  /* Wrapper for Search Input (Aligns the Icon & Input) */
-.course-search-input-wrapper {
-    display: flex;
-    align-items: center;
-    width: 88%;
-    box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.1);
-    border-radius: 25px 0px 0px 25px;
-    padding: 0px 15px;
-    background: white;
-  }
-  
-  /* Search Icon */
-  .search-icon {
-    font-size: 16px;
-    color: #666;
-    margin-right: 8px;
-  }
-  
-  /* Search Input */
-  .course-search-input-wrapper input {
-    flex: 1;
-    border: none;
-    outline: none;
-    font-size: 16px;
-  }
+}
 
+/* 🔎 Search Input Wrapper */
+.course-search-input-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.1);
+  border-radius: 25px;
+  padding: 0 15px;
+  background: white;
+  box-sizing: border-box;
+}
+
+@media (min-width: 768px) {
+  .course-search-input-wrapper {
+      width: 88%;
+      border-radius: 25px 0 0 25px;
+  }
+}
+
+.search-icon {
+  font-size: 16px;
+  color: #666;
+  margin-right: 8px;
+}
+
+.course-search-input-wrapper input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  padding: 10px 0;
+  width: 100%;
+}
+
+/* 🏷️ Dropdown */
+.course-custom-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
   .course-custom-dropdown {
-    position: relative;
-    width: 12%;
-    
+      width: 12%;
   }
-  
-  /* 🏷️ Dropdown Select */
+}
+
+.course-custom-dropdown select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 25px;
+  background: white;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.1);
+  appearance: none;
+  border: none;
+  outline: none;
+}
+
+@media (min-width: 768px) {
   .course-custom-dropdown select {
-    width: 100%;
-    padding: 10px;
-    border-radius: 0px 25px 25px 0px;
-    background: white;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.1);
-    appearance: none;
+      border-radius: 0 25px 25px 0;
   }
-  
+}
 
 /* 📋 Course List */
 .courses-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 /* 📌 Course Card */
 .course-card {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 1px 1px 4px 3px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
-    cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 1px 1px 4px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+  cursor: pointer;
+  gap: 15px;
+}
+
+@media (min-width: 576px) {
+  .course-card {
+      flex-direction: row;
+      align-items: center;
+  }
 }
 
 .course-card:hover {
-    transform: translateY(-3px);
+  transform: translateY(-3px);
 }
 
 /* 🖼️ Course Image */
 .course-banner {
-    height: 100px;
-    border-radius: 8px;
-    object-fit: cover;
+  width: 100%;
+  height: auto;
+  max-height: 150px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+@media (min-width: 576px) {
+  .course-banner {
+      width: 150px;
+      height: 100px;
+  }
 }
 
 /* ℹ️ Course Info */
 .course-info {
-    flex: 1;
-    margin-left: 15px;
+  flex: 1;
+}
+
+@media (min-width: 576px) {
+  .course-info {
+      margin-left: 15px;
+  }
 }
 
 .course-info h3 {
-    margin: 0;
-    font-size: 18px;
+  margin: 0 0 8px 0;
+  font-size: 18px;
 }
 
 .course-date {
-    font-size: 14px;
-    color: #666;
+  font-size: 14px;
+  color: #666;
 }
 
 /* 🎯 Action Buttons */
 .course-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+@media (min-width: 576px) {
+  .course-actions {
+      width: auto;
+      min-width: 150px;
+  }
 }
 
 .register-btn, .see-more-btn {
-    padding: 8px 15px;
-    border: 3px solid #02408a;
-    border-radius: 5px;
-    font-weight: bold;
-    cursor: pointer;
-    
+  padding: 8px 15px;
+  border: 3px solid #02408a;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.3s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 576px) {
+  .register-btn, .see-more-btn {
+      width: auto;
+  }
 }
 
 .register-btn {
-    background: #02408a;
-    color: white;
-    
+  background: #02408a;
+  color: white;
 }
 
 .see-more-btn {
-    background: white;
-    color: #02408a;
+  background: white;
+  color: #02408a;
 }
 
 .register-btn:hover, .see-more-btn:hover {
-    background: #082242;
-    color: white;
+  background: #082242;
+  color: white;
 }

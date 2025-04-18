@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, Suspense, lazy } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -7,24 +7,26 @@ import {
   useLocation,
   useNavigate,
 } from "react-router-dom";
-import MainPage from "./components/MainPage";
-import Dashboard from "./components/Dashboard";
-import RegisterPage from "./components/RegisterPage";
-import AuthForm from "./components/AuthForm";
-import "./i18n"; // Import the i18n configuration
-import WebinarPage from "./components/WebinarPage";
-import ForgetPasswordPage from "./components/ForgetPasswordPage";
-import ScrollingComponent from "./components/ScrollingComponent";
-import Forms from "./forms/Forms";
-import Profile from "./components/Profile";
-import Navbar from "./components/Navbar";
-import Webinar from "./components/Webinar";
-import WebinarDetails from "./components/WebinarDetails";
-import Courses from "./components/Courses";
-import CourseDetails from "./components/CourseDetails";
-import Enquiry from "./components/Enquiry";
-import About from "./components/About";
 import { jwtDecode } from "jwt-decode";
+import "./i18n";
+
+// ✅ Lazy-loaded components
+const MainPage = lazy(() => import("./components/MainPage"));
+const Dashboard = lazy(() => import("./components/Dashboard"));
+const RegisterPage = lazy(() => import("./components/RegisterPage"));
+const AuthForm = lazy(() => import("./components/AuthForm"));
+const WebinarPage = lazy(() => import("./components/WebinarPage"));
+const ForgetPasswordPage = lazy(() => import("./components/ForgetPasswordPage"));
+const ScrollingComponent = lazy(() => import("./components/ScrollingComponent"));
+const Forms = lazy(() => import("./forms/Forms"));
+const Profile = lazy(() => import("./components/Profile"));
+const Navbar = lazy(() => import("./components/Navbar"));
+const Webinar = lazy(() => import("./components/Webinar"));
+const WebinarDetails = lazy(() => import("./components/WebinarDetails"));
+const Courses = lazy(() => import("./components/Courses"));
+const CourseDetails = lazy(() => import("./components/CourseDetails"));
+const Enquiry = lazy(() => import("./components/Enquiry"));
+const About = lazy(() => import("./components/About"));
 
 // ✅ Token Validation Function
 const isTokenValid = () => {
@@ -33,13 +35,13 @@ const isTokenValid = () => {
 
   try {
     const decoded = jwtDecode(token);
-    return decoded.exp > Date.now() / 1000; // Check if token hasn't expired
+    return decoded.exp > Date.now() / 1000;
   } catch {
     return false;
   }
 };
 
-// 🔥 Auto Redirect Component on Token Expiry
+// 🔐 Auto Redirect on Token Expiry
 const AutoRedirect = () => {
   const navigate = useNavigate();
 
@@ -47,10 +49,10 @@ const AutoRedirect = () => {
     const interval = setInterval(() => {
       if (!isTokenValid()) {
         console.warn("🔒 Token expired! Redirecting to login...");
-        localStorage.removeItem("token"); // Clear invalid token
+        localStorage.removeItem("token");
         navigate("/", { replace: true });
       }
-    }, 5000); // Check every 5 seconds
+    }, 5000);
 
     return () => clearInterval(interval);
   }, [navigate]);
@@ -58,28 +60,19 @@ const AutoRedirect = () => {
   return null;
 };
 
-// 🔒 Protected Route Component
+// 🔐 Protected Route
 const PrivateRoute = ({ element }) => {
   return isTokenValid() ? element : <Navigate to="/" replace />;
 };
 
-// Layout with conditional Navbar
+// 🧭 Layout with Conditional Navbar
 const Layout = ({ children }) => {
   const location = useLocation();
 
   const navbarPaths = [
-    "/",
-    "/dashboard",
-    "/dashboard/webinars",
-    "/dashboard/webinars/",
-    "/dashboard/courses",
-    "/dashboard/courses/",
-    "/profile",
-    "/scroll",
-    "/forms",
-    "/webinars",
-    "/dashboard/enquiry",
-    "/dashboard/about",
+    "/", "/dashboard", "/dashboard/webinars", "/dashboard/webinars/",
+    "/dashboard/courses", "/dashboard/courses/", "/profile", "/scroll",
+    "/forms", "/webinars", "/dashboard/enquiry", "/dashboard/about",
   ];
 
   const showNavbar = navbarPaths.some((path) =>
@@ -94,171 +87,91 @@ const Layout = ({ children }) => {
   );
 };
 
+// 🎬 Main App Component
 const App = () => {
   return (
     <Router>
-      <Layout>
-        <Routes>
-          {/* 🔑 Authentication Routes */}
-          <Route path="/" element={<AuthForm />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forget-password" element={<ForgetPasswordPage />} />
+      <Suspense fallback={<div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>}>
+        <Layout>
+          <Routes>
+            {/* 🔑 Public Routes */}
+            <Route path="/" element={<AuthForm />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forget-password" element={<ForgetPasswordPage />} />
 
-          {/* 🔒 Protected Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute
-                element={
-                  <>
-                    <AutoRedirect />
-                    <Dashboard />
-                  </>
-                }
-              />
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <PrivateRoute
-                element={
-                  <>
-                    <AutoRedirect />
-                    <Profile />
-                  </>
-                }
-              />
-            }
-          />
-          <Route
-            path="/scroll"
-            element={
-              <PrivateRoute
-                element={
-                  <>
-                    <AutoRedirect />
-                    <ScrollingComponent />
-                  </>
-                }
-              />
-            }
-          />
+            {/* 🔒 Protected Routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute element={<><AutoRedirect /><Dashboard /></>} />
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute element={<><AutoRedirect /><Profile /></>} />
+              }
+            />
+            <Route
+              path="/scroll"
+              element={
+                <PrivateRoute element={<><AutoRedirect /><ScrollingComponent /></>} />
+              }
+            />
+            <Route
+              path="/dashboard/webinars"
+              element={
+                <PrivateRoute element={<><AutoRedirect /><Webinar /></>} />
+              }
+            />
+            <Route
+              path="/dashboard/webinars/:id"
+              element={
+                <PrivateRoute element={<><AutoRedirect /><WebinarDetails /></>} />
+              }
+            />
+            <Route
+              path="/dashboard/webinars/:id/watch-webinar"
+              element={
+                <PrivateRoute element={<><AutoRedirect /><WebinarPage /></>} />
+              }
+            />
+            <Route
+              path="/dashboard/courses"
+              element={
+                <PrivateRoute element={<><AutoRedirect /><Courses /></>} />
+              }
+            />
+            <Route
+              path="/dashboard/courses/:slug"
+              element={
+                <PrivateRoute element={<><AutoRedirect /><CourseDetails /></>} />
+              }
+            />
+            <Route
+              path="/dashboard/courses/:courseName/forms/:formName"
+              element={
+                <PrivateRoute element={<><AutoRedirect /><Forms /></>} />
+              }
+            />
+            <Route
+              path="/dashboard/enquiry"
+              element={
+                <PrivateRoute element={<><AutoRedirect /><Enquiry /></>} />
+              }
+            />
+            <Route
+              path="/dashboard/about"
+              element={
+                <PrivateRoute element={<><AutoRedirect /><About /></>} />
+              }
+            />
 
-          {/* 🎥 Webinars */}
-          <Route
-            path="/dashboard/webinars"
-            element={
-              <PrivateRoute
-                element={
-                  <>
-                    <AutoRedirect />
-                    <Webinar />
-                  </>
-                }
-              />
-            }
-          />
-          <Route
-            path="/dashboard/webinars/:id"
-            element={
-              <PrivateRoute
-                element={
-                  <>
-                    <AutoRedirect />
-                    <WebinarDetails />
-                  </>
-                }
-              />
-            }
-          />
-          <Route
-            path="/dashboard/webinars/:id/watch-webinar"
-            element={
-              <PrivateRoute
-                element={
-                  <>
-                    <AutoRedirect />
-                    <WebinarPage />
-                  </>
-                }
-              />
-            }
-          />
-
-          {/* 📚 Courses & Forms */}
-          <Route
-            path="/dashboard/courses"
-            element={
-              <PrivateRoute
-                element={
-                  <>
-                    <AutoRedirect />
-                    <Courses />
-                  </>
-                }
-              />
-            }
-          />
-          <Route
-            path="/dashboard/courses/:slug"
-            element={
-              <PrivateRoute
-                element={
-                  <>
-                    <AutoRedirect />
-                    <CourseDetails />
-                  </>
-                }
-              />
-            }
-          />
-          <Route
-            path="/dashboard/courses/:courseName/forms/:formName"
-            element={
-              <PrivateRoute
-                element={
-                  <>
-                    <AutoRedirect />
-                    <Forms />
-                  </>
-                }
-              />
-            }
-          />
-
-          {/* 📧 Enquiry & About */}
-          <Route
-            path="/dashboard/enquiry"
-            element={
-              <PrivateRoute
-                element={
-                  <>
-                    <AutoRedirect />
-                    <Enquiry />
-                  </>
-                }
-              />
-            }
-          />
-          <Route
-            path="/dashboard/about"
-            element={
-              <PrivateRoute
-                element={
-                  <>
-                    <AutoRedirect />
-                    <About />
-                  </>
-                }
-              />
-            }
-          />
-
-          {/* 🌐 Catch-All Route */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </Layout>
+            {/* 🌐 Catch-All */}
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </Layout>
+      </Suspense>
     </Router>
   );
 };

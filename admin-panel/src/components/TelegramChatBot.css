@@ -1,0 +1,106 @@
+/* ✅ Main container */
+.telegram-chatbot .chatbot-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    background: #ececec; /* Telegram light gray background */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    z-index: 1000;
+    transition: transform 0.3s ease-in-out, opacity 0.3s;
+    display: flex;
+    flex-direction: column; /* 👈 Stack items vertically */
+  }
+  
+  /* ✅ Fixed header */
+  .telegram-chatbot .chatbot-header {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: #0088cc; /* Telegram blue from header */
+    color: #ffffff; /* White text */
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* ✅ Close icon */
+  .chat-close-icon {
+    cursor: pointer;
+    font-size: 20px;
+    color: #ffffff; /* White for consistency */
+    transition: transform 0.3s ease;
+  }
+  
+  .chat-close-icon:hover {
+    transform: rotate(90deg); /* 💫 Rotate on hover */
+  }
+  
+  /* ✅ Messages container (fills remaining space) */
+  .chatbot-messages-container {
+    flex: 1; /* 👈 Takes available space */
+    overflow-y: auto;
+    background: #e5e5e5; /* Light gray from chat window */
+  }
+  
+  /* ✅ Footer remains fixed at the bottom */
+  .chatbot-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 999;
+    background: #ffffff; /* White footer */
+    padding: 10px;
+    display: flex;
+    border-top: 1px solid #e8e8e8; /* Border from chat list */
+    gap: 10px;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .chatbot-footer input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd; /* Light border */
+    border-radius: 8px;
+    background: #f0f0f0; /* Input background */
+    color: #1c2526; /* Dark text */
+  }
+  
+  .chatbot-footer input:focus {
+    border: none;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 136, 204, 0.2); /* Blue shadow */
+  }
+  
+  .telegram-chatbot .chatbot-footer button {
+    background: #0088cc; /* Telegram blue for send button */
+    color: #ffffff; /* White text */
+    border: none;
+    font-size: 18px;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.3s;
+  }
+  
+  .telegram-chatbot .chatbot-footer button:hover {
+    background: #006699; /* Darker blue */
+  }
+  
+  /* ✅ Scrollbar Styling */
+  .chatbot-messages-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .chatbot-messages-container::-webkit-scrollbar-thumb {
+    background: #888; /* Scrollbar thumb color */
+    border-radius: 10px;
+  }
+  
+  .chatbot-messages-container::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Darker on hover */
+  }

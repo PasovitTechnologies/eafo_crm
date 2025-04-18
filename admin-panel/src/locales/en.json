@@ -18,7 +18,8 @@
     "whatsapp": "Whatsapp",
     "enquiry": "Enquiry",
     "logout": "Logout",
-    "userbase": "User Database"
+    "userbase": "User Database",
+    "telegram": "Telegarm"
   },
 
   "login": {

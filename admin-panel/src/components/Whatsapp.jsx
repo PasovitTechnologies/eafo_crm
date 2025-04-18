@@ -56,7 +56,6 @@ function WhatsApp() {
   };
   
 
-  // Fetch All Messages for Selected Chat
   const fetchMessages = async (chatId) => {
     setLoading(true);
     try {

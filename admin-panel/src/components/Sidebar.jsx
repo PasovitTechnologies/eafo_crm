@@ -10,7 +10,8 @@ import {
   MdSchool,
   MdWhatsapp,
   MdHelpOutline,
-  MdPeople
+  MdPeople,
+  MdSend
 } from "react-icons/md";
 import { useTranslation } from "react-i18next";  // 🌍 Import translation hook
 import "./Sidebar.css";
@@ -81,6 +82,11 @@ const Sidebar = ({ selectedOS }) => {
         to: "/whatsapp",
         icon: <MdWhatsapp className="sidebar-icon" />,
         label: t("sidebar.whatsapp"),
+      },
+      {
+        to: "/telegram",
+        icon: <MdSend className="sidebar-icon" />,
+        label: t("sidebar.telegram"),
       },
       {
         to: "/enquiry",

@@ -96,6 +96,20 @@ const RegisterPage = ({ onSwitchToLogin }) => {
           { value: "Prof.", label: t("registerPage.prof") },
         ];
 
+
+  const genderOptions = selectedLanguage === "ru"
+        ? [
+            { value: "Мужской", label: "Мужской" },
+            { value: "Женский", label: "Женский" },
+            { value: "Другое", label: "Другое" },
+          ]
+        : [
+            { value: "Male", label: "Male" },
+            { value: "Female", label: "Female" },
+            { value: "Other", label: "Other" },
+          ];
+      
+
   // Load country options
   useEffect(() => {
     const getCountries = () => {
@@ -425,16 +439,19 @@ const RegisterPage = ({ onSwitchToLogin }) => {
 
       {/* Gender */}
       <div className="input-box">
-        <select
-          value={formData.gender}
-          onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-          required
-        >
-          <option value="">{t("registerPage.genderSelect")}</option>
-          <option value="male">{t("registerPage.male")}</option>
-          <option value="female">{t("registerPage.female")}</option>
-          <option value="other">{t("registerPage.other")}</option>
-        </select>
+      <select
+  value={formData.gender}
+  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+  required
+>
+  <option value="">{t("registerPage.genderSelect")}</option>
+  {genderOptions.map((option) => (
+    <option key={option.value} value={option.value}>
+      {option.label}
+    </option>
+  ))}
+</select>
+
       </div>
 
       {/* Email */}

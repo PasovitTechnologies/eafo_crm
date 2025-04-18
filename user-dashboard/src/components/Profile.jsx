@@ -2,18 +2,26 @@ import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { FaPen, FaRegSave } from "react-icons/fa"; // Edit & Save Icons
+import { FaPen, FaRegSave } from "react-icons/fa";
 import i18nCountries from "i18n-iso-countries";
 import enCountry from "i18n-iso-countries/langs/en.json";
 import ruCountry from "i18n-iso-countries/langs/ru.json";
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
+import DatePicker, { registerLocale } from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import enGB from "date-fns/locale/en-GB";
+import ru from "date-fns/locale/ru";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import "./Profile.css";
 import { useTranslation } from "react-i18next";
 
-// Register country languages
+// Register country languages and date locales
 i18nCountries.registerLocale(enCountry);
 i18nCountries.registerLocale(ruCountry);
+registerLocale('en', enGB);
+registerLocale('ru', ru);
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -23,25 +31,39 @@ const Profile = () => {
   const [image, setImage] = useState(null);
   const [hover, setHover] = useState(false);
   const fileInputRef = useRef(null);
-  const [selectedLanguage, setSelectedLanguage] = useState("en"); // Default English
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
   const userEmail = localStorage.getItem("email");
   const location = useLocation();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const baseUrl = import.meta.env.VITE_BASE_URL;
+  const currentLanguage = i18n.language;
+
+  // Helper function to format phone numbers
+
+  const formatPhoneNumber = (phone) => {
+    if (!phone) return '';
+    if (phone.startsWith('+')) return phone;
+    if (phone.startsWith('9')) return `+7${phone}`;
+    return `+${phone}`;
+  };
 
   useEffect(() => {
-    // Check if token is available in localStorage
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/"); // Redirect to / if token is missing
+      navigate("/");
     }
   }, [navigate]);
 
   useEffect(() => {
+    if (userDetails?.dashboardLang) {
+      setSelectedLanguage(userDetails.dashboardLang);
+    }
+  }, [userDetails?.dashboardLang]);
+
+  useEffect(() => {
     if (location.state?.isEditMode) {
       setIsEditMode(true);
-      // Reset state to avoid persistent edits if user navigates manually
       navigate(location.pathname, { replace: true, state: {} });
     }
   }, [location, navigate]);
@@ -64,14 +86,15 @@ const Profile = () => {
 
         const data = await response.json();
 
-        // Set both `user` and `userDetails`
+        // Format phone number before setting state
+        if (data?.personalDetails?.phone) {
+          data.personalDetails.phone = formatPhoneNumber(data.personalDetails.phone);
+        }
+
         setUser(data);
         setUserDetails(data);
 
-        // Load profile image
-        const imageResponse = await fetch(
-          `${baseUrl}/api/user/image/${userEmail}`
-        );
+        const imageResponse = await fetch(`${baseUrl}/api/user/image/${userEmail}`);
         if (imageResponse.ok) {
           const imageBlob = await imageResponse.blob();
           const imageUrl = URL.createObjectURL(imageBlob);
@@ -94,24 +117,47 @@ const Profile = () => {
       return;
     }
   
+    // Validate phone number format before saving
+    if (userDetails?.personalDetails?.phone &&
+        !userDetails.personalDetails.phone.startsWith('+')) {
+      toast.error(t("profile.invalidPhoneFormat"));
+      return;
+    }
+  
+    // Normalize DOB to ISO string before comparing
+    let normalizedUserDetails = JSON.parse(JSON.stringify(userDetails)); // Deep clone
+    if (
+      normalizedUserDetails?.personalDetails?.dob &&
+      normalizedUserDetails.personalDetails.dob instanceof Date
+    ) {
+      normalizedUserDetails.personalDetails.dob = normalizedUserDetails.personalDetails.dob.toISOString();
+    }
+  
     let updatedFields = {};
   
-    // Compare function remains the same
     const compareFields = (original = {}, edited = {}, path = "") => {
       Object.keys(edited).forEach((key) => {
         const fullPath = path ? `${path}.${key}` : key;
-        if (typeof edited[key] === "object" && edited[key] !== null) {
+        if (typeof edited[key] === "object" && edited[key] !== null && !(edited[key] instanceof Date)) {
           compareFields(original[key] || {}, edited[key], fullPath);
-        } else if (edited[key] !== original[key]) {
+        } else if (edited[key] !== original?.[key]) {
           updatedFields[fullPath] = edited[key];
         }
       });
     };
   
-    compareFields(user.personalDetails || {}, userDetails.personalDetails || {}, "personalDetails");
-    compareFields(user.professionalDetails || {}, userDetails.professionalDetails || {}, "professionalDetails");
+    compareFields(
+      user.personalDetails || {},
+      normalizedUserDetails.personalDetails || {},
+      "personalDetails"
+    );
+    compareFields(
+      user.professionalDetails || {},
+      normalizedUserDetails.professionalDetails || {},
+      "professionalDetails"
+    );
   
-    if (userDetails.email !== user.email) {
+    if (normalizedUserDetails.email !== user.email) {
       delete updatedFields["email"];
     }
   
@@ -134,31 +180,30 @@ const Profile = () => {
   
       const updatedData = await response.json();
   
-      // Critical Fix: Update BOTH states with the complete updated data
-      setUser(prev => ({
+      setUser((prev) => ({
         ...prev,
-        ...updatedData, // This ensures all fields are updated
+        ...updatedData,
         personalDetails: {
           ...prev.personalDetails,
-          ...updatedData.personalDetails
+          ...updatedData.personalDetails,
         },
         professionalDetails: {
           ...prev.professionalDetails,
-          ...updatedData.professionalDetails
-        }
+          ...updatedData.professionalDetails,
+        },
       }));
   
-      setUserDetails(prev => ({
+      setUserDetails((prev) => ({
         ...prev,
-        ...updatedData, // This ensures all fields are updated
+        ...updatedData,
         personalDetails: {
           ...prev.personalDetails,
-          ...updatedData.personalDetails
+          ...updatedData.personalDetails,
         },
         professionalDetails: {
           ...prev.professionalDetails,
-          ...updatedData.professionalDetails
-        }
+          ...updatedData.professionalDetails,
+        },
       }));
   
       setIsEditMode(false);
@@ -169,7 +214,6 @@ const Profile = () => {
     }
   };
 
-  // Get country list based on selected language
   const getCountryOptions = () => {
     const countryNames = i18nCountries.getNames(selectedLanguage, {
       select: "official",
@@ -180,22 +224,22 @@ const Profile = () => {
     }));
   };
 
-  const genderOptions = {
-    en: [
-      { value: "Male", label: "Male" },
-      { value: "Female", label: "Female" },
-      { value: "Other", label: "Other" },
-    ],
-    ru: [
-      { value: "Мужчина", label: "Мужчина" }, // Male in Russian
-      { value: "Женщина", label: "Женщина" }, // Female in Russian
-      { value: "Другое", label: "Другое" }, // Other in Russian
-    ],
+  const getGenderOptions = () => {
+    return currentLanguage === "ru"
+      ? [
+          { value: "Мужчина", label: "Мужчина" },
+          { value: "Женщина", label: "Женщина" },
+          { value: "Другое", label: "Другое" },
+        ]
+      : [
+          { value: "Male", label: "Male" },
+          { value: "Female", label: "Female" },
+          { value: "Other", label: "Other" },
+        ];
   };
 
-  // Get title options based on user's dashboard language
   const titleOptions =
-    userDetails?.dashboardLang === "ru"
+    currentLanguage === "ru"
       ? [
           { value: "Уважаемый", label: "Уважаемый" },
           { value: "Уважаемая", label: "Уважаемая" },
@@ -211,32 +255,31 @@ const Profile = () => {
           { value: "Prof.", label: "Prof." },
         ];
 
-  const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const formData = new FormData();
-    formData.append("profileImage", file);
-
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${baseUrl}/api/user/upload/${userEmail}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      if (!response.ok) throw new Error("Failed to upload image");
-
-      // Display the new image instantly
-      const imageUrl = URL.createObjectURL(file);
-      setImage(imageUrl);
-    } catch (err) {
-      console.error("Error uploading image:", err.message);
-    }
-  };
+        const handleImageUpload = async (event) => {
+          const file = event.target.files[0];
+          if (!file) return;
+      
+          const formData = new FormData();
+          formData.append("profileImage", file);
+      
+          try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${baseUrl}/api/user/upload/${userEmail}`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              body: formData,
+            });
+      
+            if (!response.ok) throw new Error("Failed to upload image");
+      
+            const imageUrl = URL.createObjectURL(file);
+            setImage(imageUrl);
+          } catch (err) {
+            console.error("Error uploading image:", err.message);
+          }
+        };
 
   return (
     <div className="profile-page">
@@ -245,7 +288,26 @@ const Profile = () => {
         <div className="profile-grid">
           {/* Profile Header with Edit Button */}
           <div className="profile-header-div">
-            {/* Profile Image */}
+
+          <div className="profile-edit-icon">
+              {isEditMode ? (
+                <button
+                  className="save-button"
+                  onClick={handleSaveChanges}
+                  disabled={isLoading}
+                >
+                  {isLoading ? t("profile.saving") : t("profile.update")}{" "}
+                  <FaRegSave />
+                </button>
+              ) : (
+                <button
+                  className="edit-button"
+                  onClick={() => setIsEditMode(true)}
+                >
+                  {t("profile.edit")} <FaPen />
+                </button>
+              )}
+            </div>
             <motion.div
               className="profile-image-wrapper"
               initial={{ opacity: 0, scale: 1.1 }}
@@ -263,9 +325,9 @@ const Profile = () => {
                 alt="Profile"
                 className="profile-image"
                 onError={(e) => {
-                  e.target.onerror = null; // Prevent infinite loop
+                  e.target.onerror = null;
                   e.target.src =
-                    "https://static.wixstatic.com/media/df6cc5_dc3fb9dd45a9412fb831f0b222387da1~mv2.jpg"; // Default image
+                    "https://static.wixstatic.com/media/df6cc5_dc3fb9dd45a9412fb831f0b222387da1~mv2.jpg";
                 }}
               />
 
@@ -300,29 +362,12 @@ const Profile = () => {
 
               <h3 className="profile-profession">
                 {userDetails?.professionalDetails?.university ||
-                  "Not Available"}
+                  t("profile.notAvailable")}
               </h3>
             </div>
 
             {/* Edit & Save Button */}
-            <div className="profile-edit-icon">
-              {isEditMode ? (
-                <button 
-                className="save-button" 
-                onClick={handleSaveChanges}
-                disabled={isLoading}
-              >
-                {isLoading ? t("profile.saving") : t("profile.update")} <FaRegSave />
-              </button>
-              ) : (
-                <button
-                  className="edit-button"
-                  onClick={() => setIsEditMode(true)}
-                >
-                  {t("profile.edit")} <FaPen />
-                </button>
-              )}
-            </div>
+            
           </div>
 
           {/* Name Edit Section - Only visible in edit mode */}
@@ -337,44 +382,35 @@ const Profile = () => {
               <div className="name-edit-grid">
                 <div className="profile-field">
                   <label>{t("profile.title")}</label>
-                  {isEditMode ? (
-                    <Select
-                      options={titleOptions}
-                      value={titleOptions.find(
-                        (option) =>
-                          option.value === userDetails?.personalDetails?.title
-                      )}
-                      onChange={(selectedOption) =>
-                        setUserDetails({
-                          ...userDetails,
-                          personalDetails: {
-                            ...userDetails.personalDetails,
-                            title: selectedOption.value,
-                          },
-                        })
-                      }
-                      className="title-select"
-                      classNamePrefix="react-select"
-                      placeholder={t("profile.selectTitle")}
-                      styles={{
-                        menu: (provided) => ({
-                          ...provided,
-                          zIndex: 9999, // Very high z-index to ensure it appears above other elements
-                        }),
-                        control: (provided) => ({
-                          ...provided,
-                          zIndex: 999, // High z-index for the control itself
-                        }),
-                      }}
-                    />
-                  ) : (
-                    <input
-                      type="text"
-                      value={userDetails?.personalDetails?.title || ""}
-                      disabled
-                      className="non-editable-input"
-                    />
-                  )}
+                  <Select
+                    options={titleOptions}
+                    value={titleOptions.find(
+                      (option) =>
+                        option.value === userDetails?.personalDetails?.title
+                    )}
+                    onChange={(selectedOption) =>
+                      setUserDetails({
+                        ...userDetails,
+                        personalDetails: {
+                          ...userDetails.personalDetails,
+                          title: selectedOption.value,
+                        },
+                      })
+                    }
+                    className="title-select"
+                    classNamePrefix="react-select"
+                    placeholder={t("profile.selectTitle")}
+                    styles={{
+                      menu: (provided) => ({
+                        ...provided,
+                        zIndex: 9999,
+                      }),
+                      control: (provided) => ({
+                        ...provided,
+                        zIndex: 999,
+                      }),
+                    }}
+                  />
                 </div>
                 <div className="profile-field">
                   <label>{t("profile.firstName")}</label>
@@ -449,14 +485,42 @@ const Profile = () => {
                   <div key={field} className="profile-field">
                     <label>{t(`profile.${field}`)}</label>
 
-                    {/* Country Dropdown in Edit Mode */}
-                    {field === "country" && isEditMode ? (
+                    {field === "phone" && isEditMode ? (
+                      <div className="input-box">
+                        <PhoneInput
+                          international
+                          defaultCountry="RU"
+                          value={userDetails?.personalDetails?.phone || ""}
+                          onChange={(phone) =>
+                            setUserDetails({
+                              ...userDetails,
+                              personalDetails: {
+                                ...userDetails.personalDetails,
+                                phone: phone,
+                              },
+                            })
+                          }
+                          className="phone-input"
+                          placeholder={t("profile.phonePlaceholder")}
+                        />
+                      </div>
+                    ) : field === "phone" ? (
+                      <input
+                        type="text"
+                        value={
+                          userDetails?.personalDetails?.phone
+                            ? formatPhoneNumber(userDetails.personalDetails.phone)
+                            : t("profile.notAvailable")
+                        }
+                        disabled
+                        className="non-editable-input"
+                      />
+                    ) : field === "country" && isEditMode ? (
                       <Select
                         options={getCountryOptions()}
                         value={getCountryOptions().find(
                           (option) =>
-                            option.label ===
-                            userDetails?.personalDetails?.country
+                            option.label === userDetails?.personalDetails?.country
                         )}
                         onChange={(selectedOption) =>
                           setUserDetails({
@@ -470,44 +534,45 @@ const Profile = () => {
                       />
                     ) : field === "dob" ? (
                       isEditMode ? (
-                        /* Date input when editing */
-                        <input
-                          type="date"
-                          value={
+                        <DatePicker
+                          selected={
                             userDetails?.personalDetails?.dob
                               ? new Date(userDetails.personalDetails.dob)
-                                  .toISOString()
-                                  .split("T")[0]
-                              : ""
+                              : null
                           }
-                          onChange={(e) =>
+                          onChange={(date) =>
                             setUserDetails({
                               ...userDetails,
                               personalDetails: {
                                 ...userDetails.personalDetails,
-                                dob: e.target.value,
+                                dob: date,
                               },
                             })
                           }
+                          dateFormat="dd/MM/yyyy"
+                          locale={currentLanguage === "ru" ? ru : enGB}
                           className="editable-input"
+                          placeholderText={t("profile.selectDate")}
+                          showYearDropdown
+                          dropdownMode="select"
                         />
                       ) : (
-                        /* Read-only Input for Non-Edit Mode */
                         <input
                           type="text"
                           value={
                             userDetails?.personalDetails?.dob
                               ? new Date(
                                   userDetails.personalDetails.dob
-                                ).toLocaleDateString("en-GB") // Convert to dd-mm-yyyy
-                              : "Not Available"
+                                ).toLocaleDateString(
+                                  currentLanguage === "ru" ? "ru-RU" : "en-GB"
+                                )
+                              : t("profile.notAvailable")
                           }
                           disabled
                           className="non-editable-input"
                         />
                       )
                     ) : field === "gender" && isEditMode ? (
-                      /* Gender Dropdown in Edit Mode */
                       <select
                         value={userDetails?.personalDetails?.gender || ""}
                         onChange={(e) =>
@@ -521,14 +586,13 @@ const Profile = () => {
                         }
                         className="editable-input"
                       >
-                        {genderOptions[selectedLanguage].map((option) => (
+                        {getGenderOptions().map((option) => (
                           <option key={option.value} value={option.value}>
                             {option.label}
                           </option>
                         ))}
                       </select>
                     ) : (
-                      /* Default Input for Other Fields */
                       <input
                         type="text"
                         value={
@@ -545,7 +609,7 @@ const Profile = () => {
                             },
                           })
                         }
-                        disabled={field === "email" || !isEditMode} // Keep email readonly
+                        disabled={field === "email" || !isEditMode}
                         className={
                           isEditMode ? "editable-input" : "non-editable-input"
                         }
@@ -555,6 +619,7 @@ const Profile = () => {
                 ))}
               </div>
             </motion.div>
+            
             {/* Professional Details */}
             <motion.div
               className="profile-section"
@@ -570,7 +635,6 @@ const Profile = () => {
                   (field) => (
                     <div key={field} className="profile-field">
                       <label>{t(`profile.${field}`)}</label>
-
                       <input
                         type="text"
                         value={userDetails?.professionalDetails?.[field] || ""}
@@ -584,7 +648,8 @@ const Profile = () => {
                           })
                         }
                         disabled={!isEditMode}
-                        className={isEditMode ? "editable-input" : ""}
+                        className={isEditMode ? "editable-input" : "non-editable-input"}
+                        placeholder={t(`profile.${field}Placeholder`)}
                       />
                     </div>
                   )

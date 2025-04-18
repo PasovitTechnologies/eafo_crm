@@ -906,6 +906,37 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
         await user.save({ session });
         updatedUser = user;
 
+        // 🔔 Create or update user notification for ALL form submissions
+        const notification = {
+          type: "form_submission",
+          formId: formId,
+          formName: formName,
+          courseId: courseId,
+          message: {
+            en: `Your submission for "${formName}" was received`,
+            ru: `Ваша заявка на форму "${formName}" получена`,
+          },
+          read: false,
+          createdAt: new Date()
+        };
+
+        let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
+
+        if (!userNotification) {
+          userNotification = new UserNotification({
+            userId: user._id,
+            notifications: [notification]
+          });
+          console.log("📬 Created new UserNotification doc for user.");
+        } else {
+          userNotification.notifications.push(notification);
+          console.log("📬 Appended new notification to existing UserNotification.");
+        }
+
+        await userNotification.save({ session });
+        console.log("🔔 Notification saved for user:", user.email);
+
+        // Handle registration-specific logic
         if (isUsedForRegistration) {
           try {
             const { regType, category } = extractInvoiceFields(processedSubmissions);
@@ -923,36 +954,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
           } catch (emailError) {
             console.error("⚠️ Failed to send email (non-critical):", emailError.message);
           }
-
-          // 🔔 Create or update user notification
-          const notification = {
-            type: "form_submission",
-            formId: formId,
-            formName: formName,
-            courseId: courseId,
-            message: {
-              en: `Your submission for ${formName} was received`,
-              ru: `Ваша заявка на форму "${formName}" получена`,
-            },
-            read: false,
-            createdAt: new Date()
-          };
-
-          let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
-
-          if (!userNotification) {
-            userNotification = new UserNotification({
-              userId: user._id,
-              notifications: [notification]
-            });
-            console.log("📬 Created new UserNotification doc for user.");
-          } else {
-            userNotification.notifications.push(notification);
-            console.log("📬 Appended new notification to existing UserNotification.");
-          }
-
-          await userNotification.save({ session });
-          console.log("🔔 Notification saved for user:", user.email);
         }
       }
     }

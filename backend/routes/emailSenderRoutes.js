@@ -62,10 +62,14 @@ router.post("/send", async (req, res) => {
 
   console.log("📤 Sending invoice email to:", submission.email);
 
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
   try {
     // 🔥 Fetch User
-    let user = await User.findOne({ email: submission.email });
+    let user = await User.findOne({ email: submission.email }).session(session);
     if (!user) {
+      await session.abortTransaction();
       return res.status(404).json({ success: false, message: "❌ User not found.", email: submission.email });
     }
 
@@ -74,8 +78,9 @@ router.post("/send", async (req, res) => {
     console.log(`👤 User Found: ${title} ${firstName} ${middleName} ${lastName}`);
 
     // 🔥 Fetch Course
-    const course = await Course.findById(courseId);
+    const course = await Course.findById(courseId).session(session);
     if (!course) {
+      await session.abortTransaction();
       return res.status(404).json({ success: false, message: "❌ Course not found." });
     }
 
@@ -90,7 +95,7 @@ router.post("/send", async (req, res) => {
       const currentNumber = parseInt(match[0], 10);
       nextInvoiceNumber = currentInvoiceNumber.replace(/\d{5}$/, (currentNumber + 1).toString().padStart(5, "0"));
       course.currentInvoiceNumber = nextInvoiceNumber;
-      await course.save();
+      await course.save({ session });
     } else {
       nextInvoiceNumber = "INV/EAFO-000-00001"; // Fallback
     }
@@ -112,7 +117,7 @@ router.post("/send", async (req, res) => {
       ? `Счет за 45-й курс онкопатологии EAFO - ${nextInvoiceNumber} от EAFO`
       : `Invoice for the 45th EAFO OncoPathology Course - ${nextInvoiceNumber} from EAFO`;
 
-      const emailBody = isRussian
+    const emailBody = isRussian
       ? `
           <p style="font-size: 18px;"><strong>${fullName}</strong>,</p>
           <p style="font-size: 16px;">Благодарим Вас за регистрацию на <strong>45-й EAFO курс по онкопатологии «Опухоли головы и шеи»</strong>, который пройдет 13-17 июня 2025 в г. Архангельск.</p>
@@ -127,7 +132,7 @@ router.post("/send", async (req, res) => {
         `
       : `
           <p style="font-size: 18px;"><strong>${fullName}</strong>,</p>
-          <p style="font-size: 16px;">Thank you for submitting your registration form for the <strong>45th EAFO OncoPathology Course “Head & Neck Tumors”</strong>, which will be held in Archangelsk on June 13 - 17, 2025.</p>
+          <p style="font-size: 16px;">Thank you for submitting your registration form for the <strong>45th EAFO OncoPathology Course "Head & Neck Tumors"</strong>, which will be held in Archangelsk on June 13 - 17, 2025.</p>
           <p style="font-size: 16px;">You can access your invoice with payment details by clicking on the link below. Complete the registration process by making payment.</p>
           <p style="font-size: 16px;"><strong>Payment link for Other country (apart from Russia) Participants:</strong></p>
           <a href="${finalPaymentUrl}" style="font-size: 18px; color:blue; font-weight: bold;">🔗 Complete Payment</a>
@@ -137,7 +142,6 @@ router.post("/send", async (req, res) => {
           <p style="font-size: 16px;">Best regards,</p>
           <p style="font-size: 18px;"><strong>Team EAFO</strong></p>
         `;
-    
 
     const mail = { subject: emailSubject, html: emailBody };
     const emailResult = await sendEmailRusender({ email: submission.email, name: fullName }, mail);
@@ -156,7 +160,7 @@ router.post("/send", async (req, res) => {
         time: new Date(),
       });
 
-      await user.save();
+      await user.save({ session });
       console.log(`✅ Payment saved for user: ${submission.email}`);
     }
 
@@ -172,14 +176,61 @@ router.post("/send", async (req, res) => {
       time: new Date(),
     });
 
-    await course.save();
+    await course.save({ session });
     console.log(`✅ Payment saved in course: ${courseId}`);
 
-    res.json({ success: true, message: "✅ Invoice email sent & payment saved.", emailResult });
+    // 🔥 Create Payment Notification
+    const notification = {
+      type: "payment_created",
+      courseId: courseId,
+      courseName: course.name,
+      invoiceNumber: nextInvoiceNumber,
+      message: {
+        en: `Payment invoice #${nextInvoiceNumber} has been generated for ${course.name}`,
+        ru: `Счет на оплату #${nextInvoiceNumber} был создан для ${course.name}`,
+      },
+      read: false,
+      createdAt: new Date(),
+      paymentLink: finalPaymentUrl,
+      amount: submission.amount,
+      currency: submission.currency
+    };
+
+    let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
+
+    if (!userNotification) {
+      userNotification = new UserNotification({
+        userId: user._id,
+        notifications: [notification]
+      });
+      console.log("📬 Created new UserNotification doc for user.");
+    } else {
+      userNotification.notifications.push(notification);
+      console.log("📬 Appended new notification to existing UserNotification.");
+    }
+
+    await userNotification.save({ session });
+    console.log("🔔 Payment notification saved for user:", user.email);
+
+    await session.commitTransaction();
+
+    res.json({ 
+      success: true, 
+      message: "✅ Invoice email sent & payment saved.", 
+      emailResult,
+      invoiceNumber: nextInvoiceNumber
+    });
 
   } catch (error) {
+    await session.abortTransaction();
     console.error("❌ Internal Server Error:", error);
-    res.status(500).json({ success: false, message: "❌ Internal Server Error.", error: error.message });
+    res.status(500).json({ 
+      success: false, 
+      message: "❌ Internal Server Error.", 
+      error: error.message 
+    });
+  } finally {
+    session.endSession();
   }
 });
 

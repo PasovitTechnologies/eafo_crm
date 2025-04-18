@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams, useLocation } from "react-router-dom";
 import { FiSearch, FiDownload, FiMail } from "react-icons/fi"; // 🔎 Search & Download Icons
-import { FaWhatsapp } from "react-icons/fa";
+import { FaWhatsapp, FaTelegramPlane  } from "react-icons/fa";
 import "./CourseEntries.css";
 import UserDetailsModal from "./UserDetailsModal";
 import EmailModal from "./EmailModal";
 import WhatsAppChatBot from "./WhatsAppChatBot";
 import { useTranslation } from "react-i18next";  
+import TelegramChatBot from "./TelegramChatBot";
 
 
 
@@ -37,6 +38,9 @@ const CourseEntries = () => {
 
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false); // ✅ WhatsApp modal state
   const [whatsappPhoneNumber, setWhatsappPhoneNumber] = useState(""); // ✅ Store phone number
+  const [telegramPhoneNumber, setTelegramPhoneNumber] = useState(null);
+  const [showTelegramModal, setShowTelegramModal] = useState(false);
+
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
 
@@ -173,6 +177,19 @@ const CourseEntries = () => {
       alert("Phone number not available for this user.");
     }
   };
+
+  const handleTelegramClick = (email) => {
+    const user = userData[email];
+  
+    if (user && user.phoneNumber) {
+      console.log("✈️ Opening Telegram modal for:", user.phoneNumber);
+      setTelegramPhoneNumber(user.phoneNumber); // ✅ Set Telegram phone number
+      setShowTelegramModal(true); // ✅ Show Telegram modal
+    } else {
+      alert("Phone number not available for this user.");
+    }
+  };
+  
 
   // ✅ Auto-open modal on load with state values
   useEffect(() => {
@@ -440,6 +457,17 @@ const CourseEntries = () => {
                       >
                         <FaWhatsapp className="chat-icon" />
                       </div>
+                      <div
+  className="icon-circle telegram-bg"
+  title="Send Telegram"
+  onClick={(e) => {
+    e.stopPropagation(); // ✅ Prevents the row click
+    handleTelegramClick(submission.email); // 🔁 Make sure you define this handler
+  }}
+>
+  <FaTelegramPlane className="chat-icon" />
+</div>
+
                     </div>
                   </td>
                 </tr>
@@ -473,6 +501,14 @@ const CourseEntries = () => {
           onClose={() => setShowWhatsAppModal(false)}
         />
       )}
+
+{showTelegramModal && (
+  <TelegramChatBot
+    isOpen={showTelegramModal}
+    phoneNumber={telegramPhoneNumber}
+    onClose={() => setShowTelegramModal(false)}
+  />
+)}
     </div>
   );
 };

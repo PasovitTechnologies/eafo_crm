@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate  } from "react-router-dom";
 import { FiArrowLeft, FiSearch, FiFilter,  FiMail, FiMessageCircle  } from "react-icons/fi";
-import { FaWhatsapp } from "react-icons/fa";
+import { FaWhatsapp, FaTelegramPlane } from "react-icons/fa";
 import InvoiceModal from "./InvoiceModal";
 import "./InvoiceEntries.css";
 import { useTranslation } from "react-i18next";
 import EmailModal from "./EmailModal";
 import WhatsAppChatBot from "./WhatsAppChatBot";
+import TelegramChatBot from "./TelegramChatBot";
 
 
 const InvoiceEntries = () => {
@@ -37,6 +38,9 @@ const InvoiceEntries = () => {
   });
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false); // ✅ WhatsApp modal state
   const [whatsappPhoneNumber, setWhatsappPhoneNumber] = useState(""); // ✅ Store phone number
+   const [telegramPhoneNumber, setTelegramPhoneNumber] = useState(null);
+    const [showTelegramModal, setShowTelegramModal] = useState(false);
+  
   
 
 
@@ -441,6 +445,17 @@ const InvoiceEntries = () => {
     }
   };
   
+  const handleTelegramClick = (email) => {
+    const user = userNames[email];
+  
+    if (user && user.phoneNumber) {
+      console.log("✈️ Opening Telegram modal for:", user.phoneNumber);
+      setTelegramPhoneNumber(user.phoneNumber); // ✅ Set Telegram phone number
+      setShowTelegramModal(true); // ✅ Show Telegram modal
+    } else {
+      alert("Phone number not available for this user.");
+    }
+  };
   
 
   
@@ -630,6 +645,16 @@ const InvoiceEntries = () => {
               >
                 <FaWhatsapp className="chat-icon" />
               </div>
+               <div
+                className="icon-circle telegram-bg"
+                title="Send Telegram"
+                onClick={(e) => {
+                  e.stopPropagation(); // ✅ Prevents the row click
+                  handleTelegramClick(submission.email); // 🔁 Make sure you define this handler
+                }}
+              >
+                <FaTelegramPlane className="chat-icon" />
+              </div>
             </div>
           </div>
         </td>
@@ -668,6 +693,13 @@ const InvoiceEntries = () => {
           isOpen={showWhatsAppModal}           
           phoneNumber={whatsappPhoneNumber}
           onClose={() => setShowWhatsAppModal(false)}
+        />
+      )}
+      {showTelegramModal && (
+        <TelegramChatBot
+          isOpen={showTelegramModal}
+          phoneNumber={telegramPhoneNumber}
+          onClose={() => setShowTelegramModal(false)}
         />
       )}
     </div>

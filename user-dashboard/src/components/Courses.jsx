@@ -243,9 +243,9 @@ const Courses = () => {
         </div>
 
         {/* 🔎 Search and Filter Section */}
-        <div className="search-filter-container">
-          <div className="search-input-wrapper">
-            <span className="search-icon">🔍</span>
+        <div className="course-search-filter-container">
+          <div className="course-search-input-wrapper">
+            <span className="course-search-icon">🔍</span>
             <input
               type="text"
               placeholder={t("courses.dashboard")}
@@ -254,7 +254,7 @@ const Courses = () => {
             />
           </div>
 
-          <div className="custom-dropdown">
+          <div className="course-custom-dropdown">
             <select value={filter} onChange={(e) => setFilter(e.target.value)}>
               <option value="All">{t("courses.all")}</option>
               <option value="Upcoming">{t("courses.upcoming")}</option>

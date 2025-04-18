@@ -29,6 +29,7 @@ import UserDatabase from "./components/UserDatabase";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UserDatabaseDetails from "./components/UserDatabaseDetails";
+import Telegram from "./components/Telegram";
 
 
 
@@ -159,6 +160,10 @@ const App = () => {
                   <Route
                     path="/whatsapp"
                     element={<WhatsApp selectedLanguage={selectedLanguage} />}
+                  />
+                  <Route
+                    path="/telegram"
+                    element={<Telegram selectedLanguage={selectedLanguage} />}
                   />
                   <Route
                     path="/invoice/invoice-manager/:courseId"

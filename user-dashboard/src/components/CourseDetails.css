@@ -332,9 +332,27 @@
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-  .registered-actions-row {
+  /* ✅ Page Styling */
+.course-details-page-div {
+  padding: 10px;
+}
+
+  .course-details-page {
+  padding: 10px;
+  }
+  .course-title{
+    font-size: 20px;
+  } 
+  .course-dates{
+    display: flex;
     flex-direction: column;
   }
+  
+  .form-content-wrapper{
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
 
   .action-btn {
     width: 100%;
@@ -885,5 +903,11 @@
 
   .response-item {
     padding: 15px;
+  }
+  .payment-card{
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 10px;
   }
 }

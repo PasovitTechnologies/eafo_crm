@@ -76,6 +76,12 @@
   
   /* Mobile responsive adjustments */
   @media screen and (max-width: 650px) {
+    .auth-wrapper .container {
+       
+        height: 100vh;
+        
+    
+    }
     .form-box.login,
     .form-box.register,
     .form-box.forget-password {
@@ -550,6 +556,25 @@
     text-decoration: underline;
   }
   
+  /* Help Button Styles */
+.help-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 10px 15px;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 1000;
+  }
+  
+  .help-button:hover {
+    background-color: #3367d6;
+  }
+  
+  /* Rest of your existing AuthForm styles... */
 
 /* =============== SOCIAL ICONS =============== */
 .social-icons {
