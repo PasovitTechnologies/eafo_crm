@@ -5,11 +5,11 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
   background: #033672; /* Base deep blue */
   box-sizing: border-box;
   overflow: hidden;
   font-family: "Poppins", sans-serif;
+  overflow-y: auto;
 
   /* Blue-on-blue mixed paint effect */
   background: 
@@ -727,6 +727,7 @@
   .dashboard-item {
     padding: 15px;
     font-size: 16px;
+    height: auto;
   }
 
   .profile-image-container {
@@ -783,7 +784,7 @@
   .about-image,
   .contact-image,
   .enquiry-image {
-    height: 100px;
+    height: 150px;
     width: auto;
     opacity: 0.8;
   }
