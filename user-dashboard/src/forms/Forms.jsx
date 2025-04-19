@@ -4,6 +4,8 @@ import { Multiselect } from "multiselect-react-dropdown";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./Forms.css";
+import { useTranslation } from "react-i18next"; // 🌍 Import translation hook
+
 
 const Forms = () => {
   const navigate = useNavigate();
@@ -21,7 +23,9 @@ const Forms = () => {
     hasLogo: false,
     isUsedForRussian:false
   });
+  
   const baseUrl = import.meta.env.VITE_BASE_URL;
+  const {t} = useTranslation();
 
   useEffect(() => {
     // ✅ Check if token is available in localStorage
@@ -638,15 +642,15 @@ const Forms = () => {
 
         <div className="form-controls">
           <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? (
-              <>
-                <span className="spinner"></span>
-                Submitting...
-              </>
-            ) : (
-              "Submit"
-            )}
-          </button>
+      {loading ? (
+        <>
+          <span className="spinner"></span>
+          {t('submitting')}
+        </>
+      ) : (
+        t('submit')
+      )}
+    </button>
         </div>
       </form>
       <ToastContainer

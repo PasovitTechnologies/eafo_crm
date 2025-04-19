@@ -365,6 +365,7 @@
 
 .course-slider {
   position: relative;
+  z-index: 1000;
 }
 
 .course-details {
@@ -439,6 +440,7 @@
 }
 
 .webinar-slider {
+  
   width: 100%;
 }
 
@@ -814,7 +816,6 @@
   }
 
   .contact-method {
-    flex-direction: column;
     align-items: flex-start;
   }
 

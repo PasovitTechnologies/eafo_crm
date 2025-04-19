@@ -352,3 +352,30 @@
         width: 100%;
     }
 }
+
+
+.field-with-placeholder {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.field-with-placeholder input,
+.field-with-placeholder textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    z-index: 2;
+    position: relative;
+    background: transparent;
+}
+
+.field-with-placeholder .placeholder {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    color: #999;
+    font-size: 0.95rem;
+    pointer-events: none;
+    z-index: 1;
+}

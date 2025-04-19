@@ -348,13 +348,12 @@ const Profile = () => {
               <h1 className="profile-name">
                 {userDetails?.personalDetails &&
                   (userDetails.dashboardLang === "ru"
-                    ? `${userDetails.personalDetails.title || ""} ${
+                    ? `${
                         userDetails.personalDetails.lastName || ""
                       } 
          ${userDetails.personalDetails.firstName || ""} 
          ${userDetails.personalDetails.middleName || ""}`
-                    : `${userDetails.personalDetails.title || ""} 
-         ${userDetails.personalDetails.firstName || ""} 
+                    : `${userDetails.personalDetails.firstName || ""} 
          ${userDetails.personalDetails.middleName || ""} 
          ${userDetails.personalDetails.lastName || ""}`
                   ).trim()}

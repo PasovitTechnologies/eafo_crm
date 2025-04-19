@@ -104,34 +104,50 @@ router.get("/file/:id", authenticate, async (req, res) => {
   }
 });
 
-// Update Enquiry Status
-router.put("/:id", authenticate, async (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
-  
-    // Ensure status is provided
-    if (!status) {
-      return res.status(400).json({ message: "Status is required." });
+
+
+
+  // Update Enquiry (Message, Subject, Optional File)
+router.put("/:id", authenticate, upload.single("file"), async (req, res) => {
+  const { id } = req.params;
+  const { subject, message } = req.body;
+
+  // Validate input
+  if (!subject || !message) {
+    return res.status(400).json({ message: "Subject and message are required." });
+  }
+
+  try {
+    // Build update object
+    const update = {
+      subject,
+      message,
+    };
+
+    if (req.file) {
+      update.file = {
+        data: req.file.buffer,
+        contentType: req.file.mimetype,
+        filename: req.file.originalname,
+      };
     }
-  
-    try {
-      // Find the enquiry by ID and update the status
-      const enquiry = await Enquiry.findByIdAndUpdate(
-        id,
-        { status }, // Update only the status
-        { new: true } // Return the updated document
-      );
-  
-      if (!enquiry) {
-        return res.status(404).json({ message: "Enquiry not found." });
-      }
-  
-      res.status(200).json({ message: "Status updated successfully!", enquiry });
-    } catch (error) {
-      console.error("🚨 Error updating status:", error);
-      res.status(500).json({ message: "Server error" });
+
+    // Update the enquiry
+    const updatedEnquiry = await Enquiry.findByIdAndUpdate(id, update, {
+      new: true,
+    });
+
+    if (!updatedEnquiry) {
+      return res.status(404).json({ message: "Enquiry not found." });
     }
-  });
+
+    res.status(200).json({ message: "Enquiry updated successfully.", enquiry: updatedEnquiry });
+  } catch (error) {
+    console.error("🚨 Error updating enquiry:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
   // routes/enquiries.js
 

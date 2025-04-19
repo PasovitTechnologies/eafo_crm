@@ -1,8 +1,11 @@
-/* Navbar container - responsive */
+/* Navbar container - fully responsive */
 .navbar-page {
   width: 100%;
   background: #f8f9fa;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .ui-navbar {
@@ -10,39 +13,79 @@
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 5%;
+  padding: 12px 5%;
   max-width: 1600px;
   margin: 0 auto;
-  gap: 15px; /* Added gap for better spacing when wrapped */
+  gap: 12px;
 }
 
-/* Logo - responsive */
-.logo img {
-  height: 40px;
-  max-height: 8vw;
-  min-height: 30px;
+/* Logo - responsive sizing */
+.logo {
   cursor: pointer;
   transition: transform 0.3s;
 }
 
-.logo img:hover {
+.logo img {
+  height: 40px;
+  width: auto;
+  max-width: 100%;
+  transition: transform 0.3s;
+}
+
+.logo:hover img {
   transform: scale(1.05);
 }
 
-/* Welcome message - hidden on mobile */
+/* Welcome message - responsive behavior */
 .nav-welcome-msg h1 {
-  font-size: clamp(18px, 4vw, 24px);
+  font-size: clamp(1rem, 3vw, 1.5rem);
   color: #033672;
   font-weight: bold;
   margin: 0;
-  white-space: nowrap; /* Prevent text wrapping */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 300px;
 }
 
-/* Right section - responsive */
+/* Right section - responsive layout */
 .right-section {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+}
+
+/* Notification system - responsive */
+.notification-icon-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.notification-icon {
+  font-size: clamp(1.1rem, 3vw, 1.3rem);
+  color: #555;
+  transition: all 0.3s;
+}
+
+.notification-icon:hover {
+  color: #007bff;
+  transform: scale(1.1);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #ff4757;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
 }
 
 /* Flag dropdown - responsive */
@@ -50,42 +93,44 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 5px 8px;
+  padding: 6px 10px;
   cursor: pointer;
   background: #fff;
   transition: all 0.3s;
+  min-width: 100px;
 }
 
 .flag-dropdown:hover {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
 
 .flag-icon {
   width: 24px;
   height: 16px;
-  max-width: 6vw;
   border-radius: 3px;
+  object-fit: cover;
 }
 
 .language-dropdown {
   border: none;
   background: transparent;
-  font-size: clamp(14px, 3vw, 16px);
+  font-size: clamp(0.8rem, 2.5vw, 0.9rem);
   color: #333;
   cursor: pointer;
   outline: none;
-  width: auto;
-  max-width: 80px;
+  width: 100%;
+  appearance: none;
+  padding-right: 5px;
 }
 
 /* User icon - responsive */
 .user-icon {
-  font-size: clamp(20px, 5vw, 24px);
+  font-size: clamp(1.1rem, 3vw, 1.3rem);
   color: #555;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s;
 }
 
 .user-icon:hover {
@@ -93,11 +138,57 @@
   transform: scale(1.1);
 }
 
-/* Media Queries */
-@media (max-width: 768px) {
+/* Notification panel - responsive */
+.notification-panel {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  width: 320px;
+  max-width: 90vw;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: white;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  z-index: 1000;
+  padding: 15px;
+}
+
+/* ========== RESPONSIVE BREAKPOINTS ========== */
+
+/* Large tablets and small laptops (992px - 1200px) */
+@media (max-width: 1200px) {
   .ui-navbar {
-    padding: 12px 5%;
-    gap: 10px;
+    padding: 12px 4%;
+  }
+}
+
+/* Tablets (768px - 991px) */
+@media (max-width: 991px) {
+  .ui-navbar {
+    padding: 10px 3%;
+  }
+  
+  .logo img {
+    height: 36px;
+  }
+  
+  .flag-dropdown {
+    min-width: 90px;
+    padding: 5px 8px;
+  }
+}
+
+/* Small tablets (600px - 767px) */
+@media (max-width: 767px) {
+  .ui-navbar {
+    padding: 8px 3%;
+    gap: 8px;
+  }
+  
+  .nav-welcome-msg h1 {
+    max-width: 200px;
+    font-size: 1rem;
   }
   
   .right-section {
@@ -105,26 +196,75 @@
   }
   
   .flag-dropdown {
-    padding: 4px 6px;
+    min-width: 80px;
   }
 }
 
-@media (max-width: 600px) {
+/* Mobile devices (480px - 599px) */
+@media (max-width: 599px) {
   .nav-welcome-msg {
-    display: none; /* Hide welcome message on small devices */
+    display: none;
   }
   
-  .ui-navbar {
-    justify-content: space-between; /* Keep logo and right section spaced */
-  }
-}
-
-@media (max-width: 480px) {
   .logo img {
-    height: 35px; /* Slightly smaller logo on very small screens */
+    height: 32px;
   }
   
   .flag-dropdown {
-    padding: 3px 5px; /* More compact on tiny screens */
+    padding: 4px 6px;
+    min-width: 70px;
+  }
+  
+  .language-dropdown {
+    font-size: 0.75rem;
+  }
+}
+
+/* Small mobile devices (360px - 479px) */
+@media (max-width: 479px) {
+  .ui-navbar {
+    padding: 6px 2%;
+  }
+  
+  .logo img {
+    height: 28px;
+  }
+  
+  .flag-dropdown {
+    min-width: 65px;
+    padding: 3px 5px;
+  gap: 4px;
+  border-radius: 6px;
+  }
+  
+  .flag-icon {
+    width: 20px;
+    height: 14px;
+  }
+  
+  .notification-icon,
+  .user-icon {
+    font-size: 1.1rem;
+  }
+}
+
+/* Extra small mobile devices (up to 359px) */
+@media (max-width: 359px) {
+  .ui-navbar {
+    justify-content: center;
+    gap: 10px;
+  }
+  
+  .right-section {
+    gap: 6px;
+  }
+  
+  .flag-dropdown {
+    min-width: 60px;
+    padding: 2px 4px;
+  }
+  
+  .language-dropdown {
+    font-size: 0.7rem;
   }
 }

@@ -238,31 +238,32 @@ const Courses = () => {
     >
       <div className="courses-page">
         <div className="breadcrumb">
-          <span onClick={() => navigate("/")}>{t("courses.dashboard")}</span> /{" "}
+          <span onClick={() => navigate("/dashboard")}>{t("courses.dashboard")}</span> /{" "}
           <span>{t("courses.courses")}</span>
         </div>
 
         {/* 🔎 Search and Filter Section */}
         <div className="course-search-filter-container">
-          <div className="course-search-input-wrapper">
-            <span className="course-search-icon">🔍</span>
-            <input
-              type="text"
-              placeholder={t("courses.dashboard")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
+  <div className="course-search-input-wrapper">
+    <span className="course-search-icon">🔍</span>
+    <input
+      type="text"
+      placeholder={t("courses.search_placeholder")}
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+    />
+  </div>
 
-          <div className="course-custom-dropdown">
-            <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-              <option value="All">{t("courses.all")}</option>
-              <option value="Upcoming">{t("courses.upcoming")}</option>
-              <option value="Past">{t("courses.past")}</option>
-              <option value="Registered">{t("courses.registered")}</option>
-            </select>
-          </div>
-        </div>
+  <div className="course-custom-dropdown">
+    <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+      <option value="All">{t("courses.all")}</option>
+      <option value="Upcoming">{t("courses.upcoming")}</option>
+      <option value="Past">{t("courses.past")}</option>
+      <option value="Registered">{t("courses.registered")}</option>
+    </select>
+  </div>
+</div>
+
 
         <div className="courses-list">
           {loading && <Loading />}

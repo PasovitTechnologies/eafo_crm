@@ -3,14 +3,15 @@ import { useNavigate } from "react-router-dom";
 import "./Webinar.css";
 import { motion } from "framer-motion";
 import Loading from "./Loading";
-import { useTranslation } from "react-i18next";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';  // Import the CSS file
 
+import { useTranslation } from "react-i18next";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const Webinar = () => {
-  const { t } = useTranslation();
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [webinars, setWebinars] = useState([]);
   const [filteredWebinars, setFilteredWebinars] = useState([]);
@@ -19,22 +20,20 @@ const Webinar = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [registeredWebinars, setRegisteredWebinars] = useState(new Set());
-  const currentLanguage = i18n.language; 
+  const [registrationLoading, setRegistrationLoading] = useState(true); // For registration status loading
+  const currentLanguage = i18n.language;
 
   useEffect(() => {
-    // ✅ Check if token is available in localStorage
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/");  // Redirect to / if token is missing
+      navigate("/");
     }
   }, [navigate]);
-
 
   useEffect(() => {
     fetchWebinars();
   }, []);
 
-  // 🔹 Fetch Webinars
   const fetchWebinars = async () => {
     try {
       const response = await fetch(`${baseUrl}/api/webinars`);
@@ -51,11 +50,12 @@ const Webinar = () => {
             formattedDate: fullDate.toLocaleDateString("en-GB"),
           };
         })
-        .sort((a, b) => b.fullDate - a.fullDate); // Sort by latest
+        .sort((a, b) => b.fullDate - a.fullDate);
 
       setWebinars(processedWebinars);
       setFilteredWebinars(processedWebinars);
 
+      // After webinars are fetched, load the registration status
       fetchRegisteredWebinars(processedWebinars);
     } catch (err) {
       setError(err.message);
@@ -64,12 +64,14 @@ const Webinar = () => {
     }
   };
 
-  // 🔹 Fetch Registration Status
   const fetchRegisteredWebinars = async (webinars) => {
     const userEmail = localStorage.getItem("email");
     const token = localStorage.getItem("token");
 
-    if (!userEmail || !token) return;
+    if (!userEmail || !token) {
+      setRegistrationLoading(false);
+      return;
+    }
 
     try {
       const registeredSet = new Set();
@@ -86,31 +88,28 @@ const Webinar = () => {
             const data = await response.json();
             if (data.registered) registeredSet.add(webinar._id);
           } catch (error) {
-            console.error(
-              `Error checking status for webinar ${webinar._id}:`,
-              error
-            );
+            console.error(`Error checking status for webinar ${webinar._id}:`, error);
           }
         })
       );
-
       setRegisteredWebinars(registeredSet);
     } catch (error) {
       console.error("Error fetching registration status:", error);
+    } finally {
+      setRegistrationLoading(false); // Set registration loading to false
     }
   };
 
-  // 🔹 Handle Register
   const handleRegister = async (webinarId, e) => {
     e.stopPropagation();
     const userEmail = localStorage.getItem("email");
     const token = localStorage.getItem("token");
-
+  
     if (!userEmail || !token) {
-      alert("Please log in to register.");
+      toast.error("Please log in to register.");  // Show error toast
       return;
     }
-
+  
     try {
       const response = await fetch(
         `${baseUrl}/api/webinars/${webinarId}/register`,
@@ -123,17 +122,18 @@ const Webinar = () => {
           body: JSON.stringify({ email: userEmail }),
         }
       );
-
+  
       if (!response.ok) throw new Error("Failed to register");
-
+  
       setRegisteredWebinars((prev) => new Set([...prev, webinarId]));
-      alert("Registered successfully!");
+      toast.success("Registered successfully!");  // Show success toast
     } catch (error) {
       console.error("Registration error:", error);
+      toast.error("Registration failed. Please try again.");  // Show error toast
     }
   };
 
-  // 🔹 Filtering Logic
+  // Filtering and search logic
   useEffect(() => {
     let filtered = webinars;
 
@@ -141,6 +141,8 @@ const Webinar = () => {
       filtered = webinars.filter((w) => w.fullDate > new Date());
     } else if (filter === "Past") {
       filtered = webinars.filter((w) => w.fullDate < new Date());
+    } else if (filter === "Registered") {
+      filtered = webinars.filter((w) => registeredWebinars.has(w._id));
     }
 
     if (searchQuery) {
@@ -150,9 +152,8 @@ const Webinar = () => {
     }
 
     setFilteredWebinars(filtered);
-  }, [filter, searchQuery, webinars]);
+  }, [filter, searchQuery, webinars, registeredWebinars]);
 
-  // 🔹 Format Slug
   const formatSlug = (title) => title.toLowerCase().replace(/\s+/g, "-");
 
   return (
@@ -163,8 +164,10 @@ const Webinar = () => {
     >
       <div className="webinar-page">
         <div className="breadcrumb">
-          <span onClick={() => navigate("/")}>{t("webinar.breadcrumb_dashboard")}</span> /{" "}
-          <span>{t("webinar.breadcrumb_webinars")}</span>
+          <span onClick={() => navigate("/dashboard")}>
+            {t("webinar.breadcrumb_dashboard")}
+          </span>{" "}
+          / <span>{t("webinar.breadcrumb_webinars")}</span>
         </div>
 
         <div className="search-filter-container">
@@ -183,25 +186,27 @@ const Webinar = () => {
               <option value="All">{t("webinar.all")}</option>
               <option value="Upcoming">{t("webinar.upcoming")}</option>
               <option value="Past">{t("webinar.past")}</option>
+              <option value="Registered">{t("webinar.registered")}</option>
             </select>
           </div>
         </div>
 
         <div className="webinar-list">
           {loading && <Loading />}
+          {registrationLoading && <Loading />}
           {error && <p className="error">{error}</p>}
-          {!loading && filteredWebinars.length === 0 && (
+          {!loading && !registrationLoading && filteredWebinars.length === 0 && (
             <div className="no-webinars-container">
               <img
                 src="https://static.wixstatic.com/shapes/df6cc5_b4ccbd2144e64fdfa1af9c569c821680.svg"
                 alt="No webinars"
                 className="no-webinars-image"
               />
-              <p className="no-webinars-text">No webinars found.</p>
+              <p className="no-webinars-text">{t("webinar.no_webinars")}</p>
             </div>
           )}
 
-          {!loading &&
+          {!loading && !registrationLoading &&
             filteredWebinars.map((webinar) => {
               const isRegistered = registeredWebinars.has(webinar._id);
 
@@ -210,37 +215,32 @@ const Webinar = () => {
                   className="webinar-card"
                   key={webinar._id}
                   onClick={() =>
-                    navigate(
-                      `/dashboard/webinars/${formatSlug(webinar.title)}`,
-                      {
-                        state: { webinarId: webinar._id },
-                      }
-                    )
+                    navigate(`/dashboard/webinars/${formatSlug(webinar.title)}`, {
+                      state: { webinarId: webinar._id },
+                    })
                   }
                 >
                   <img
-                    src={currentLanguage==="ru" ? webinar.
-                      bannerRussianURL:webinar.
-                      bannerUrl}
+                    src={
+                      currentLanguage === "ru"
+                        ? webinar.bannerRussianURL
+                        : webinar.bannerUrl
+                    }
                     alt={webinar.title}
                     className="webinar-image"
                   />
 
                   <div className="webinar-info">
-                    <h3>{currentLanguage==="ru" ? webinar.
-                      titleRussian:webinar.
-                      title}</h3>
+                    <h3>
+                      {currentLanguage === "ru"
+                        ? webinar.titleRussian
+                        : webinar.title}
+                    </h3>
                     <p>
-                      <span>
-                        <strong>Date:</strong>
-                      </span>{" "}
-                      {webinar.formattedDate}
+                      <strong>{t("webinar.date")}:</strong> {webinar.formattedDate}
                     </p>
                     <p>
-                      <span>
-                        <strong>Time:</strong>
-                      </span>{" "}
-                      {webinar.time}
+                      <strong>{t("webinar.time")}:</strong> {webinar.time}
                     </p>
                   </div>
 
@@ -252,9 +252,7 @@ const Webinar = () => {
                           e.stopPropagation();
                           navigate(
                             `/dashboard/webinars/${formatSlug(webinar.title)}/watch-webinar`,
-                            {
-                              state: { webinarId: webinar._id },
-                            }
+                            { state: { webinarId: webinar._id } }
                           );
                         }}
                       >

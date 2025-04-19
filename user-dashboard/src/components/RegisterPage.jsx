@@ -264,52 +264,31 @@ const RegisterPage = ({ onSwitchToLogin }) => {
   const termsText =
   lang === "ru" ? (
     <>
-      Я принимаю условия использования <strong>EAFO</strong>{" "}
-      <a
-        href={termsUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Условия использования
-      </a>
+      Я принимаю <a href={termsUrl} target="_blank" rel="noopener noreferrer">условия пользования</a> сервисами <strong>EAFO</strong>
     </>
   ) : (
     <>
       I accept the Terms & Conditions of <strong>EAFO</strong> in submitting this registration.{" "}
-      <a
-        href={termsUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <a href={termsUrl} target="_blank" rel="noopener noreferrer">
         Terms of Use
       </a>
     </>
   );
 
-  const personalDataText =
+const personalDataText =
   lang === "ru" ? (
     <>
-      Я даю согласие на обработку персональных данных <strong>EAFO</strong>.{" "}
-      <a
-        href={privacyPolicyUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        Политика конфиденциальности
-      </a>
+      Я даю согласие на обработку персональных данных и соглашаюсь с <a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer">политикой конфиденциальности EAFO</a>
     </>
   ) : (
     <>
       I grant permission to <strong>EAFO</strong> to use my personal data.{" "}
-      <a
-        href={privacyPolicyUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
+      <a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer">
         Privacy Policy
       </a>
     </>
   );
+
 
 
   return (

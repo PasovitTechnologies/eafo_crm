@@ -235,6 +235,14 @@ body {
   color: white;
   border: 3px solid #02408a;
 }
+.register-btn{
+  background-color: #108828;
+  color: #fff;
+}
+.register-btn:hover{
+  background-color: #106722;
+  color: #fff;
+}
 
 .see-more-btn {
   background: #fff;
@@ -286,4 +294,47 @@ body {
     opacity: 1;
     transform: scale(1);
   }
+}
+
+/* For register button */
+.register-btn {
+  background-color: #4CAF50; /* Green */
+  border: 1px solid #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.register-btn:hover {
+  background-color: #45a049;
+}
+
+.register-btn:disabled {
+  background-color: #d3d3d3;
+  border: 1px solid #b3b3b3;
+  cursor: not-allowed;
+  color: #a3a3a3;
+}
+
+/* For watch button */
+.watch-btn {
+  background-color: #3c57dc; /* Blue */
+  border: 1px solid #3c57dc;
+  color: white;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  border-radius: 5px;
+}
+
+.watch-btn:hover {
+  background-color: #1a34b5;
+}
+
+.watch-btn:disabled {
+  background-color: #d3d3d3;
+  border: 1px solid #b3b3b3;
+  cursor: not-allowed;
+  color: #a3a3a3;
 }

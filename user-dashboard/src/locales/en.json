@@ -6,9 +6,12 @@
   "english": "English",
   "russian": "Русский",
   "aboutUs":"About Us",
+  "submit": "Submit",
+  "submitting": "Submitting...",
   
   "enquiry": {
-    "dashboard": "Dashboard",
+    
+    "dashboard": "Personal Account",
     "enquiries": "Enquiries",
     "search_placeholder": "Search...",
     "raise_enquiry": "Raise Enquiry",
@@ -17,7 +20,7 @@
     "under_review": "Under Review",
     "solved": "Solved",
     "loading": "Loading enquiries...",
-    "no_results": "No enquiries found matching your criteria.",
+    "no_results": "No enquiries found",
     "download": "Download",
     "submit": "Submit",
     "rate": "Rate",
@@ -26,7 +29,30 @@
     "upload_file": "Upload File",
     "remove": "Remove",
     "submit_enquiry":"Submit Enquiry",
-    "enquiry_message_placeholder":"Enter your message"
+    "enquiry_message_placeholder":"Enter your message",
+    "fileSizeExceeds": "File size exceeds 5MB. Please upload a smaller file.",
+    "enterSubjectMessage": "Please enter both subject and message.",
+    "enquirySubmitted": "Enquiry submitted successfully!",
+    "enquirySubmitFailed": "Failed to submit enquiry.",
+    "enquiryUpdated": "Enquiry updated successfully!",
+    "enquiryUpdateFailed": "Failed to update enquiry.",
+    "fileDownloaded": "File downloaded successfully!",
+    "fileDownloadFailed": "Failed to download file.",
+    "selectRating": "Please select a rating.",
+    "ratingSubmitted": "Rating submitted successfully!",
+    "ratingSubmitFailed": "Failed to submit rating.",
+    "back": "Back to Enquiries",
+    "noSubject": "No Subject",
+    "status": "Status: {{status}}",
+    "created": "Created: {{date}}",
+    "lastUpdated": "Last Updated: {{date}}",
+    "message": "Message:",
+    "attachment": "Attachment:",
+    "rating": "Rating:",
+    "ratingOutOf": "{{rating}} out of 5",
+    "rateSolution": "Rate this solution:",
+    "rateButton": "Rate",
+    "editButton": "Edit"
   },
   "auth": {
     "welcome": "Hello, Welcome!",
@@ -58,7 +84,7 @@
 
 
   "courses": {
-        "dashboard": "Dashboard",
+        "dashboard": "Personal Account",
         "courses": "Courses",
         "search_placeholder": "Search Courses...",
         "all": "All",
@@ -89,7 +115,7 @@
         "no_upcoming_courses":"No upcoming courses."
     },
     "course_details": {
-        "breadcrumb_dashboard": "Dashboard",
+        "breadcrumb_dashboard": "Personal Account",
         "breadcrumb_courses": "Courses",
         "loading": "Loading course details...",
         "error": "An error occurred. Please try again.",
@@ -123,7 +149,7 @@
         
     },
     "webinar": {
-    "breadcrumb_dashboard": "Dashboard",
+    "breadcrumb_dashboard": "Personal Account",
     "breadcrumb_webinars": "Webinars",
     "search":"Search webinar",
     "all": "All",
@@ -132,6 +158,8 @@
     "breadcrumb_active": "Active",
     "loading": "Loading...",
     "error": "Error: ",
+    "date": "Date",
+    "time": "Time",
     "expert": "Expert",
     "regalia": "Regalia",
     "register_now": "Register Now",
@@ -146,7 +174,7 @@
   },
 
   "webinarDetails": {
-    "breadcrumb_dashboard": "Dashboard",
+    "breadcrumb_dashboard": "Personal Account",
     "breadcrumb_webinars": "Webinars",
     "breadcrumb_active": "Active",
     "loading": "Loading...",

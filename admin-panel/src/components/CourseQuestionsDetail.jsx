@@ -567,6 +567,7 @@ const CourseQuestionsDetail = () => {
               questions={questions}
               initialRule={editingRule}
               onSave={saveRule}
+              selectedQuestion={questions.find((q) => q._id === selectedQuestionId)}
               onCancel={() => setIsRuleModalOpen(false)}
               isOpen={isRuleModalOpen}
             />
