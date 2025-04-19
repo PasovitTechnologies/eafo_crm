@@ -8,6 +8,8 @@
   "aboutUs": "О нас",
   "submit": "Отправить",
   "submitting": "Отправка...",
+  "notifications" : "Уведомления",
+  "no_notifications" : "Нет новых уведомлений",
 
   "auth": {
     "welcome": "Здравствуйте, добро пожаловать!",

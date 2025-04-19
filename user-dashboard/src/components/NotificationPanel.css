@@ -1,22 +1,36 @@
 .notification-panel {
-    position: absolute;
-    top: 100%;
-    right: 0;
+    position: fixed; /* Changed from absolute to fixed */
+    top: 60px; /* Adjust this value based on your navbar height */
+    right: 20px; /* Distance from right edge of viewport */
     width: 350px;
-    max-height: 500px;
+    max-height: calc(100vh - 80px); /* Viewport height minus some margin */
     overflow-y: auto;
     background: white;
     border: 1px solid #ddd;
     border-radius: 4px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
+    animation: panelFadeIn 0.3s ease-out forwards;
+  }
+
+  @keyframes panelFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
   }
   
+  
+  /* The rest of your existing styles can remain the same */
   .notification-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 15px;
+    padding: 10px;
     border-bottom: 1px solid #eee;
   }
   
@@ -29,7 +43,16 @@
     border-bottom: 1px solid #f5f5f5;
     cursor: pointer;
     position: relative;
+    animation: itemFadeIn 0.3s ease-out forwards;
   }
+
+  @keyframes itemFadeIn {
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
   
   .notification-item:hover {
     background-color: #f9f9f9;
@@ -57,6 +80,20 @@
     height: 8px;
     background-color: #1890ff;
     border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  
+@keyframes pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.2);
+    }
+    100% {
+      transform: scale(1);
+    }
   }
   
   .no-notifications {
@@ -65,12 +102,16 @@
     color: #999;
   }
   
-  .close-btn {
+  .notification-close-btn {
     background: none;
     border: none;
-    font-size: 20px;
+    font-size: 25px;
     cursor: pointer;
     color: #666;
+  }
+
+  .notification-close-btn:hover{
+    color: #ff4d4f;
   }
   
   .notification-icon-container {

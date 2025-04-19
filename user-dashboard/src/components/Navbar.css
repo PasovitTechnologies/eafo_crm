@@ -223,7 +223,7 @@
 /* Small mobile devices (360px - 479px) */
 @media (max-width: 479px) {
   .ui-navbar {
-    padding: 6px 2%;
+    padding: 20px;
   }
   
   .logo img {

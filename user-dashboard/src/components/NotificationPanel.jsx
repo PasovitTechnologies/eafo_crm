@@ -15,14 +15,19 @@ const NotificationPanel = ({ notifications = [], onMarkAsRead, onClose }) => {
     if (!notification.isRead) {
       onMarkAsRead(notification._id);
     }
-    // Optional: Add navigation or other interaction here
   };
 
   return (
     <div className="notification-panel">
       <div className="notification-header">
         <h3>{t("notifications", "Notifications")}</h3>
-        <button onClick={onClose} className="close-btn">×</button>
+        <button 
+          onClick={onClose} 
+          className="notification-close-btn"
+          aria-label="Close notifications"
+        >
+          ×
+        </button>
       </div>
 
       <div className="notification-list">
@@ -31,11 +36,12 @@ const NotificationPanel = ({ notifications = [], onMarkAsRead, onClose }) => {
             {t("no_notifications", "No new notifications")}
           </div>
         ) : (
-          sortedNotifications.map((notification) => (
+          sortedNotifications.map((notification, index) => (
             <div
               key={notification._id}
               className={`notification-item ${notification.isRead ? "read" : "unread"}`}
               onClick={() => handleNotificationClick(notification)}
+              style={{ transitionDelay: `${index * 50}ms` }}
             >
               <div className="notification-content">
                 {notification.message || t("no_message", "No message")}

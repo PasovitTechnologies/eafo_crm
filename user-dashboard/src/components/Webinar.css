@@ -304,6 +304,7 @@ body {
   padding: 10px 20px;
   cursor: pointer;
   transition: background-color 0.3s;
+  width: 100%;
 }
 
 .register-btn:hover {
@@ -326,6 +327,8 @@ body {
   cursor: pointer;
   transition: background-color 0.3s;
   border-radius: 5px;
+  width: 100%;
+
 }
 
 .watch-btn:hover {
