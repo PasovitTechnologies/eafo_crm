@@ -1,104 +1,187 @@
+/* =============== GLOBAL CONTAINER =============== */
+.question-list {
+  padding: 1rem;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* =============== DROPPABLE CONTAINER =============== */
 .question-list-droppable {
-    padding: 10px;
-    background-color: #f9f9f9;
-    min-height: 100px;
-    border: 1px dashed #ddd;
-  }
-  .preview-button{
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 16px;
-  }
-  .question-item {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    padding: 10px;
-    margin-bottom: 8px;
-    border-radius: 4px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    cursor: grab;
-  }
-  
-  .question-item-buttons button {
-    margin-left: 5px;
-    
-  }
-  
-  .add-question-btn {
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .move-buttons{
-    display: flex;
-    gap: 10px;
-  }
-.move-btn {
-    background-color: #f3f4f6;
-    border: 1px solid #ddd;
-    padding: 8px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    color: #6b7280;
-    transition: all 0.2s ease;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1), -2px -2px 5px rgba(255, 255, 255, 0.6);
-    border: 2px solid #4caf50; /* Light green border */
-    background: linear-gradient(145deg, #ffffff, #e6e6e6);
+  padding: 10px;
+  background-color: #f9f9f9;
+  min-height: 100px;
+  border: 1px dashed #ddd;
 }
 
-/* 🆙⬇️ Modern Button Styles */
-.move-btn {
-    border: none;
-    padding: 10px;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 16px;
-    color: white;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+/* =============== PREVIEW BUTTON =============== */
+.preview-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  width: fit-content;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
-/* 🟢 Move Up Button (Green Gradient) */
+/* =============== ADD QUESTION BUTTON =============== */
+.add-question-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 1rem;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* =============== QUESTIONS CONTAINER =============== */
+.questions-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin: auto;
+  padding-top: 1rem;
+}
+
+/* =============== EACH QUESTION ITEM =============== */
+.question-item {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: grab;
+  word-break: break-word;
+}
+
+/* =============== LABEL STYLING =============== */
+.question-label {
+  font-size: 1rem;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* =============== INPUT FIELD WRAPPER =============== */
+.question-input-wrapper {
+  flex-grow: 1;
+  min-width: 200px;
+  word-break: break-word;
+}
+
+/* =============== BUTTON GROUP FOR EDIT/DELETE =============== */
+.question-item-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.question-item-buttons button {
+  background-color: #e0e0e0;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* =============== MOVE UP / DOWN BUTTONS =============== */
+.move-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+/* ⬆️⬇️ Unified Move Button Base */
+.move-btn {
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 16px;
+  color: white;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* 🟢 Move Up (Green Gradient) */
 .move-up {
-    background: linear-gradient(135deg, #34d399, #059669);
+  background: linear-gradient(135deg, #34d399, #059669);
 }
 
 .move-up:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* 🔴 Move Down Button (Red Gradient) */
+/* 🔴 Move Down (Red Gradient) */
 .move-down {
-    background: linear-gradient(135deg, #f87171, #e11d48);
+  background: linear-gradient(135deg, #f87171, #e11d48);
 }
 
 .move-down:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* 🚫 Disabled State */
 .move-btn:disabled {
-    color: #d1d5db;
-    background-color: #f3f4f6;
-    box-shadow: none;
-    cursor: not-allowed;
-    transform: none;
+  color: #d1d5db;
+  background-color: #f3f4f6;
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* =============== EMPTY MESSAGE =============== */
+.empty-message {
+  text-align: center;
+  color: #888;
+  margin-top: 1rem;
+  font-size: 1rem;
+}
+
+/* =============== RESPONSIVE LAYOUT =============== */
+@media (max-width: 768px) {
+  .question-item {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .question-item-buttons {
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .move-buttons {
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .preview-button,
+  .add-question-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }

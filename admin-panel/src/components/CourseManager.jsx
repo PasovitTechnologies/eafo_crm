@@ -9,9 +9,8 @@ import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2";
 import i18n from "../i18n";
 
-
 const CourseManager = () => {
-  const { t } = useTranslation();  
+  const { t } = useTranslation();
   const [courses, setCourses] = useState([]);
   const [courseId, setCourseId] = useState(null);
   const [name, setName] = useState("");
@@ -27,9 +26,8 @@ const CourseManager = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState(null);
   const [modalType, setModalType] = useState("add");
-  const currentLanguage = i18n.language
+  const currentLanguage = i18n.language;
   const baseUrl = import.meta.env.VITE_BASE_URL;
-
 
   const navigate = useNavigate();
 
@@ -73,7 +71,7 @@ const CourseManager = () => {
         bannerUrl,
         bannerUrlRussian,
         invoiceNumber,
-        websiteLink
+        websiteLink,
       };
 
       const response = await fetch(
@@ -104,7 +102,6 @@ const CourseManager = () => {
 
   // Handle Course Deletion
   const handleDelete = async (id) => {
-  
     // ✅ Show confirmation popup using SweetAlert2
     const confirmDelete = await Swal.fire({
       title: t("CourseManager.deleteConfirmTitle"), // Translated title
@@ -116,30 +113,30 @@ const CourseManager = () => {
       confirmButtonText: t("CourseManager.confirmDelete"), // "Yes, delete it!"
       cancelButtonText: t("CourseManager.cancel"), // "Cancel"
     });
-  
+
     if (!confirmDelete.isConfirmed) return; // If user cancels, stop here
-  
+
     try {
       const token = localStorage.getItem("token");
       if (!token) {
         toast.error(t("CourseManager.sessionExpired"), { position: "top-right", autoClose: 3000 });
         return;
       }
-  
+
       const response = await fetch(`${baseUrl}/api/courses/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (!response.ok) {
         throw new Error("Error deleting course");
       }
-  
+
       // ✅ Refresh courses list after deletion
       fetchCourses();
-  
+
       // ✅ Show success notification
       toast.success(t("CourseManager.deleteSuccess"), {
         position: "top-right",
@@ -148,7 +145,7 @@ const CourseManager = () => {
       });
     } catch (error) {
       console.error("🚨 Error deleting course:", error);
-  
+
       // ❌ Show error notification
       toast.error(t("CourseManager.deleteError"), {
         position: "top-right",
@@ -184,7 +181,7 @@ const CourseManager = () => {
     setDescription(course.description || "");
     setDescriptionRussian(course.descriptionRussian || "");
     setInvoiceNumber(course.invoiceNumber || "");
-    setCourseDate(course.date.split("T")[0]);  // ✅ Pre-fill date field
+    setCourseDate(course.date.split("T")[0]); // ✅ Pre-fill date field
     setCourseEndDate(course.endDate ? course.endDate.split("T")[0] : "");
     setBannerUrl(course.bannerUrl || "");
     setBannerUrlRussian(course.bannerUrlRussian || "");
@@ -198,11 +195,10 @@ const CourseManager = () => {
 
   return (
     <div className="course-manager-page">
-       <ToastContainer position="top-right"  className="custom-toast-container" autoClose={3000} />
+      <ToastContainer position="top-right" className="custom-toast-container" autoClose={3000} />
       <div className="course-manager-page-container">
         <div className="course-manager-header">
           <div className="course-manager-left-header">
-            
             <h2>{t('CourseManager.title')}</h2>
           </div>
           <div className="course-manager-right-header">
@@ -216,24 +212,26 @@ const CourseManager = () => {
 
         {/* Course List */}
         <div className="course-list-manager">
-          <ul className="course-list">
+          <ul className="course-manager-list">
             {courses.map((course) => (
-              <li key={course._id} className="course-list-card">
+              <li key={course._id} className="course-manager-list-card">
+                <div>
                 <Link to={`/course-manager/course/${course._id}`} className="course-link">
                   <div className="course-list-content">
                     <div
                       className="course-banner"
-                      style={{ backgroundImage: currentLanguage==="ru"? `url(${course.bannerUrlRussian})`:`url(${course.bannerUrl})` }}
+                      style={{ backgroundImage: currentLanguage === "ru" ? `url(${course.bannerUrlRussian})` : `url(${course.bannerUrl})` }}
                     ></div>
 
                     <div className="course-info">
-                      <span className="course-name">{currentLanguage==="ru" ? course.nameRussian:course.name}</span>
+                      <span className="course-name">{currentLanguage === "ru" ? course.nameRussian : course.name}</span>
                       <span className="course-date">
                         {new Date(course.date).toLocaleDateString("en-GB")}
                       </span>
                     </div>
                   </div>
                 </Link>
+                </div>
 
                 <div className="course-actions-btn">
                   <button onClick={() => openEditModal(course)} className="edit-btn">{t('CourseManager.edit')}</button>
@@ -251,17 +249,117 @@ const CourseManager = () => {
               <button className="course-close-btn" onClick={() => setIsModalOpen(false)}>×</button>
               <h3>{modalType === "edit" ? t('CourseManager.editTitle') : t('CourseManager.addTitle')}</h3>
               <form onSubmit={handleSubmit} className="course-form">
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={t('CourseManager.courseNameEn')} required />
-                <input type="text" value={nameRussian} onChange={(e) => setNameRussian(e.target.value)} placeholder={t('CourseManager.courseNameRu')} required />
-                <textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder={t('CourseManager.descEn')} required />
-                <textarea value={descriptionRussian} onChange={(e) => setDescriptionRussian(e.target.value)} placeholder={t('CourseManager.descRu')} required />
-                <input type="date" value={courseDate} onChange={(e) => setCourseDate(e.target.value)} placeholder={t('CourseManager.date')} required />   {/* ✅ Date Picker */}
-                <input type="date" value={courseEndDate} onChange={(e) => setCourseEndDate(e.target.value)} placeholder={t('CourseManager.endDate')} required />   {/* ✅ Date Picker */}
-                <input type="text" value={bannerUrl} onChange={(e) => setBannerUrl(e.target.value)} placeholder={t('CourseManager.bannerUrlEn')} required />
-                <input type="text" value={bannerUrlRussian} onChange={(e) => setBannerUrlRussian(e.target.value)} placeholder={t('CourseManager.bannerUrlRu')} required />
-                <input type="text" value={websiteLink} onChange={(e) => setWebsiteLink(e.target.value)} placeholder={t('CourseManager.websiteLink')} required />
-                <input type="text" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} placeholder={t('CourseManager.invoiceNumber')} required />
-                <button className="save-btn" type="submit">{t('CourseManager.save')}</button>
+                <div className="form-field">
+                  <label htmlFor="name">{t('CourseManager.courseNameEn')}</label>
+                  <input
+                    id="name"
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="nameRussian">{t('CourseManager.courseNameRu')}</label>
+                  <input
+                    id="nameRussian"
+                    type="text"
+                    value={nameRussian}
+                    onChange={(e) => setNameRussian(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="description">{t('CourseManager.descEn')}</label>
+                  <textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="descriptionRussian">{t('CourseManager.descRu')}</label>
+                  <textarea
+                    id="descriptionRussian"
+                    value={descriptionRussian}
+                    onChange={(e) => setDescriptionRussian(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="courseDate">{t('CourseManager.date')}</label>
+                  <input
+                    id="courseDate"
+                    type="date"
+                    value={courseDate}
+                    onChange={(e) => setCourseDate(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="courseEndDate">{t('CourseManager.endDate')}</label>
+                  <input
+                    id="courseEndDate"
+                    type="date"
+                    value={courseEndDate}
+                    onChange={(e) => setCourseEndDate(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="bannerUrl">{t('CourseManager.bannerUrlEn')}</label>
+                  <input
+                    id="bannerUrl"
+                    type="text"
+                    value={bannerUrl}
+                    onChange={(e) => setBannerUrl(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="bannerUrlRussian">{t('CourseManager.bannerUrlRu')}</label>
+                  <input
+                    id="bannerUrlRussian"
+                    type="text"
+                    value={bannerUrlRussian}
+                    onChange={(e) => setBannerUrlRussian(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="websiteLink">{t('CourseManager.websiteLink')}</label>
+                  <input
+                    id="websiteLink"
+                    type="text"
+                    value={websiteLink}
+                    onChange={(e) => setWebsiteLink(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-field">
+                  <label htmlFor="invoiceNumber">{t('CourseManager.invoiceNumber')}</label>
+                  <input
+                    id="invoiceNumber"
+                    type="text"
+                    value={invoiceNumber}
+                    onChange={(e) => setInvoiceNumber(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <button className="save-btn" type="submit">
+                  {t('CourseManager.save')}
+                </button>
               </form>
             </div>
           </div>

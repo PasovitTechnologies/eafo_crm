@@ -24,85 +24,92 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
     background: #ffffff;
-    padding:  20px;
+    padding: 20px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 10px;
     position: sticky;
     top: 0;
     z-index: 10;
+    gap: 15px;
 }
-.go-back{
+
+/* 🔙 Go Back Button */
+.go-back {
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #033672;
-    padding: 5px 10px;
+    padding: 6px 12px;
     border-radius: 5px;
-    
+    min-width: 80px;
+    transition: background-color 0.3s ease;
 }
-.go-back:hover{
-    
+
+.go-back:hover {
     background-color: #082547;
-   
-    
 }
 
 .go-back-icon {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: bold;
     cursor: pointer;
-    color: #fff; /* Default color */
+    color: #fff;
     transition: color 0.3s ease;
-    ;
-  }
-  
-  .go-back-icon:hover {
-    color: #fff; /* Highlight on hover */
-  }
-  
+}
+
+.go-back-icon:hover {
+    color: #fff;
+}
 
 /* 🔹 Left Header (Title) */
 .left-header {
-    font-size: 20px;
-    font-weight: bold;
-    color: #333;
-    margin: auto 0px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    gap: 16px;
+    flex: 1;
+    text-align: center;
 }
-.left-header h2{
-    font-size: 22px;
-    margin: auto;
+
+.left-header h2 {
+    font-size: 20px;
+    margin: 0;
 }
+
 /* 🔹 Right Header (Search + Button) */
 .right-header {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    flex: 1;
 }
 
 /* 🔍 Search Bar */
 .form-search-container {
     display: flex;
-  align-items: center;
-  background: #ffffff;
-  border-radius: 30px;
-  padding: 12px 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 30px;
+    padding: 10px 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 350px;
+    flex-grow: 1;
+    min-width: 200px;
 }
 
-/* 🔍 Search Icon */
 .form-search-icon {
     font-size: 18px;
     color: #555;
 }
 
-/* ✏️ Search Input */
 .form-search-input {
     border: none;
     outline: none;
@@ -115,11 +122,10 @@
 
 /* ➕ New Form Button */
 .new-form-btn {
-    width: 100%;
     background: #033672;
     color: #fff;
     border: none;
-    padding: 12px 20px;
+    padding: 10px 16px;
     font-size: 14px;
     font-weight: bold;
     display: flex;
@@ -127,11 +133,13 @@
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s ease-in-out;
+    white-space: nowrap;
 }
 
 .new-form-btn:hover {
     background: rgb(7, 50, 96);
 }
+
 
 /* 📱 Responsive Design */
 @media (max-width: 1024px) {
@@ -162,6 +170,7 @@
         font-size: 13px;
         padding: 6px 12px;
     }
+    
 }
 
 /* 🔹 Forms List */
@@ -224,8 +233,9 @@
 .form-card {
     position: relative;
     display: flex;
+    gap: 10px;
+    flex-direction: column;
     justify-content: space-between;
-    align-items: center;
     padding: 15px;
     border-left: 5px solid transparent;
     border-radius: 5px;

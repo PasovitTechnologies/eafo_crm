@@ -1,54 +1,57 @@
-/* Course Manager Container */
-.course-manager-page{
-   padding-left: 80px;
-    height: 100vh;
-    overflow: hidden;
-    background: #f9f9f9;
-    display: flex;
-    flex-direction: column;
-  
+/* General Styles */
+.course-manager-page {
+  padding-left: 80px;
+  height: 100vh;
+  overflow: hidden;
+  background: #f9f9f9;
+  display: flex;
+  flex-direction: column;
 }
-.course-manager-page-container{
+
+.course-manager-page-container {
   display: flex;
   flex-direction: column;
   margin: auto;
   width: 100%;
   margin-top: 60px;
 }
-.course-manager-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #ffffff;
-    padding: 20px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    margin-bottom: 10px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-.course-manager-left-header{
-  font-size: 20px;
-    font-weight: bold;
-    color: #333;
-    margin: auto 0px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
 
+.course-manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  padding: 20px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.course-manager-left-header {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+  margin: auto 0px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
 }
 
 .course-manager-left-header h2 {
   font-size: 22px;
   margin: auto;
 }
-.course-manager-right-header{
+
+.course-manager-right-header {
   display: flex;
   align-items: center;
   gap: 20px;
 }
-.course-manager-right-header .add-course-btn{
+
+.course-manager-right-header .add-course-btn {
   background: #033672;
   color: #fff;
   border: none;
@@ -58,26 +61,24 @@
   display: flex;
   align-items: center;
   border-radius: 5px;
-  cursor: pointer;  
+  cursor: pointer;
   transition: background 0.3s ease-in-out;
-
 }
-.course-manager-right-header .add-course-btn:hover{
+
+.course-manager-right-header .add-course-btn:hover {
   background: rgb(7, 50, 96);
 }
 
-
-.course-list-manager{
+.course-list-manager {
   flex-grow: 1;
   padding: 0px 60px 50px 20px;
   height: calc(100vh - 150px);
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #aaa #f9f9f9;
-
 }
 
-.course-list-manager .course-list{
+.course-list-manager .course-list {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -91,9 +92,9 @@
   list-style-type: none;
 }
 
-.course-list-manager .course-list-card {
+.course-list-manager .course-manager-list-card {
   display: flex;
-  flex-direction: row;  /* Stack items vertically */
+  flex-direction: row; /* Stack items vertically */
   justify-content: space-between;
   background-color: white;
   padding: 10px 15px;
@@ -103,9 +104,7 @@
   border: 1px solid #f0f0f0;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   width: 100%; /* Ensure items fit in small containers */
-  
 }
-
 
 .course-list-manager .course-list-content {
   display: flex;
@@ -113,22 +112,16 @@
   gap: 15px;
 }
 
-
-
-
-
-
-
-.course-list-card .course-banner {
+.course-manager-list-card .course-banner {
   width: 180px;
   height: 100px; /* Adjust this based on your preferred size */
   background-size: cover;
   background-position: center;
   border-radius: 4px;
-  margin-bottom: 10px;  /* Space between banner and content */
+  margin-bottom: 10px; /* Space between banner and content */
 }
 
-.course-list-card .course-info {
+.course-manager-list-card .course-info {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -137,52 +130,50 @@
   padding: 10px;
 }
 
-.course-list-card .course-name {
+.course-manager-list-card .course-name {
   font-size: 18px;
   font-weight: bold;
   color: #333;
 }
 
-.course-list-card .course-date {
+.course-manager-list-card .course-date {
   font-size: 14px;
   color: #777;
 }
 
 /* Actions Container for Edit and Delete Buttons */
-.course-list-card .course-actions-btn {
+.course-manager-list-card .course-actions-btn {
   display: flex;
   flex-direction: column;
   gap: 10px;
   justify-content: center; /* Align the buttons to the right */
 }
 
-.course-list-card .course-actions button {
+.course-manager-list-card .course-actions button {
   padding: 8px 15px;
   border-radius: 4px;
   border: none;
   cursor: pointer;
 }
 
-.course-list-card .edit-btn {
+.course-manager-list-card .edit-btn {
   background-color: var(--edit-btn); /* Light Orange */
   color: white;
 }
 
-.course-list-card .edit-btn:hover {
+.course-manager-list-card .edit-btn:hover {
   background-color: var(--edit-btn-hover); /* Darker orange */
 }
 
-.course-list-card .delete-btn {
+.course-manager-list-card .delete-btn {
   background-color: var(--delete-btn);
   color: white;
 }
 
-.course-list-card .delete-btn:hover {
+.course-manager-list-card .delete-btn:hover {
   background-color: var(--delete-btn-hover);
 }
 
-
-/* Modal Overlay */
 /* Modal Overlay */
 .modal-overlay {
   position: fixed;
@@ -195,7 +186,6 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
- 
 }
 
 /* Modal Container */
@@ -300,11 +290,10 @@
   background: #555;
 }
 
-
 .course-manager-modal input:focus,
 .course-manager-modal textarea:focus {
   outline: none;
-  border-color: #007bff;          /* Highlight on focus */
+  border-color: #007bff; /* Highlight on focus */
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }
 
@@ -321,7 +310,7 @@
   flex-direction: column;
   justify-content: center;
   margin-top: 20px;
-  gap: 10px;                      /* Consistent spacing between buttons */
+  gap: 10px; /* Consistent spacing between buttons */
 }
 
 /* Save Button */
@@ -342,17 +331,155 @@
   background-color: #0056b3;
 }
 
-
-
 .course-manager-modal .close-modal-btn:hover {
   color: red;
 }
 
 /* Responsive Styling */
+@media (max-width: 1200px) {
+  .course-manager-page {
+    padding-left: 40px;
+  }
+
+  .course-manager-page-container {
+    padding: 0 20px;
+  }
+
+  .course-manager-header {
+    padding: 15px;
+  }
+
+  .course-manager-left-header h2 {
+    font-size: 18px;
+  }
+
+  .course-list-manager {
+    padding: 0 30px;
+  }
+
+  .course-manager-list-card {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .course-manager-list-card .course-info {
+    gap: 8px;
+  }
+
+  .course-manager-modal {
+    width: 80%;
+    max-width: 700px;
+  }
+}
+
 @media (max-width: 768px) {
+  .course-manager-page {
+    padding-left: 20px;
+  }
+
+  .course-manager-left-header h2 {
+    font-size: 16px;
+  }
+
+  .course-manager-header {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .course-manager-left-header {
+    font-size: 18px;
+    flex-direction: column;
+  }
+
+  .course-list-manager {
+    padding: 0 15px;
+  }
+
+  .course-manager-modal {
+    width: 95%;
+    max-width: 100%;
+  }
+
+  .course-manager-modal h3 {
+    font-size: 20px;
+  }
+  .course-manager-list-card{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .course-manager-list-card .course-banner {
+    width: 100%;
+    height: 120px;
+  }
+
+  .course-manager-list-card .course-info {
+    padding: 10px;
+  }
+
+  .save-btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .course-close-btn {
+    font-size: 20px;
+    width: 35px;
+    height: 35px;
+  }
+}
+
+/* For Very Small Screens (Mobile) */
+@media (max-width: 480px) {
+  .course-manager-page {
+    padding-left: 10px;
+  }
+
+  .course-manager-left-header h2 {
+    font-size: 14px;
+  }
+
+  .course-manager-header {
+    padding: 8px;
+  }
+
+  .course-manager-left-header {
+    font-size: 16px;
+  }
+
+  .course-list-manager {
+    padding: 0 10px;
+  }
+
+  .course-manager-list-card {
+    flex-direction: column;
+  }
+
   .course-manager-modal {
     width: 90%;
-    padding: 30px 20px;
+    max-width: 100%;
+    padding: 20px;
+  }
+
+  .course-manager-list-card .course-banner {
+    width: 100%;
+    height: 80px;
+  }
+
+  .course-manager-list-card .course-info {
+    padding: 10px;
+  }
+
+  .course-close-btn {
+    font-size: 18px;
+    width: 30px;
+    height: 30px;
+  }
+
+  .save-btn {
+    padding: 8px;
+    font-size: 12px;
   }
 }
 
