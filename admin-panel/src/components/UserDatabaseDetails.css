@@ -1,95 +1,266 @@
 /* Ensure proper spacing and layout */
 .user-database-details-container {
-    margin: 20px auto;
-    padding: 100px 20px 20px 100px;
-    background: #fff;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    border-radius: 10px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  max-width: 1200px;
+  width: calc(100% - 40px);
+}
+
+/* General section styling */
+.section-heading {
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  margin-bottom: 15px;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 5px;
+  color: #333;
+}
+
+.user-details-section, 
+.webinars-section, 
+.courses-details-section {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Space between user details */
+.user-info-section {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+  padding: 15px;
+  background: white;
+}
+
+.user-info-section h2 {
+  color: #000;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.user-info-section p {
+  margin: 8px 0;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+/* Webinars and courses list items */
+.user-list-item {
+  background: #fff;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Payment Table Styles */
+.payment-table-container {
+  width: 100%;
+  max-height: 400px;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.payment-table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  background-color: white;
+  display: block;
+}
+
+.payment-table th, 
+.payment-table td {
+  padding: 12px 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  color: #000;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.payment-table th {
+  background: #007bff;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.payment-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.payment-table .status-paid {
+  color: #28a745;
+  font-weight: bold;
+}
+
+.payment-table .status-pending {
+  color: #ffc107;
+  font-weight: bold;
+}
+
+/* Payment buttons */
+.pay-now-btn {
+  background: #ffc107;
+  color: #212529;
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: bold;
+  display: inline-block;
+  text-align: center;
+  transition: all 0.3s;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.pay-now-btn:hover {
+  background: #e0a800;
+  transform: translateY(-1px);
+}
+
+.paid-label {
+  color: #28a745;
+  font-weight: bold;
+}
+
+/* Scrollbar styling */
+.payment-table-container::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.payment-table-container::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 4px;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+  .user-database-details-container {
+      padding: 30px;
   }
-  
-  /* General section styling */
-  .section-heading {
-    font-size: 22px;
-    margin-bottom: 15px;
-    border-bottom: 2px solid #007bff;
-    padding-bottom: 5px;
+
+  .user-details-section, 
+  .webinars-section, 
+  .courses-details-section {
+      padding: 20px;
   }
-  
-  .user-details-section, .webinars-section, .courses-details-section {
-    margin-bottom: 30px;
-    padding: 20px;
-    background: #f9f9f9;
-    border-radius: 10px;
+
+  .user-info-section {
+      padding: 20px;
   }
-  
-  /* Space between user details */
-  .user-info-section{
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
-    padding: 20px;
-  }
-  .user-info-section h2{
-    color: #000;
-  }
-  .user-info-section p {
-    margin: 5px 0;
-  }
-  
-  /* Webinars and courses should take full width */
+
   .user-list-item {
-    background: #fff;
-    padding: 15px;
-    margin-top: 10px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
   }
-  
-  /* Payment Table Styles */
-  .payment-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
+
+  .payment-table th, 
+  .payment-table td {
+      padding: 12px 15px;
+      font-size: 1rem;
   }
-  
-  .payment-table th, .payment-table td {
-    padding: 10px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-    color: #000;
+}
+
+@media (min-width: 992px) {
+  .user-database-details-container {
+      padding: 40px;
   }
-  
-  .payment-table th {
-    background: #007bff;
-    color: white;
+
+  .section-heading {
+      font-size: 1.5rem;
   }
-  
-  .payment-table .status-paid {
-    color: green;
-    font-weight: bold;
+
+  .user-info-section h2 {
+      font-size: 1.3rem;
   }
-  
-  .payment-table .status-pending {
-    color: orange;
-    font-weight: bold;
+
+  .user-info-section p {
+      font-size: 1rem;
   }
-  
-  /* Spacing between courses */
-  .courses-section .user-list-item {
-    margin-bottom: 20px;
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .user-database-details-container {
+      padding: 15px;
+      width: calc(100% - 30px);
+      margin: 15px auto;
   }
-  
-  /* Payment buttons */
+
+  .section-heading {
+      font-size: 1.1rem;
+  }
+
+  .user-details-section, 
+  .webinars-section, 
+  .courses-details-section {
+      padding: 12px;
+  }
+
+  .user-info-section {
+      padding: 12px;
+  }
+
+  .payment-table th, 
+  .payment-table td {
+      padding: 8px 6px;
+      font-size: 0.8rem;
+  }
+
   .pay-now-btn {
-    background: orange;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: bold;
+      padding: 5px 10px;
+      font-size: 0.8rem;
   }
-  
-  .paid-label {
-    color: green;
-    font-weight: bold;
+}
+
+/* Very small devices (e.g., iPhone 5/SE) */
+@media (max-width: 320px) {
+  .user-database-details-container {
+      padding: 10px;
+      width: calc(100% - 20px);
   }
-  
+
+  .section-heading {
+      font-size: 1rem;
+  }
+
+  .payment-table th, 
+  .payment-table td {
+      padding: 6px 4px;
+      font-size: 0.75rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .user-database-details-container {
+      box-shadow: none;
+      padding: 0;
+      width: 100%;
+  }
+
+  .payment-table {
+      min-width: 100%;
+  }
+
+  .pay-now-btn {
+      display: none;
+  }
+}
