@@ -78,6 +78,9 @@
     justify-content: center;
     align-items: center;
 }
+.filter-icon{
+    color: #000;
+}
 
 .filter-options-bubble {
     position: absolute;
