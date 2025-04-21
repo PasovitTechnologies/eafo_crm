@@ -1,137 +1,169 @@
 /* ✅ Overlay to dim the background */
 .email-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.5);  /* Dimmed background */
-    z-index: 9998;
-    opacity: 1;
-    transition: opacity 0.3s ease-in-out;
-  }
-  
-  /* ✅ Popup container */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* ✅ Popup container */
+.email-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  width: 450px;
+  max-width: 95vw;
+  padding: 25px;
+  z-index: 9999;
+  transition: all 0.3s ease-in-out;
+}
+
+/* 🔷 Popup Header */
+.email-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+}
+
+.email-popup-header h3 {
+  font-size: 20px;
+  color: #333;
+  margin: 0;
+}
+
+.close-icon {
+  font-size: 22px;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.3s;
+}
+
+.close-icon:hover {
+  color: #f00;
+}
+
+/* 🔹 Form styling */
+.email-form input,
+.email-form textarea {
+  width: 100%;
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: #fff;
+  color: #000;
+  transition: border 0.3s;
+  resize: vertical;
+}
+
+.email-form input:focus,
+.email-form textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* 🔸 Footer */
+.email-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.attachment-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.attachment-label:hover {
+  color: #007bff;
+}
+
+/* 🟢 Send button */
+.send-btn {
+  background: #28a745;
+  color: white;
+  padding: 10px 25px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.3s, transform 0.3s;
+}
+
+.send-btn:hover {
+  background: #218838;
+  transform: scale(1.05);
+}
+
+.send-btn.loading {
+  background: #ffc107;
+  cursor: not-allowed;
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
   .email-popup {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    width: 450px;
-    z-index: 9999;
-    padding: 25px;
+    width: 90%;
+    padding: 20px;
   }
-  
-  /* Header with close icon */
-  .email-popup-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #eee;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-  }
-  
+
   .email-popup-header h3 {
-    font-size: 20px;
-    color: #333;
+    font-size: 18px;
   }
-  
+
   .close-icon {
-    font-size: 22px;
-    cursor: pointer;
-    color: #555;
-    transition: color 0.3s;
+    font-size: 20px;
   }
-  
-  .close-icon:hover {
-    color: #f00;
-  }
-  
-  /* Form inputs and textarea */
+
   .email-form input,
   .email-form textarea {
-    width: 100%;
-    margin: 12px 0;
-    padding: 12px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    transition: border 0.3s;
-    font-size: 14px;
-    background-color: #fff;
-    color: #000;
+    font-size: 13px;
   }
-  
-  .email-form input:focus,
-  .email-form textarea:focus {
-    border-color: #007bff;
-    outline: none;
-  }
-  
-  /* Footer with buttons */
-  .email-footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-  }
-  
-  /* Attachment label */
-  .attachment-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    color: #555;
-    cursor: pointer;
-    transition: color 0.3s;
-  }
-  
-  .attachment-label:hover {
-    color: #007bff;
-  }
-  
-  /* Send button with animation */
+
   .send-btn {
-    background: #28a745;
-    color: white;
-    padding: 10px 25px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.3s, transform 0.3s;
+    width: 100%;
+    justify-content: center;
   }
-  
-  .send-btn:hover {
-    background: #218838;
-    transform: scale(1.05);
+
+  .email-footer {
+    flex-direction: column;
+    align-items: stretch;
   }
-  
-  /* Loading animation */
-  .send-btn.loading {
-    background: #ffc107;
-    cursor: not-allowed;
+
+  .attachment-label {
+    justify-content: center;
   }
-  
-  
-  
-  /* Responsive design */
-  @media (max-width: 600px) {
-    .email-popup {
-      width: 90%;
-    }
-  }
-  
-.toast-notification{
+}
+
+/* ✅ Toast Notifications */
+.toast-notification {
   color: #fff;
 }
+
 .Toastify__toast-container {
   width: auto;
   max-width: 400px;
@@ -143,6 +175,8 @@
   border-radius: 8px;
   font-family: inherit;
   padding: 12px 20px;
+  font-size: 14px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
 
 .Toastify__toast--success {
@@ -156,5 +190,3 @@
 .Toastify__toast--info {
   background-color: #2196F3;
 }
-
-  

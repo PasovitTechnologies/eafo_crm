@@ -19,6 +19,7 @@
     background: #fff;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
+    flex-wrap: wrap;
 }
 
 /* 🔍 Search Bar with Icon */
@@ -57,30 +58,32 @@
 .search-bar-wrapper input::placeholder {
     color: #aaa;
 }
+
 /* ✅ Export Button Styling */
 .csv-export-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;  /* Space between icon and text */
-    background: #033672;  /* Green color */
+    gap: 10px;
+    background: #033672;
     color: #fff;
     border: none;
     padding: 12px 20px;
     font-size: 16px;
     font-weight: bold;
-    border-radius: 10px;  /* ✅ Rounded button */
+    border-radius: 10px;
     cursor: pointer;
     transition: background 0.3s, box-shadow 0.3s;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Light shadow */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
 }
 
 /* 📄 Table Styling */
 .course-table-container {
-    border-radius: 12px;  /* ✅ Rounded border for table container */
-    overflow: hidden;     /* ✅ Ensures border-radius applies to the whole table */
+    border-radius: 12px;
+    overflow-x: auto;  /* ✅ Horizontal scroll on small screens */
     width: 100%;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* 📌 Table */
@@ -88,8 +91,7 @@
     width: 100%;
     border-collapse: collapse;
     font-size: 16px;
-    border-radius: 12px;  /* ✅ Rounded corners for table */
-    overflow: hidden;     /* ✅ Keeps rounded edges intact */
+    min-width: 600px;  /* ✅ Prevent squishing on small screens */
 }
 
 /* 📌 Table Header */
@@ -110,17 +112,16 @@
     transition: 0.3s;
     cursor: pointer;
     color: #000;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);  /* 🔥 Light shadow between rows */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .modern-table tbody tr:hover {
     background: #f1f1f1;
 }
 
-/* 🛠️ Remove Column Borders & Add Row Spacing */
 .modern-table td {
     padding: 16px 20px;
-    border: none;   /* 🔥 Removed column borders */
+    border: none;
 }
 
 /* ✅ No Submissions & Loading/Error Styles */
@@ -131,14 +132,6 @@
     color: #555;
     text-align: center;
     margin: 20px 0;
-}
-
-/* 🔥 Responsive Table */
-@media screen and (max-width: 768px) {
-    .modern-table th,
-    .modern-table td {
-        padding: 12px 15px;
-    }
 }
 
 /* 🔥 Modal Styling */
@@ -158,8 +151,9 @@
 .modal-content {
     background: #fff;
     padding: 30px;
-    border-radius: 12px; /* ✅ Rounded corners for modal */
+    border-radius: 12px;
     width: 600px;
+    max-width: 95%;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
@@ -169,6 +163,67 @@
     float: right;
 }
 
-.rule-form h3{
+.rule-form h3 {
     color: #000;
+}
+
+/* 📱 Tablet and Smaller */
+@media screen and (max-width: 1024px) {
+    .entries-wrapper {
+        padding-left: 40px;
+    }
+
+    .header-container {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .csv-export-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .modal-content {
+        width: 90%;
+    }
+}
+
+/* 📱 Mobile */
+@media screen and (max-width: 600px) {
+    .entries-wrapper {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .search-bar-wrapper {
+        max-width: 100%;
+        padding: 8px 12px;
+    }
+
+    .search-bar-wrapper input {
+        font-size: 14px;
+    }
+
+    .csv-export-btn {
+        font-size: 14px;
+        padding: 10px 16px;
+    }
+
+    .modern-table th,
+    .modern-table td {
+        padding: 10px 12px;
+        font-size: 14px;
+    }
+
+    .no-submissions,
+    .loading,
+    .error {
+        font-size: 16px;
+    }
+
+    .modal-content {
+        padding: 20px;
+    }
 }

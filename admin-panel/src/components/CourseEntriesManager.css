@@ -1,7 +1,8 @@
 /* ✅ Wrapper Layout */
-.course-manager-page{
+.course-manager-entries-page {
   background-color: #fff;
 }
+
 .course-manager-wrapper {
   display: flex;
   flex-direction: column;
@@ -37,11 +38,11 @@
 /* 🔥 Removed border for the input field */
 .course-search-input {
   width: 100%;
-  outline: none;          /* Removes outline on focus */
-  border: none;           /* Removes border */
+  outline: none;
+  border: none;
   font-size: 16px;
   color: #333;
-  background: transparent; /* Makes input blend into the background */
+  background: transparent;
   margin: auto;
 }
 
@@ -140,9 +141,9 @@
 
 /* 🔥 Hover Effect */
 .course-details-row:hover {
-  transform: translateY(-2px);           /* Slight lift effect */
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15); /* Deeper shadow */
-  background: #e6f7ff;                   /* Light blue background on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+  background: #e6f7ff;
 }
 
 .course-details-row h3 {
@@ -164,4 +165,75 @@
   color: #555;
   text-align: center;
   margin-top: 20px;
+}
+
+/* 📱 Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .course-manager-wrapper {
+    padding-left: 30px;
+  }
+
+  .search-filter-container {
+    flex-direction: row;
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .search-input-wrapper {
+    max-width: 100%;
+  }
+
+  .course-search-input {
+    font-size: 14px;
+  }
+
+  .filter-icon-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .filter-bubble {
+    width: 120px;
+  }
+
+  .course-details-row {
+    padding: 15px;
+    font-size: 16px;
+  }
+}
+
+/* 📱 Mobile Small Screens */
+@media (max-width: 600px) {
+  .course-manager-wrapper {
+    padding-left: 20px;
+  }
+
+  .search-input-wrapper {
+    max-width: 100%;
+    padding: 12px 15px;
+  }
+
+  .course-search-input {
+    font-size: 14px;
+  }
+
+  .filter-icon-wrapper {
+    width: 40px;
+    height: 40px;
+  }
+
+  .filter-bubble {
+    width: 100px;
+  }
+
+  .course-details-row {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .loading,
+  .error,
+  .no-courses {
+    font-size: 14px;
+  }
 }

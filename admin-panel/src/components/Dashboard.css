@@ -184,8 +184,11 @@
 }
 
 @media (max-width: 768px) {
+  .dashboard-container {
+    margin-top: 50px;
+  }
   .top-section {
-    flex-direction: column;
+    flex-direction: row;
     text-align: center;
     gap: 10px;
   }
@@ -220,8 +223,12 @@
   }
 
   .top-section {
-    flex-direction: column;
+    flex-direction: row;
     gap: 5px;
+  }
+
+  .welcome-text{
+    font-size: 16px;
   }
 
   .nav-section {

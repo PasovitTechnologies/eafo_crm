@@ -19,68 +19,43 @@ const Sidebar = ({ selectedOS, isSidebarOpen, setIsSidebarOpen }) => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
+
   const [navItems, setNavItems] = useState([]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isHovered, setIsHovered] = useState(false);
+
+  // Track screen resize
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("lastVisitedPage", location.pathname);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const lastPage = localStorage.getItem("lastVisitedPage");
+    if (lastPage) navigate(lastPage);
+  }, [navigate]);
 
   useEffect(() => {
     const webinarNav = [
-      {
-        to: "/webinar-dashboard",
-        icon: <MdSpaceDashboard className="sidebar-icon" />,
-        label: t("sidebar.webinarDashboard"),
-      },
-      {
-        to: "/webinar-management",
-        icon: <MdDescription className="sidebar-icon" />,
-        label: t("sidebar.webinarManagement"),
-      },
+      { to: "/webinar-dashboard", icon: <MdSpaceDashboard />, label: t("sidebar.webinarDashboard") },
+      { to: "/webinar-management", icon: <MdDescription />, label: t("sidebar.webinarManagement") },
     ];
 
     const crmNav = [
-      {
-        to: "/admin-dashboard",
-        icon: <MdSpaceDashboard className="sidebar-icon" />,
-        label: t("sidebar.dashboard"),
-      },
-      {
-        to: "/course-entries",
-        icon: <MdLibraryBooks className="sidebar-icon" />,
-        label: t("sidebar.courseEntries"),
-      },
-      {
-        to: "/invoice",
-        icon: <MdReceipt className="sidebar-icon" />,
-        label: t("sidebar.invoiceEntries"),
-      },
-      {
-        to: "/course-manager",
-        icon: <MdSchool className="sidebar-icon" />,
-        label: t("sidebar.courseManager"),
-      },
-      {
-        to: "/forms",
-        icon: <MdDescription className="sidebar-icon" />,
-        label: t("sidebar.forms"),
-      },
-      {
-        to: "/whatsapp",
-        icon: <MdWhatsapp className="sidebar-icon" />,
-        label: t("sidebar.whatsapp"),
-      },
-      {
-        to: "/telegram",
-        icon: <MdSend className="sidebar-icon" />,
-        label: t("sidebar.telegram"),
-      },
-      {
-        to: "/enquiry",
-        icon: <MdHelpOutline className="sidebar-icon" />,
-        label: t("sidebar.enquiry"),
-      },
-      {
-        to: "/userbase",
-        icon: <MdPeople className="sidebar-icon" />,
-        label: t("sidebar.userbase"),
-      },
+      { to: "/admin-dashboard", icon: <MdSpaceDashboard />, label: t("sidebar.dashboard") },
+      { to: "/course-entries", icon: <MdLibraryBooks />, label: t("sidebar.courseEntries") },
+      { to: "/invoice", icon: <MdReceipt />, label: t("sidebar.invoiceEntries") },
+      { to: "/course-manager", icon: <MdSchool />, label: t("sidebar.courseManager") },
+      { to: "/forms", icon: <MdDescription />, label: t("sidebar.forms") },
+      { to: "/whatsapp", icon: <MdWhatsapp />, label: t("sidebar.whatsapp") },
+      { to: "/telegram", icon: <MdSend />, label: t("sidebar.telegram") },
+      { to: "/enquiry", icon: <MdHelpOutline />, label: t("sidebar.enquiry") },
+      { to: "/userbase", icon: <MdPeople />, label: t("sidebar.userbase") },
     ];
 
     setNavItems(selectedOS === "Webinar" ? webinarNav : crmNav);
@@ -94,9 +69,16 @@ const Sidebar = ({ selectedOS, isSidebarOpen, setIsSidebarOpen }) => {
     window.location.reload();
   };
 
+  const isExpanded = isMobile ? isSidebarOpen : isHovered;
+
   return (
     <aside
-      className={`sidebar ${isSidebarOpen ? "open" : "hidden"}`}
+      className={`sidebar ${isMobile
+        ? isSidebarOpen ? "open" : "hidden"
+        : isExpanded ? "expanded" : "collapsed"
+      }`}
+      onMouseEnter={() => !isMobile && setIsHovered(true)}
+      onMouseLeave={() => !isMobile && setIsHovered(false)}
     >
       <nav className="sidebar-menu">
         {navItems.map(({ to, icon, label }) => (
@@ -105,10 +87,10 @@ const Sidebar = ({ selectedOS, isSidebarOpen, setIsSidebarOpen }) => {
             to={to}
             className={`sidebar-item ${location.pathname === to ? "active" : ""}`}
             aria-label={label}
-            onClick={() => isSidebarOpen && setIsSidebarOpen(false)}
+            onClick={() => isMobile && setIsSidebarOpen(false)}
           >
-            {icon}
-            <span className="sidebar-text">{label}</span>
+            <span className="sidebar-icon">{icon}</span>
+            {isExpanded && <span className="sidebar-text">{label}</span>}
           </NavLink>
         ))}
       </nav>
@@ -118,12 +100,12 @@ const Sidebar = ({ selectedOS, isSidebarOpen, setIsSidebarOpen }) => {
           className="sidebar-logout-btn"
           onClick={() => {
             handleLogout();
-            setIsSidebarOpen(false);
+            if (isMobile) setIsSidebarOpen(false);
           }}
           aria-label={t("sidebar.logout")}
         >
           <MdLogout className="sidebar-icon logout-icon" />
-          <span className="sidebar-text">{t("sidebar.logout")}</span>
+          {isExpanded && <span className="sidebar-text">{t("sidebar.logout")}</span>}
         </button>
       </div>
     </aside>
