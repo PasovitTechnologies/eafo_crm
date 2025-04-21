@@ -1,68 +1,168 @@
 /* Courses.css */
 
+/* General styling for the courses section */
 .courses-section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 250px;
-    background: #f5f5f5;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    padding: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 250px;
+  background: #f5f5f5;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+}
+
+/* Chart Header Styling */
+.chart-header {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Course Card Styling */
+.courses-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 30px 50px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+/* Hover effect for course card */
+.courses-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Course icon styling */
+.course-icon {
+  font-size: 60px;
+  color: #2575fc;
+}
+
+/* Course info heading */
+.courses-info h3 {
+  font-size: 22px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+/* Course count styling */
+.course-count {
+  font-size: 42px;
+  font-weight: bold;
+  color: #2575fc;
+}
+
+/* Loading and error text styling */
+.loading, .error {
+  font-size: 18px;
+  color: #333;
+  text-align: center;
+  margin-top: 30px;
+}
+
+/* Highlight box styling */
+.highlight-box {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background: linear-gradient(135deg, #2575fc, #6a11cb);
+  color: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  flex: 0.5;
+}
+
+/* Mobile Support (up to 768px) */
+@media (max-width: 768px) {
+  .courses-section {
+    padding: 20px;
+    height: auto; /* Adjust height for mobile */
   }
-  .chart-header{
-    display: flex;
-    flex-direction: column;
-  }
-  
+
   .courses-card {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    background: #ffffff;
-    border-radius: 12px;
+    flex-direction: column;
+    padding: 20px 30px;
+    gap: 10px;
+  }
+
+  .course-icon {
+    font-size: 48px;
+  }
+
+  .courses-info h3 {
+    font-size: 18px;
+  }
+
+  .course-count {
+    font-size: 36px;
+  }
+
+  .highlight-box {
+    flex-direction: column;
+    padding: 20px;
+  }
+}
+
+/* Tablet Support (up to 992px) */
+@media (max-width: 992px) {
+  .courses-section {
+    padding: 30px;
+    height: 300px;
+  }
+
+  .courses-card {
+    flex-direction: row;
+    padding: 25px 40px;
+  }
+
+  .course-icon {
+    font-size: 55px;
+  }
+
+  .courses-info h3 {
+    font-size: 20px;
+  }
+
+  .course-count {
+    font-size: 40px;
+  }
+
+  .highlight-box {
+    padding: 25px;
+  }
+}
+
+/* Large screen (Desktop) Support */
+@media (min-width: 1200px) {
+  .courses-section {
+    padding: 40px;
+    height: 250px;
+  }
+
+  .courses-card {
     padding: 30px 50px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
+    gap: 20px;
   }
-  
-  .courses-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
-  }
-  
+
   .course-icon {
     font-size: 60px;
-    color: #2575fc;
   }
-  
+
   .courses-info h3 {
     font-size: 22px;
-    color: #333;
-    margin-bottom: 10px;
   }
-  
+
   .course-count {
     font-size: 42px;
-    font-weight: bold;
-    color: #2575fc;
   }
-  
-  .loading, .error {
-    font-size: 18px;
-    color: #333;
-    text-align: center;
-    margin-top: 30px;
-  }
+
   .highlight-box {
-    display: flex;
-    justify-content:flex-start;
-    align-items: flex-start;
-    background: linear-gradient(135deg, #2575fc, #6a11cb);
-    color: #fff;
     padding: 30px;
-    border-radius: 16px;
-    transition: all 0.3s ease;
-    flex: 0.5;
   }
+}

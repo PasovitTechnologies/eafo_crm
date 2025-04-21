@@ -1,152 +1,249 @@
 /* Wrapper for the entire content */
 .content-card-wrapper {
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
-    font-family: Arial, sans-serif;
+  display: flex;
+  flex-wrap: wrap; /* Ensures items wrap on smaller screens */
+  gap: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Card styling */
+.content-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  transition: all 0.3s ease;
+  flex: 1 1 300px; /* Ensures each card can grow or shrink */
+}
+
+.content-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+}
+
+/* 🎯 Highlight Box Styling */
+.highlight-box {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  background: linear-gradient(135deg, #2575fc, #6a11cb);
+  color: #fff;
+  padding: 30px;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  flex: 1; /* Adjusts flex property to fill available space */
+}
+
+.highlight-box:hover {
+  transform: translateY(-5px);
+}
+
+.box-content h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.user-count {
+  font-size: 42px;
+  font-weight: bold;
+  margin: 5px 0;
+  color: #fff;
+}
+
+.percentage {
+  font-size: 18px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 24px;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+/* ✅ Percentage Color Indicators */
+.increase {
+  background: #28a745;
+  color: #fff;
+}
+
+.decrease {
+  background: #dc3545;
+  color: #fff;
+}
+
+/* Chart Card Styling */
+.chart-card {
+  padding: 30px;
+  flex: 2; /* Makes chart-card take more space */
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+/* Filter buttons */
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.filter-buttons button {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  color: #333;
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-buttons button:hover {
+  background: #2575fc;
+  color: #fff;
+  border: 1px solid #2575fc;
+}
+
+.filter-buttons button.active {
+  background: #2575fc;
+  color: #fff;
+  border: 1px solid #2575fc;
+}
+
+/* Tooltip Styling */
+.recharts-tooltip-wrapper {
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+/* Chart Responsiveness */
+@media (max-width: 1200px) {
+  .content-card-wrapper {
+    gap: 15px; /* Slightly reduced gap on smaller screens */
   }
-  
-  /* Card styling */
+
   .content-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 24px;
-    transition: all 0.3s ease;
+    padding: 20px; /* Reduced padding on medium screens */
   }
-  
-  .content-card:hover {
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-  }
-  
-  /* 🎯 Highlight Box Styling */
+
   .highlight-box {
-    display: flex;
-    justify-content:flex-start;
-    align-items: flex-start;
-    background: linear-gradient(135deg, #2575fc, #6a11cb);
-    color: #fff;
-    padding: 30px;
-    border-radius: 16px;
-    transition: all 0.3s ease;
-    flex: 0.5;
+    padding: 25px;
   }
-  
-  .highlight-box:hover {
-    transform: translateY(-5px);
-  }
-  
-  .box-content h3 {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 10px;
-  }
-  
+
   .user-count {
-    font-size: 42px;
-    font-weight: bold;
-    margin: 5px 0;
-    color: #fff;
+    font-size: 36px; /* Reduced font size for better scaling */
   }
-  
+
   .percentage {
-    font-size: 18px;
-    font-weight: 600;
-    padding: 8px 16px;
-    border-radius: 24px;
-    display: inline-block;
-    transition: all 0.3s ease;
+    font-size: 16px;
+    padding: 6px 12px; /* Adjusted padding */
   }
-  
-  /* ✅ Percentage Color Indicators */
-  .increase {
-    background: #28a745;
-    color: #fff;
-  }
-  
-  .decrease {
-    background: #dc3545;
-    color: #fff;
-  }
-  
-  /* Chart Card Styling */
-  .chart-card {
-    padding: 30px;
-    flex: 1.5;
-  }
-  
-  .chart-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  /* Filter buttons */
+
   .filter-buttons {
-    display: flex;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 992px) {
+  .content-card-wrapper {
+    flex-direction: column; /* Stacks cards vertically on smaller devices */
+    gap: 20px;
+    padding: 10px; /* Reduced padding for small screens */
+  }
+
+  .highlight-box {
+    flex-direction: column;
+    align-items: center; /* Center align content */
+    padding: 20px;
+  }
+
+  .user-count {
+    font-size: 32px;
+  }
+
+  .percentage {
+    font-size: 15px;
+    padding: 6px 12px;
+  }
+
+  .filter-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .filter-buttons button {
+    width: 100%; /* Full-width buttons on smaller screens */
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .content-card-wrapper {
+    flex-direction: column; /* Cards stack vertically */
+    padding: 0; /* Remove padding for mobile */
+    gap: 15px;
+  }
+
+  .content-card {
+    padding: 15px;
+  }
+
+  .highlight-box {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+
+  .user-count {
+    font-size: 30px;
+  }
+
+  .percentage {
+    font-size: 14px;
+    padding: 5px 10px;
+  }
+
+  .filter-buttons {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .filter-buttons button {
+    width: 100%;
+    text-align: center;
+    padding: 10px 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-card-wrapper {
+    padding: 0 10px; /* Small device padding */
     gap: 10px;
   }
-  
+
+  .content-card {
+    padding: 12px;
+  }
+
+  .highlight-box {
+    padding: 15px;
+  }
+
+  .user-count {
+    font-size: 28px;
+  }
+
+  .percentage {
+    font-size: 13px;
+    padding: 4px 8px;
+  }
+
   .filter-buttons button {
-    background: #f0f0f0;
-    border: 1px solid #ccc;
-    color: #333;
+    font-size: 12px; /* Smaller font size for mobile */
     padding: 8px 16px;
-    font-size: 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
   }
-  
-  .filter-buttons button:hover {
-    background: #2575fc;
-    color: #fff;
-    border: 1px solid #2575fc;
-  }
-  
-  .filter-buttons button.active {
-    background: #2575fc;
-    color: #fff;
-    border: 1px solid #2575fc;
-  }
-  
-  /* Tooltip Styling */
-  .recharts-tooltip-wrapper {
-    background: #fff;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    padding: 10px;
-  }
-  
-  /* Chart Responsiveness */
-  @media (max-width: 768px) {
-    .content-card-wrapper {
-      padding: 10px;
-    }
-  
-    .content-card {
-      padding: 15px;
-    }
-  
-    .highlight-box {
-      flex-direction: column;
-      text-align: center;
-      padding: 20px;
-    }
-  
-    .user-count {
-      font-size: 36px;
-    }
-  
-    .percentage {
-      font-size: 16px;
-      padding: 6px 12px;
-    }
-  
-    .filter-buttons {
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-  }
-  
+}
