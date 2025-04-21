@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   MdSpaceDashboard,
-  MdSettings,
   MdLogout,
   MdDescription,
   MdLibraryBooks,
@@ -13,30 +12,15 @@ import {
   MdPeople,
   MdSend
 } from "react-icons/md";
-import { useTranslation } from "react-i18next";  // 🌍 Import translation hook
+import { useTranslation } from "react-i18next";
 import "./Sidebar.css";
 
-const Sidebar = ({ selectedOS }) => {
-  const { t } = useTranslation();  // 🌍 Initialize translation
+const Sidebar = ({ selectedOS, isSidebarOpen, setIsSidebarOpen }) => {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [navItems, setNavItems] = useState([]);  // Store navigation items
+  const [navItems, setNavItems] = useState([]);
 
-  // Save last visited page
-  useEffect(() => {
-    localStorage.setItem("lastVisitedPage", location.pathname);
-  }, [location.pathname]);
-
-  // Navigate to last visited page
-  useEffect(() => {
-    const lastPage = localStorage.getItem("lastVisitedPage");
-    if (lastPage) {
-      navigate(lastPage);
-    }
-  }, [navigate]);
-
-  // Update navigation items based on OS
   useEffect(() => {
     const webinarNav = [
       {
@@ -49,7 +33,6 @@ const Sidebar = ({ selectedOS }) => {
         icon: <MdDescription className="sidebar-icon" />,
         label: t("sidebar.webinarManagement"),
       },
-      
     ];
 
     const crmNav = [
@@ -97,41 +80,32 @@ const Sidebar = ({ selectedOS }) => {
         to: "/userbase",
         icon: <MdPeople className="sidebar-icon" />,
         label: t("sidebar.userbase"),
-      }
+      },
     ];
 
     setNavItems(selectedOS === "Webinar" ? webinarNav : crmNav);
   }, [selectedOS, t]);
 
-  // Handle Logout
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
     localStorage.removeItem("lastVisitedPage");
-    
-    // ✅ Navigate with "replace" to avoid going back to the protected page
     navigate("/", { replace: true });
     window.location.reload();
   };
-  
 
   return (
     <aside
-      className={`sidebar ${isSidebarOpen ? "expanded" : "collapsed"}`}
-      onMouseEnter={() => setIsSidebarOpen(true)}
-      onMouseLeave={() => setIsSidebarOpen(false)}
+      className={`sidebar ${isSidebarOpen ? "open" : "hidden"}`}
     >
-      {/* Navigation Items */}
       <nav className="sidebar-menu">
         {navItems.map(({ to, icon, label }) => (
           <NavLink
             key={to}
             to={to}
-            className={`sidebar-item ${
-              location.pathname === to ? "active" : ""
-            }`}
+            className={`sidebar-item ${location.pathname === to ? "active" : ""}`}
             aria-label={label}
-            onClick={() => setIsSidebarOpen(false)}
+            onClick={() => isSidebarOpen && setIsSidebarOpen(false)}
           >
             {icon}
             <span className="sidebar-text">{label}</span>
@@ -139,11 +113,13 @@ const Sidebar = ({ selectedOS }) => {
         ))}
       </nav>
 
-      {/* Logout Button */}
       <div className="sidebar-logout">
         <button
           className="sidebar-logout-btn"
-          onClick={handleLogout}
+          onClick={() => {
+            handleLogout();
+            setIsSidebarOpen(false);
+          }}
           aria-label={t("sidebar.logout")}
         >
           <MdLogout className="sidebar-icon logout-icon" />

@@ -1,24 +1,43 @@
+/* Navbar Base Styles */
 .navbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px;
-  background-color: #ffffff;
-  display: flex;
-  align-items: center;
   padding: 8px 20px;
+  background-color: #ffffff;
+  gap: 20px;
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 100;
-  box-shadow: 0px 2px 10px rgba(85, 85, 85, 0.3);
+  box-shadow: 0px 2px 10px rgba(85, 85, 85, 0.3); /* Subtle shadow for depth */
 }
 
+/* Menu Icon Styles */
+.menu-icon {
+  display: none; /* Hide by default, only show on small screens */
+  font-size: 25px;
+  cursor: pointer;
+  color: #033672; /* Color of the menu icon */
+}
+
+/* Navbar Logo */
 .navbar-logo {
-  height: auto;
-  width: 200px;
+  width: 200px; /* Set width for the logo */
+  height: auto; /* Keep the aspect ratio intact */
   background-color: #fff;
   padding: 6px 15px;
-  border-radius: 5px;
+  border-radius: 5px; /* Rounded corners for logo */
+  object-fit: contain; /* Maintain image aspect ratio */
+}
+
+/* Media Query for Small Devices (Mobile) */
+@media (max-width: 768px) {
+  .menu-icon {
+    display: block; /* Show menu icon on small devices */
+  }
+
+  .navbar-logo {
+    width: 150px; /* Optionally adjust logo size on small devices */
+  }
 }

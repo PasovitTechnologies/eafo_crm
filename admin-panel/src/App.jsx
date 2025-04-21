@@ -38,7 +38,7 @@ const App = () => {
   const [selectedLanguage, setSelectedLanguage] = useState("ru");
   const [selectedOS, setSelectedOS] = useState("Webinar");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  
   const isTokenValid = () => {
     const token = localStorage.getItem("token");
     if (!token) return false;
@@ -81,10 +81,6 @@ const App = () => {
 
 
 
-  // ✅ Sidebar Toggle
-  const handleSidebarToggle = () => {
-    setIsSidebarOpen((prev) => !prev);
-  };
 
   return (
       <div className="app-container">
@@ -93,8 +89,7 @@ const App = () => {
            <ToastContainer position="top-right" autoClose={3000} />
             {/* Navbar */}
             <Navbar
-              handleSidebarToggle={handleSidebarToggle}
-              isSidebarOpen={isSidebarOpen}
+              setIsSidebarOpen={setIsSidebarOpen}
             />
 
             {/* Sidebar */}
@@ -102,7 +97,7 @@ const App = () => {
               selectedLanguage={selectedLanguage}
               selectedOS={selectedOS}
               isSidebarOpen={isSidebarOpen}
-              handleSidebarToggle={handleSidebarToggle}
+              setIsSidebarOpen={setIsSidebarOpen} 
             />
 
             <div className="main-section">

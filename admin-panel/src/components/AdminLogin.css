@@ -153,10 +153,11 @@ body {
     flex-direction: column;
     width: 100%;
     max-width: 600px;
+    margin-top: 30px;
   }
 
   .admin-overlay-container {
-    padding: 30px;
+    padding: 10px;
     flex: none;
     width: 100%;
     min-height: 220px;
