@@ -1,171 +1,260 @@
 /* Settings button styles */
 .settings-button {
-    position: fixed;
-    top:10px;
-    right: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    z-index: 100; /* Ensure it's on top of other elements */
-    background-color: #007bff; /* Background color for the button */
-    padding: 5px; /* Increased padding to make the button larger */
-    border-radius: 50%;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease-in-out;
-  }
-  
-  .settings-button:hover {
-    transform: scale(1.1); /* Hover effect to enlarge the button */
-    background-color: #0056b3; /* Darker blue on hover */
-  }
-  
-  .settings-icon {
-    font-size: 26px; /* Larger icon size for visibility */
-    color: white;
-  }
-  
-  /* Remove the text in the Settings Button */
-  .settings-text {
-    display: none; /* Do not show text */
-  }
-  
-  /* Popup styles */
-  .settings-popup {
-    position: fixed;
-    top: 60px;
-    right: 20px;
-    width: 450px;
-    border-radius: 20px;
-    z-index: 1001; /* Ensure popup is above other content */
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    background-color: #fff;
-    box-shadow: -2px 0px 5px rgba(0, 0, 0, 0.2);
+  position: fixed;
+  top: 10px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 100;
+  background-color: #007bff;
+  border-radius: 50%;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease-in-out;
+  padding: 0;
+}
 
-  }
-  
-  .settings-popup-content {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-  }
-  .settings-popup-content h3{
-    color: #000;
-  }
-  
-  .settings-popup-content .close-button {
-    position: absolute;
-    top: 10px;
+.settings-button:hover {
+  transform: scale(1.1);
+  background-color: #0056b3;
+}
+
+.settings-icon {
+  font-size: 26px;
+  color: white;
+}
+
+/* Remove the text in the Settings Button */
+.settings-text {
+  display: none;
+}
+
+/* Popup styles */
+.settings-popup {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  width: 90%;
+  max-width: 450px;
+  border-radius: 20px;
+  z-index: 1001;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  box-shadow: -2px 0px 5px rgba(0, 0, 0, 0.2);
+}
+
+.settings-popup-content {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.settings-popup-content h3 {
+  color: #000;
+  font-size: 20px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.settings-popup-content .close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  color: #000;
+}
+
+.question {
+  margin-bottom: 20px;
+}
+
+.question label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: bold;
+  font-size: 16px;
+  color: #000;
+}
+
+/* Toggle switch */
+.toggle-switch {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+.switch-background {
+  width: 70px;
+  height: 30px;
+  background-color: #ccc;
+  border-radius: 15px;
+  position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.switch {
+  width: 30px;
+  height: 30px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 0;
+  transition: transform 0.3s ease;
+}
+
+.switch.right {
+  transform: translateX(40px);
+  background-color: #4caf50;
+}
+
+.switch.left {
+  transform: translateX(0);
+  background-color: #ff5e5e;
+}
+
+.switch-background.right {
+  background-color: #4caf50;
+}
+
+.switch-background.left {
+  background-color: #ff5e5e;
+}
+
+.toggle-label {
+  margin-left: 10px;
+  font-weight: bold;
+  color: #777;
+  transition: color 0.3s ease;
+}
+
+.toggle-label.active {
+  color: #007bff;
+}
+
+.border-separator {
+  border-bottom: 1px solid #ccc;
+  margin: 15px 0;
+}
+
+.popup-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.close-btn {
+  padding: 10px 20px;
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #000;
+}
+
+.close-btn:hover {
+  background-color: #c82333;
+}
+
+/* --- Responsive Tweaks --- */
+@media (max-width: 768px) {
+  .settings-popup {
+    width: 95%;
     right: 10px;
-    font-size: 20px;
-    cursor: pointer;
-    background-color: transparent;
-    border: none;
-    color: #000;
+    top: 70px;
+    padding: 15px;
   }
-  .settings-popup-content  h3{
-    font-size: 20px;
-    padding: 10px;
-    margin-bottom: 20px;
+
+  .settings-popup-content h3 {
+    font-size: 18px;
+    padding: 5px;
   }
-  
-  .question {
-    margin-bottom: 20px;
-  }
-  
+
   .question label {
-    display: block;
-    margin-bottom: 10px;
-    font-weight: bold;
-    font-size: 16px;
-    color: #000;
+    font-size: 15px;
   }
-  
-  /* Toggle Switch Background */
-  .toggle-switch {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    position: relative;
-  }
-  
+
   .switch-background {
-    width: 70px;
-    height: 30px;
-    background-color: #ccc;
-    border-radius: 15px;
-    position: relative;
-    transition: background-color 0.3s ease;
+    width: 60px;
+    height: 28px;
   }
-  
+
   .switch {
-    width: 30px;
-    height: 30px;
-    background-color: white;
-    border-radius: 50%;
-    position: absolute;
-    top: 0;
-    transition: transform 0.3s ease;
+    width: 26px;
+    height: 26px;
   }
-  
-  /* ON - Green (right) */
+
   .switch.right {
-    transform: translateX(40px);
-    background-color: #4caf50; /* Green */
+    transform: translateX(34px);
   }
-  
-  /* OFF - Red (left) */
-  .switch.left {
-    transform: translateX(0);
-    background-color: #ff5e5e; /* Red */
+
+  .settings-button {
+    width: 44px;
+    height: 44px;
+    top: 8px;
+    right: 10px;
+    padding: 0;
   }
-  
-  .switch-background.right {
-    background-color: #4caf50; /* Green background for 'ON' */
+
+  .settings-icon {
+    font-size: 22px;
   }
-  
-  .switch-background.left {
-    background-color: #ff5e5e; /* Red background for 'OFF' */
+}
+
+@media (max-width: 480px) {
+  .settings-popup {
+    top: 70px;
+    width: 100%;
+    right: 0;
+    left: 0;
+    margin: 0 auto;
+    border-radius: 15px;
   }
-  
-  /* Label for the toggles */
+
+  .settings-popup-content h3 {
+    font-size: 16px;
+  }
+
+  .switch-background {
+    width: 55px;
+    height: 26px;
+  }
+
+  .switch {
+    width: 24px;
+    height: 24px;
+  }
+
+  .switch.right {
+    transform: translateX(31px);
+  }
+
   .toggle-label {
-    margin-left: 10px;
-    font-weight: bold;
-    color: #777;
-    transition: color 0.3s ease;
+    font-size: 14px;
   }
-  
-  .toggle-label.active {
-    color: #007bff;
+
+  .close-button {
+    font-size: 18px;
   }
-  
-  /* Border Separator Between Two Questions */
-  .border-separator {
-    border-bottom: 1px solid #ccc;
-    margin: 15px 0;
+
+  .settings-button {
+    width: 42px;
+    height: 42px;
+    top: 6px;
+    right: 8px;
+    padding: 0;
   }
-  
-  /* Popup footer (if needed) */
-  .popup-footer {
-    display: flex;
-    justify-content: flex-end;
+
+  .settings-icon {
+    font-size: 20px;
   }
-  
-  .close-btn {
-    padding: 10px 20px;
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    color: #000;
-  }
-  
-  .close-btn:hover {
-    background-color: #c82333;
-  }
-  
+}
