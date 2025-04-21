@@ -1,78 +1,128 @@
-.invoice-manager-page{
-    margin-left: 90px;
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    padding-top: 80px;
- }
+.invoice-manager-page {
+  margin-left: 90px;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding-top: 80px;
+}
 
+.invoice-title {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #222;
+}
+
+/* 📋 Course List */
+.invoice-course-list {
+  flex-grow: 1;
+  padding: 0 20px 50px 20px;
+  height: calc(100vh - 120px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #aaa #f9f9f9;
+}
+
+/* 📦 Course Card */
+.invoice-course-card {
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: box-shadow 0.3s ease;
+  margin-bottom: 15px;
+  cursor: pointer;
+}
+
+.invoice-course-card:hover {
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+.invoice-course-card .invoice-course-name {
+  color: #000;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* 📝 Forms Section */
+.invoice-course-forms {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.invoice-course-form-item {
+  background: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.15);
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  display: flex;
+  gap: 20px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ℹ️ No Forms */
+.no-forms {
+  font-size: 14px;
+  color: gray;
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* 🔁 Responsive Design */
+@media (max-width: 1024px) {
+  .invoice-manager-page {
+    margin-left: 0;
+    padding-top: 70px;
+  }
+}
+
+@media (max-width: 768px) {
   .invoice-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 20px;
-    text-align: center;
+    font-size: 20px;
   }
-  
-  /* Course List - Each Card in a Single Row */
-  .invoice-course-list {
-    flex-grow: 1;
-    padding: 0px 20px 50px 20px;
-    height: calc(100vh - 120px);
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #aaa #f9f9f9;
-  
-  }
-  
-  /* Course Card */
+
   .invoice-course-card {
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    background-color: #fff;
-    display: flex;
+    padding: 15px;
+  }
+
+  .invoice-course-card .invoice-course-name {
+    font-size: 15px;
+  }
+
+  .invoice-course-form-item {
+    font-size: 13px;
     flex-direction: column;
     gap: 10px;
-    transition: all 0.3s;
-    margin-bottom: 15px;
-    cursor: pointer;
   }
-  .invoice-course-card  .invoice-course-name{
-    color: #000;
-  }
-  .invoice-course-card:hover{
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+}
 
-  }
-  
- 
-  /* Forms Section */
-  .invoice-course-forms {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .invoice-course-form-item{
-    background: white;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
-    font-size: 14px;
-    font-weight: bold;
-    color: #333;
-    display: flex;
-    gap: 20px;
-    cursor: pointer;
+@media (max-width: 480px) {
+  .invoice-manager-page {
+    padding: 60px 10px 20px 10px;
   }
 
-  
-  /* No Forms Text */
-  .no-forms {
-    font-size: 14px;
-    color: gray;
-    margin-top: 8px;
+  .invoice-course-list {
+    padding: 0 10px 40px 10px;
   }
-  
+
+  .invoice-title {
+    font-size: 18px;
+  }
+
+  .invoice-course-form-item {
+    font-size: 12px;
+    padding: 12px;
+  }
+}

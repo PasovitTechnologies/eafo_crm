@@ -1,15 +1,19 @@
-/* 🌟 Full-Width Table Container */
+/* 🌟 Base Styles */
 .invoice-entries-container {
   margin-top: 60px;
-  padding: 20px 20px 20px 100px; /* Balanced left padding */
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
+/* 🌟 Full-Width Table Container */
 .invoice-table-container {
   width: 100%;
   border-radius: 16px;
   overflow-x: auto;
-  padding: 20px;
-  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background: #fff;
 }
 
 /* 🌟 Entries Header - Flex Container */
@@ -17,12 +21,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap; /* Ensures better responsiveness */
+  flex-wrap: wrap;
+  gap: 16px;
   width: 100%;
-  padding: 16px 20px;
+  padding: 16px;
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
   margin-bottom: 20px;
   box-sizing: border-box;
 }
@@ -33,10 +38,13 @@
   align-items: center;
   gap: 8px;
   background: #f1f3f5;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: 8px;
   border: 1px solid #ddd;
   transition: all 0.3s ease;
+  flex-grow: 1;
+  min-width: 200px;
+  max-width: 400px;
 }
 
 .invoice-search-container:hover {
@@ -47,6 +55,7 @@
 .invoice-search-icon {
   color: #666;
   font-size: 18px;
+  flex-shrink: 0;
 }
 
 /* 🌟 Search Input */
@@ -56,100 +65,21 @@
   background: transparent;
   font-size: 14px;
   color: #333;
-  width: 220px;
+  width: 100%;
+  min-width: 120px;
 }
 
 .invoice-search-container input::placeholder {
   color: #888;
 }
 
-/* 🌟 Actions - Buttons */
+/* 🌟 Actions Container */
 .actions {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
-
-/* 🌟 Filter Modal */
-.filter-bubble {
-  position: absolute;
-  top: 60px;
-  left: 0;
-  background: #ffffff;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  padding: 12px;
-  z-index: 10;
-  width: 180px;
-  opacity: 0;
-  transform: scale(0.95);
-  transition: all 0.3s ease-in-out;
-  animation: fadeIn 0.3s forwards;
-}
-.invoice-filter-icon{
-  color: #000;
-}
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-.name-link {
-  background: transparent;
-  border: none;
-  color: #007bff; /* Link color */
-  text-decoration: none;
-  cursor: pointer;
-  font-size: 1rem; /* Match link text size */
-  padding: 0;
-  transition: color 0.3s, text-decoration 0.3s;
-}
-
-.name-link:hover {
-  text-decoration: underline;
-  color: #0056b3; /* Darker shade on hover */
-}
-
-.name-link:focus {
-  outline: none; /* Remove focus outline */
-}
-
-/* 🌟 Filter Options */
-.filter-option {
-  display: block;
-  padding: 12px 14px;
-  border: none;
-  cursor: pointer;
-  font-size: 14px;
-  color: #333;
-  text-align: left;
-  transition: 0.3s;
-  width: 100%;
-  border-radius: 8px;
-}
-
-/* 🌟 Filter Hover and Active */
-.filter-option:hover {
-  background: #007bff;
-  color: #ffffff;
-}
-
-.filter-option.active {
-  background: #4caf50;
-  color: #fff;
-}
-
-/* 🌟 Filter Divider */
-.filter-divider {
-  height: 1px;
-  background: #ddd;
-  margin: 6px 0;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 /* 🌟 Common Button Styles */
@@ -160,11 +90,12 @@
   gap: 6px;
   font-size: 14px;
   font-weight: 500;
-  padding: 10px 16px;
+  padding: 8px 12px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease-in-out;
+  transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 /* 🌟 Filter Button */
@@ -187,228 +118,343 @@
   background: #357ac8;
 }
 
-/* 🌟 Table Wrapper */
-.entries-table-container {
-  width: 100%;
-  overflow-x: auto;
-  padding: 12px;
-  border-radius: 16px;
+/* 🌟 Filter Modal */
+.filter-bubble {
+  position: absolute;
+  top: 100%;
+  right: 30px;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 8px 0;
+  z-index: 1000;
+  width: 180px;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.2s ease;
+  pointer-events: none;
 }
 
-/* 🌟 Modern Table */
+.filter-bubble.active {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.invoice-filter-icon {
+  color: #000;
+}
+
+/* 🌟 Filter Options */
+.filter-option {
+  display: block;
+  padding: 10px 16px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  text-align: left;
+  transition: 0.2s;
+  width: 100%;
+  background: transparent;
+}
+
+.filter-option:hover {
+  background: #f1f3f5;
+}
+
+.filter-option.active {
+  color: #007bff;
+  font-weight: 500;
+}
+
+.filter-divider {
+  height: 1px;
+  background: #eee;
+  margin: 4px 0;
+}
+
+/* 🌟 Table Styles */
 .entries-table {
   width: 100%;
   border-collapse: collapse;
   background: white;
-  border-radius: 16px;
-  overflow: hidden;
+  min-width: 600px; /* Minimum width before horizontal scrolling */
 }
 
-/* 🌟 Table Header */
 .entries-table thead {
-  background: #f1f3f5;
-  text-align: left;
+  background: #f8f9fa;
 }
 
-/* 🌟 Header Styling */
 .entries-table th {
-  padding: 16px 20px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #333;
-  border-bottom: 1px solid #dee2e6;
-}
-
-/* 🌟 Table Row */
-.entries-table tbody tr {
-  background: white;
-  transition: background-color 0.3s ease-in-out;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-
-}
-
-/* 🌟 Hover Effect */
-.entries-table tbody tr:hover {
-  background-color: #eef3ff;
-  cursor: pointer;
-}
-
-/* 🌟 Table Cells */
-.entries-table td {
-  padding: 16px 20px;
+  padding: 12px 16px;
   font-size: 14px;
-  font-weight: 500;
-  color: #555;
+  font-weight: 600;
+  color: #495057;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+}
+
+.entries-table td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #495057;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.entries-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.entries-table tbody tr:hover {
+  background-color: #f8f9fa;
 }
 
 /* 🌟 Status Indicator */
 .status-indicator {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 6px 10px;
   border-radius: 20px;
-  font-weight: bold;
-  color: #333;
-  background: #f1f1f1;
-  transition: 0.3s;
-  font-size: 14px;
+  font-weight: 500;
+  font-size: 13px;
+  min-width: 80px;
+  text-align: center;
 }
 
-/* ✅ Colors for Different Statuses */
 .status-paid {
   color: #0a600e;
-  background-color: #b8f6ba;
+  background-color: #e6f7e7;
 }
 
 .status-pending {
   color: #aa5500;
-  background-color: #fed4aa;
+  background-color: #fff4e6;
 }
 
 .status-not-created {
   color: #a40606;
-  background-color: #fcc6c6;
+  background-color: #ffebee;
 }
 
 .status-error {
   color: #757575;
-  background-color: #e0e0e0;
+  background-color: #f5f5f5;
 }
 
-/* ✅ Hover Effect */
-.status-indicator:hover {
-  background: #e0e0e0;
+/* 🌟 Name Link */
+.name-link {
+  background: transparent;
+  border: none;
+  color: #007bff;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  transition: color 0.2s;
 }
 
-/* 🌟 No Entries Message */
-.no-entries {
-  text-align: center;
-  font-size: 16px;
-  color: #777;
-  padding: 20px;
+.name-link:hover {
+  text-decoration: underline;
+  color: #0056b3;
 }
-/* Container for button and icons */
+
+/* 🌟 Action Buttons */
 .invoice-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-/* Flexbox for alignment */
-.actions-container {
+.actions-container{
   display: flex;
-  align-items: center;
-  gap: 16px;
+  gap: 10px;
 }
 
-/* Button Styling */
 .send-invoice-btn {
   background-color: #4caf50;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
+  padding: 8px 16px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: 0.3s;
+  font-size: 14px;
+  transition: background 0.2s;
+  white-space: nowrap;
 }
 
 .send-invoice-btn:hover {
-  background-color: #45a049;
+  background-color: #3d8b40;
 }
 
-/* Circular icon container */
 .icon-container {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
-/* Icon circle design */
 .icon-circle {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 20px;
+  font-size: 16px;
   cursor: pointer;
-  transition: transform 0.2s;
+  transition: transform 0.2s, background 0.2s;
 }
 
-/* Email background */
 .email-bg {
-  background-color: #007bff; /* Blue */
+  background-color: #007bff;
 }
 
-.email-bg:hover {
-  background-color: #0056b3; /* Darker blue */
-}
-
-/* WhatsApp background */
 .whatsapp-bg {
-  background-color: #25d366; /* WhatsApp green */
+  background-color: #25d366;
 }
 
-.whatsapp-bg:hover {
-  background-color: #128c7e; /* Darker green */
-}
-
-/* Icon Styling */
-.chat-icon {
-  color: white;
-  font-size: 18px;
-}
-
-/* Hover effect for the circle */
 .icon-circle:hover {
   transform: scale(1.1);
 }
 
-/* 🌟 Responsive Design */
-@media (max-width: 1024px) {
+/* 🌟 No Entries Message */
+.no-entries {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6c757d;
+  font-size: 16px;
+  background: #fff;
+  border-radius: 12px;
+}
+
+/* 🌟 Responsive Adjustments */
+@media (max-width: 1200px) {
   .invoice-entries-container {
-    padding: 20px;
+    margin-top: 50px;
+  }
+}
+
+@media (max-width: 992px) {
+  .entries-header {
+    gap: 12px;
+  }
+  
+  .invoice-search-container {
+    min-width: 160px;
+  }
+  
+  .invoice-filter-btn,
+  .invoice-export-btn {
+    padding: 8px 12px;
+    font-size: 13px;
   }
 }
 
 @media (max-width: 768px) {
   .invoice-entries-container {
+    margin-top: 40px;
     padding: 16px;
   }
-
+  
   .entries-header {
     flex-direction: column;
-    gap: 12px;
+    align-items: stretch;
   }
-
-  .invoice-search-container input {
-    width: 100%;
+  
+  .invoice-search-container {
+    max-width: 100%;
   }
-
+  
   .actions {
+    justify-content: space-between;
     width: 100%;
   }
-
+  
   .entries-table th,
   .entries-table td {
-    padding: 12px;
+    padding: 10px 12px;
     font-size: 13px;
+  }
+  
+  .status-indicator {
+    font-size: 12px;
+    min-width: 70px;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 576px) {
   .invoice-entries-container {
     padding: 12px;
+    margin-top: 50px;
   }
-
+  
   .entries-table th,
   .entries-table td {
-    padding: 8px;
-    font-size: 11px;
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+  
+  .invoice-actions {
+    gap: 6px;
+  }
+  
+  .send-invoice-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  .icon-circle {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+  
+  .status-indicator {
+    padding: 4px 8px;
+    min-width: 60px;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) {
+  .invoice-filter-btn,
+  .invoice-export-btn,
+  .send-invoice-btn,
+  .icon-circle {
+    transition: none;
+  }
+  
+  .entries-table tbody tr:hover {
+    background-color: inherit;
+  }
+}
+
+/* Print styles */
+@media print {
+  .invoice-entries-container {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .entries-header,
+  .invoice-actions {
+    display: none;
+  }
+  
+  .entries-table {
+    min-width: 100%;
+    box-shadow: none;
+  }
+  
+  .entries-table th {
+    background: #fff;
+    color: #000;
+    border-bottom: 2px solid #000;
   }
 }

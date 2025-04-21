@@ -483,7 +483,7 @@ const InvoiceEntries = () => {
             <FiFilter onClick={toggleFilterModal} className="invoice-filter-icon"/>
             
             {showFilterModal && (
-  <div className="filter-bubble">
+  <div className="course-filter-bubble">
     <button
       className={`filter-option ${activeFilter === "All" ? "active" : ""}`}
       onClick={() => handleFilterSelect("All")}

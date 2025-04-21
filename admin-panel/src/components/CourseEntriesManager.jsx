@@ -140,7 +140,7 @@ const CourseEntriesManager = () => {
 
           {/* 🌟 Filter Bubble Modal (Positioned below the icon) */}
           {showFilterModal && (
-            <div className="filter-bubble">
+            <div className="course-filter-bubble">
               <button
                 className={`filter-option ${activeFilter === "All" ? "active" : ""}`}
                 onClick={() => handleFilterSelect("All")}

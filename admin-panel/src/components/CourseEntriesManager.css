@@ -78,10 +78,10 @@
 }
 
 /* 🌟 Bubble Modal Positioned Below */
-.filter-bubble {
+.course-filter-bubble {
   position: absolute;
   top: 60px;
-  left: 0;
+  right: 0px;
   background: #ffffff;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
@@ -102,6 +102,7 @@
   width: 100%;
   border-radius: 5px;
   background-color: #fff;
+  font-weight: 700;
 }
 
 .filter-option:hover,
@@ -192,7 +193,7 @@
     height: 40px;
   }
 
-  .filter-bubble {
+  .course-filter-bubble {
     width: 120px;
   }
 
@@ -222,8 +223,8 @@
     height: 40px;
   }
 
-  .filter-bubble {
-    width: 100px;
+  .course-filter-bubble {
+    width: 120px;
   }
 
   .course-details-row {
