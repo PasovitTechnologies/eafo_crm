@@ -1,5 +1,7 @@
 /* 🌐 Main Container */
 .course-questions-manage-page {
+
+
     .course-questions-manage-container {
         margin-left: 80px;
         height: 100vh;
@@ -7,11 +9,10 @@
         background: #f9f9f9;
         display: flex;
         flex-direction: column;
-    }
 
-    .course-question-header {
+    }
+    .course-question-header{
         display: flex;
-        flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
         background: #ffffff;
@@ -25,32 +26,27 @@
         padding-top: 80px;
     }
    
-    .course-question-header .left-header {
+    .course-question-header .left-header{
         font-size: 20px;
         font-weight: bold;
         color: #333;
-        margin: auto 0;
+        margin: auto 0px;
         display: flex;
         align-items: center;
         justify-content: center;
         gap: 20px;
-        flex-wrap: wrap;
     }
 
-    .course-question-header .left-header h2 {
+    .course-question-header .left-header h2{
         font-size: 22px;
         margin: auto;
-        white-space: nowrap;
     }
-
     /* 🔹 Right Header (Search + Button) */
     .course-question-header .right-header {
         display: flex;
-        flex-wrap: wrap;
         align-items: center;
         gap: 20px;
     }
-
     .course-question-header .form-search-container {
         display: flex;
         gap: 15px;
@@ -60,25 +56,23 @@
         padding: 5px 15px;
         border-radius: 5px;
         height: 20px;
-        min-width: 200px;
     }
 
     /* 🔍 Search Icon */
     .course-question-header .form-search-icon {
-        font-size: 18px;
-        color: #555;
-    }
+    font-size: 18px;
+    color: #555;
+}
 
-    /* ✏️ Search Input */
-    .course-question-header .form-search-input {
-        border: none;
-        outline: none;
-        background: transparent;
-        flex-grow: 1;
-        font-size: 14px;
-        padding-left: 8px;
-        min-width: 150px;
-    }
+/* ✏️ Search Input */
+.course-question-header .form-search-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    flex-grow: 1;
+    font-size: 14px;
+    padding-left: 8px;
+}
 
     /* 🏷️ Page Title */
     h2 {
@@ -86,7 +80,7 @@
         color: #333;
         text-align: center;
         font-weight: 600;
-        margin: auto 0;
+        margin: auto 0px;
     }
 
     /* ❌ Error Message */
@@ -99,39 +93,38 @@
         border-left: 5px solid #f5c6cb;
         font-size: 1rem;
     }
-
     /* 🔍 Search Bar */
-    .question-search-container {
-        display: flex;
-        align-items: center;
-        background: #ffffff;
-        border-radius: 30px;
-        padding: 12px 20px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        width: 100%;
-        max-width: 400px;
-    }
+.question-search-container {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 30px;
+  padding: 12px 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
 
-    /* 🔍 Search Icon */
-    .form-search-icon {
-        font-size: 18px;
-        color: #555;
-    }
+/* 🔍 Search Icon */
+.form-search-icon {
+    font-size: 18px;
+    color: #555;
+}
 
-    /* ✏️ Search Input */
-    .form-search-input {
-        border: none;
-        outline: none;
-        background: transparent;
-        flex-grow: 1;
-        font-size: 14px;
-        padding-left: 8px;
-    }
+/* ✏️ Search Input */
+.form-search-input {
+    border: none;
+    outline: none;
+    background: transparent;
+    flex-grow: 1;
+    font-size: 14px;
+    padding-left: 8px;
+}
+
 
     /* 🔖 Tab Navigation */
     .tabs {
         display: flex;
-        flex-wrap: wrap;
         justify-content: center;
         gap: 15px;
         padding: 10px 20px;
@@ -147,7 +140,6 @@
         font-size: 1rem;
         transition: all 0.3s ease;
         flex: 1;
-        min-width: 150px;
     }
 
     .tabs button.active {
@@ -163,39 +155,40 @@
         color: #000;
     }
 
-    .course-question-manager-content {
-        flex-grow: 1;
-        padding: 0 20px 50px;
-        height: calc(100vh - 120px);
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: #aaa #f9f9f9;
+    .course-question-manager-content{
+    flex-grow: 1;
+    padding: 0px 20px 50px 20px;
+    height: calc(100vh - 120px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #aaa #f9f9f9;
     }
 
     /* 📋 Question List */
     .question-list {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        padding: 30px 20px;
-        background-color: #f9f9f9;
-        border-radius: 12px;
-        border: 1px solid #ddd;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
-        animation: fadeIn 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 30px 20px ;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+    animation: fadeIn 0.3s ease-in-out;
+
     }
 
     /* 📝 Question Item */
     .question-item {
-        padding: 20px;
-        border: 1px solid #ddd;
-        border-radius: 12px;
-        background-color: #fff;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 15px;
-        transition: all 0.3s;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 15px;
+    transition: all 0.3s;
     }
 
     .question-item:hover {
@@ -206,7 +199,6 @@
     /* 🏷️ Question Text */
     .question-item span {
         flex: 1;
-        min-width: 200px;
         font-size: 1rem;
         color: #333;
         margin-right: 20px;
@@ -214,18 +206,18 @@
         white-space: nowrap;
         text-overflow: ellipsis;
     }
-
-    .preview-button-conatiner {
+    .preview-button-conatiner{
         display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-        gap: 10px;
+        flex-direction: row;
+        justify-content: end;
+        
     }
-
-    .preview-button {
+    .preview-button{
         background-color: #218838;
         color: white;
+        
     }
+
 
     /* 🎮 Button Group */
     .question-item-buttons {
@@ -235,58 +227,61 @@
     }
 
     /* 🔘 Question Options */
-    .question-options {
-        margin-top: 10px;
-        font-size: 0.9rem;
-        color: #555;
-        padding-left: 20px;
-        list-style: disc;
-    }
+.question-options {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #555;
+    padding-left: 20px;
+    list-style: disc;
+}
 
-    .question-options li {
-        margin: 4px 0;
-    }
+.question-options li {
+    margin: 4px 0;
+}
 
-    /* 🎯 Input Field Styles */
-    .question-input {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 1rem;
-        transition: border-color 0.2s;
-    }
+/* 🎯 Input Field Styles */
+.question-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
 
-    .question-input:focus {
-        border-color: #007bff;
-        outline: none;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-    }
+.question-input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
 
-    /* 🔘 Radio and Checkbox Options */
-    .question-options {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        padding-left: 10px;
-    }
+/* 🔘 Radio and Checkbox Options */
+.question-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 10px;
+}
 
-    input[type="radio"],
-    input[type="checkbox"] {
-        margin-right: 8px;
-        accent-color: #007bff;
-    }
 
-    .accept-checkbox label {
-        display: flex;
-        align-items: center;
-        font-size: 14px;
-        margin-top: 10px;
-    }
 
-    .accept-checkbox input[type="checkbox"] {
-        margin-right: 8px;
-    }
+input[type="radio"],
+input[type="checkbox"] {
+    margin-right: 8px;
+    accent-color: #007bff;
+}
+
+.accept-checkbox label {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.accept-checkbox input[type="checkbox"] {
+    margin-right: 8px;
+}
+
 
     /* 🖊️ Edit & 🗑️ Delete Buttons */
     .question-item-buttons button {
@@ -297,7 +292,7 @@
         cursor: pointer;
         transition: all 0.2s ease;
         color: white;
-        white-space: nowrap;
+        
     }
 
     .question-item-buttons .edit-btn {
@@ -345,152 +340,148 @@
         transform: scale(0.98);
     }
 
-    /* 🎯 Rules Management Section */
-    .rules-management-section {
-        padding: 30px;
-        background-color: #f9f9f9;
-        border: 1px solid #ddd;
-        border-radius: 16px;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-        animation: fadeIn 0.3s ease-in-out;
-    }
+   /* 🎯 Rules Management Section */
+.rules-management-section {
+    padding: 30px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 16px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    animation: fadeIn 0.3s ease-in-out;
+}
 
-    h4 {
-        font-size: 1.8rem;
-        margin-bottom: 20px;
-        color: #333;
-        font-weight: 600;
-    }
+h4 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: 600;
+}
 
-    /* 📋 Existing Rules List */
-    .existing-rules-list {
-        margin-bottom: 30px;
-    }
+/* 📋 Existing Rules List */
+.existing-rules-list {
+    margin-bottom: 30px;
+}
 
-    /* 📦 Rule Item Card */
-    .rule-item {
-        padding: 20px;
-        border: 1px solid #ddd;
-        margin: 15px 0;
-        border-radius: 12px;
-        background-color: #fff;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
-        transition: all 0.3s;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-    }
+/* 📦 Rule Item Card */
+.rule-item {
+    padding: 20px;
+    border: 1px solid #ddd;
+    margin: 15px 0;
+    border-radius: 12px;
+    background-color: #fff;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 
-    .rule-item:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    }
+.rule-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
 
-    /* 📝 Rule Text */
-    .rule-item p {
-        font-size: 1rem;
-        color: #555;
-        margin: 0;
-        flex: 1;
-        min-width: 200px;
-        padding-right: 20px;
-        line-height: 1.5;
-    }
+/* 📝 Rule Text */
+.rule-item p {
+    font-size: 1rem;
+    color: #555;
+    margin: 0;
+    flex: 1;
+    padding-right: 20px;
+    line-height: 1.5;
+}
 
-    .rule-item strong {
-        color: #222;
-        font-weight: 600;
-    }
+.rule-item strong {
+    color: #222;
+    font-weight: 600;
+}
 
-    .rules-btn-container {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-    }
+.rules-btn-container{
+    display: flex;
+    gap: 10px;
+}
 
-    /* 🎮 Edit & Delete Buttons */
-    .edit-rule-btn, .remove-rule-btn {
-        border: none;
-        padding: 10px 15px;
-        border-radius: 8px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        color: white;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        white-space: nowrap;
-    }
+/* 🎮 Edit & Delete Buttons */
+.edit-rule-btn, .remove-rule-btn {
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
 
-    .edit-rule-btn {
-        background-color: var(--edit-btn);
-    }
+.edit-rule-btn {
+    background-color: var(--edit-btn);
+}
 
-    .edit-rule-btn:hover {
-        background-color: var(--edit-btn-hover);
-    }
+.edit-rule-btn:hover {
+    background-color: var(--edit-btn-hover);
+}
 
-    .remove-rule-btn {
-        background-color: var(--delete-btn);
-    }
+.remove-rule-btn {
+    background-color: var(--delete-btn);
+}
 
-    .remove-rule-btn:hover {
-        background-color: var(--delete-btn-hover);
-    }
+.remove-rule-btn:hover {
+    background-color: var(--delete-btn-hover);
+}
 
-    /* 🔽 Select Dropdown */
-    .select-qns {
-        padding: 14px 18px;
-        width: 100%;
-        margin: 25px 0;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        background-color: white;
-        font-size: 1rem;
-        transition: border-color 0.2s, box-shadow 0.2s;
-        outline: none;
-    }
+/* 🔽 Select Dropdown */
+.select-qns {
+    padding: 14px 18px;
+    width: 100%;
+    margin: 25px 0;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: white;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+}
+.select-qns:hover{
+    cursor: pointer;
+}
 
-    .select-qns:hover {
-        cursor: pointer;
-    }
+.select-qns:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
+}
 
-    .select-qns:focus {
-        border-color: #3498db;
-        box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
-    }
+/* ➕ Add Rule Button */
+.add-rule-btn {
+    padding: 16px;
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    background-color: var(--add-webinar-green);
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s;
+    margin-top: 20px;
+    cursor: pointer;
+}
 
-    /* ➕ Add Rule Button */
-    .add-rule-btn {
-        padding: 16px;
-        width: 100%;
-        border: none;
-        border-radius: 12px;
-        background-color: var(--add-webinar-green);
-        color: white;
-        font-size: 1.2rem;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        transition: all 0.3s;
-        margin-top: 20px;
-        cursor: pointer;
-    }
+.add-rule-btn:hover {
+    background-color: var(--add-webinar-green-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
 
-    .add-rule-btn:hover {
-        background-color: var(--add-webinar-green-hover);
-        transform: translateY(-3px);
-        box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    }
+.add-rule-btn:active {
+    transform: scale(0.97);
+}
 
-    .add-rule-btn:active {
-        transform: scale(0.97);
-    }
-
+  
     /* 🌀 Fade-in Animation */
     @keyframes fadeIn {
         from {
@@ -502,32 +493,11 @@
     }
 
     /* 📱 Mobile Responsiveness */
-    @media (max-width: 1024px) {
-        .course-questions-manage-container {
-            margin-left: 0;
-        }
-        
-        .course-question-header {
-            padding-top: 20px;
-            gap: 15px;
-        }
-        
-        .left-header, .right-header {
-            width: 100%;
-            justify-content: center;
-        }
-        
-        .form-search-container {
-            width: 100%;
-            max-width: none;
-        }
-    }
-
     @media (max-width: 768px) {
-        .course-questions-manage-container {
-            margin-left: 0;
-        }
+        .course-questions-manage-container{
+            margin-left: 0px;
 
+        }
         .tabs {
             flex-direction: row;
             gap: 8px;
@@ -535,8 +505,6 @@
 
         .tabs button {
             width: 100%;
-            padding: 12px;
-            font-size: 0.9rem;
         }
 
         .question-item {
@@ -552,51 +520,6 @@
         .add-question-btn {
             font-size: 1rem;
             padding: 12px;
-        }
-        
-        .rule-item {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 15px;
-        }
-        
-        .rules-btn-container {
-            width: 100%;
-            justify-content: flex-end;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .course-question-header {
-            padding: 15px;
-            padding-top: 80px;
-        }
-        
-        .left-header h2 {
-            font-size: 1.2rem;
-        }
-        
-        .form-search-container {
-            padding: 5px 10px;
-        }
-        
-        .question-item-buttons {
-            flex-direction: column;
-            width: 100%;
-        }
-        
-        .question-item-buttons button {
-            width: 100%;
-        }
-        
-        .rules-btn-container {
-            flex-direction: column;
-            width: 100%;
-        }
-        
-        .edit-rule-btn, .remove-rule-btn {
-            width: 100%;
-            justify-content: center;
         }
     }
 }

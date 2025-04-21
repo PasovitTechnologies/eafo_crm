@@ -1,10 +1,9 @@
-// RenderInputField.js
 import React from "react";
 import Multiselect from "multiselect-react-dropdown";
+import "./QuestionsPreviewModal.css";
 
 const RenderInputField = ({ question, handleMultiSelectChange }) => {
   switch (question.type) {
-    // 📂 Standard Input Types
     case "text":
     case "email":
     case "number":
@@ -15,90 +14,85 @@ const RenderInputField = ({ question, handleMultiSelectChange }) => {
       return (
         <input
           type={question.type === "phone" ? "tel" : question.type}
-          className="question-input"
+          className="question-input responsive-input"
           placeholder={`Enter ${question.label}`}
         />
       );
 
-    // 📝 Text Area
     case "textarea":
       return (
         <textarea
-          className="question-input"
+          className="question-input responsive-input"
           placeholder={`Enter ${question.label}`}
         />
       );
 
-    // 📁 File Upload
     case "file":
-      return <input type="file" className="question-input" />;
+      return <input type="file" className="question-input responsive-input" />;
 
-    // 📋 Dropdown Select
     case "select":
       return (
-        <select className="question-input">
+        <select className="question-input responsive-input">
           <option>Select an option</option>
           {(question.options ?? []).map((opt, index) => (
-            <option key={index} value={opt}>
+            <option key={index} value={opt} className="responsive-option truncate-text">
               {opt}
             </option>
           ))}
         </select>
       );
 
-    // 🔘 Radio & Checkbox
     case "radio":
     case "checkbox":
       return (
-        <div className="question-options">
+        <div className="question-options responsive-options">
           {(question.options ?? []).map((opt, index) => (
-            <label key={index}>
+            <label key={index} className="responsive-label responsive-option truncate-text">
               <input
                 type={question.type}
                 name={`question-${question._id}`}
                 value={opt}
               />
-              {opt}
+              <span className="truncate-text">{opt}</span>
             </label>
           ))}
         </div>
       );
 
-    // 🆕 Multi-Select as Checkboxes
     case "multi-select":
       return (
-        <Multiselect
-          isObject={false}
-          options={question.options ?? []}
-          onSelect={(selectedList) =>
-            handleMultiSelectChange(selectedList, question._id)
-          }
-          onRemove={(selectedList) =>
-            handleMultiSelectChange(selectedList, question._id)
-          }
-          placeholder={`Select ${question.label}`}
-          showCheckbox={true}
-          className="multi-select-dropdown"
-        />
+        <div className="responsive-input">
+          <Multiselect
+            isObject={false}
+            options={question.options ?? []}
+            onSelect={(selectedList) =>
+              handleMultiSelectChange(selectedList, question._id)
+            }
+            onRemove={(selectedList) =>
+              handleMultiSelectChange(selectedList, question._id)
+            }
+            placeholder={`Select ${question.label}`}
+            showCheckbox={true}
+            className="multi-select-dropdown truncate-text"
+          />
+        </div>
       );
 
-    // 🆕 📄 Content Type: Display Static HTML Content
     case "content":
       return (
         <div
-          className="content-display"
+          className="content-display responsive-content"
           dangerouslySetInnerHTML={{ __html: question.content }}
         ></div>
       );
 
-    // 🆕 📑 Accept Terms
     case "accept":
       return (
-        <div className="accept-checkbox">
-          <label htmlFor={`accept-${question._id}`}>
+        <div className="accept-container">
+          <label htmlFor={`accept-${question._id}`} className="accept-label responsive-label truncate-text">
             <input type="checkbox" id={`accept-${question._id}`} />
             <span
-              className="accept-label"
+              className="accept-text responsive-option truncate-text"
               dangerouslySetInnerHTML={{
                 __html: `I accept the <a href="https://www.eafo.com" target="_blank"><b>terms and conditions</b></a> of EAFO.`,
               }}
@@ -108,7 +102,7 @@ const RenderInputField = ({ question, handleMultiSelectChange }) => {
       );
 
     default:
-      return <span>Unsupported question type</span>;
+      return <span className="unsupported-message">Unsupported question type</span>;
   }
 };
 

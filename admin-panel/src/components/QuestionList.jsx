@@ -89,7 +89,7 @@ const moveQuestionDown = (index) => {
         <div>
             {/* 📋 Question Label and Type */}
             <span
-              className="question-label"
+              className="form-question-label truncate-text"
               dangerouslySetInnerHTML={{
                 __html: `${q.label} (${q.type})`,
               }}

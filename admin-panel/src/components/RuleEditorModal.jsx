@@ -3,6 +3,7 @@ import { FaPlus, FaTrash, FaSave, FaTimes } from "react-icons/fa";
 import "./RuleEditorModal.css";
 import { useTranslation } from "react-i18next";
 
+
 const RuleEditorModal = ({ questions, initialRule, onSave, onCancel, isOpen }) => {
   const [editingRule, setEditingRule] = useState({
     action: "show",
