@@ -111,6 +111,7 @@
 @media (max-width: 480px) {
   .invoice-manager-page {
     padding: 60px 10px 20px 10px;
+    margin-top: 20px;
   }
 
   .invoice-course-list {

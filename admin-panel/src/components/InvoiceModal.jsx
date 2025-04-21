@@ -491,7 +491,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
                 placeholder="Amount"
               />
               <span className="currency-type">{currency}</span>
-              <button className="delete-icon" onClick={() => removeItem(index)}>
+              <button className="invoice-delete-btn" onClick={() => removeItem(index)}>
                 <FaTrashAlt />
               </button>
             </div>

@@ -212,10 +212,9 @@ const CourseManager = () => {
 
         {/* Course List */}
         <div className="course-list-manager">
-          <ul className="course-manager-list">
+          <ul className="course-list">
             {courses.map((course) => (
-              <li key={course._id} className="course-manager-list-card">
-                <div>
+              <li key={course._id} className="course-list-card">
                 <Link to={`/course-manager/course/${course._id}`} className="course-link">
                   <div className="course-list-content">
                     <div
@@ -231,7 +230,6 @@ const CourseManager = () => {
                     </div>
                   </div>
                 </Link>
-                </div>
 
                 <div className="course-actions-btn">
                   <button onClick={() => openEditModal(course)} className="edit-btn">{t('CourseManager.edit')}</button>

@@ -292,11 +292,11 @@ const CourseForms = () => {
   
       toast.error(t("courseForms.updateFailed"), { position: "top-right", autoClose: 3000 });
   
-      // 🔄 Revert UI back to the previous state
       setForms(prevForms);
     }
   };
 
+  
   return (
     <div className="form-page">
        <ToastContainer     className="custom-toast-container"/>

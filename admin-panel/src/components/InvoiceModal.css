@@ -119,16 +119,17 @@
 /* ================================
    Delete Icon
 ================================ */
-.delete-icon {
+.invoice-delete-icon {
   background-color: #ff4d4d;
   color: #fff;
   font-size: 15px;
   cursor: pointer;
   padding: 8px 12px;
   border-radius: 5px;
+  width: fit-content;
 }
 
-.delete-icon:hover {
+.invoice-delete-icon:hover {
   background-color: #7f0c0c;
 }
 
@@ -378,6 +379,8 @@
 @media (max-width: 480px) {
   .invoice-modal {
     padding: 16px;
+    padding-top: 50px;
+
   }
 
   .item-row {
