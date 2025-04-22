@@ -470,7 +470,7 @@ const CourseDetail = () => {
       {showRuleForm && (
         <div className="rule-form-overlay" onClick={resetRuleForm}>
           <div className="rule-form" onClick={(e) => e.stopPropagation()}>
-            <button className="close-btn" onClick={resetRuleForm}>✖</button>
+            <button className="rule-close-btn" onClick={resetRuleForm}>✖</button>
 
             <h3>{editingRule ? t("courseDetail.editRule") : t("courseDetail.addNewRule")}</h3>
 

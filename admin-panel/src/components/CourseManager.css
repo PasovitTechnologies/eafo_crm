@@ -1,180 +1,149 @@
-/* General Styles */
 .course-manager-page {
-  padding-left: 80px;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
   background: #f9f9f9;
-  display: flex;
-  flex-direction: column;
+  box-sizing: border-box;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
 .course-manager-page-container {
-  display: flex;
-  flex-direction: column;
-  margin: auto;
+  margin: 40px  0 0 40px;
   width: 100%;
-  margin-top: 60px;
 }
 
+/* Header Styles */
 .course-manager-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   background: #ffffff;
-  padding: 20px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 10px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.course-manager-left-header {
-  font-size: 20px;
-  font-weight: bold;
-  color: #333;
-  margin: auto 0px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
+  padding: 15px 20px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  border-radius: 8px;
 }
 
 .course-manager-left-header h2 {
-  font-size: 22px;
-  margin: auto;
-}
-
-.course-manager-right-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-.course-manager-right-header .add-course-btn {
-  background: #033672;
-  color: #fff;
-  border: none;
-  padding: 8px 15px;
-  font-size: 14px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s ease-in-out;
-}
-
-.course-manager-right-header .add-course-btn:hover {
-  background: rgb(7, 50, 96);
-}
-
-.course-list-manager {
-  flex-grow: 1;
-  padding: 0px 60px 50px 20px;
-  height: calc(100vh - 150px);
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #aaa #f9f9f9;
-}
-
-.course-list-manager .course-list {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 10px;
-  border-left: 5px solid transparent;
-  border-radius: 5px;
-  margin-bottom: 12px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  list-style-type: none;
-}
-
-.course-list-manager .course-manager-list-card {
-  display: flex;
-  flex-direction: row; /* Stack items vertically */
-  justify-content: space-between;
-  background-color: white;
-  padding: 10px 15px;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  cursor: pointer; /* Make the whole li clickable */
-  border: 1px solid #f0f0f0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  width: 100%; /* Ensure items fit in small containers */
-}
-
-.course-list-manager .course-list-content {
-  display: flex;
-  flex-direction: row;
-  gap: 15px;
-}
-
-.course-manager-list-card .course-banner {
-  width: 180px;
-  height: 100px; /* Adjust this based on your preferred size */
-  background-size: cover;
-  background-position: center;
-  border-radius: 4px;
-  margin-bottom: 10px; /* Space between banner and content */
-}
-
-.course-manager-list-card .course-info {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-  gap: 5px;
-  padding: 10px;
-}
-
-.course-manager-list-card .course-name {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 1.5rem;
+  margin: 0;
   color: #333;
 }
 
-.course-manager-list-card .course-date {
-  font-size: 14px;
-  color: #777;
+.add-course-btn {
+  background: #033672;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-/* Actions Container for Edit and Delete Buttons */
-.course-manager-list-card .course-actions-btn {
+.add-course-btn:hover {
+  background: #022a5a;
+}
+
+/* Course List Styles */
+.course-list-manager {
+  padding: 0 10px;
+}
+
+.no-courses-message {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.course-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.course-list-card {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.course-list-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.course-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.course-list-content {
   display: flex;
   flex-direction: column;
+}
+
+.course-banner {
+  height: 160px;
+  background-size: cover;
+  background-position: center;
+}
+
+.course-info {
+  padding: 15px;
+}
+
+.course-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.course-date {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.course-actions-btn {
+  display: flex;
   gap: 10px;
-  justify-content: center; /* Align the buttons to the right */
+  padding: 0 15px 15px;
 }
 
-.course-manager-list-card .course-actions button {
-  padding: 8px 15px;
-  border-radius: 4px;
+.edit-btn, .delete-btn {
+  flex: 1;
+  padding: 8px 0;
   border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
   cursor: pointer;
+  transition: opacity 0.2s;
 }
 
-.course-manager-list-card .edit-btn {
-  background-color: var(--edit-btn); /* Light Orange */
+.edit-btn {
+  background-color: #ffa500;
   color: white;
 }
 
-.course-manager-list-card .edit-btn:hover {
-  background-color: var(--edit-btn-hover); /* Darker orange */
-}
-
-.course-manager-list-card .delete-btn {
-  background-color: var(--delete-btn);
+.delete-btn {
+  background-color: #ff4444;
   color: white;
 }
 
-.course-manager-list-card .delete-btn:hover {
-  background-color: var(--delete-btn-hover);
+.edit-btn:hover, .delete-btn:hover {
+  opacity: 0.9;
 }
 
-/* Modal Overlay */
+/* Modal Styles */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -186,308 +155,143 @@
   justify-content: center;
   align-items: center;
   z-index: 1000;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto; /* Enable vertical scrolling only */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
 }
 
-/* Modal Container */
 .course-manager-modal {
   background: white;
   border-radius: 12px;
-  width: 600px;
-  max-width: 90vw;
+  width: 100%;
+  max-width: 700px;
   max-height: 90vh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   animation: fadeIn 0.3s ease-in-out;
-  position: relative; /* Added for absolute positioning of close button */
-  overflow: hidden; /* Prevent content from overflowing rounded corners */
+  position: relative;
 }
 
-/* Modal Header */
 .course-manager-modal h3 {
-  padding: 20px 30px 10px;
+  padding: 20px;
   margin: 0;
-  font-size: 22px;
+  font-size: 1.3rem;
   color: #333;
   border-bottom: 1px solid #eee;
 }
 
-/* Form Container */
 .course-form {
-  padding: 15px 30px;
+  padding: 20px;
   overflow-y: auto;
-  flex-grow: 1;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+.form-field {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  position: relative;
+  gap: 5px;
 }
 
-/* Form Elements */
-.course-form input,
-.course-form textarea {
-  padding: 12px 15px;
+.form-field label {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.form-field input,
+.form-field textarea {
+  padding: 10px 12px;
   border: 1px solid #ddd;
   border-radius: 6px;
-  font-size: 16px;
-  background-color: #fff;
-  color: #000;
+  font-size: 0.95rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Textarea Specific Styles */
-.course-form textarea {
-  min-height: 120px; /* Increased minimum height */
-  resize: vertical; /* Allows user to resize vertically */
+.form-field textarea {
+  min-height: 100px;
+  resize: vertical;
 }
 
-/* Save Button */
 .save-btn {
+  width: 100%;
   padding: 12px;
+  margin-top: 15px;
   background: #4CAF50;
   color: white;
   border: none;
   border-radius: 6px;
-  font-size: 16px;
+  font-size: 1rem;
   cursor: pointer;
-  margin: 10px 0 20px;
+  transition: background 0.2s;
 }
 
-/* Close Button */
+.save-btn:hover {
+  background: #3e8e41;
+}
+
 .course-close-btn {
   position: absolute;
   top: 10px;
   right: 10px;
   background: none;
   border: none;
-  font-size: 24px;
+  font-size: 1.5rem;
   cursor: pointer;
-  z-index: 10; /* Ensure it stays above scrolling content */
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  transition: background 0.2s;
-  color: #000;
+  color: #666;
 }
 
-/* Scrollbar Styling */
-.course-form::-webkit-scrollbar {
-  width: 8px;
-}
-
-.course-form::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.course-form::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-.course-form::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-.course-manager-modal input:focus,
-.course-manager-modal textarea:focus {
-  outline: none;
-  border-color: #007bff; /* Highlight on focus */
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-}
-
-/* Date Picker Styling */
-.course-manager-modal input[type="date"] {
-  cursor: pointer;
-  background-color: #f9f9f9;
+.course-close-btn:hover {
+  background: #f5f5f5;
   color: #333;
 }
 
-/* Full-width button styling */
-.course-manager-modal .modal-footer {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin-top: 20px;
-  gap: 10px; /* Consistent spacing between buttons */
+/* Responsive Styles */
+@media (min-width: 768px) {
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .course-list {
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  }
 }
 
-/* Save Button */
-.course-manager-modal .modal-footer .save-btn {
-  width: 100%;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #fff;
-  background-color: #007bff;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.course-manager-modal .modal-footer .save-btn:hover {
-  background-color: #0056b3;
-}
-
-.course-manager-modal .close-modal-btn:hover {
-  color: red;
-}
-
-/* Responsive Styling */
-@media (max-width: 1200px) {
+@media (min-width: 992px) {
   .course-manager-page {
-    padding-left: 40px;
-  }
-
-  .course-manager-page-container {
-    padding: 0 20px;
-  }
-
-  .course-manager-header {
-    padding: 15px;
-  }
-
-  .course-manager-left-header h2 {
-    font-size: 18px;
-  }
-
-  .course-list-manager {
-    padding: 0 30px;
-  }
-
-  .course-manager-list-card {
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .course-manager-list-card .course-info {
-    gap: 8px;
-  }
-
-  .course-manager-modal {
-    width: 80%;
-    max-width: 700px;
+    padding: 20px 40px;
   }
 }
 
 @media (max-width: 768px) {
-  .course-manager-page {
-    padding-left: 20px;
-  }
 
-  .course-manager-left-header h2 {
-    font-size: 16px;
-  }
-
-  .course-manager-header {
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px;
-  }
-
-  .course-manager-left-header {
-    font-size: 18px;
-    flex-direction: column;
-  }
-
-  .course-list-manager {
-    padding: 0 15px;
-  }
-
-  .course-manager-modal {
-    width: 95%;
-    max-width: 100%;
-  }
-
-  .course-manager-modal h3 {
-    font-size: 20px;
-  }
-  .course-manager-list-card{
-    display: flex;
-    flex-direction: column;
-  }
-
-  .course-manager-list-card .course-banner {
+  .course-manager-page-container {
+    margin: 70px  0 0 0px;
     width: 100%;
-    height: 120px;
   }
 
-  .course-manager-list-card .course-info {
-    padding: 10px;
-  }
-
-  .save-btn {
-    padding: 10px;
-    font-size: 14px;
-  }
-
-  .course-close-btn {
-    font-size: 20px;
-    width: 35px;
-    height: 35px;
-  }
 }
 
-/* For Very Small Screens (Mobile) */
-@media (max-width: 480px) {
-  .course-manager-page {
-    padding-left: 10px;
-  }
 
-  .course-manager-left-header h2 {
-    font-size: 14px;
-  }
-
-  .course-manager-header {
-    padding: 8px;
-  }
-
-  .course-manager-left-header {
-    font-size: 16px;
-  }
-
-  .course-list-manager {
-    padding: 0 10px;
-  }
-
-  .course-manager-list-card {
-    flex-direction: column;
-  }
-
-  .course-manager-modal {
-    width: 90%;
-    max-width: 100%;
-    padding: 20px;
-  }
-
-  .course-manager-list-card .course-banner {
-    width: 100%;
-    height: 80px;
-  }
-
-  .course-manager-list-card .course-info {
-    padding: 10px;
-  }
-
-  .course-close-btn {
-    font-size: 18px;
-    width: 30px;
-    height: 30px;
-  }
-
-  .save-btn {
-    padding: 8px;
-    font-size: 12px;
-  }
-}
-
-/* Fade In Animation */
+/* Animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: scale(0.9);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;

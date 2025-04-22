@@ -1,5 +1,3 @@
-
-.form-page{
 .forms-page {
     margin-left: 80px;
     height: 100vh;
@@ -16,7 +14,6 @@
     margin: auto;
     width: 100%;
     margin-top: 60px;
-   
 }
 
 /* 🔹 Top Header Styling */
@@ -25,42 +22,38 @@
     justify-content: space-between;
     align-items: center;
     background: #ffffff;
-    padding:  20px;
+    padding: 20px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     margin-bottom: 10px;
     position: sticky;
     top: 0;
     z-index: 10;
 }
-.go-back{
+
+.go-back {
     display: flex;
     align-items: center;
     justify-content: center;
     background-color: #033672;
     padding: 5px 10px;
     border-radius: 5px;
-    
 }
-.go-back:hover{
-    
+
+.go-back:hover {
     background-color: #082547;
-   
-    
 }
 
 .go-back-icon {
     font-size: 22px;
     font-weight: bold;
     cursor: pointer;
-    color: #fff; /* Default color */
+    color: #fff;
     transition: color 0.3s ease;
-    ;
-  }
-  
-  .go-back-icon:hover {
-    color: #fff; /* Highlight on hover */
-  }
-  
+}
+
+.go-back-icon:hover {
+    color: #fff;
+}
 
 /* 🔹 Left Header (Title) */
 .left-header {
@@ -73,10 +66,12 @@
     justify-content: center;
     gap: 20px;
 }
-.left-header h2{
+
+.left-header h2 {
     font-size: 22px;
     margin: auto;
 }
+
 /* 🔹 Right Header (Search + Button) */
 .right-header {
     display: flex;
@@ -87,13 +82,13 @@
 /* 🔍 Search Bar */
 .form-search-container {
     display: flex;
-  align-items: center;
-  background: #ffffff;
-  border-radius: 30px;
-  padding: 12px 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 400px;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 30px;
+    padding: 12px 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
 }
 
 /* 🔍 Search Icon */
@@ -131,37 +126,6 @@
 
 .new-form-btn:hover {
     background: rgb(7, 50, 96);
-}
-
-/* 📱 Responsive Design */
-@media (max-width: 1024px) {
-    .forms-page {
-        margin-left: 0;
-        padding-top: 50px;
-    }
-
-    .top-header {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 10px 15px;
-    }
-
-    .right-header {
-        width: 100%;
-        justify-content: space-between;
-        margin-top: 8px;
-    }
-
-    .form-search-container {
-        width: 100%;
-    }
-}
-
-@media (max-width: 768px) {
-    .new-form-btn {
-        font-size: 13px;
-        padding: 6px 12px;
-    }
 }
 
 /* 🔹 Forms List */
@@ -219,7 +183,6 @@
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-
 /* 🔹 Make Sure .form-card is Positioned Relative */
 .form-card {
     position: relative;
@@ -236,12 +199,12 @@
     box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-
 .form-card:hover {
     color: #033672;
     border-left: 5px solid #033672;
 }
-.form-card-content .form-name{
+
+.form-card-content .form-name {
     color: #000;
 }
 
@@ -249,7 +212,7 @@
     text-decoration: underline;
 }
 
-.form-card-content{
+.form-card-content {
     display: flex;
     gap: 30px;
     align-items: center;
@@ -263,17 +226,14 @@
     color: #fff;
 }
 
-
 .form-date {
     font-size: 16px;
     color: black;
 }
 
-.form-card:hover .all-entries{
+.form-card:hover .all-entries {
     color: #033672;
 }
-
-
 
 /* 🔹 Form Actions */
 .form-actions {
@@ -296,23 +256,22 @@
     color: black;
     transition: color 0.3s ease, background 0.3s ease;
     box-shadow: 2px 2px 10px rgba(0, 50, 107, 0.2);
-
 }
 
 .form-action-icon:hover {
     color: #033672;
     box-shadow: 2px 2px 10px rgba(0, 50, 107, 0.5);
 }
-/* Tooltip Container */
+
 /* Tooltip Container */
 .tooltip {
     position: relative;
     display: inline-block;
     cursor: pointer;
-  }
-  
-  /* Tooltip Text */
-  .tooltip .tooltiptext {
+}
+
+/* Tooltip Text */
+.tooltip .tooltiptext {
     visibility: hidden;
     background-color: black;
     color: #fff;
@@ -322,33 +281,32 @@
     padding: 6px 10px;
     position: absolute;
     z-index: 10;
-    bottom: 90%; /* Position above the element */
+    bottom: 90%;
     left: 50%;
     transform: translateX(-50%);
     opacity: 0;
     transition: opacity 0.2s ease-in-out;
     white-space: nowrap;
-  }
-  
-  /* Tooltip Arrow */
-  .tooltip .tooltiptext::after {
+}
+
+/* Tooltip Arrow */
+.tooltip .tooltiptext::after {
     content: "";
     position: absolute;
-    top: 100%; /* Position the arrow below */
+    top: 100%;
     left: 50%;
     font-size: 10px;
     margin-left: -5px;
     border-width: 6px;
     border-style: solid;
     border-color: black transparent transparent transparent;
-  }
-  
-  /* Show Tooltip on Hover */
-  .tooltip:hover .tooltiptext {
+}
+
+/* Show Tooltip on Hover */
+.tooltip:hover .tooltiptext {
     visibility: visible;
     opacity: 1;
-  }
-  
+}
 
 /* 🔹 Popup */
 .popup-overlay {
@@ -419,4 +377,131 @@
 .submit-btn:hover {
     background: darkgreen;
 }
+
+/* 📱 Responsive Design */
+@media (max-width: 1200px) {
+    .forms-page {
+        margin-left: 60px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .forms-page {
+        margin-left: 0;
+        padding-top: 50px;
+    }
+
+    .top-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    .left-header {
+        width: 100%;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    .right-header {
+        width: 100%;
+        flex-direction: row;
+        gap: 15px;
+        justify-content: space-between;
+    }
+
+    .form-search-container {
+        width: fit-content;
+    }
+
+    .new-form-btn {
+        width: fit-content;
+    }
+}
+
+@media (max-width: 768px) {
+    .course-forms-container {
+        margin-top: 40px;
+    }
+
+    .form-card-content {
+        gap: 15px;
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .form-name {
+        font-size: 16px;
+    }
+
+    .form-date {
+        font-size: 14px;
+    }
+
+    .form-actions {
+        opacity: 1; /* Keep actions visible on mobile */
+        gap: 8px;
+    }
+
+    .form-action-icon {
+        font-size: 28px;
+        padding: 6px;
+    }
+
+    .forms-list {
+        padding: 0 15px 40px 15px;
+        height: calc(100vh - 160px);
+    }
+}
+
+@media (max-width: 480px) {
+    .top-header {
+        padding: 10px;
+    }
+
+    .left-header h2 {
+        font-size: 18px;
+    }
+
+    .go-back {
+        padding: 4px 8px;
+    }
+
+    .go-back-icon {
+        font-size: 18px;
+    }
+
+    .form-search-container {
+        padding: 8px 15px;
+    }
+
+    .form-search-icon {
+        font-size: 16px;
+    }
+
+    .form-search-input {
+        font-size: 13px;
+    }
+
+    .new-form-btn {
+        padding: 8px 15px;
+        font-size: 13px;
+    }
+
+    .form-card {
+        padding: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .form-actions {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 10px;
+    }
+
+    .popup {
+        width: 90%;
+        padding: 20px;
+    }
 }

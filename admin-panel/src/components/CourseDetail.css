@@ -254,19 +254,19 @@
 
 /* Close Button */
 /* Modal Close Button */
-.item-modal-close {
+.rule-close-btn {
   position: absolute;
   top: 15px;
   right: 15px;
   background: none;
   border: none;
-  font-size: 35px;
+  font-size: 25px;
   color: #333;
   cursor: pointer;
   transition: color 0.3s;
 }
 
-.item-modal-close:hover {
+.rule-close-btn:hover {
   color: #e74c3c;
 }
 
@@ -353,9 +353,48 @@
 
 /* Responsive: Full-width on small screens */
 @media (max-width: 600px) {
+
+  .course-detail-page {
+    margin-left: 0px;
+  
+  }
   .rule-form {
     width: 100%;
   }
+
+  .rule-box,
+.item-card {
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+
+.rule-box-actions,
+.item-card-actions {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 10px;
+}
+
+
+
+.course-details-header {
+  padding: 12px 20px;
+  padding-top: 80px;
+}
+
+.course-heading {
+  font-size: 16px;
+  text-align: left;
+}
+
+.tab-menu {
+  gap: 15px;
+  padding: 10px;
+}
+
 }
 
 /* Condition Box */
@@ -453,4 +492,8 @@
   flex-wrap: wrap;
   gap: 10px;
   align-items: center;
+}
+
+@media (max-width: 480px) {
+  
 }

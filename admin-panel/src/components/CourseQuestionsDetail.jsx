@@ -395,7 +395,7 @@ const CourseQuestionsDetail = () => {
           <div className="go-back">
             <FiArrowLeft className="go-back-icon" onClick={handleGoBack} />
           </div>
-          <h2>{form?.formName} - {t('CourseQuestionsDetail.title')}</h2>
+          <h2>{form?.formName}</h2>
           {errorMessage && <div className="error-message">{errorMessage}</div>}
         </div>
         <div className="right-header">

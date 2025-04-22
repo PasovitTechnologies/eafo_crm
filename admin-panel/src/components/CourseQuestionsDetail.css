@@ -11,6 +11,7 @@
         flex-direction: column;
 
     }
+    
     .course-question-header{
         display: flex;
         align-items: center;
@@ -75,7 +76,7 @@
 }
 
     /* 🏷️ Page Title */
-    h2 {
+    .course-question-header  h2 {
         font-size: 24px;
         color: #333;
         text-align: center;
@@ -203,7 +204,6 @@
         color: #333;
         margin-right: 20px;
         overflow: hidden;
-        white-space: nowrap;
         text-overflow: ellipsis;
     }
     .preview-button-conatiner{
@@ -224,6 +224,7 @@
         display: flex;
         gap: 10px;
         margin-top: 15px;
+        width: fit-content;
     }
 
     /* 🔘 Question Options */
@@ -492,34 +493,44 @@ h4 {
         }
     }
 
-    /* 📱 Mobile Responsiveness */
-    @media (max-width: 768px) {
-        .course-questions-manage-container{
-            margin-left: 0px;
 
+
+    @media (max-width: 768px) {
+        .course-questions-manage-container {
+            margin-left: 0px;
+    
         }
-        .tabs {
-            flex-direction: row;
-            gap: 8px;
+        .course-question-header{
+            flex-direction: column;
+        }
+
+        .course-question-header .left-header h2{
+            font-size: 20px;
+        } 
+
+        .question-item{
+            flex-direction: column;
+            padding: 10px;
+            gap: 20px;
+        }
+        
+        .question-list {
+            gap: 20px;
+            padding: 10px 10px;
         }
 
         .tabs button {
-            width: 100%;
+            padding: 14px 10px;
+            font-size: 16px;
         }
 
-        .question-item {
-            flex-direction: column;
-            gap: 10px;
+        .question-item span{
+            font-size: 16px;
+            margin-right: 0px;
         }
 
-        .question-item-buttons {
-            width: 100%;
-            justify-content: flex-end;
-        }
-
-        .add-question-btn {
-            font-size: 1rem;
-            padding: 12px;
-        }
     }
+
+
+    
 }

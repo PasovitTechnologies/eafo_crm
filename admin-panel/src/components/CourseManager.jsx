@@ -31,7 +31,6 @@ const CourseManager = () => {
 
   const navigate = useNavigate();
 
-  // Fetch courses from API
   const fetchCourses = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -55,7 +54,6 @@ const CourseManager = () => {
     fetchCourses();
   }, []);
 
-  // Handle Add/Update Course
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -100,21 +98,19 @@ const CourseManager = () => {
     }
   };
 
-  // Handle Course Deletion
   const handleDelete = async (id) => {
-    // ✅ Show confirmation popup using SweetAlert2
     const confirmDelete = await Swal.fire({
-      title: t("CourseManager.deleteConfirmTitle"), // Translated title
-      text: t("CourseManager.deleteConfirmText"), // Translated warning message
+      title: t("CourseManager.deleteConfirmTitle"),
+      text: t("CourseManager.deleteConfirmText"),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: t("CourseManager.confirmDelete"), // "Yes, delete it!"
-      cancelButtonText: t("CourseManager.cancel"), // "Cancel"
+      confirmButtonText: t("CourseManager.confirmDelete"),
+      cancelButtonText: t("CourseManager.cancel"),
     });
 
-    if (!confirmDelete.isConfirmed) return; // If user cancels, stop here
+    if (!confirmDelete.isConfirmed) return;
 
     try {
       const token = localStorage.getItem("token");
@@ -130,23 +126,15 @@ const CourseManager = () => {
         },
       });
 
-      if (!response.ok) {
-        throw new Error("Error deleting course");
-      }
+      if (!response.ok) throw new Error("Error deleting course");
 
-      // ✅ Refresh courses list after deletion
       fetchCourses();
-
-      // ✅ Show success notification
       toast.success(t("CourseManager.deleteSuccess"), {
         position: "top-right",
         autoClose: 3000,
         style: { color: "#fff" },
       });
     } catch (error) {
-      console.error("🚨 Error deleting course:", error);
-
-      // ❌ Show error notification
       toast.error(t("CourseManager.deleteError"), {
         position: "top-right",
         autoClose: 3000,
@@ -155,7 +143,6 @@ const CourseManager = () => {
     }
   };
 
-  // Open the modal for adding a new course
   const openAddModal = () => {
     setModalType("add");
     setCourseId(null);
@@ -172,7 +159,6 @@ const CourseManager = () => {
     setIsModalOpen(true);
   };
 
-  // Open the modal for editing an existing course
   const openEditModal = (course) => {
     setModalType("edit");
     setCourseId(course._id);
@@ -181,16 +167,12 @@ const CourseManager = () => {
     setDescription(course.description || "");
     setDescriptionRussian(course.descriptionRussian || "");
     setInvoiceNumber(course.invoiceNumber || "");
-    setCourseDate(course.date.split("T")[0]); // ✅ Pre-fill date field
+    setCourseDate(course.date.split("T")[0]);
     setCourseEndDate(course.endDate ? course.endDate.split("T")[0] : "");
     setBannerUrl(course.bannerUrl || "");
     setBannerUrlRussian(course.bannerUrlRussian || "");
     setWebsiteLink(course.websiteLink || "");
     setIsModalOpen(true);
-  };
-
-  const handleGoBack = () => {
-    navigate("/", { replace: true });
   };
 
   return (
@@ -203,156 +185,170 @@ const CourseManager = () => {
           </div>
           <div className="course-manager-right-header">
             <button className="add-course-btn" onClick={openAddModal}>
-              + {t('CourseManager.addCourse')}
+              <FiPlus /> {t('CourseManager.addCourse')}
             </button>
           </div>
         </div>
 
         {error && <div className="error-message">{error}</div>}
 
-        {/* Course List */}
         <div className="course-list-manager">
-          <ul className="course-list">
-            {courses.map((course) => (
-              <li key={course._id} className="course-list-card">
-                <Link to={`/course-manager/course/${course._id}`} className="course-link">
-                  <div className="course-list-content">
-                    <div
-                      className="course-banner"
-                      style={{ backgroundImage: currentLanguage === "ru" ? `url(${course.bannerUrlRussian})` : `url(${course.bannerUrl})` }}
-                    ></div>
-
-                    <div className="course-info">
-                      <span className="course-name">{currentLanguage === "ru" ? course.nameRussian : course.name}</span>
-                      <span className="course-date">
-                        {new Date(course.date).toLocaleDateString("en-GB")}
-                      </span>
+          {courses.length === 0 ? (
+            <div className="no-courses-message">
+              {t('CourseManager.noCourses')}
+            </div>
+          ) : (
+            <ul className="course-list">
+              {courses.map((course) => (
+                <li key={course._id} className="course-list-card">
+                  <Link to={`/course-manager/course/${course._id}`} className="course-link">
+                    <div className="course-list-content">
+                      <div
+                        className="course-banner"
+                        style={{ 
+                          backgroundImage: currentLanguage === "ru" 
+                            ? `url(${course.bannerUrlRussian})` 
+                            : `url(${course.bannerUrl})` 
+                        }}
+                      ></div>
+                      <div className="course-info">
+                        <span className="course-name">
+                          {currentLanguage === "ru" ? course.nameRussian : course.name}
+                        </span>
+                        <span className="course-date">
+                          {new Date(course.date).toLocaleDateString("en-GB")}
+                        </span>
+                      </div>
                     </div>
+                  </Link>
+                  <div className="course-actions-btn">
+                    <button onClick={() => openEditModal(course)} className="edit-btn">
+                      {t('CourseManager.edit')}
+                    </button>
+                    <button onClick={() => handleDelete(course._id)} className="delete-btn">
+                      {t('CourseManager.delete')}
+                    </button>
                   </div>
-                </Link>
-
-                <div className="course-actions-btn">
-                  <button onClick={() => openEditModal(course)} className="edit-btn">{t('CourseManager.edit')}</button>
-                  <button onClick={() => handleDelete(course._id)} className="delete-btn">{t('CourseManager.delete')}</button>
-                </div>
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
-        {/* Modal for Adding/Editing Course */}
         {isModalOpen && (
           <div className="modal-overlay">
             <div className="course-manager-modal">
               <button className="course-close-btn" onClick={() => setIsModalOpen(false)}>×</button>
               <h3>{modalType === "edit" ? t('CourseManager.editTitle') : t('CourseManager.addTitle')}</h3>
               <form onSubmit={handleSubmit} className="course-form">
-                <div className="form-field">
-                  <label htmlFor="name">{t('CourseManager.courseNameEn')}</label>
-                  <input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </div>
+                <div className="form-grid">
+                  <div className="form-field">
+                    <label htmlFor="name">{t('CourseManager.courseNameEn')}</label>
+                    <input
+                      id="name"
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                    />
+                  </div>
 
-                <div className="form-field">
-                  <label htmlFor="nameRussian">{t('CourseManager.courseNameRu')}</label>
-                  <input
-                    id="nameRussian"
-                    type="text"
-                    value={nameRussian}
-                    onChange={(e) => setNameRussian(e.target.value)}
-                    required
-                  />
-                </div>
+                  <div className="form-field">
+                    <label htmlFor="nameRussian">{t('CourseManager.courseNameRu')}</label>
+                    <input
+                      id="nameRussian"
+                      type="text"
+                      value={nameRussian}
+                      onChange={(e) => setNameRussian(e.target.value)}
+                      required
+                    />
+                  </div>
 
-                <div className="form-field">
-                  <label htmlFor="description">{t('CourseManager.descEn')}</label>
-                  <textarea
-                    id="description"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    required
-                  />
-                </div>
+                  <div className="form-field">
+                    <label htmlFor="description">{t('CourseManager.descEn')}</label>
+                    <textarea
+                      id="description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      required
+                    />
+                  </div>
 
-                <div className="form-field">
-                  <label htmlFor="descriptionRussian">{t('CourseManager.descRu')}</label>
-                  <textarea
-                    id="descriptionRussian"
-                    value={descriptionRussian}
-                    onChange={(e) => setDescriptionRussian(e.target.value)}
-                    required
-                  />
-                </div>
+                  <div className="form-field">
+                    <label htmlFor="descriptionRussian">{t('CourseManager.descRu')}</label>
+                    <textarea
+                      id="descriptionRussian"
+                      value={descriptionRussian}
+                      onChange={(e) => setDescriptionRussian(e.target.value)}
+                      required
+                    />
+                  </div>
 
-                <div className="form-field">
-                  <label htmlFor="courseDate">{t('CourseManager.date')}</label>
-                  <input
-                    id="courseDate"
-                    type="date"
-                    value={courseDate}
-                    onChange={(e) => setCourseDate(e.target.value)}
-                    required
-                  />
-                </div>
+                  <div className="form-field">
+                    <label htmlFor="courseDate">{t('CourseManager.date')}</label>
+                    <input
+                      id="courseDate"
+                      type="date"
+                      value={courseDate}
+                      onChange={(e) => setCourseDate(e.target.value)}
+                      required
+                    />
+                  </div>
 
-                <div className="form-field">
-                  <label htmlFor="courseEndDate">{t('CourseManager.endDate')}</label>
-                  <input
-                    id="courseEndDate"
-                    type="date"
-                    value={courseEndDate}
-                    onChange={(e) => setCourseEndDate(e.target.value)}
-                    required
-                  />
-                </div>
+                  <div className="form-field">
+                    <label htmlFor="courseEndDate">{t('CourseManager.endDate')}</label>
+                    <input
+                      id="courseEndDate"
+                      type="date"
+                      value={courseEndDate}
+                      onChange={(e) => setCourseEndDate(e.target.value)}
+                      required
+                    />
+                  </div>
 
-                <div className="form-field">
-                  <label htmlFor="bannerUrl">{t('CourseManager.bannerUrlEn')}</label>
-                  <input
-                    id="bannerUrl"
-                    type="text"
-                    value={bannerUrl}
-                    onChange={(e) => setBannerUrl(e.target.value)}
-                    required
-                  />
-                </div>
+                  <div className="form-field">
+                    <label htmlFor="bannerUrl">{t('CourseManager.bannerUrlEn')}</label>
+                    <input
+                      id="bannerUrl"
+                      type="text"
+                      value={bannerUrl}
+                      onChange={(e) => setBannerUrl(e.target.value)}
+                      required
+                    />
+                  </div>
 
-                <div className="form-field">
-                  <label htmlFor="bannerUrlRussian">{t('CourseManager.bannerUrlRu')}</label>
-                  <input
-                    id="bannerUrlRussian"
-                    type="text"
-                    value={bannerUrlRussian}
-                    onChange={(e) => setBannerUrlRussian(e.target.value)}
-                    required
-                  />
-                </div>
+                  <div className="form-field">
+                    <label htmlFor="bannerUrlRussian">{t('CourseManager.bannerUrlRu')}</label>
+                    <input
+                      id="bannerUrlRussian"
+                      type="text"
+                      value={bannerUrlRussian}
+                      onChange={(e) => setBannerUrlRussian(e.target.value)}
+                      required
+                    />
+                  </div>
 
-                <div className="form-field">
-                  <label htmlFor="websiteLink">{t('CourseManager.websiteLink')}</label>
-                  <input
-                    id="websiteLink"
-                    type="text"
-                    value={websiteLink}
-                    onChange={(e) => setWebsiteLink(e.target.value)}
-                    required
-                  />
-                </div>
+                  <div className="form-field">
+                    <label htmlFor="websiteLink">{t('CourseManager.websiteLink')}</label>
+                    <input
+                      id="websiteLink"
+                      type="text"
+                      value={websiteLink}
+                      onChange={(e) => setWebsiteLink(e.target.value)}
+                      required
+                    />
+                  </div>
 
-                <div className="form-field">
-                  <label htmlFor="invoiceNumber">{t('CourseManager.invoiceNumber')}</label>
-                  <input
-                    id="invoiceNumber"
-                    type="text"
-                    value={invoiceNumber}
-                    onChange={(e) => setInvoiceNumber(e.target.value)}
-                    required
-                  />
+                  <div className="form-field">
+                    <label htmlFor="invoiceNumber">{t('CourseManager.invoiceNumber')}</label>
+                    <input
+                      id="invoiceNumber"
+                      type="text"
+                      value={invoiceNumber}
+                      onChange={(e) => setInvoiceNumber(e.target.value)}
+                      required
+                    />
+                  </div>
                 </div>
 
                 <button className="save-btn" type="submit">

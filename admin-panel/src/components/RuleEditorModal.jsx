@@ -97,7 +97,7 @@ const RuleEditorModal = ({ questions, initialRule, onSave, onCancel, isOpen }) =
         className={`rule-modal-container ${isOpen ? "open" : ""}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <button className="rule-close-icon" onClick={onCancel} aria-label="Close modal">
+        <button className="rule-form-close-icon" onClick={onCancel} aria-label="Close modal">
           <FaTimes />
         </button>
 
