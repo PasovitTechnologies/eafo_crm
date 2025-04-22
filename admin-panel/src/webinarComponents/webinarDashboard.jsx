@@ -69,12 +69,12 @@ const WebinarDashboard = ({ selectedLanguage }) => {
           </div>
           <h2>{t("WebinarDashboard.title")}</h2>
         </div>
-        <div className="search-container">
-          <div className="search-bar-wrapper">
-            <FiSearch className="search-icon" />
+        <div className="webinar-search-container">
+          <div className="webinar-search-bar-wrapper">
+            <FiSearch className="webinar-search-icon" />
             <input
               type="text"
-              className="search-bar"
+              className="webinar-search-bar"
               placeholder={t("WebinarDashboard.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

@@ -2,10 +2,7 @@
 .modal-overlay {
     background: rgba(0, 0, 0, 0.5);
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    top: 0; left: 0; right: 0; bottom: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -14,12 +11,8 @@
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 /* 🧊 Modal Content */
@@ -27,24 +20,32 @@
     background-color: #fff;
     padding: 2rem;
     border-radius: 10px;
+    width: 100%;
     max-width: 600px;
-    width: 90%;
     max-height: 80vh;
     overflow-y: auto;
-    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     position: relative;
     animation: slideIn 0.3s ease;
 }
 
 @keyframes slideIn {
-    from {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.preview-close-btn{
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 26px;
+    color: #000000;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+.preview-close-btn:hover{
+    color: #e74c3c;
 }
 
 /* 🧠 Modal Header */
@@ -85,7 +86,7 @@
     margin-top: 0.8rem;
 }
 
-/* 🧠 General Input Styles */
+/* 🎯 General Input Styles */
 .preview-questions-container input[type="text"],
 .preview-questions-container input[type="email"],
 .preview-questions-container input[type="number"],
@@ -99,7 +100,6 @@
     margin-top: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    box-sizing: border-box;
     font-size: 1rem;
     color: #333;
     background-color: #fff;
@@ -107,13 +107,9 @@
 }
 
 /* 🖱️ Focus Styles */
-.preview-questions-container input[type="text"]:focus,
-.preview-questions-container input[type="email"]:focus,
-.preview-questions-container input[type="number"]:focus,
-.preview-questions-container input[type="tel"]:focus,
-.preview-questions-container input[type="date"]:focus,
-.preview-questions-container select:focus,
+.preview-questions-container input:focus,
 .preview-questions-container textarea:focus,
+.preview-questions-container select:focus,
 .preview-questions-container .multiselect-input:focus {
     border-color: #3b82f6;
     outline: none;
@@ -135,7 +131,7 @@
     margin-top: 8px;
 }
 
-/* 🟦 Vertical Layout for Radio & Checkbox Options */
+/* 🟦 Radio & Checkbox Options */
 .question-options {
     display: flex;
     flex-direction: column;
@@ -143,7 +139,6 @@
     margin-top: 8px;
 }
 
-/* 🟢 Option Labels */
 .question-options label {
     display: flex;
     align-items: center;
@@ -152,7 +147,6 @@
     cursor: pointer;
 }
 
-/* 🔘 Styled Radio & Checkbox Inputs */
 .preview-questions-container input[type="radio"],
 .preview-questions-container input[type="checkbox"] {
     margin-right: 8px;
@@ -160,42 +154,37 @@
     accent-color: #3b82f6;
 }
 
-/* 🗃️ Multi-Select Container */
+/* 🗃️ Multi-Select */
 .multiselect-container {
     display: inline-block;
     max-width: 100%;
 }
 
-/* 🧮 Dynamic Width Adjustment for Multi-Select */
 .multiselect-wrapper {
-    
     width: 100%;
 }
 
 .multiselect-input {
-    width: auto !important;
     min-width: 50px; 
     padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 1rem;
-    color: #333;
     background-color: #fff;
     transition: border-color 0.2s;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .multiselect-container .selected-item {
     background-color: #e0f2fe;
-    color: #333;
     border-radius: 4px;
     padding: 0.2rem 0.5rem;
     margin: 2px;
     display: inline-flex;
     align-items: center;
-    max-width: max-content; /* Ensures only as wide as the text */
-    white-space: nowrap; /* Prevents text wrapping */
+    max-width: max-content;
 }
 
 .multiselect-container .selected-item .remove {
@@ -204,7 +193,8 @@
     cursor: pointer;
     font-weight: bold;
 }
-/* 🌟 Styling for Content Type */
+
+/* 📄 Content Type Styling */
 .content-display {
     background-color: #f9f9f9;
     padding: 10px;
@@ -225,67 +215,50 @@
     margin-bottom: 5px;
     color: #555;
 }
-/* 🌟 Content Type Styling */
-.content-display {
-    background-color: #f9f9f9; /* Light background for content */
-    padding: 10px;
-    border: 1px solid #ddd; /* Consistent border */
-    border-radius: 4px;
-    margin: 10px 0;
-    color: #333;
-    font-size: 14px;
-}
 
-/* 🧽 Remove unwanted borders or focus styles */
 .content-display:focus,
 .content-display:empty {
-    border: none; /* No border on empty or focus */
+    border: none;
     outline: none;
 }
 
-/* 🧹 Ensure no empty input-like elements appear */
-/* Container to align items horizontally */
+/* ✅ Acceptance Checkbox */
 .accept-container {
     display: flex;
-    align-items: center; /* Vertically centers content */
+    align-items: center;
     margin-top: 10px;
 }
 
-/* Label styles with proper alignment */
 .accept-label {
     display: flex;
-    align-items: center; /* Center checkbox and text */
-    gap: 8px; /* Space between checkbox and text */
+    align-items: center;
+    gap: 8px;
     cursor: pointer;
 }
 
-/* Ensuring checkbox is properly aligned */
 .accept-checkbox {
     margin: 0;
-    vertical-align: middle; /* Vertical center alignment */
+    vertical-align: middle;
     cursor: pointer;
 }
 
-/* Text styling */
 .accept-text {
     font-size: 14px;
     color: #333;
-    line-height: 1.2;
     margin-top: 10px;
-    display: inline-block; /* Ensures alignment with the checkbox */
+    display: inline-block;
 }
 
-/* Link styling within the text */
 .accept-text a {
     color: #007bff;
     text-decoration: none;
-    
 }
 
 .accept-text a:hover {
     text-decoration: underline;
 }
 
+/* ❌ No Questions Message */
 .no-questions-message {
     font-size: 1rem;
     color: #888;
@@ -323,6 +296,7 @@
     background-color: #2563eb;
 }
 
+/* ❎ Close Button */
 .preview-questions-container button.close-btn {
     background-color: #e5e7eb;
     color: #333;
@@ -333,17 +307,55 @@
 }
 
 /* 📱 Responsive Design */
-@media (max-width: 768px) {
+
+/* Small Screens: Phones */
+@media (max-width: 687px) {
     .modal-content {
-        max-width: 90%;
-        padding: 1.5rem;
-    }
-    
-    .modal-content h2 {
-        font-size: 1.5rem;
+        padding: .5rem;
+        width: 100%;
+        max-height: 85vh;
     }
 
-    button {
+    .modal-content h2 {
+        font-size: 1rem;
+    }
+
+    .modal-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.8rem;
+    }
+
+    .preview-questions-container button {
         width: 100%;
+        font-size: 0.95rem;
+    }
+
+    .question-options label {
+        font-size: 0.95rem;
+    }
+}
+
+/* Medium Devices: Tablets */
+@media (min-width: 481px) and (max-width: 768px) {
+    .modal-content {
+        padding: 1.5rem;
+        max-width: 95%;
+    }
+
+    .modal-content h2 {
+        font-size: 1.6rem;
+    }
+}
+
+/* Large Screens: Desktops */
+@media (min-width: 1024px) {
+    .modal-content {
+        padding: 2.5rem;
+        max-width: 700px;
+    }
+
+    .modal-content h2 {
+        font-size: 2rem;
     }
 }

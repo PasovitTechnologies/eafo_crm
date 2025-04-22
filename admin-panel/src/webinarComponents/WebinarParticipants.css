@@ -1,19 +1,21 @@
 /* Container */
-.webinar-participants-page{
+.webinar-participants-page {
   background-color: #fff;
-  height: 100vh;
+  min-height: 100vh;
 }
+
 .participants-page-container {
   font-family: "Roboto", sans-serif;
-  margin-left: 80px;
-  padding: 20px;
+  padding: 20px 16px;
   color: #333;
-  margin-top: 60px;
+  margin: 60px auto 0 auto;
+  max-width: 1200px;
+  width: 100%;
 }
 
 /* Header */
 .participants-header h1 {
-  font-size: 24px;
+  font-size: 1.75rem;
   color: #033672;
   margin-bottom: 30px;
   border-bottom: 2px solid #ccc;
@@ -25,6 +27,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
   margin-bottom: 20px;
 }
 
@@ -36,6 +40,9 @@
   border-radius: 8px;
   padding: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  flex: 1;
+  min-width: 250px;
+  max-width: 500px;
   transition: box-shadow 0.3s;
 }
 
@@ -52,7 +59,7 @@
 .search-bar {
   border: none;
   outline: none;
-  width: 300px;
+  width: 100%;
   padding: 8px;
   font-size: 1rem;
   background: transparent;
@@ -63,6 +70,7 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .export-btn {
@@ -92,6 +100,7 @@
 .participants-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 600px;
 }
 
 .participants-table th,
@@ -124,18 +133,20 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
   margin: 20px 0;
 }
 
 .pagination-controls button {
-  margin: 0 5px;
-  padding: 10px 20px;
+  padding: 10px 16px;
   border: none;
   background: #033672;
   color: #fff;
   cursor: pointer;
   transition: 0.3s;
   border-radius: 5px;
+  font-size: 0.95rem;
 }
 
 .pagination-controls button:hover {
@@ -150,7 +161,7 @@
 .pagination-controls span {
   font-size: 1rem;
   color: #555;
-  margin: 0 10px;
+  margin: 0 8px;
 }
 
 /* No Participants */
@@ -162,18 +173,75 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
-  .search-bar {
-    width: 100%;
+@media (max-width: 1024px) {
+  .participants-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .search-bar-wrapper {
+    max-width: 100%;
+  }
+
+  .export-btn {
+    padding: 8px 16px;
+    font-size: 0.95rem;
   }
 
   .participants-table th,
   .participants-table td {
     padding: 12px;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-export-container {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .search-bar-wrapper {
+    width: 100%;
+  }
+
+  .export-btn-wrapper {
+    justify-content: center;
   }
 
   .pagination-controls {
     justify-content: center;
+  }
+
+  .participants-header h1 {
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .participants-page-container {
+    padding: 16px 12px;
+  }
+
+  .search-bar {
+    font-size: 0.95rem;
+  }
+
+  .participants-table th,
+  .participants-table td {
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+
+  .pagination-controls button {
+    padding: 8px 12px;
+    font-size: 0.9rem;
+  }
+
+  .pagination-controls span {
+    font-size: 0.9rem;
+  }
+
+  .no-participants {
+    font-size: 1rem;
   }
 }

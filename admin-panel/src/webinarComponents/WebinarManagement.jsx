@@ -250,23 +250,29 @@ const WebinarManagement = ({ selectedLanguage = "en" }) => {
 
             <div className="webinar-modal-body">
               <form onSubmit={handleSubmit}>
-                {Object.keys(initialFormData).map((field) => (
-                  <input
-                    key={field}
-                    type={
-                      field.includes("date")
-                        ? "date"
-                        : field.includes("time")
-                        ? "time"
-                        : "text"
-                    }
-                    name={field}
-                    placeholder={t(`webinarManagement.fields.${field}`)}
-                    value={formData[field] || ""}
-                    onChange={handleChange}
-                    required={["title", "date", "time"].includes(field)}
-                  />
-                ))}
+              {Object.keys(initialFormData).map((field) => (
+  <div key={field} className="form-field-group">
+    <label htmlFor={field} className="form-label">
+      {t(`webinarManagement.fields.${field}`)}
+    </label>
+    <input
+      id={field}
+      type={
+        field.includes("date")
+          ? "date"
+          : field.includes("time")
+          ? "time"
+          : "text"
+      }
+      name={field}
+      value={formData[field] || ""}
+      onChange={handleChange}
+      required={["title", "date", "time"].includes(field)}
+      className="form-input"
+    />
+  </div>
+))}
+
 
                 <button type="submit" className="submit-btn">
                   {editingWebinar

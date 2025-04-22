@@ -296,7 +296,7 @@ const CourseForms = () => {
     }
   };
 
-  
+
   return (
     <div className="form-page">
        <ToastContainer     className="custom-toast-container"/>
@@ -311,7 +311,6 @@ const CourseForms = () => {
                 {/* 🔙 Go Back Icon */}
                 <div className="left-header">
                   
-                  <h2>{t('courseForms.myForms')}</h2>
                 </div>
 
                 <div className="right-header">

@@ -283,8 +283,8 @@ const QuestionsPreviewModal = ({ isOpen, questions, onClose }) => {
         </div>
 
         <div className="modal-controls">
-          <button className="close-btn" onClick={onClose}>
-            Close
+          <button className="preview-close-btn" onClick={onClose}>
+            X
           </button>
         </div>
       </Modal>

@@ -244,6 +244,7 @@
 
 /* Chat Header */
 .chat-header {
+    position: absolute;
     display: flex;
     margin-top: 60px;
     align-items: center;
@@ -472,6 +473,20 @@
 @media (max-width: 1024px) {
     .whatsapp-container {
          margin-left: 0px;
+    }
+    
+  }
+
+  
+@media (max-width: 700px) {
+    .whatsapp-container {
+         flex-direction: column;
+    }
+    .chat-window-column{
+        flex: 1;
+    }
+    .chat-list-column{
+        flex: 1;
     }
   }
 

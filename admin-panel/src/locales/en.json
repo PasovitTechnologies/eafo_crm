@@ -653,6 +653,7 @@
       "titleRussian": "Title (Russian)",
       "date": "Date",
       "time": "Time",
+      "dayOfWeek": "Day of Week",
       "liveEmbed": "Live Embed Code",
       "eventSiteURL": "Event Site URL",
       "chatEmbed": "Chat Embed Code",
