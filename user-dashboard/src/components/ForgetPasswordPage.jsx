@@ -86,14 +86,25 @@ const ForgetPasswordPage = ({ onBackToLogin }) => {
   };
 
   return (
-    <form 
-      className="forget-form" 
+    <form
+      className="forget-form"
       onSubmit={showPasswordFields ? handleChangePassword : handleCheckDetails}
     >
-    
+     <div className="back-button-wrapper">
+  <button
+    type="button"
+    onClick={onBackToLogin}
+    className="back-icon-button"
+    aria-label={t("forgetPasswordPage.backToLogin")}
+  >
+    <FaArrowLeft />
+  </button>
+  <h1>{t("forgetPasswordPage.forgotPassword")}</h1>
+</div>
 
-      <h1>{t("forgetPasswordPage.forgotPassword")}</h1>
+
       
+
       <div className="input-box">
         <input
           type="email"
@@ -109,7 +120,6 @@ const ForgetPasswordPage = ({ onBackToLogin }) => {
       <div className="input-box">
         <input
           type="date"
-          placeholder={t("forgetPasswordPage.dobPlaceholder")}
           value={dob}
           onChange={(e) => setDob(e.target.value)}
           required
@@ -155,16 +165,6 @@ const ForgetPasswordPage = ({ onBackToLogin }) => {
           ? t("forgetPasswordPage.changePassword")
           : t("forgetPasswordPage.checkDetails")}
       </button>
-
-      <div className="back-to-login">
-        <button 
-          type="button"
-          onClick={onBackToLogin}
-          className="text-button"
-        >
-          {t("forgetPasswordPage.backToLogin")}
-        </button>
-      </div>
 
       <ToastContainer />
     </form>

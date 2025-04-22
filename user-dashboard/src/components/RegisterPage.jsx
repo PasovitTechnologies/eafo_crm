@@ -32,6 +32,8 @@ const RegisterPage = ({ onSwitchToLogin }) => {
   const selectedLanguage = i18n.language;
   const navigate = useNavigate();
   const formRef = useRef(null);
+  const [age, setAge] = useState(null);
+
   
 
   // Initialize i18n countries
@@ -108,6 +110,20 @@ const RegisterPage = ({ onSwitchToLogin }) => {
             { value: "Female", label: "Female" },
             { value: "Other", label: "Other" },
           ];
+
+
+
+          const calculateAge = (dob) => {
+            const today = new Date();
+            const birthDate = new Date(dob);
+            let calculatedAge = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+              calculatedAge--;
+            }
+            return calculatedAge;
+          };
+          
       
 
   // Load country options
