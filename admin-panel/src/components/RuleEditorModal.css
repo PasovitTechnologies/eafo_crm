@@ -276,6 +276,14 @@
     .rule-close-icon {
         font-size: 22px;
     }
+
+    .add-option-btn {
+        width: fit-content;
+    }
+    
+    .remove-option-btn {
+        width: fit-content;
+    }
 }
 select {
     width: 100% !important;

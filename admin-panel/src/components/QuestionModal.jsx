@@ -134,7 +134,7 @@ const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
       <div className={`question-modal-container ${isOpen ? "open" : ""}`}>
       <div className="question-modal-content">
         <button
-          className="close-icon"
+          className="question-model-close-btn"
           onClick={onCancel}
           aria-label="Close modal"
         >
