@@ -3,11 +3,12 @@ import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { FaPen, FaRegSave } from "react-icons/fa";
+import { FiSearch, FiArrowLeft } from "react-icons/fi";
 import i18nCountries from "i18n-iso-countries";
 import enCountry from "i18n-iso-countries/langs/en.json";
 import ruCountry from "i18n-iso-countries/langs/ru.json";
-import PhoneInput from 'react-phone-number-input';
-import 'react-phone-number-input/style.css';
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import enGB from "date-fns/locale/en-GB";
@@ -16,12 +17,14 @@ import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 import "./Profile.css";
 import { useTranslation } from "react-i18next";
+import HelpPopup from "./HelpPopup";
+import ProfileHelp from "./HelpComponents/ProfileHelp";
 
 // Register country languages and date locales
 i18nCountries.registerLocale(enCountry);
 i18nCountries.registerLocale(ruCountry);
-registerLocale('en', enGB);
-registerLocale('ru', ru);
+registerLocale("en", enGB);
+registerLocale("ru", ru);
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -30,6 +33,7 @@ const Profile = () => {
   const [userDetails, setUserDetails] = useState(null);
   const [image, setImage] = useState(null);
   const [hover, setHover] = useState(false);
+  const [showHelpPopup, setShowHelpPopup] = useState(false);
   const fileInputRef = useRef(null);
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const userEmail = localStorage.getItem("email");
@@ -42,9 +46,9 @@ const Profile = () => {
   // Helper function to format phone numbers
 
   const formatPhoneNumber = (phone) => {
-    if (!phone) return '';
-    if (phone.startsWith('+')) return phone;
-    if (phone.startsWith('9')) return `+7${phone}`;
+    if (!phone) return "";
+    if (phone.startsWith("+")) return phone;
+    if (phone.startsWith("9")) return `+7${phone}`;
     return `+${phone}`;
   };
 
@@ -88,13 +92,17 @@ const Profile = () => {
 
         // Format phone number before setting state
         if (data?.personalDetails?.phone) {
-          data.personalDetails.phone = formatPhoneNumber(data.personalDetails.phone);
+          data.personalDetails.phone = formatPhoneNumber(
+            data.personalDetails.phone
+          );
         }
 
         setUser(data);
         setUserDetails(data);
 
-        const imageResponse = await fetch(`${baseUrl}/api/user/image/${userEmail}`);
+        const imageResponse = await fetch(
+          `${baseUrl}/api/user/image/${userEmail}`
+        );
         if (imageResponse.ok) {
           const imageBlob = await imageResponse.blob();
           const imageUrl = URL.createObjectURL(imageBlob);
@@ -111,41 +119,48 @@ const Profile = () => {
   const handleSaveChanges = async () => {
     const token = localStorage.getItem("token");
     if (!token) return;
-  
+
     if (!user || !userDetails) {
       console.error("User data is missing or not loaded.");
       return;
     }
-  
+
     // Validate phone number format before saving
-    if (userDetails?.personalDetails?.phone &&
-        !userDetails.personalDetails.phone.startsWith('+')) {
+    if (
+      userDetails?.personalDetails?.phone &&
+      !userDetails.personalDetails.phone.startsWith("+")
+    ) {
       toast.error(t("profile.invalidPhoneFormat"));
       return;
     }
-  
+
     // Normalize DOB to ISO string before comparing
     let normalizedUserDetails = JSON.parse(JSON.stringify(userDetails)); // Deep clone
     if (
       normalizedUserDetails?.personalDetails?.dob &&
       normalizedUserDetails.personalDetails.dob instanceof Date
     ) {
-      normalizedUserDetails.personalDetails.dob = normalizedUserDetails.personalDetails.dob.toISOString();
+      normalizedUserDetails.personalDetails.dob =
+        normalizedUserDetails.personalDetails.dob.toISOString();
     }
-  
+
     let updatedFields = {};
-  
+
     const compareFields = (original = {}, edited = {}, path = "") => {
       Object.keys(edited).forEach((key) => {
         const fullPath = path ? `${path}.${key}` : key;
-        if (typeof edited[key] === "object" && edited[key] !== null && !(edited[key] instanceof Date)) {
+        if (
+          typeof edited[key] === "object" &&
+          edited[key] !== null &&
+          !(edited[key] instanceof Date)
+        ) {
           compareFields(original[key] || {}, edited[key], fullPath);
         } else if (edited[key] !== original?.[key]) {
           updatedFields[fullPath] = edited[key];
         }
       });
     };
-  
+
     compareFields(
       user.personalDetails || {},
       normalizedUserDetails.personalDetails || {},
@@ -156,16 +171,16 @@ const Profile = () => {
       normalizedUserDetails.professionalDetails || {},
       "professionalDetails"
     );
-  
+
     if (normalizedUserDetails.email !== user.email) {
       delete updatedFields["email"];
     }
-  
+
     if (Object.keys(updatedFields).length === 0) {
       setIsEditMode(false);
       return;
     }
-  
+
     try {
       const response = await fetch(`${baseUrl}/api/user/update/${userEmail}`, {
         method: "PUT",
@@ -175,11 +190,11 @@ const Profile = () => {
         },
         body: JSON.stringify(updatedFields),
       });
-  
+
       if (!response.ok) throw new Error("Failed to update user data");
-  
+
       const updatedData = await response.json();
-  
+
       setUser((prev) => ({
         ...prev,
         ...updatedData,
@@ -192,7 +207,7 @@ const Profile = () => {
           ...updatedData.professionalDetails,
         },
       }));
-  
+
       setUserDetails((prev) => ({
         ...prev,
         ...updatedData,
@@ -205,7 +220,7 @@ const Profile = () => {
           ...updatedData.professionalDetails,
         },
       }));
-  
+
       setIsEditMode(false);
       toast.success(t("profile.updateSuccess"));
     } catch (err) {
@@ -255,41 +270,62 @@ const Profile = () => {
           { value: "Prof.", label: "Prof." },
         ];
 
-        const handleImageUpload = async (event) => {
-          const file = event.target.files[0];
-          if (!file) return;
-      
-          const formData = new FormData();
-          formData.append("profileImage", file);
-      
-          try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${baseUrl}/api/user/upload/${userEmail}`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-              body: formData,
-            });
-      
-            if (!response.ok) throw new Error("Failed to upload image");
-      
-            const imageUrl = URL.createObjectURL(file);
-            setImage(imageUrl);
-          } catch (err) {
-            console.error("Error uploading image:", err.message);
-          }
-        };
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("profileImage", file);
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${baseUrl}/api/user/upload/${userEmail}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("Failed to upload image");
+
+      const imageUrl = URL.createObjectURL(file);
+      setImage(imageUrl);
+    } catch (err) {
+      console.error("Error uploading image:", err.message);
+    }
+  };
+
+  const handleGoBack = () => {
+    navigate("/dashboard", { replace: true });
+  };
+
+  const toggleHelpPopup = () => {
+    setShowHelpPopup(!showHelpPopup);
+  };
 
   return (
     <div className="profile-page">
+      {showHelpPopup && <ProfileHelp onClose={toggleHelpPopup} />}
+
       <ToastContainer />
+      <div className="go-back-div">
+        <div className="go-back">
+          <FiArrowLeft className="go-back-icon" onClick={handleGoBack} />
+        </div>
+
+        <button className="profile-help-button" onClick={toggleHelpPopup}>
+          {t("profile.help")}
+        </button>
+
+        <div></div>
+      </div>
+
       <div className="profile-container">
         <div className="profile-grid">
           {/* Profile Header with Edit Button */}
           <div className="profile-header-div">
-
-          <div className="profile-edit-icon">
+            <div className="profile-edit-icon">
               {isEditMode ? (
                 <button
                   className="save-button"
@@ -348,9 +384,7 @@ const Profile = () => {
               <h1 className="profile-name">
                 {userDetails?.personalDetails &&
                   (userDetails.dashboardLang === "ru"
-                    ? `${
-                        userDetails.personalDetails.lastName || ""
-                      } 
+                    ? `${userDetails.personalDetails.lastName || ""} 
          ${userDetails.personalDetails.firstName || ""} 
          ${userDetails.personalDetails.middleName || ""}`
                     : `${userDetails.personalDetails.firstName || ""} 
@@ -366,7 +400,6 @@ const Profile = () => {
             </div>
 
             {/* Edit & Save Button */}
-            
           </div>
 
           {/* Name Edit Section - Only visible in edit mode */}
@@ -508,7 +541,9 @@ const Profile = () => {
                         type="text"
                         value={
                           userDetails?.personalDetails?.phone
-                            ? formatPhoneNumber(userDetails.personalDetails.phone)
+                            ? formatPhoneNumber(
+                                userDetails.personalDetails.phone
+                              )
                             : t("profile.notAvailable")
                         }
                         disabled
@@ -519,7 +554,8 @@ const Profile = () => {
                         options={getCountryOptions()}
                         value={getCountryOptions().find(
                           (option) =>
-                            option.label === userDetails?.personalDetails?.country
+                            option.label ===
+                            userDetails?.personalDetails?.country
                         )}
                         onChange={(selectedOption) =>
                           setUserDetails({
@@ -618,7 +654,7 @@ const Profile = () => {
                 ))}
               </div>
             </motion.div>
-            
+
             {/* Professional Details */}
             <motion.div
               className="profile-section"
@@ -647,7 +683,9 @@ const Profile = () => {
                           })
                         }
                         disabled={!isEditMode}
-                        className={isEditMode ? "editable-input" : "non-editable-input"}
+                        className={
+                          isEditMode ? "editable-input" : "non-editable-input"
+                        }
                         placeholder={t(`profile.${field}Placeholder`)}
                       />
                     </div>

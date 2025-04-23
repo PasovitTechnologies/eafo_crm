@@ -67,19 +67,27 @@
     "login": "Login",
     "loading": "Loading...",
     "help": "How to Register?",
-    "helpCenter": "How to Register?",
-    "guideText": "Text Guide",
-    "guideVideo": "Video Guide",
-    "registrationGuide": "How to Register",
-    "step1": "Click on the 'Register' button to begin",
-    "step2": "Fill in all required fields with accurate information",
-    "step3": "Verify your email address is correct",
-    "step4": "Create a strong, unique password",
-    "step5": "Complete registration by clicking the 'Register' button",
-    "contactSupport": "Need more help? Contact our support team anytime.",
-    "registrationVideo": "Step-by-Step Registration Video",
-    "videoDescription": "Watch this 2-minute video to see how to complete your registration."
-  
+   "helpCenter": "Help Center",
+  "guideText": "Guide Text",
+  "guideVideo": "Guide Video",
+  "registrationGuide": "Registration Guide",
+  "registrationVideo": "Registration Video",
+  "videoDescription": "Watch this video for a step-by-step registration process.",
+  "contactSupport": "For further assistance, please contact our support team via email at 📧 or by phone at ☎.",
+    "RegisterSteps": {
+    "step1": "1. Select your professional title (e.g., Dr., Prof.) from the drop-down menu.",
+    "step2": "2. Enter your full name exactly as it appears on your official ID (first, middle, last).",
+    "step3": "3. Choose your birth date from the calendar.",
+    "step4": "4. Select your gender (Can be updated at any time).",
+    "step5": "5. Provide a secure email for login.",
+    "step6": "6. Create a strong password (8–16 chars, mixed case, symbol).",
+    "step7": "7. Remember email and password to avoid being locked out.",
+    "step8": "8. Add phone number (select country, enter digits only).",
+    "step9": "9. Enter academic details (country, institution, department, role).",
+    "step10": "10. Agree to data protection & terms of service.",
+    "step11": "11. Submit registration & check email for confirmation.",
+    "step12": "12. Access your homepage to complete your profile."
+  }
   },
  
 
@@ -114,7 +122,23 @@
         "course_time": "Course Time",
         "registration_failed": "Failed to register. Please try again.",
         "no_token": "No token found. Please log in.",
-        "no_upcoming_courses":"No upcoming courses."
+        "no_upcoming_courses":"No upcoming courses.",
+        "HelpSteps": {
+          "step1": "Click on the “Courses” tab on your homepage.",
+          "step2": "Click \"Register (Enroll) Now\" on your selected course.",
+          "step3": "Under “Available Forms” click “Register/Enroll” for the “Register & Housing Form.”",
+          "step4": "Select Group (if applicable): Group A or B for session scheduling.",
+          "step5": "Select Registration Type: UG & PG Students, PhD Scholars under 30 years / Extra Subsidized / Subsidized / Online etc.",
+          "step6": "Category of Registration: Registration + Shared Apartment Accommodation / Only Registration.",
+          "step7": "Submit Required Documents: Upload ID/Proof (PDF/JPG/PNG, max 5MB).",
+          "step8": "Select for visa accordingly.",
+          "step9": "Accept Terms & Conditions: Check mandatory agreement boxes.",
+          "step10": "You are now registered. You can click on the “Details” button to check your details.",
+          "step11": "Click “Pay amount” to pay for the registration.",
+          "step12": "Access Confirmation & Documents: View registration details.",
+          "step13": "Complete Payment: After registration, click \"Pay Now\" → Pay using the link → confirm payment.",
+          "step14": "For further assistance, please contact our support team via email at 📧 (@) or by phone at ☎ +7 (XXX) XXX-XXXX."
+        }
     },
     "course_details": {
         "breadcrumb_dashboard": "Personal Account",
@@ -231,7 +255,26 @@
     "selectTitle": "Select Title",
     "updateSuccess": "Profile updated successfully!",
     "updateError": "Failed to update profile",
-    "saving": "Saving..."
+    "help": "How to Edit Profile?",
+    "saving": "Saving...",
+    "HelpSteps": {
+      "step1": "1. Click the profile tab (with the profile picture) on your homepage to modify your profile.",
+      "step2": "2. Click on the edit button to update or change any details.",
+      "step3": "3. Update your title (Mr./Ms./Dr./Prof.) from the dropdown menu.",
+      "step4": "4. Enter your legal first name (as written on your official documents).",
+      "step5": "5. Add your middle name (optional, if used professionally).",
+      "step6": "6. Enter your last name (as written on your official documents).",
+      "step7": "7. Edit your phone number (include country code, no spaces/symbols).",
+      "step8": "8. Adjust your date of birth (use the calendar or type in YYYY-MM-DD format).",
+      "step9": "9. Select country of residence from the dropdown menu.",
+      "step10": "10. Update the university (full official name, no abbreviations).",
+      "step11": "11. Specify the department/faculty/research unit.",
+      "step12": "12. Enter your profession (e.g., 'Neurosurgeon').",
+      "step13": "13. State your current position (e.g., 'Research Fellow').",
+      "step14": "14. Upload a profile picture (JPG/PNG, max 5MB, 500x500px recommended).",
+      "step15": "15. Review the changes & click 'Update' (floppy icon) to save.",
+      "step16": "16. Wait for the “Profile updated successfully!” message."
+    }
   },
 
     "dashboard": {
@@ -312,6 +355,7 @@
     "middleName": "Middle Name",
     "lastName": "Last Name",
     "dob": "Date of Birth",
+    "age": "Age",
     "gender": "Gender",
     "email": "Email",
     "confirmEmail": "Confirm Email",

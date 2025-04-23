@@ -7,7 +7,7 @@ import i18nCountries from "i18n-iso-countries";
 import Select from "react-select";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { toast, ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import {
@@ -114,6 +114,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
 
 
           const calculateAge = (dob) => {
+            if (!dob) return null;
             const today = new Date();
             const birthDate = new Date(dob);
             let calculatedAge = today.getFullYear() - birthDate.getFullYear();
@@ -310,19 +311,7 @@ const personalDataText =
   return (
     <form className="register-form" onSubmit={handleSubmit}>
 
-<ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-        style={{ zIndex: 15000 }}
-      />
+<ToastContainer position="top-right"/>
       <h1>{t("registerPage.register")}</h1>
 
       {/* Title */}
@@ -414,23 +403,32 @@ const personalDataText =
         </>
       )}
 
-      {/* Date of Birth */}
-      <div className="input-box date-picker-div">
-        
-        <DatePicker
-          selected={formData.dob}
-          onChange={(date) => setFormData({ ...formData, dob: date })}
-          locale={selectedLanguage === "ru" ? "ru" : "en-GB"}
-          dateFormat={selectedLanguage === "ru" ? "dd.MM.yyyy" : "yyyy-MM-dd"}
-          placeholderText={t('registerPage.dob')}
-          className="date-picker"
-          showMonthDropdown
-          showYearDropdown
-          dropdownMode="select"
-          maxDate={new Date()}
-          required
-        />
-      </div>
+     {/* Date of Birth */}
+<div className="input-box">
+  <div className="date-picker-container">
+    <DatePicker
+      selected={formData.dob}
+      onChange={(date) => {
+        setFormData({ ...formData, dob: date });
+        setAge(calculateAge(date));
+      }}
+      locale={selectedLanguage === "ru" ? "ru" : "en-GB"}
+      dateFormat={selectedLanguage === "ru" ? "dd.MM.yyyy" : "yyyy-MM-dd"}
+      placeholderText={t('registerPage.dob')}
+      className="date-picker"
+      showMonthDropdown
+      showYearDropdown
+      dropdownMode="select"
+      maxDate={new Date()}
+      required
+    />
+    {age !== null && (
+      <span className="age-display">
+        {t("registerPage.age")}: {age}
+      </span>
+    )}
+  </div>
+</div>
 
       {/* Gender */}
       <div className="input-box">

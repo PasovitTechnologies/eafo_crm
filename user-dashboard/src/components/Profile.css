@@ -20,7 +20,47 @@
   flex-grow: 1;
   /* Ensures full height usage */
 }
+.go-back-div{
+  width: 1000px;
+  margin: auto;
+  padding: 20px;
+  display: flex;
+  gap: 20px;
+}
+.go-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #033672;
+  padding: 6px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+  width: fit-content;
+}
 
+.go-back:hover {
+  background-color: #082547;
+}
+
+.go-back-icon {
+  font-size: 20px;
+  color: #fff;
+}
+
+.profile-help-button {
+    padding: 10px 15px;
+    background-color: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 1000;
+  }
+  
+  .profile-help-button:hover {
+    background-color: #3367d6;
+  }
 /* 🌟 Profile Grid */
 .profile-grid {
   display: flex;
@@ -40,8 +80,6 @@
   background: white;
   border: 1px solid #ddd;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
-  margin-top: 20px;
-  /* Adds spacing from top */
 }
 
 .details-div {
@@ -302,6 +340,11 @@
 
 /* 🌟 Responsive Design */
 @media (max-width: 768px) {
+  .go-back-div{
+    width: 1000px;
+    margin: auto;
+    padding: 10px;
+  }
   .profile-header-div {
     flex-direction: column;
     align-items: center;

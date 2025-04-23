@@ -74,7 +74,7 @@ const ProfileItem = ({ user, expandingSection, setExpandingSection }) => {
         ? `${lastName || ""} ${firstName || ""} ${middleName || ""}`
         : `${firstName || ""} ${middleName || ""} ${lastName || ""}`;
   
-    return `${t('profile.welcome')} 👋, ${nameFormat.trim() || "Guest"}!`;
+    return `${t('profile.welcome')} , ${nameFormat.trim() || "Guest"}!`;
   };
 
   return (

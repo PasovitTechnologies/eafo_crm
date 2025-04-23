@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { FaArrowLeft } from "react-icons/fa";
 import "./Courses.css";
 import { motion } from "framer-motion";
 import Loading from "./Loading";
+import CourseHelp from "./HelpComponents/CourseHelp";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -19,6 +21,8 @@ const Courses = () => {
   const [error, setError] = useState(null);
   const [registeredCourses, setRegisteredCourses] = useState(new Set());
   const currentLanguage = i18n.language;
+    const [showHelpPopup, setShowHelpPopup] = useState(false);
+  
 
   useEffect(() => {
     // ✅ Check if token is available in localStorage
@@ -230,6 +234,10 @@ const Courses = () => {
     navigate(`/dashboard/courses/${course.slug}`);
   };
 
+  const toggleHelpPopup = () => {
+    setShowHelpPopup(!showHelpPopup);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -237,10 +245,29 @@ const Courses = () => {
       transition={{ duration: 0.8 }}
     >
       <div className="courses-page">
-        <div className="breadcrumb">
+      {showHelpPopup && <CourseHelp onClose={toggleHelpPopup} />}
+
+        <div className="breadcrumb courses-head-container">
+          <div style={{display:"flex", gap:"20px"}}>
+          <button
+              type="button"
+              className="back-icon-button"
+              aria-label={t("forgetPasswordPage.backToLogin")}
+            >
+              <FaArrowLeft />
+            </button>
+          <div>
           <span onClick={() => navigate("/dashboard")}>{t("courses.dashboard")}</span> /{" "}
           <span>{t("courses.courses")}</span>
+          </div>
+          </div>
+
+          <button className="course-help-button" onClick={toggleHelpPopup}>
+          {t("profile.help")}
+        </button>
         </div>
+
+      
 
         {/* 🔎 Search and Filter Section */}
         <div className="course-search-filter-container">
@@ -303,7 +330,7 @@ const Courses = () => {
 
                 <div className="course-actions">
                   <button
-                    className={`register-btn ${isRegistered ? "disabled" : ""}`}
+                    className={`register-btn ${isRegistered ? "registered-button disabled" : ""}`}
                     disabled={isRegistered}
                   >
                     {isRegistered
