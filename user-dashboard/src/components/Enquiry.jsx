@@ -7,6 +7,10 @@ import { FiSearch } from "react-icons/fi";
 import { useTranslation } from "react-i18next";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { FaArrowLeft } from "react-icons/fa";
+import CourseHelp from "./HelpComponents/CourseHelp";
+import EnquiryHelp from "./HelpComponents/EnquiryHelp";
+
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const Enquiry = () => {
@@ -31,6 +35,8 @@ const Enquiry = () => {
   const [editFilePreview, setEditFilePreview] = useState(null);
   const [viewMode, setViewMode] = useState(false);
   const [currentEnquiry, setCurrentEnquiry] = useState(null);
+    const [showHelpPopup, setShowHelpPopup] = useState(false);
+  
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -330,6 +336,11 @@ const Enquiry = () => {
     return stars;
   };
 
+
+  const toggleHelpPopup = () => {
+    setShowHelpPopup(!showHelpPopup);
+  };
+
   return (
     <motion.div
       className="enquiry-container"
@@ -351,9 +362,26 @@ const Enquiry = () => {
       />
     
       <div className="enquiry-page">
-        <div className="breadcrumb">
+              {showHelpPopup && <EnquiryHelp
+               onClose={toggleHelpPopup} />}
+        
+        <div className="breadcrumb enquiry-head-container">
+        <div style={{display:"flex", gap:"20px"}}>
+          <button
+                        type="button"
+                        className="back-icon-button"
+                        aria-label={t("forgetPasswordPage.backToLogin")}
+                      >
+                        <FaArrowLeft />
+                      </button>
           <span onClick={() => navigate("/dashboard")}>{t("enquiry.dashboard")}</span> /{" "}
           <span>{t("enquiry.enquiries")}</span>
+          </div>
+
+          <button className="enquiry-help-button" onClick={toggleHelpPopup}>
+          {t("enquiry.help")}
+        </button>
+
         </div>
         
         {!viewMode ? (

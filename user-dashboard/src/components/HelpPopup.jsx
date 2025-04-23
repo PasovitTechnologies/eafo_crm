@@ -43,8 +43,11 @@ const HelpPopup = ({ onClose }) => {
               <div className="text-guide">
                 <h3>{t('auth.registrationGuide')}</h3>
                 <ol>
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <li key={i}>{t(`auth.RegisterSteps.step${i + 1}`)}</li>
+                  {Array.from({ length: 8 }, (_, i) => (
+                    <li key={i}>
+                      <strong>{i + 1}.</strong>{" "}
+                      {t(`auth.RegisterSteps.step${i + 1}`)}
+                    </li>
                   ))}
                 </ol>
 

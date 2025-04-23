@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Webinar.css";
 import { motion } from "framer-motion";
+import { FaArrowLeft } from "react-icons/fa";
 import Loading from "./Loading";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';  // Import the CSS file
 
 import { useTranslation } from "react-i18next";
+import CourseHelp from "./HelpComponents/CourseHelp";
+import WebinarHelp from "./HelpComponents/WebinarHelp";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -22,6 +25,8 @@ const Webinar = () => {
   const [registeredWebinars, setRegisteredWebinars] = useState(new Set());
   const [registrationLoading, setRegistrationLoading] = useState(true); // For registration status loading
   const currentLanguage = i18n.language;
+  const [showHelpPopup, setShowHelpPopup] = useState(false);
+  
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -154,6 +159,11 @@ const Webinar = () => {
     setFilteredWebinars(filtered);
   }, [filter, searchQuery, webinars, registeredWebinars]);
 
+  const toggleHelpPopup = () => {
+    setShowHelpPopup(!showHelpPopup);
+  };
+
+
   const formatSlug = (title) => title.toLowerCase().replace(/\s+/g, "-");
 
   return (
@@ -163,11 +173,27 @@ const Webinar = () => {
       transition={{ duration: 0.8 }}
     >
       <div className="webinar-page">
-        <div className="breadcrumb">
+              {showHelpPopup && <WebinarHelp onClose={toggleHelpPopup} />}
+        
+        <div className="breadcrumb webinar-head-container">
+       <div style={{display:"flex", gap:"20px"}}>
+          <button
+          type="button"
+          className="back-icon-button"
+          aria-label={t("forgetPasswordPage.backToLogin")}
+          >
+                        <FaArrowLeft />
+                      </button>
           <span onClick={() => navigate("/dashboard")}>
             {t("webinar.breadcrumb_dashboard")}
           </span>{" "}
           / <span>{t("webinar.breadcrumb_webinars")}</span>
+
+          </div>
+
+          <button className="webinar-help-button" onClick={toggleHelpPopup}>
+          {t("webinar.help")}
+        </button>
         </div>
 
         <div className="search-filter-container">

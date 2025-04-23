@@ -21,7 +21,7 @@ const Courses = () => {
   const [error, setError] = useState(null);
   const [registeredCourses, setRegisteredCourses] = useState(new Set());
   const currentLanguage = i18n.language;
-    const [showHelpPopup, setShowHelpPopup] = useState(false);
+  const [showHelpPopup, setShowHelpPopup] = useState(false);
   
 
   useEffect(() => {

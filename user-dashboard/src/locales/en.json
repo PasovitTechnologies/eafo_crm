@@ -54,7 +54,18 @@
     "ratingOutOf": "{{rating}} out of 5",
     "rateSolution": "Rate this solution:",
     "rateButton": "Rate",
-    "editButton": "Edit"
+    "editButton": "Edit",
+    "help":"How to Raise Enquiry?",
+    "HelpSteps": {
+    "step1": "Click on “Enquiries/Need help?” on your homepage.",
+    "step2": "To create new enquiries: Click 'Raise (Submit) Enquiry' → Enter your enquiry → Attach file (if needed, ≤5MB) → Click 'Submit'.",
+    "step3": "To search: Type keywords in the search bar.",
+    "step4": "To track: Select status (All/Raised/Under Review/Solved).",
+    "step5": "To view: Check enquiry cards for message/status/attachments.",
+    "step6": "To download files: Click 📥 icon on enquiry cards.",
+    "step7": "To rate the solved enquiries: Click 'Rate' → Select stars (1–5) → Submit.",
+    "step8": "To track the status of the enquiry: Raised/Submitted (yellow) → Under Review (blue) → Solved (green)."
+  }
   },
   "auth": {
     "welcome": "Hello, Welcome!",
@@ -75,18 +86,18 @@
   "videoDescription": "Watch this video for a step-by-step registration process.",
   "contactSupport": "For further assistance, please contact our support team via email at 📧 or by phone at ☎.",
     "RegisterSteps": {
-    "step1": "1. Select your professional title (e.g., Dr., Prof.) from the drop-down menu.",
-    "step2": "2. Enter your full name exactly as it appears on your official ID (first, middle, last).",
-    "step3": "3. Choose your birth date from the calendar.",
-    "step4": "4. Select your gender (Can be updated at any time).",
-    "step5": "5. Provide a secure email for login.",
-    "step6": "6. Create a strong password (8–16 chars, mixed case, symbol).",
-    "step7": "7. Remember email and password to avoid being locked out.",
-    "step8": "8. Add phone number (select country, enter digits only).",
-    "step9": "9. Enter academic details (country, institution, department, role).",
-    "step10": "10. Agree to data protection & terms of service.",
-    "step11": "11. Submit registration & check email for confirmation.",
-    "step12": "12. Access your homepage to complete your profile."
+    "step1": "Select your professional title (e.g., Dr., Prof.) from the drop-down menu.",
+    "step2": "Enter your full name exactly as it appears on your official ID (first, middle, last).",
+    "step3": "Choose your birth date from the calendar.",
+    "step4": "Select your gender (Can be updated at any time).",
+    "step5": "Provide a secure email for login.",
+    "step6": "Create a strong password (8–16 chars, mixed case, symbol).",
+    "step7": "Remember email and password to avoid being locked out.",
+    "step8": "Add phone number (select country, enter digits only).",
+    "step9": "Enter academic details (country, institution, department, role).",
+    "step10": "Agree to data protection & terms of service.",
+    "step11": "Submit registration & check email for confirmation.",
+    "step12": "Access your homepage to complete your profile."
   }
   },
  
@@ -137,9 +148,8 @@
           "step10": "You are now registered. You can click on the “Details” button to check your details.",
           "step11": "Click “Pay amount” to pay for the registration.",
           "step12": "Access Confirmation & Documents: View registration details.",
-          "step13": "Complete Payment: After registration, click \"Pay Now\" → Pay using the link → confirm payment.",
-          "step14": "For further assistance, please contact our support team via email at 📧 (@) or by phone at ☎ +7 (XXX) XXX-XXXX."
-        }
+          "step13": "Complete Payment: After registration, click \"Pay Now\" → Pay using the link → confirm payment."
+                }
     },
     "course_details": {
         "breadcrumb_dashboard": "Personal Account",
@@ -197,7 +207,17 @@
     "no_other_webinars": "No other webinars available.",
     "successfully_registered": "Successfully registered!",
     "login_to_register": "Error: Please log in to register.",
-    "no_upcoming_webinar":"No upcoming webinars."
+    "no_upcoming_webinar":"No upcoming webinars.",
+    "help": "How to Register for webinar?",
+    "HelpSteps": {
+    "step1": "Accessing the Webinar Portal",
+    "step2": "Click on “Webinars” on your homepage.",
+    "step3": "To search: Type the webinar title in the search bar.",
+    "step4": "To filter: Select 'All/Upcoming/Past' from the dropdown.",
+    "step5": "To register: Click 'Register Now' on the webinar cards.",
+    "step6": "To watch: Registered users will see 'Watch Webinar' button, click on this button.",
+    "step7": "For details: Click any card for full webinar information."
+  }
   },
 
   "webinarDetails": {
@@ -259,22 +279,22 @@
     "help": "How to Edit Profile?",
     "saving": "Saving...",
     "HelpSteps": {
-      "step1": "1. Click the profile tab (with the profile picture) on your homepage to modify your profile.",
-      "step2": "2. Click on the edit button to update or change any details.",
-      "step3": "3. Update your title (Mr./Ms./Dr./Prof.) from the dropdown menu.",
-      "step4": "4. Enter your legal first name (as written on your official documents).",
-      "step5": "5. Add your middle name (optional, if used professionally).",
-      "step6": "6. Enter your last name (as written on your official documents).",
-      "step7": "7. Edit your phone number (include country code, no spaces/symbols).",
-      "step8": "8. Adjust your date of birth (use the calendar or type in YYYY-MM-DD format).",
-      "step9": "9. Select country of residence from the dropdown menu.",
-      "step10": "10. Update the university (full official name, no abbreviations).",
-      "step11": "11. Specify the department/faculty/research unit.",
-      "step12": "12. Enter your profession (e.g., 'Neurosurgeon').",
-      "step13": "13. State your current position (e.g., 'Research Fellow').",
-      "step14": "14. Upload a profile picture (JPG/PNG, max 5MB, 500x500px recommended).",
-      "step15": "15. Review the changes & click 'Update' (floppy icon) to save.",
-      "step16": "16. Wait for the “Profile updated successfully!” message."
+      "step1": "Click the profile tab (with the profile picture) on your homepage to modify your profile.",
+      "step2": "Click on the edit button to update or change any details.",
+      "step3": "Update your title (Mr./Ms./Dr./Prof.) from the dropdown menu.",
+      "step4": "Enter your legal first name (as written on your official documents).",
+      "step5": "Add your middle name (optional, if used professionally).",
+      "step6": "Enter your last name (as written on your official documents).",
+      "step7": "Edit your phone number (include country code, no spaces/symbols).",
+      "step8": "Adjust your date of birth (use the calendar or type in YYYY-MM-DD format).",
+      "step9": "Select country of residence from the dropdown menu.",
+      "step10": "Update the university (full official name, no abbreviations).",
+      "step11": "Specify the department/faculty/research unit.",
+      "step12": "Enter your profession (e.g., 'Neurosurgeon').",
+      "step13": "State your current position (e.g., 'Research Fellow').",
+      "step14": "Upload a profile picture (JPG/PNG, max 5MB, 500x500px recommended).",
+      "step15": "Review the changes & click 'Update' (floppy icon) to save.",
+      "step16": "Wait for the “Profile updated successfully!” message."
     }
   },
 

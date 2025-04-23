@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import "../HelpPopup.css";
 
-const ProfileHelp = ({ onClose }) => {
+const EnquiryHelp = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState("text");
   const { t } = useTranslation();
 
@@ -67,10 +67,10 @@ const ProfileHelp = ({ onClose }) => {
               <div className="text-guide">
                 <h3>{t("auth.registrationGuide")}</h3>
                 <ol>
-                  {Array.from({ length: 16 }, (_, i) => (
+                  {Array.from({ length: 8 }, (_, i) => (
                     <li key={i}>
                       <strong>{i + 1}.</strong>{" "}
-                      {t(`profile.HelpSteps.step${i + 1}`)}
+                      {t(`enquiry.HelpSteps.step${i + 1}`)}
                     </li>
                   ))}
                 </ol>
@@ -132,4 +132,4 @@ const ProfileHelp = ({ onClose }) => {
   );
 };
 
-export default ProfileHelp;
+export default EnquiryHelp;
