@@ -263,7 +263,7 @@ const Courses = () => {
           </div>
 
           <button className="course-help-button" onClick={toggleHelpPopup}>
-          {t("profile.help")}
+          {t("courses.help")}
         </button>
         </div>
 

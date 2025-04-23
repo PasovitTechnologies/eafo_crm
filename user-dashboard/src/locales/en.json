@@ -123,6 +123,7 @@
         "registration_failed": "Failed to register. Please try again.",
         "no_token": "No token found. Please log in.",
         "no_upcoming_courses":"No upcoming courses.",
+        "help": "How to Register for course?",
         "HelpSteps": {
           "step1": "Click on the “Courses” tab on your homepage.",
           "step2": "Click \"Register (Enroll) Now\" on your selected course.",
