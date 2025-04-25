@@ -17,110 +17,116 @@ const RUSENDER_API = "https://api.beta.rusender.ru/api/v1/external-mails/send";
 
 // ✅ Helper function to send emails using Rusender
 const sendEmailRusender = async (recipient, mail) => {
-    const emailData = {
-        mail: {
-            to: { email: recipient.email },
-            from: { email: "eafo@e-registrar.org", name: "EAFO" },
-            subject: mail.subject,
-            previewTitle: mail.subject,  
-            html: mail.html.replace("{name}", recipient.firstName || "User")
-        }
-    };
-
-    try {
-        const response = await axios.post(RUSENDER_API, emailData, {
-            headers: {
-                "Content-Type": "application/json",
-                "X-Api-Key": process.env.RUSENDER_API_KEY
-            }
-        });
-
-        console.log(`✅ Email sent to ${recipient.email}:`, response.data);
-        return { email: recipient.email, status: "Success", data: response.data };
-    } catch (error) {
-        console.error(`❌ Failed to send email to ${recipient.email}:`, error.response?.data || error.message);
-        return { email: recipient.email, status: "Failed", error: error.message };
+  const emailData = {
+    mail: {
+      to: { email: recipient.email },
+      from: { email: "eafo@e-registrar.org", name: "EAFO" },
+      subject: mail.subject,
+      previewTitle: mail.subject,
+      html: mail.html // no `.replace` needed
     }
+  };
+
+  try {
+    const response = await axios.post(RUSENDER_API, emailData, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": process.env.RUSENDER_API_KEY
+      }
+    });
+
+    console.log(`✅ Email sent to ${recipient.email}:`, response.data);
+    return { email: recipient.email, status: "Success", data: response.data };
+  } catch (error) {
+    console.error(`❌ Failed to send email to ${recipient.email}:`, error.response?.data || error.message);
+    return { email: recipient.email, status: "Failed", error: error.message };
+  }
 };
+
 
 // ✅ Function to select email template
 const getWebinarEmailTemplate = (lang, user, webinar) => {
   const date = new Date(webinar.date);
 
   const webinarDate = date.toLocaleDateString(lang === "ru" ? "ru-RU" : "en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 
   const webinarTime = webinar.time || date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit"
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
   const dayOfWeek = lang === "ru" ? webinar.dayOfWeekRussian : webinar.dayOfWeek;
-  
   const webinarTitle = lang === "ru" ? webinar.titleRussian : webinar.title;
-  const chiefGuest = lang === "ru" ? webinar.chiefGuestNameRussian : webinar.chiefGuestName;
-  const regalia = lang === "ru" ? webinar.regaliaRussian : webinar.regalia;
 
-  // ✅ Use the user's title for salutation
-  const salutation = user.personalDetails?.title 
-      ? `${user.personalDetails.title}`
-      : lang === "ru" ? "Уважаемый(ая)" : "Dear";
+  const chiefGuest = lang === "ru"
+    ? webinar.chiefGuestNameRussian || "Эксперт"
+    : webinar.chiefGuestName || "Guest Speaker";
+
+  const regalia = lang === "ru"
+    ? webinar.regaliaRussian || ""
+    : webinar.regalia || "";
+
+  const personal = user.personalDetails || {};
+  const firstName = personal.firstName || (lang === "ru" ? "Участник" : "Participant");
+  const middleName = personal.middleName || "";
+  const lastName = personal.lastName || "";
+  const title = personal.title || (lang === "ru" ? "Уважаемый(ая)" : "Dear");
 
   if (lang === "ru") {
-      return {
-          subject: `Подтверждение регистрации на вебинар: ${webinarTitle}`,
-          html: `
-              <h2>Подтверждение регистрации на вебинар</h2>
-              <p>${salutation} <b>${user.personalDetails?.firstName || "Участник"} ${user.personalDetails?.middleName || ""}</b>,</p>
+    return {
+      subject: `Подтверждение регистрации на вебинар: ${webinarTitle}`,
+      html: `
+        <h2>Подтверждение регистрации на вебинар</h2>
+        <p>${title} <b>${firstName} ${middleName}</b>,</p>
 
-              <p>Вы успешно зарегистрированы на <strong>"${webinarTitle}"</strong> от Евразийской федерации онкологии (EAFO)!</p>
+        <p>Вы успешно зарегистрированы на <strong>"${webinarTitle}"</strong> от Евразийской федерации онкологии (EAFO)!</p>
 
-              <p>Дата проведения вебинара: <strong>${webinarDate}, ${webinarTime} (Timezone: Moscow, Russia (GMT+3)) [${dayOfWeek}]</strong></p>
-              <p>Эксперт вебинара: <strong>${chiefGuest}</strong>,<br> ${regalia}</p>
+        <p>Дата проведения вебинара: <strong>${webinarDate}, ${webinarTime} (время московское, GMT+3) [${dayOfWeek}]</strong></p>
+        <p>Эксперт вебинара: <strong>${chiefGuest}</strong>,<br> ${regalia}</p>
 
-              <p>Для доступа к запланированным онлайн мероприятиям, пожалуйста, войдите в личный кабинет EAFO:</p>
-              <p><a href="${process.env.APP_URL}">Войти в личный кабинет</a></p>
+        <p>Для доступа к запланированным онлайн мероприятиям, пожалуйста, войдите в личный кабинет EAFO:</p>
+        <p><a href="${process.env.APP_URL}">Войти в личный кабинет</a></p>
 
-              <p>В случае возникновения любых вопросов, пожалуйста, свяжитесь с нашей службой технической поддержки по адресу: 
-                  <a href="mailto:support@eafo.info">info@eafo.info</a>
-              </p>
+        <p>Если возникли вопросы, напишите в поддержку: <a href="mailto:support@eafo.info">info@eafo.info</a></p>
 
-              <footer>
-                  <p>С уважением,</p>
-                  <p>Команда EAFO</p>
-              </footer>
-          `
-      };
+        <footer>
+          <p>С уважением,</p>
+          <p>Команда EAFO</p>
+        </footer>
+      `
+    };
   } else {
-      return {
-          subject: `Webinar Registration Confirmation: ${webinarTitle}`,
-          html: `
-              <h2>Webinar Registration Confirmation</h2>
-              <p>${salutation} <b>${user.personalDetails?.firstName || "Participant"} ${user.personalDetails?.middleName || ""} ${user.personalDetails?.lastName || ""}</b>,</p>
+    return {
+      subject: `Webinar Registration Confirmation: ${webinarTitle}`,
+      html: `
+        <h2>Webinar Registration Confirmation</h2>
+        <p>${title} <b>${firstName} ${middleName} ${lastName}</b>,</p>
 
-              <p>You have successfully registered for <strong>"${webinarTitle}"</strong> hosted by the Eurasian Federation of Oncology (EAFO)!</p>
+        <p>You have successfully registered for <strong>"${webinarTitle}"</strong> hosted by the Eurasian Federation of Oncology (EAFO)!</p>
 
-              <p>Webinar Date: <strong>${webinarDate}, ${webinarTime} (Timezone: Moscow, Russia (GMT+3)) [${dayOfWeek}]</strong></p>
-              <p>Chief Guest: <strong>${chiefGuest}</strong>,<br> ${regalia}</p>
+        <p>Webinar Date: <strong>${webinarDate}, ${webinarTime} (Timezone: Moscow, Russia (GMT+3)) [${dayOfWeek}]</strong></p>
+        <p>Chief Guest: <strong>${chiefGuest}</strong>,<br> ${regalia}</p>
 
-              <p>To access the scheduled online events, please log in to your EAFO account:</p>
-              <p><a href="${process.env.APP_URL}">Go to Dashboard</a></p>
+        <p>To access the scheduled online events, please log in to your EAFO account:</p>
+        <p><a href="${process.env.APP_URL}">Go to Dashboard</a></p>
 
-              <p>If you have any questions, please contact our support team at:
-                  <a href="mailto:support@eafo.info">info@eafo.info</a>
-              </p>
+        <p>If you have any questions, please contact our support team at:
+          <a href="mailto:support@eafo.info">info@eafo.info</a>
+        </p>
 
-              <footer>
-                  <p>Best regards,</p>
-                  <p>EAFO Team</p>
-              </footer>
-          `
-      };
+        <footer>
+          <p>Best regards,</p>
+          <p>EAFO Team</p>
+        </footer>
+      `
+    };
   }
 };
+
 
 
 // **Authentication Middleware**
@@ -231,7 +237,6 @@ router.post("/:id/register", authenticateJWT, async (req, res) => {
     const webinar = await Webinar.findById(webinarId);
     if (!webinar) return res.status(404).json({ message: "Webinar not found" });
 
-    // ✅ Find User and Check if Already Registered
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -240,14 +245,11 @@ router.post("/:id/register", authenticateJWT, async (req, res) => {
       return res.status(400).json({ message: "User already registered for this webinar" });
     }
 
-    // ✅ Add webinar to User's webinars list
     user.webinars.push({ webinarId, registeredAt: new Date() });
     await user.save();
 
-    // ✅ Ensure `participants` array exists in Webinar model
     if (!webinar.participants) webinar.participants = [];
 
-    // ✅ Add participant to Webinar's participants list
     const newParticipant = {
       email,
       registeredAt: new Date(),
@@ -259,17 +261,12 @@ router.post("/:id/register", authenticateJWT, async (req, res) => {
 
     res.status(201).json({ message: "Successfully registered!", participant: newParticipant });
 
-    const lang = user.dashboardLang || "en";
-    const emailTemplate = getWebinarEmailTemplate(lang, user, webinar);
-
-    await sendEmailRusender({ email: user.email, firstName: user.personalDetails?.firstName || "User" }, emailTemplate);
-    
-    console.log("✅ Webinar registration email sent!");
   } catch (error) {
     console.error("Error registering participant:", error);
     res.status(500).json({ message: "Server error", error });
   }
 });
+
 
 
 router.post("/:id/cancel", authenticateJWT, async (req, res) => {

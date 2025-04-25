@@ -7,7 +7,7 @@ const WebinarSchema = new mongoose.Schema({
   dayOfWeek: { type: String },
   dayOfWeekRussian: { type: String },
   time: { type: String, required: true },
-  liveEmbed: { type: String, required: true },
+  liveEmbed: { type: String, required: false},
   eventSiteURL: { type: String },
   chatEmbed: { type: String },
   bannerUrl: { type: String },
