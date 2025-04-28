@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import "./UserDetailsModal.css";
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
@@ -637,7 +639,28 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
         {/* Scrollable Content */}
         <div className="userdetails-content-section">
           {isLoading ? (
-            <div>{t("userDetailsModal.loading")}</div>
+            <div className="skeleton-wrapper">
+            {/* Skeleton for the photo */}
+            <div className="skeleton-header">
+              <Skeleton circle={true} height={80} width={80} />
+              <div className="skeleton-header-details">
+                <Skeleton height={20} width={`60%`} />
+                <Skeleton height={15} width={`40%`} />
+              </div>
+            </div>
+        
+            {/* Skeleton for navigation tabs */}
+            <div className="skeleton-tabs">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <Skeleton key={index} height={30} width={80} style={{ marginRight: 10 }} />
+              ))}
+            </div>
+        
+            {/* Skeleton for content */}
+            <div className="skeleton-content">
+              <Skeleton count={8} height={20} style={{ marginBottom: 10 }} />
+            </div>
+          </div>
           ) : (
             <>
               {activeTab === "Personal" && (

@@ -11,6 +11,7 @@ const alfUser = process.env.ALFABANK_USER;
 const alfPassword = process.env.ALFABANK_PASSWORD;
 const alfApiUrl = process.env.ALFABANK_API_URL;
 
+
 console.log("AlfaBank User:", alfUser);  // Debugging: Check if environment variables are correctly loaded
 console.log("AlfaBank API URL:", alfApiUrl);  // Debugging: Check if environment variables are correctly loaded
 
@@ -76,7 +77,7 @@ router.post("/alfabank/pay", async (req, res) => {
 });
 
 // ✅ Handle Payment Status Request for AlfaBank
-router.post("/alfabank/status", async (req, res) => {  
+router.post("/alfabank/status", async (req, res) => { 
   try {
     const { orderId } = req.body;
     console.log("🟢 Received request for payment status with Order ID:", orderId); // ✅ Log received orderId

@@ -89,7 +89,7 @@ const App = () => {
            <ToastContainer position="top-right" autoClose={3000} />
             {/* Navbar */}
             <Navbar
-              setIsSidebarOpen={setIsSidebarOpen}
+              isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen}
             />
 
             {/* Sidebar */}

@@ -104,44 +104,60 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  padding: 10px;
   margin-bottom: 12px;
   background: #f1f1f1;
-  padding: 8px;
   border-radius: 8px;
+  align-items: center; /* Vertically center inputs and button */
 }
 
 .item-row input {
   flex: 1;
   background-color: #fff;
   color: #000;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  margin: auto;
+}
+
+.currency-type {
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 14px;
 }
 
 /* ================================
-   Delete Icon
+   Delete Icon Button
 ================================ */
-.invoice-delete-icon {
+.invoice-dlt-btn {
   background-color: #ff4d4d;
   color: #fff;
-  font-size: 15px;
+  font-size: 16px;
   cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 5px;
-  width: fit-content;
+  padding: 10px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, transform 0.2s;
+  border: none;
 }
 
-.invoice-delete-icon:hover {
-  background-color: #7f0c0c;
-}
+
+
 
 /* ================================
    Buttons
 ================================ */
 .invoice-modal button,
 .items-container .add-items-btn {
-  background: #007bff;
+  background: #134275;
   color: #fff;
   border: none;
-  padding: 12px 20px;
+  padding: 10px 16px;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.3s, transform 0.2s;
@@ -151,8 +167,7 @@
 
 .invoice-modal button:hover,
 .items-container .add-items-btn:hover {
-  background: #0056b3;
-  transform: scale(1.03);
+  background: #0a2848;
 }
 
 .invoice-modal button:disabled {
@@ -293,6 +308,12 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
+.payment-link-container{
+  gap: 20px;
+}
+.copy-button{
+  margin-left: 20px;
+}
 .payment-actions {
   display: flex;
   flex-direction: column;

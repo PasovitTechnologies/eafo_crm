@@ -3,6 +3,8 @@ import axios from "axios";
 import { FaSearch, FaFileExport, FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";  // Import useNavigate
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
 import "./UserDatabase.css";
 
 const UserDatabase = () => {
@@ -116,77 +118,98 @@ const UserDatabase = () => {
       </div>
 
       {isLoading ? (
-        <p className="loading-message">{t('userDatabase.loadingUsers')}</p>
-      ) : error ? (
-        <p className="error-message">{error}</p>
-      ) : (
-        <>
-          <div className="table-container">
-            <table className="user-table">
-              <thead>
-                <tr>
-                  <th>{t('userDatabase.tableHeaderId')}</th>
-                  <th>{t('userDatabase.tableHeaderFullName')}</th>
-                  <th>{t('userDatabase.tableHeaderEmail')}</th>
+  <div className="table-container fade-in-animation">
+  <div className="table-scroll-wrapper">
+    <table className="user-table">
+      <thead>
+        <tr>
+          <th>{t('userDatabase.tableHeaderId')}</th>
+          <th>{t('userDatabase.tableHeaderFullName')}</th>
+          <th>{t('userDatabase.tableHeaderEmail')}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {Array.from({ length: 10 }).map((_, index) => (
+          <tr key={index} className="table-row">
+            <td><Skeleton width={40} duration={1.2} highlightColor="#f0f0f0" baseColor="#e0e0e0" /></td>
+            <td><Skeleton width="80%" duration={1.2} highlightColor="#f0f0f0" baseColor="#e0e0e0" /></td>
+            <td><Skeleton width="70%" duration={1.2} highlightColor="#f0f0f0" baseColor="#e0e0e0" /></td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+</div>
+) : error ? (
+  <p className="error-message">{error}</p>
+) : (
+  <>
+    <div className="table-container">
+      <div className="table-scroll-wrapper">
+        <table className="user-table">
+          <thead>
+            <tr>
+              <th>{t('userDatabase.tableHeaderId')}</th>
+              <th>{t('userDatabase.tableHeaderFullName')}</th>
+              <th>{t('userDatabase.tableHeaderEmail')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {currentItems.length > 0 ? (
+              currentItems.map((user, index) => (
+                <tr 
+                  key={user._id || index} 
+                  className="table-row clickable-row"  
+                  onClick={() => handleRowClick(user.email)}
+                >
+                  <td>{user._id || indexOfFirstItem + index + 1}</td>
+                  <td>{getFullName(user.personalDetails)}</td>
+                  <td>{user.email}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {currentItems.length > 0 ? (
-                  currentItems.map((user, index) => (
-                    <tr 
-                      key={user._id || index} 
-                      className="table-row clickable-row"  
-                      onClick={() => handleRowClick(user.email)}
-                    >
-                      <td>{user._id || indexOfFirstItem + index + 1}</td>
-                      <td>{getFullName(user.personalDetails)}</td>
-                      <td>{user.email}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr className="table-row">
-                    <td colSpan="3">{t('userDatabase.noUsersFound')}</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+              ))
+            ) : (
+              <tr className="table-row">
+                <td colSpan="3">{t('userDatabase.noUsersFound')}</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-          {filteredUsers.length > itemsPerPage && (
-            <div className="user-pagination-container">
-              <div className="user-pagination">
-                <button
-                  onClick={() => paginate(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  className="user-pagination-button"
-                  title={currentPage === 1 ? t('userDatabase.previousPageDisabled') : ''}
-                >
-                  <FaAngleLeft />
-                </button>
-                
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((number) => (
-                  <button
-                    key={number}
-                    onClick={() => paginate(number)}
-                    className={`user-pagination-button ${currentPage === number ? 'active' : ''}`}
-                  >
-                    {number}
-                  </button>
-                ))}
-                
-                <button
-                  onClick={() => paginate(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="user-pagination-button"
-                  title={currentPage === totalPages ? t('userDatabase.nextPageDisabled') : ''}
-                >
-                  <FaAngleRight />
-                </button>
-              </div>
-            </div>
-          )}
-        </>
-      )}
+    {filteredUsers.length > itemsPerPage && (
+      <div className="user-pagination-container">
+        <div className="user-pagination">
+          {/* Previous button */}
+          <button
+            onClick={() => paginate(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="user-pagination-button"
+            title={currentPage === 1 ? t('userDatabase.previousPageDisabled') : ''}
+          >
+            <FaAngleLeft />
+          </button>
+
+          {/* Current page indicator */}
+          <span className="user-pagination-current-page">
+            {currentPage}
+          </span>
+
+          {/* Next button */}
+          <button
+            onClick={() => paginate(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className="user-pagination-button"
+            title={currentPage === totalPages ? t('userDatabase.nextPageDisabled') : ''}
+          >
+            <FaAngleRight />
+          </button>
+        </div>
+      </div>
+    )}
+  </>
+)}
+
     </div>
   );
 };

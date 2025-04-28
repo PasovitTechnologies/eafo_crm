@@ -172,6 +172,7 @@
         "status": "Status",
         "pay_now": "Pay Now",
         "paid": "Paid",
+        "payment_expired": "Payment Expired",
         "close": "Close",
         "submission_details": "Submission Details",
         "responses": "Responses",

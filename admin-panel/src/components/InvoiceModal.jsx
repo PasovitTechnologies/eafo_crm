@@ -7,7 +7,9 @@ import {
   FaTrashAlt,
   FaCheckCircle,
   FaTimesCircle,
+  FaRegCopy
 } from "react-icons/fa"; // Import icons
+
 import AktDocument from "./AktDocument";
 import { useTranslation } from "react-i18next";
 import ContractDocument from "./ContractDocument";
@@ -23,6 +25,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
+  const [coursePayments, setCoursePayments] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [isAktOpen, setIsAktOpen] = useState(false);
   const [aktData, setAktData] = useState(null);
@@ -84,67 +87,54 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
 
       if (submission.email && courseId) {
         fetchPaymentHistory();
+        fetchCoursePayments();
       }
     }
   }, [isOpen, submission, courseId]);
 
   const fetchPaymentHistory = async () => {
     try {
-      // Validate required data
-      if (!submission?.email || !courseId) {
-        setError("Missing required data (email or course ID)");
-        return;
-      }
-
       const token = localStorage.getItem("token");
-      if (!token) {
-        setError("Authentication required");
-        return;
-      }
-
-      const response = await axios.get(
-        `${baseUrl}/api/user/${submission.email}`, // Note: Added /api/
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.data?.courses) {
-        setPaymentHistory([]);
-        setError("No course data found for this user");
-        return;
-      }
-
+      const response = await axios.get(`${baseUrl}/api/user/${submission.email}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const course = response.data.courses.find((c) => c.courseId === courseId);
       if (!course?.payments) {
         setPaymentHistory([]);
-        setError("No payment history for this course");
         return;
       }
-
-      const formattedPayments = course.payments.map((payment) => ({
-        invoiceNumber: payment.invoiceNumber || `INV-${Date.now()}`,
-        paymentId: payment.paymentId || "N/A",
-        paymentLink: payment.paymentLink || "#",
-        package: payment.package || submission.package || "Unknown",
-        amount: payment.amount || submission.amount || 0,
-        currency: payment.currency || submission.currency || "USD",
-        status: payment.status || "Unknown",
-        time: payment.time ? new Date(payment.time).toLocaleString() : "N/A",
-      }));
-
-      setPaymentHistory(formattedPayments);
+      setPaymentHistory(course.payments.map(payment => ({
+        ...payment,
+        time: payment.time ? new Date(payment.time).toLocaleString() : "N/A"
+      })));
       setUserData(response.data);
-      setError(null);
     } catch (error) {
       console.error("Payment history error:", error);
-      setError(
-        error.response?.data?.message || "Failed to fetch payment history"
-      );
+      setError(error.response?.data?.message || "Failed to fetch payment history");
     }
   };
+
+  const fetchCoursePayments = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${baseUrl}/api/courses/${courseId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCoursePayments(response.data.payments || []);
+    } catch (error) {
+      console.error("Course payments error:", error);
+      setCoursePayments([]);
+    }
+  };
+
+  const getRealPaymentStatus = (payment) => {
+    if (!payment || !payment.invoiceNumber) return "Unknown";
+    const coursePayment = coursePayments.find(
+      (cp) => cp.invoiceNumber === payment.invoiceNumber
+    );
+    return coursePayment ? coursePayment.status : payment.status || "Unknown";
+  };
+
 
   const addNewItem = () => {
     setItems([
@@ -491,7 +481,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
                 placeholder="Amount"
               />
               <span className="currency-type">{currency}</span>
-              <button className="invoice-delete-btn" onClick={() => removeItem(index)}>
+              <button className="invoice-dlt-btn" onClick={() => removeItem(index)}>
                 <FaTrashAlt />
               </button>
             </div>
@@ -557,71 +547,62 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
           </div>
         )}
 
-        <div className="payment-history">
+<div className="payment-history">
           <h3>{t("InvoiceModal.paymentHistory")}</h3>
           {error ? (
             <p className="error-message">{error}</p>
           ) : paymentHistory.length > 0 ? (
             <ul className="payment-info-list">
-              {paymentHistory.map((payment, index) => (
-                <li key={index} className="payment-info-item">
-                  <div>
-                    <p>
-                      <strong>{t("InvoiceModal.invoiceNumber")}:</strong>{" "}
-                      {payment.invoiceNumber}
-                    </p>
-                    <p>
-                      <strong>{t("InvoiceModal.package")}:</strong>{" "}
-                      {payment.package}
-                    </p>
-                    <p>
-                      <strong>{t("InvoiceModal.amount")}:</strong>{" "}
-                      {payment.amount} {payment.currency}
-                    </p>
-                    <p>
-                      <strong>{t("InvoiceModal.status")}:</strong>{" "}
-                      {payment.status}
-                    </p>
-                    <p>
-                      <strong>{t("InvoiceModal.date")}:</strong> {payment.time}
-                    </p>
-                    <a
-                      href={payment.paymentLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {t("InvoiceModal.paymentLink")}
-                    </a>
-                  </div>
+  {paymentHistory.map((payment, index) => (
+    <li key={index} className="payment-info-item">
+      <div>
+        <p><strong>{t("InvoiceModal.invoiceNumber")}:</strong> {payment.invoiceNumber}</p>
+        <p><strong>{t("InvoiceModal.package")}:</strong> {payment.package}</p>
+        <p><strong>{t("InvoiceModal.amount")}:</strong> {payment.amount} {payment.currency}</p>
+        <p><strong>{t("InvoiceModal.status")}:</strong> {getRealPaymentStatus(payment)}</p>
+        <p><strong>{t("InvoiceModal.date")}:</strong> {payment.time}</p>
+        
+        <div className="payment-link-container">
+  <a href={payment.paymentLink} target="_blank" rel="noopener noreferrer">
+    {t("InvoiceModal.paymentLink")}
+  </a>
 
-                  <div className="payment-actions">
-                    {/* AKT Button - Only Available for Paid Invoices */}
-                    <button
-                      onClick={() => handleViewAkt(payment)}
-                      disabled={payment.status !== "Paid"}
-                      className={
-                        payment.status === "Paid" ? "btn-paid" : "btn-disabled"
-                      }
-                      title={
-                        payment.status !== "Paid"
-                          ? "AKT only available for paid invoices"
-                          : ""
-                      }
-                    >
-                      {t("InvoiceModal.akt")}
-                    </button>
+  <button
+    onClick={() => {
+      navigator.clipboard.writeText(payment.paymentLink);
+      toast.success("Link copied!");
+    }}
+    className="copy-button"
+    title={t("InvoiceModal.copyLink")}
+  >
+    <FaRegCopy size={18} />
+  </button>
+</div>
 
-                    {/* Contract Button - Always Enabled */}
-                    <button
-                      onClick={() => handleViewContract(payment)}
-                      className="btn-paid" // Always show as enabled
-                    >
-                      {t("InvoiceModal.contract")}
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+
+      </div>
+
+      <div className="payment-actions">
+        {/* AKT Button - Only if paid */}
+        <button
+          onClick={() => handleViewAkt(payment)}
+          disabled={getRealPaymentStatus(payment) !== "Paid"}
+          className={getRealPaymentStatus(payment) === "Paid" ? "btn-paid" : "btn-disabled"}
+        >
+          {t("InvoiceModal.akt")}
+        </button>
+
+        {/* Contract Button - Always enabled */}
+        <button
+          onClick={() => handleViewContract(payment)}
+          className="btn-paid"
+        >
+          {t("InvoiceModal.contract")}
+        </button>
+      </div>
+    </li>
+  ))}
+</ul>
           ) : (
             <p>{t("InvoiceModal.noSubmissions")}</p>
           )}

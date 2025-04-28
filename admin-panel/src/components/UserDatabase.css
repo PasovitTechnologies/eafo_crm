@@ -80,26 +80,37 @@
 /* Table */
 .table-container {
   width: 100%;
-  overflow-x: auto;
-  padding: 12px;
-  border-radius: 16px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 20px;
 }
 
+.table-scroll-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+/* Optional: make table take full width inside wrapper */
 .user-table {
   width: 100%;
+  min-width: 600px; /* You can adjust this value based on your table size */
   border-collapse: collapse;
-  background: white;
-  border-radius: 16px;
-  overflow: hidden;
-  min-width: 600px;
 }
 
 .user-table th, .user-table td {
-  padding: 14px 16px;
-  font-size: 14px;
+  padding: 12px 15px;
   text-align: left;
+  border-bottom: 1px solid #f1f1f1;
 }
+.user-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: #f9f9f9; /* Slight background so text is visible */
+  z-index: 2;
+  box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);
+}
+
 
 .user-table th {
   font-weight: 600;
@@ -137,47 +148,53 @@
 
 /* Pagination */
 .user-pagination-container {
-  display: flex;
-  justify-content: flex-end;
   margin-top: 20px;
-  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 .user-pagination {
   display: flex;
-  gap: 8px;
   align-items: center;
-  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .user-pagination-button {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  color: #333;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: 1px solid #e0e0e0;
-  background-color: white;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: #333;
 }
 
-.user-pagination-button:hover:not(:disabled) {
-  background-color: #f5f5f5;
-  border-color: #bdc3c7;
+.user-pagination-button:hover {
+  background-color: #022d5e;
+  color: #fff;
+  border-color: #022d5e;
 }
 
 .user-pagination-button:disabled {
-  opacity: 0.5;
+  background-color: #f0f0f0;
+  color: #aaa;
   cursor: not-allowed;
+  border-color: #eee;
 }
 
-.user-pagination-button.active {
-  background-color: #033672;
-  color: white;
-  border-color: #1e4067;
+/* Current page indicator */
+.user-pagination-current-page {
+  font-size: 18px;
+  font-weight: 600;
+  color: #555;
+  padding: 8px 12px;
+  min-width: 40px;
+  text-align: center;
 }
 
 /* ==================== Responsive Enhancements ==================== */
@@ -230,4 +247,13 @@
     height: 32px;
     font-size: 13px;
   }
+}
+/* UserDatabase.css or wherever your styles are */
+.fade-in-animation {
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

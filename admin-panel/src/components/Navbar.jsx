@@ -1,21 +1,18 @@
-import React, { useState } from "react";
-import { FaBars, FaTimes } from "react-icons/fa"; // Importing icons for the menu
-import "./Navbar.css"; // Import CSS file
+import React from "react";
+import { FaBars, FaTimes } from "react-icons/fa";
+import "./Navbar.css";
 
-const Navbar = ({ setIsSidebarOpen }) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // To handle the menu open/close state
+const Navbar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
-  // Toggle menu visibility
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-    setIsSidebarOpen(!isMenuOpen); // Toggle sidebar visibility
+    setIsSidebarOpen(!isSidebarOpen); // Just toggle sidebar state
   };
 
   return (
     <nav className="navbar">
       {/* Menu Icon (Hamburger) */}
       <div className="menu-icon" onClick={toggleMenu}>
-        {isMenuOpen ? <FaTimes /> : <FaBars />} {/* Show 'X' icon if menu is open, otherwise show bars */}
+        {isSidebarOpen ? <FaTimes /> : <FaBars />}
       </div>
 
       {/* Logo */}

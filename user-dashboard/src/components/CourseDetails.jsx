@@ -432,7 +432,6 @@ const CourseDetails = () => {
   // ✅ Open payment popup
   const openPaymentPopup = () => {
     setShowPaymentPopup(true);
-    fetchPaymentDetails();
   };
 
   // ✅ Close payment popup
@@ -685,79 +684,82 @@ const CourseDetails = () => {
 
             {/* ✅ Payment Popup */}
             {showPaymentPopup && (
-              <div className="payment-overlay" onClick={closePaymentPopup}>
-                <div
-                  className="payment-popup"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {/* X Close Icon */}
-                  <button
-                    className="close-icon-btn"
-                    onClick={closePaymentPopup}
-                    aria-label="Close"
-                  >
-                    <FaTimes className="close-icon" />
-                  </button>
+  <div className="payment-overlay" onClick={closePaymentPopup}>
+    <div className="payment-popup" onClick={(e) => e.stopPropagation()}>
+      
+      {/* Close Icon */}
+      <button className="close-icon-btn" onClick={closePaymentPopup} aria-label="Close">
+        <FaTimes className="close-icon" />
+      </button>
 
-                  <h2 className="popup-title">
-                    {t("course_details.payment_details")}
-                  </h2>
+      <h2 className="popup-title">{t("course_details.payment_details")}</h2>
 
-                  <div className="payment-list">
-                    {payments.length > 0 ? (
-                      payments.map((payment) => (
-                        <div className="payment-card" key={payment.paymentId}>
-                          <div>
-                            <div className="payment-header">
-                              <h3>{payment.package}</h3>
-                            </div>
+      <div className="payment-list">
+        {payments.length > 0 ? (
+          payments.map((payment) => {
+            // Crosscheck real status from Course
+            const coursePayment = course?.payments?.find(
+              (cp) => cp.invoiceNumber === payment.invoiceNumber
+            );
+            const realStatus = coursePayment ? coursePayment.status : payment.status;
 
-                            <div className="payment-info">
-                              <p>
-                                {t("course_details.amount")}:{" "}
-                                <span className="payment-amount">
-                                  {payment.amount} {payment.currency}
-                                </span>
-                              </p>
-                              <p>
-                                {t("course_details.status")}:{" "}
-                                <span
-                                  className={`payment-status ${payment.status.toLowerCase()}`}
-                                >
-                                  {payment.status}
-                                </span>
-                              </p>
-                            </div>
-                          </div>
+            // Based on status
+            const disablePayButton = realStatus === "Paid" || realStatus === "Expired";
 
-                          <div className="popup-buttons">
-                            {payment.status !== "Paid" ? (
-                              <button
-                                className="payment-button"
-                                onClick={() =>
-                                  handlePayNow(payment.paymentLink)
-                                }
-                              >
-                                {t("course_details.pay_now")}
-                              </button>
-                            ) : (
-                              <span className="payment-status paid payment-button">
-                                {t("course_details.paid")}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="no-payments-message">
-                        <i className="fas fa-info-circle"></i>
-                        <p>{t("course_details.no_payments_available")}</p>
-                      </div>
-                    )}
+            return (
+              <div className="payment-card" key={payment.paymentId}>
+                <div>
+                  <div className="payment-header">
+                    <h3>{payment.package}</h3>
+                  </div>
+
+                  <div className="payment-info">
+                    <p>
+                      {t("course_details.amount")}:{" "}
+                      <span className="payment-amount">
+                        {payment.amount} {payment.currency}
+                      </span>
+                    </p>
+                    <p>
+                      {t("course_details.status")}:{" "}
+                      <span className={`payment-status ${realStatus.toLowerCase()}`}>
+                        {realStatus}
+                      </span>
+                    </p>
                   </div>
                 </div>
+
+                <div className="popup-buttons">
+                  {!disablePayButton ? (
+                    <button
+                      className="payment-button"
+                      onClick={() => handlePayNow(payment.paymentLink)}
+                    >
+                      {t("course_details.pay_now")}
+                    </button>
+                  ) : (
+                    <span className={`payment-status ${realStatus.toLowerCase()} payment-button`}>
+                      {realStatus === "Paid"
+                        ? t("course_details.paid")
+                        : t("course_details.payment_expired")}
+                    </span>
+                  )}
+                </div>
               </div>
-            )}
+            );
+          })
+        ) : (
+          <div className="no-payments-message">
+            <i className="fas fa-info-circle"></i>
+            <p>{t("course_details.no_payments_available")}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+
 
             {showSubmissionPopup && submissionDetails && (
               <div

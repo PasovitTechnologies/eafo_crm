@@ -5,6 +5,7 @@ const User = require("../models/User");
 const router = express.Router();
 const mongoose = require("mongoose");
 const axios = require("axios");
+const { TelegramApi } = require('./TelegramApi');
 
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
@@ -237,6 +238,7 @@ router.post("/:id/register", authenticateJWT, async (req, res) => {
     const webinar = await Webinar.findById(webinarId);
     if (!webinar) return res.status(404).json({ message: "Webinar not found" });
 
+    // ✅ Find User and Check if Already Registered
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -245,11 +247,14 @@ router.post("/:id/register", authenticateJWT, async (req, res) => {
       return res.status(400).json({ message: "User already registered for this webinar" });
     }
 
+    // ✅ Add webinar to User's webinars list
     user.webinars.push({ webinarId, registeredAt: new Date() });
     await user.save();
 
+    // ✅ Ensure `participants` array exists in Webinar model
     if (!webinar.participants) webinar.participants = [];
 
+    // ✅ Add participant to Webinar's participants list
     const newParticipant = {
       email,
       registeredAt: new Date(),
@@ -259,14 +264,35 @@ router.post("/:id/register", authenticateJWT, async (req, res) => {
     webinar.participants.push(newParticipant);
     await webinar.save();
 
+    // Send success response
     res.status(201).json({ message: "Successfully registered!", participant: newParticipant });
+
+    // Send Email (Existing Logic)
+    const lang = user.dashboardLang || "en";
+    const emailTemplate = getWebinarEmailTemplate(lang, user, webinar);
+    await sendEmailRusender({ email: user.email, firstName: user.personalDetails?.firstName || "User" }, emailTemplate);
+    
+    console.log("✅ Webinar registration email sent!");
+
+    // Now, send the message to the Telegram group
+    const telegram = new TelegramApi();
+    telegram.chat_id = '-4740453782';  // Replace with your group chat ID
+    telegram.text = `
+      📢 <b>New Webinar Registration</b>
+      👤 <b>Name:</b> ${user.personalDetails.firstName} ${user.personalDetails.lastName}
+      📧 <b>Email:</b> ${user.email}
+      📝 <b>Webinar:</b> ${webinar.title}
+      🕒 <b>Registered At:</b> ${new Date().toLocaleString()}
+    `;
+    await telegram.sendMessage();  // Send message to group
+
+    console.log("✅ Notification sent to Telegram group!");
 
   } catch (error) {
     console.error("Error registering participant:", error);
     res.status(500).json({ message: "Server error", error });
   }
 });
-
 
 
 router.post("/:id/cancel", authenticateJWT, async (req, res) => {

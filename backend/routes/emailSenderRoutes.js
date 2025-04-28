@@ -3,7 +3,10 @@ const axios = require("axios");  // ✅ Use Axios for API calls
 require("dotenv").config();
 const User = require("../models/User"); 
 const Course = require("../models/Course"); 
+const UserNotification = require("../models/UserNotificationSchema");
 const multer = require("multer");
+const mongoose = require("mongoose");
+
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -172,6 +175,7 @@ router.post("/send", async (req, res) => {
       amount: submission.amount,
       currency: submission.currency,
       paymentLink: finalPaymentUrl,
+      email: submission.email,
       status: "Pending",
       time: new Date(),
     });

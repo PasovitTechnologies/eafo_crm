@@ -10,6 +10,7 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 const User = require("../models/User");
 const axios = require("axios");
+const { TelegramApi } = require('./TelegramApi');
 const { GridFSBucket } = require("mongodb");
 const UserNotification = require("../models/UserNotificationSchema");
 
@@ -948,13 +949,28 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
               regType,
               category
             );
-
+        
             await sendEmailRusender({ email: user.email, firstName: user.firstName }, emailTemplate);
             console.log("✅ Registration email sent with Invoice Fields!");
-          } catch (emailError) {
-            console.error("⚠️ Failed to send email (non-critical):", emailError.message);
+        
+            // ➡️ AFTER EMAIL, send Telegram notification
+            const telegram = new TelegramApi();
+            telegram.chat_id = '-4740453782';  // Replace with your group chat ID
+            telegram.text = `
+              📢 <b>Новая заявка</b>
+              👤 <b>Name:</b> ${user.personalDetails?.firstName || "N/A"} ${user.personalDetails?.lastName || ""}
+              📧 <b>Email:</b> ${user.email}
+              🕒 <b>Registered At:</b> ${new Date().toLocaleString()}
+            `;
+        
+            await telegram.sendMessage();
+            console.log("✅ Notification sent to Telegram group!");
+        
+          } catch (error) {
+            console.error("⚠️ Failed to send email or Telegram message (non-critical):", error.message);
           }
         }
+        
       }
     }
 

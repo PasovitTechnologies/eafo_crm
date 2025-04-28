@@ -2,7 +2,8 @@
   min-height: 100vh;
   background: #f9f9f9;
   box-sizing: border-box;
-  overflow-x: hidden; /* Prevent horizontal scrolling */
+  overflow-x: hidden;
+  padding-left: 20px;
 }
 
 .course-manager-page-container {
@@ -282,6 +283,9 @@
   .course-manager-page-container {
     margin: 70px  0 0 0px;
     width: 100%;
+  }
+  .course-manager-page {
+    padding-left: 0px;
   }
 
 }

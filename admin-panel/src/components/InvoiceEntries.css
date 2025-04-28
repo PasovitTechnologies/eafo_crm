@@ -4,6 +4,8 @@
   padding: 20px;
   width: 100%;
   box-sizing: border-box;
+  padding-left:100px;
+
 }
 
 /* 🌟 Full-Width Table Container */
@@ -14,6 +16,7 @@
   -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   background: #fff;
+
 }
 
 /* 🌟 Entries Header - Flex Container */

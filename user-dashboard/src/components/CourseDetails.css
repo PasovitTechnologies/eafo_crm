@@ -525,6 +525,11 @@
   background: #dc3545;
   color: white;
 }
+.payment-status.expired {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed;
+}
 
 /* ✅ Popup Buttons */
 .popup-buttons {
