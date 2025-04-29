@@ -155,15 +155,16 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
 
   const handlePayment = async () => {
     if (!submission.email || items.length === 0 || totalAmount <= 0) {
-      setError(
-        "Please ensure email is available and items have valid amounts."
-      );
+      setError("Please ensure email is available and items have valid amounts.");
+      console.error("Validation failed:", { email: submission.email, items, totalAmount });
       return;
     }
-
+  
     setLoading(true);
     setError(null);
-
+  
+    const orderNumber = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
+  
     const orderDetails = {
       amount: totalAmount,
       currency: selectedMethod === "stripe" ? "INR" : "RUP",
@@ -171,34 +172,46 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       course: items.map((item) => item.name).join(", "),
       returnUrl: "http://localhost:3000/payment-success",
       failUrl: "http://localhost:3000/payment-failed",
+      orderNumber, // <-- ADD THIS
     };
-
+  
+    console.log("Initiating payment with details:", orderDetails);
+  
     try {
       const endpoint =
         selectedMethod === "stripe"
           ? `${baseUrl}/api/stripe/create-payment-link`
           : `${baseUrl}/api/payment/alfabank/pay`;
-
+  
+      console.log("Selected payment endpoint:", endpoint);
+  
       const response = await axios.post(endpoint, orderDetails, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json",
         },
       });
-
+  
+      console.log("Payment response received:", response.data);
+  
       if (response.data.success) {
-        toast.success("Payment link generated")
+        toast.success("Payment link generated");
         setPaymentUrl(response.data.paymentUrl);
         setOrderId(response.data.orderId);
       } else {
+        console.error("Payment failed with message:", response.data.message);
         setError(response.data.message || "Payment failed.");
       }
     } catch (error) {
+      console.error("Payment request error:", error.response?.data || error.message);
       setError(error.response?.data?.message || "Payment request failed.");
     } finally {
       setLoading(false);
+      console.log("Payment process completed");
     }
   };
+  
+  
 
   const handleSendEmail = async () => {
     if (!submission?.email) {

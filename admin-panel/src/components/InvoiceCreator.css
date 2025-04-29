@@ -1,72 +1,201 @@
+/* Modal Overlay */
 .invoice-creator-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4);
+    right: 0;
+    bottom: 0;
     display: flex;
-    align-items: center;
     justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.4);
     z-index: 1000;
   }
   
   .invoice-creator-modal {
+    background-color: #fff;
+    padding: 30px;
+    width: 600px;
+    max-width: 90%;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     position: relative;
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    width: 500px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    overflow-y: auto;
   }
   
-  .invoice-creator-modal h2 {
-    margin-bottom: 1rem;
-    font-size: 1.25rem;
-  }
-  
-  .invoice-creator-modal input {
-    width: 100%;
-    margin-bottom: 1rem;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-  }
-  
-  .invoice-creator-modal .actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-  }
-  
-  .invoice-creator-modal button {
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    border: none;
-  }
-  
-  .invoice-creator-modal .cancel-btn {
-    background: #e5e5e5;
-  }
-  
-  .invoice-creator-modal .save-btn {
-    background: #2563eb;
-    color: white;
-  }
   .invoice-creator-close-icon {
     position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: transparent;
+    top: 15px;
+    right: 15px;
+    background: none;
     border: none;
+    color: #333;
+    font-size: 18px;
     cursor: pointer;
+    transition: color 0.3s;
   }
-  .invoice-creator-select {
+  
+  .invoice-creator-close-icon:hover {
+    color: #e74c3c;
+  }
+  
+  /* Header */
+  h2 {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Form Inputs */
+  label {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  .invoice-creator-select,
+  .invoice-creator-input,
+  .invoice-creator-input select {
+    width: 100%;
+    padding: 10px;
+    margin: 0.5rem 0 1rem 0;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+  }
+  
+  .invoice-creator-select:focus,
+  .invoice-creator-input:focus,
+  .invoice-creator-input select:focus {
+    border-color: #3498db;
+    outline: none;
+  }
+  
+  /* Button Styles */
+  .choice-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+  }
+  
+  .choice-buttons button {
+    padding: 10px 20px;
+    background-color: #3498db;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    flex-grow: 1;
+    margin: 0 5px;
+  }
+  
+  .choice-buttons button.active,
+  .choice-buttons button:hover {
+    background-color: #2980b9;
+  }
+  
+  .save-btn,
+  .generate-btn {
+    padding: 12px 20px;
+    background-color: #2ecc71;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
     margin-bottom: 1rem;
   }
   
-  .invoice-creator-select .react-select__control {
-    border-radius: 5px;
-    padding: 2px;
+  .save-btn:hover,
+  .generate-btn:hover {
+    background-color: #27ae60;
   }
   
+  .save-btn:disabled,
+  .generate-btn:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+  }
+  
+  /* Payment Link Section */
+  .payment-result {
+    margin-top: 1.5rem;
+    font-size: 1rem;
+  }
+  
+  .payment-link {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+  }
+  
+  .payment-link:hover {
+    color: #2980b9;
+  }
+  
+  .error-text {
+    color: #e74c3c;
+    font-size: 1rem;
+    margin-top: 1rem;
+    text-align: center;
+  }
+  
+  /* Modal Footer */
+  .actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .send-actions-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .email-btn, .whatsapp-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 4px;
+  }
+  
+  .email-btn {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .whatsapp-btn {
+    background-color: #25d366;
+    color: white;
+  }
+  
+  /* Mobile Responsiveness */
+  @media (max-width: 768px) {
+    .invoice-creator-modal {
+      width: 90%;
+    }
+  
+    .choice-buttons {
+      flex-direction: column;
+    }
+  
+    .choice-buttons button {
+      margin-bottom: 0.5rem;
+    }
+  
+    .save-btn,
+    .generate-btn {
+      width: 100%;
+    }
+  }
