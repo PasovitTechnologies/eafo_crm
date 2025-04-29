@@ -80,6 +80,8 @@
   
   .other-webinar {
     flex: 0.9;
+    max-height: 100vh;
+    overflow-y: auto;
   }
   
   /* Webinar Banner */
@@ -92,7 +94,7 @@
     border-radius: var(--radius-md);
     height: auto;
     max-height: 400px;
-    object-fit: cover;
+    object-fit:fill;
   }
   
   /* Typography */
@@ -247,6 +249,7 @@
     border-radius: var(--radius-md);
     box-shadow: var(--shadow-sm);
     margin-top: 2rem;
+    max-height: 105vh;
   }
   
   @media (min-width: 992px) {
@@ -298,7 +301,7 @@
     width: 100%;
     border-radius: var(--radius-sm);
     aspect-ratio: 16/9;
-    object-fit: cover;
+    object-fit:fill;
   }
   
   .other-webinar-info h4 {

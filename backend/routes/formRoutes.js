@@ -72,7 +72,7 @@ const sendEmailRusender = async (recipient, mail) => {
 };
 
 // ✅ Function to choose email template with Registration Type & Category
-const getEmailTemplate = (lang, user, courseName, regType, category) => {
+const getEmailTemplate = (lang, user, courseName, package) => {
   if (lang === "ru") {
       return {
           subject: `${courseName}. Регистрация`,
@@ -80,7 +80,7 @@ const getEmailTemplate = (lang, user, courseName, regType, category) => {
               <p>${user.personalDetails.title} ${user.personalDetails.lastName} ${user.personalDetails.firstName} ${user.personalDetails.middleName},</p>
               <br>
               Благодарим Вас за регистрацию на <strong>${courseName}</strong>, который пройдет в Архангельске с 13 по 17 июня 2025г.
-              <p><strong>Вы подали заявку на:</strong> ${category || "N/A"}</p>
+              <p><strong>Вы подали заявку на:</strong> ${package || "N/A"}</p>
 
               <p>Мы с нетерпением ждем Вашего участия. Оставайтесь с нами для получения более подробной информации. Если у Вас есть какие-либо вопросы, пожалуйста, свяжитесь с нами по адресу <a href="mailto:travel@eafo.info">travel@eafo.info</a></p>
 
@@ -102,7 +102,7 @@ const getEmailTemplate = (lang, user, courseName, regType, category) => {
               <p>${user.personalDetails.title} ${user.personalDetails.firstName} ${user.personalDetails.middleName} ${user.personalDetails.lastName},</p>
               <br>
               Thank you for registering for <strong>${courseName}</strong>, which will be held in Arkhangelsk from June 13 to 17, 2025.
-              <p><strong>You have registered for the category:</strong> ${category || "N/A"}</p>
+              <p><strong>You have registered for the category:</strong> ${package || "N/A"}</p>
 
               <p>We look forward to your participation. Stay tuned for further details. If you have any questions, feel free to contact us at <a href="mailto:travel@eafo.info">travel@eafo.info</a>.</p>
 
@@ -121,20 +121,7 @@ const getEmailTemplate = (lang, user, courseName, regType, category) => {
 };
 
 
-// ✅ Extract Invoice Fields (Registration Type & Category)
-const extractInvoiceFields = (submissions) => {
-    const invoiceFields = submissions
-        .filter(sub => sub.isUsedForInvoice)
-        .map(sub => sub.answer)
-        .slice(0, 2);  // Get the first two fields
 
-    console.log("🛠️ Extracted Invoice Fields:", invoiceFields);
-
-    const regType = invoiceFields[0] || "N/A";
-    const category = invoiceFields[1] || "N/A";
-
-    return { regType, category };
-};
 
 
 
@@ -687,6 +674,85 @@ router.put("/:formId/questions", authenticateJWT, async (req, res) => {
 });
 
 
+
+
+const findLinkedItems = async (invoiceFields, courseId, session) => {
+  if (!invoiceFields?.length || !courseId) return null;
+
+  try {
+    const course = await Course.findById(courseId).session(session);
+    if (!course?.rules?.length || !course?.items?.length) return null;
+
+    console.log(`🔎 Matching invoice fields against ${course.rules.length} course rules...`);
+
+    for (const rule of course.rules) {
+      const { conditions = [], linkedItems = [] } = rule;
+
+      if (!conditions.length || !linkedItems.length) continue;
+
+      let allMatched = true;
+
+      for (const condition of conditions) {
+        const { questionId, option, operator } = condition;
+        if (!questionId) {
+          allMatched = false;
+          break;
+        }
+
+        const userAnswerObj = invoiceFields.find(f =>
+          f.questionId.toString() === questionId.toString()
+        );
+
+        if (!userAnswerObj) {
+          allMatched = false;
+          break;
+        }
+
+        const userAnswer = (userAnswerObj.answer || "").trim();
+        const expectedOption = (option || "").trim();
+
+        const matched = operator === "AND"
+          ? userAnswer === expectedOption
+          : userAnswer !== expectedOption;
+
+        if (!matched) {
+          allMatched = false;
+          break;
+        }
+      }
+
+      if (allMatched) {
+        const linkedItemId = linkedItems[0]?.toString();
+        const item = course.items.find(i => i._id.toString() === linkedItemId);
+        if (item) {
+          console.log("🎯 Rule matched! Linked item details:", item);
+          return item;
+        } else {
+          console.warn("⚠️ Linked item ID found, but item not present in course.items");
+        }
+      }
+    }
+
+  } catch (error) {
+    console.error("❌ Error in findLinkedItems:", error);
+    throw error;
+  }
+
+  return null;
+};
+
+
+// 2. Extract invoice fields (no change)
+const extractInvoiceFields = (processedSubmissions) => {
+  return processedSubmissions
+    .filter(sub => sub.isUsedForInvoice && sub.questionId && sub.answer)
+    .map(sub => ({
+      questionId: sub.questionId.toString(),
+      answer: sub.answer.toString()
+    }));
+};
+
+// 3. Updated route handler
 router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -699,7 +765,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
     const { formId } = req.params;
     const { submissions, email } = req.body;
 
-    // ✅ Validation
     if (!formId || !mongoose.Types.ObjectId.isValid(formId)) {
       await session.abortTransaction();
       return res.status(400).json({ message: "Invalid or missing form ID" });
@@ -710,7 +775,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
       return res.status(400).json({ message: "Submissions cannot be empty" });
     }
 
-    // ✅ Find the form
     const form = await Form.findById(formId).session(session);
     if (!form) {
       await session.abortTransaction();
@@ -729,7 +793,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
 
     console.log("✅ Form linked to courseId:", courseId);
 
-    // ✅ Validate and process submissions
     const processedSubmissions = [];
 
     for (const submission of submissions) {
@@ -746,26 +809,21 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
         isUsedForInvoice: submission.isUsedForInvoice || false
       };
 
-      // ✅ Handle file submissions with GridFS
       if (submission.isFile && submission.fileData) {
         console.log(`📁 Processing file for question ${submission.questionId}`);
-    
+
         const { base64, contentType, fileName, size } = submission.fileData;
-    
+
         if (!base64 || !contentType) {
-            await session.abortTransaction();
-            return res.status(400).json({
-                message: `Missing base64 data or contentType for file in question ${submission.questionId}`
-            });
+          await session.abortTransaction();
+          return res.status(400).json({
+            message: `Missing base64 data or contentType for file in question ${submission.questionId}`
+          });
         }
-    
-        // Convert base64 to buffer
+
         const fileBuffer = Buffer.from(base64, 'base64');
-        
-        // Create a unique filename
         const uniqueFileName = `${Date.now()}-${Math.round(Math.random() * 1E9)}-${fileName}`;
-        
-        // Create a write stream to GridFS
+
         const writeStream = gfs.openUploadStream(uniqueFileName, {
           contentType: contentType || 'application/octet-stream',
           metadata: {
@@ -774,21 +832,15 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             submittedBy: email || 'anonymous'
           }
         });
-        
-        // Write the file to GridFS
+
         writeStream.write(fileBuffer);
         writeStream.end();
-        
-        // Wait for the file to finish uploading
+
         await new Promise((resolve, reject) => {
           writeStream.on('finish', resolve);
-          writeStream.on('error', (error) => {
-            console.error("❌ Error uploading file to GridFS:", error);
-            reject(error);
-          });
+          writeStream.on('error', reject);
         });
-        
-        // Store the file reference
+
         response.file = {
           fileId: writeStream.id,
           fileName: fileName,
@@ -796,208 +848,259 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
           size: size || fileBuffer.length,
           uploadDate: new Date()
         };
-    
-        console.log(`✅ File stored in GridFS: ${response.file.fileName}, File ID: ${response.file.fileId}`);
+
+        console.log(`✅ File stored: ${response.file.fileName}`);
       } else {
-        // ✅ Handle regular answers
         if (!submission.answer) {
           await session.abortTransaction();
           return res.status(400).json({
             message: `Missing answer for question ${submission.questionId}`
           });
         }
-
         response.answer = submission.answer;
       }
 
       processedSubmissions.push(response);
     }
 
-    console.log("✅ All submissions processed:", processedSubmissions);
+    console.log("✅ All submissions processed.");
 
-    // ✅ Create a new grouped submission entry
+    let linkedItemDetails = null;
+    let invoiceFields = [];
+
+    if (isUsedForRegistration) {
+      invoiceFields = extractInvoiceFields(processedSubmissions);
+      console.log("🧾 Extracted invoice fields:", invoiceFields);
+
+      linkedItemDetails = await findLinkedItems(invoiceFields, courseId, session);
+    }
+
     const newSubmission = {
       email: email || "N/A",
       responses: processedSubmissions,
-      submittedAt: new Date(),
+      submittedAt: new Date()
     };
 
-    // ✅ Push the new submission into the form's `submissions[]`
     form.submissions.push(newSubmission);
-
-    // ✅ Save the form with session
     await form.save({ session });
-    console.log("✅ Submission saved successfully!");
+    console.log("✅ Submission saved!");
 
-    // ✅ Update user only if email is provided
     let updatedUser = null;
 
     if (email) {
-      console.log("✅ Email provided, updating user's registeredForms...");
+      console.log("✅ Email provided, checking for existing user...");
 
-      let user = await User.findOne({ email }).session(session);
+      const user = await User.findOne({ email }).session(session);
 
       if (!user) {
-        console.log("🚫 User not found, creating new user...");
-
-        // ✅ Create a new user
-        user = new User({
-          email,
-          courses: [{
-            courseId: courseId,
-            registeredForms: [{
-              formId,
-              formName,
-              formDescription: description,
-              isUsedForRegistration,
-              isUsedForRussian,
-              submittedAt: new Date()
-            }]
-          }]
-        });
-
-        await user.save({ session });
-        console.log("✅ New user created and linked to the form!");
+        console.log("🚫 User not found. Skipping user creation as requested.");
       } else {
-        console.log("✅ User found, updating courses...");
+        console.log("✅ User found, updating user data...");
 
-        // ✅ Check if the course exists in the user's courses
         let userCourse = user.courses.find(
           (course) => course.courseId.toString() === courseId.toString()
         );
 
-        if (userCourse) {
-          // ✅ Check if the form already exists in `registeredForms[]`
-          const existingForm = userCourse.registeredForms.find(
-            (form) => form.formId.toString() === formId.toString()
-          );
-
-          if (!existingForm) {
-            // ✅ Add the form to the existing course
-            userCourse.registeredForms.push({
-              formId,
-              formName,
-              formDescription: description,
-              isUsedForRegistration,
-              isUsedForRussian,
-              submittedAt: new Date()
-            });
-            console.log("✅ Form added to registeredForms successfully!");
-          } else {
-            console.log("🚫 Form already exists in registeredForms. Skipping...");
-          }
-        } else {
-          // ✅ Add a new course with `registeredForms[]`
+        if (!userCourse) {
+          // Create and push the new course
           user.courses.push({
-            courseId: courseId,
-            registeredForms: [{
-              formId,
-              formName,
-              formDescription: description,
-              isUsedForRegistration,
-              isUsedForRussian,
-              submittedAt: new Date()
-            }],
+            courseId,
+            registeredForms: [],
+            payments: [],
             submittedAt: new Date()
           });
-          console.log("✅ New course added with registeredForms!");
+          console.log("📚 Added new course to user.courses[]");
+
+          // 🔥 Re-fetch course properly after push
+          userCourse = user.courses.find(
+            (course) => course.courseId.toString() === courseId.toString()
+          );
         }
 
-        // ✅ Save the updated user
+        const existingForm = userCourse.registeredForms.find(
+          (form) => form.formId.toString() === formId.toString()
+        );
+
+        if (!existingForm) {
+          userCourse.registeredForms.push({
+            formId,
+            formName,
+            formDescription: description,
+            isUsedForRegistration,
+            isUsedForRussian,
+            submittedAt: new Date()
+          });
+          console.log("📝 Registered form added to user.courses[].registeredForms");
+        } else {
+          console.log("🚫 Form already exists in registeredForms, skipping...");
+        }
+
+        if (linkedItemDetails) {
+          if (!Array.isArray(userCourse.payments)) {
+            userCourse.payments = [];
+            console.log("🆕 userCourse.payments array initialized.");
+          }
+        
+          // Generate 6-digit orderId
+          const generateOrderId = () => {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+          };
+          
+          const transactionId = generateOrderId();
+          console.log(`🆔 Generated Order ID: ${transactionId}`);
+        
+          // Push payment to user's course
+          userCourse.payments.push({
+            transactionId,
+            package: linkedItemDetails.name,
+            amount: linkedItemDetails.amount,
+            currency: linkedItemDetails.currency,
+            status: "Not created",
+            submittedAt: new Date()
+          });
+        
+          console.log("💳 New payment added to userCourse.payments:", {
+            transactionId,
+            package: linkedItemDetails.name,
+            amount: linkedItemDetails.amount,
+            currency: linkedItemDetails.currency
+          });
+        
+          // Save updated USER
+          await user.save({ session });
+          console.log("✅ User saved successfully with new payment.");
+        
+          // Fetch and update Course
+          const course = await Course.findById(courseId).session(session);
+        
+          if (!course.payments) {
+            course.payments = [];
+            console.log("🆕 course.payments array initialized.");
+          }
+        
+          course.payments.push({
+            email: email,
+            transactionId,
+            package: linkedItemDetails.name,
+            amount: linkedItemDetails.amount,
+            currency: linkedItemDetails.currency,
+            status: "Not created",
+            submittedAt: new Date()
+          });
+        
+          console.log("🏛️ New payment added to course.payments:", {
+            email,
+            transactionId,
+            package: linkedItemDetails.name,
+            amount: linkedItemDetails.amount,
+            currency: linkedItemDetails.currency
+          });
+        
+          await course.save({ session });
+          console.log("✅ Course saved successfully with new payment.");
+
+
+          // === Add notification after form submission ===
+const notification = {
+  type: "form_submission",
+  formId: formId,
+  formName: formName,
+  courseId: courseId,
+  message: {
+    en: `Your submission for "${formName}" was received`,
+    ru: `Ваша заявка на форму "${formName}" получена`,
+  },
+  read: false,
+  createdAt: new Date()
+};
+
+let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
+
+if (!userNotification) {
+  userNotification = new UserNotification({
+    userId: user._id,
+    notifications: [notification]
+  });
+  console.log("📬 Created new UserNotification doc for user.");
+} else {
+  userNotification.notifications.push(notification);
+  console.log("📬 Appended new notification to existing UserNotification.");
+}
+
+await userNotification.save({ session });
+console.log("🔔 Notification saved for user:", user.email);
+
+// === Optional: registration-specific logic ===
+// === Optional: registration-specific logic ===
+if (isUsedForRegistration && linkedItemDetails) {
+  try {
+    const emailTemplate = getEmailTemplate(
+      isUsedForRussian ? "ru" : "en",
+      user,
+      formName,
+      linkedItemDetails?.name || "Package"
+    );
+
+    await sendEmailRusender(
+      { email: user.email, firstName: user.firstName },
+      emailTemplate
+    );
+    console.log("✅ Registration email sent using package info!");
+
+    const telegram = new TelegramApi();
+    telegram.chat_id = '-4740453782';  // Replace with your group chat ID
+    telegram.text = `
+      📢 <b>Новая заявка</b>
+      👤 <b>Name:</b> ${user.personalDetails?.firstName || "N/A"} ${user.personalDetails?.lastName || ""}
+      📧 <b>Email:</b> ${user.email}
+      📦 <b>Package:</b> ${linkedItemDetails?.name || "N/A"}
+      🕒 <b>Registered At:</b> ${new Date().toLocaleString()}
+    `;
+
+    await telegram.sendMessage();
+    console.log("✅ Notification sent to Telegram group!");
+
+  } catch (error) {
+    console.error("⚠️ Failed to send email or Telegram message (non-critical):", error.message);
+  }
+}
+
+
+        }
+        
+        
+        
+        
+
         await user.save({ session });
         updatedUser = user;
-
-        // 🔔 Create or update user notification for ALL form submissions
-        const notification = {
-          type: "form_submission",
-          formId: formId,
-          formName: formName,
-          courseId: courseId,
-          message: {
-            en: `Your submission for "${formName}" was received`,
-            ru: `Ваша заявка на форму "${formName}" получена`,
-          },
-          read: false,
-          createdAt: new Date()
-        };
-
-        let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
-
-        if (!userNotification) {
-          userNotification = new UserNotification({
-            userId: user._id,
-            notifications: [notification]
-          });
-          console.log("📬 Created new UserNotification doc for user.");
-        } else {
-          userNotification.notifications.push(notification);
-          console.log("📬 Appended new notification to existing UserNotification.");
-        }
-
-        await userNotification.save({ session });
-        console.log("🔔 Notification saved for user:", user.email);
-
-        // Handle registration-specific logic
-        if (isUsedForRegistration) {
-          try {
-            const { regType, category } = extractInvoiceFields(processedSubmissions);
-            
-            const emailTemplate = getEmailTemplate(
-              isUsedForRussian ? "ru" : "en",
-              user,
-              formName,
-              regType,
-              category
-            );
-        
-            await sendEmailRusender({ email: user.email, firstName: user.firstName }, emailTemplate);
-            console.log("✅ Registration email sent with Invoice Fields!");
-        
-            // ➡️ AFTER EMAIL, send Telegram notification
-            const telegram = new TelegramApi();
-            telegram.chat_id = '-4740453782';  // Replace with your group chat ID
-            telegram.text = `
-              📢 <b>Новая заявка</b>
-              👤 <b>Name:</b> ${user.personalDetails?.firstName || "N/A"} ${user.personalDetails?.lastName || ""}
-              📧 <b>Email:</b> ${user.email}
-              🕒 <b>Registered At:</b> ${new Date().toLocaleString()}
-            `;
-        
-            await telegram.sendMessage();
-            console.log("✅ Notification sent to Telegram group!");
-        
-          } catch (error) {
-            console.error("⚠️ Failed to send email or Telegram message (non-critical):", error.message);
-          }
-        }
-        
       }
     }
 
-    // ✅ Commit the transaction
     await session.commitTransaction();
+    console.log("✅ Transaction committed.");
 
-    // ✅ Prepare response payload
     const responsePayload = {
       message: "Form submitted successfully!",
       submission: newSubmission,
       user: updatedUser || null,
+      ...(isUsedForRegistration && { linkedItemDetails })
     };
 
-    console.log("✅ Returning final response:", responsePayload);
     res.status(201).json(responsePayload);
 
   } catch (error) {
     await session.abortTransaction();
     console.error("❌ Error submitting form:", error);
-    res.status(500).json({ 
-      message: "Internal server error", 
-      error: error.message 
-    });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   } finally {
     session.endSession();
   }
 });
+
+
+
+
 
 
 router.get('/files/:fileId', async (req, res) => {

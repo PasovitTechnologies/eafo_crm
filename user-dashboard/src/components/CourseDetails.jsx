@@ -151,146 +151,6 @@ const CourseDetails = () => {
     }
   }, [i18n.language]);
 
-  const fetchPaymentDetails = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Unauthorized. Please log in.");
-
-      console.log("Fetching user payment details...");
-
-      // Fetch user details
-      const response = await fetch(`${baseUrl}/api/user/${email}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Failed to fetch user details");
-
-      const userData = await response.json();
-      console.log("User Data:", userData);
-
-      // Find course by ID
-      const userCourse = userData.courses?.find(
-        (c) => c.courseId === course._id
-      );
-      if (!userCourse || userCourse.payments?.length === 0) {
-        return;
-      }
-
-      // Process all payments
-      const updatedPayments = await Promise.all(
-        userCourse.payments.map(async (payment) => {
-          if (!payment.paymentId) {
-            console.error("🚨 Missing payment ID for payment:", payment);
-            return payment; // Return original if no paymentId
-          }
-
-          console.log("Processing payment:", payment.paymentId);
-
-          // Check if already marked as "Paid"
-          if (payment.status === "Paid") {
-            console.log(
-              "✅ Payment already marked as Paid:",
-              payment.paymentId
-            );
-            return payment;
-          }
-
-          // Fetch latest payment status from AlfaBank for each payment
-          try {
-            const statusResponse = await fetch(
-              `${baseUrl}/api/payment/alfabank/status`,
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ orderId: payment.paymentId }),
-              }
-            );
-
-            if (!statusResponse.ok) {
-              throw new Error("Failed to fetch payment status");
-            }
-
-            const statusData = await statusResponse.json();
-            console.log("Payment status response:", statusData);
-
-            // If payment is successful, update it
-            if (
-              statusData.success &&
-              statusData.paymentStatus === "Payment successful"
-            ) {
-              console.log(
-                "✅ Payment successful, updating:",
-                payment.paymentId
-              );
-
-              // Update payment status in backend
-              const updateResponse = await fetch(
-                `${baseUrl}/api/payment/updateStatus`,
-                {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                  },
-                  body: JSON.stringify({
-                    email: email,
-                    paymentId: payment.paymentId,
-                    status: "Paid",
-                    courseId: course._id,
-                  }),
-                }
-              );
-
-              if (!updateResponse.ok) {
-                throw new Error("Failed to update payment status");
-              }
-
-              // Return updated payment
-              return {
-                ...payment,
-                status: "Paid",
-              };
-            } else if (
-              statusData.success &&
-              statusData.paymentStatus === "Order registered, not paid"
-            ) {
-              console.log(
-                "⚠️ Payment registered but not paid:",
-                payment.paymentId
-              );
-              return payment; // Return original payment
-            } else {
-              console.log("⚠️ Payment pending or failed:", payment.paymentId);
-              return payment; // Return original payment
-            }
-          } catch (error) {
-            console.error(
-              "Error processing payment:",
-              payment.paymentId,
-              error.message
-            );
-            return payment; // Return original payment if error occurs
-          }
-        })
-      );
-
-      // Update local state with all payments
-      setPayments(updatedPayments);
-      setPaymentDetails(updatedPayments[0]); // Set first payment as default for backward compatibility
-      setShowPaymentPopup(true);
-    } catch (error) {
-      console.error("🚨 Error in fetchPaymentDetails:", error);
-      alert(error.message || "Failed to load payment details.");
-    }
-  };
-
   // ✅ Navigate to form page with formId in state
   const handleFormNavigation = (form) => {
     if (form) {
@@ -682,84 +542,107 @@ const CourseDetails = () => {
               })()}
             </div>
 
-            {/* ✅ Payment Popup */}
             {showPaymentPopup && (
-  <div className="payment-overlay" onClick={closePaymentPopup}>
-    <div className="payment-popup" onClick={(e) => e.stopPropagation()}>
-      
-      {/* Close Icon */}
-      <button className="close-icon-btn" onClick={closePaymentPopup} aria-label="Close">
-        <FaTimes className="close-icon" />
-      </button>
+              <div className="payment-overlay" onClick={closePaymentPopup}>
+                <div
+                  className="payment-popup"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* Close Icon */}
+                  <button
+                    className="close-icon-btn"
+                    onClick={closePaymentPopup}
+                    aria-label="Close"
+                  >
+                    <FaTimes className="close-icon" />
+                  </button>
 
-      <h2 className="popup-title">{t("course_details.payment_details")}</h2>
+                  <h2 className="popup-title">
+                    {t("course_details.payment_details")}
+                  </h2>
 
-      <div className="payment-list">
-        {payments.length > 0 ? (
-          payments.map((payment) => {
-            // Crosscheck real status from Course
-            const coursePayment = course?.payments?.find(
-              (cp) => cp.invoiceNumber === payment.invoiceNumber
-            );
-            const realStatus = coursePayment ? coursePayment.status : payment.status;
+                  <div className="payment-list">
+                    {payments.length > 0 ? (
+                      payments.map((payment) => {
+                        // Crosscheck real status from Course
+                        const coursePayment = course?.payments?.find(
+                          (cp) => cp.invoiceNumber === payment.invoiceNumber
+                        );
+                        const realStatus = coursePayment
+                          ? coursePayment.status
+                          : payment.status;
 
-            // Based on status
-            const disablePayButton = realStatus === "Paid" || realStatus === "Expired";
+                        // Disable button if Paid, Expired, or Not created
+                        const disablePayButton = [
+                          "Paid",
+                          "Expired",
+                          "Not created",
+                        ].includes(realStatus);
 
-            return (
-              <div className="payment-card" key={payment.paymentId}>
-                <div>
-                  <div className="payment-header">
-                    <h3>{payment.package}</h3>
+                        return (
+                          <div className="payment-card" key={payment.paymentId}>
+                            <div>
+                              <div className="payment-header">
+                                <h3>{payment.package}</h3>
+                              </div>
+
+                              <div className="payment-info">
+                                <p>
+                                  {t("course_details.amount")}:{" "}
+                                  <span className="payment-amount">
+                                    {payment.amount} {payment.currency}
+                                  </span>
+                                </p>
+                                <p>
+                                  {t("course_details.status")}:{" "}
+                                  <span
+                                    className={`payment-status ${realStatus
+                                      .toLowerCase()
+                                      .replace(/\s/g, "-")}`}
+                                  >
+                                    {realStatus}
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="popup-buttons">
+                              {!disablePayButton ? (
+                                <button
+                                  className="payment-button"
+                                  onClick={() =>
+                                    handlePayNow(payment.paymentLink)
+                                  }
+                                >
+                                  {t("course_details.pay_now")}
+                                </button>
+                              ) : (
+                                <span
+                                  className={`payment-status ${realStatus
+                                    .toLowerCase()
+                                    .replace(/\s/g, "-")} payment-button`}
+                                >
+                                  {realStatus === "Paid"
+                                    ? t("course_details.paid")
+                                    : realStatus === "Expired"
+                                    ? t("course_details.payment_expired")
+                                    : t("course_details.not_created")}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="no-payments-message">
+                        <i className="fas fa-info-circle"></i>
+                        <p>{t("course_details.no_payments_available")}</p>
+                      </div>
+                    )}
                   </div>
-
-                  <div className="payment-info">
-                    <p>
-                      {t("course_details.amount")}:{" "}
-                      <span className="payment-amount">
-                        {payment.amount} {payment.currency}
-                      </span>
-                    </p>
-                    <p>
-                      {t("course_details.status")}:{" "}
-                      <span className={`payment-status ${realStatus.toLowerCase()}`}>
-                        {realStatus}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                <div className="popup-buttons">
-                  {!disablePayButton ? (
-                    <button
-                      className="payment-button"
-                      onClick={() => handlePayNow(payment.paymentLink)}
-                    >
-                      {t("course_details.pay_now")}
-                    </button>
-                  ) : (
-                    <span className={`payment-status ${realStatus.toLowerCase()} payment-button`}>
-                      {realStatus === "Paid"
-                        ? t("course_details.paid")
-                        : t("course_details.payment_expired")}
-                    </span>
-                  )}
                 </div>
               </div>
-            );
-          })
-        ) : (
-          <div className="no-payments-message">
-            <i className="fas fa-info-circle"></i>
-            <p>{t("course_details.no_payments_available")}</p>
-          </div>
-        )}
-      </div>
-    </div>
-  </div>
-)}
-
-
+            )}
 
             {showSubmissionPopup && submissionDetails && (
               <div

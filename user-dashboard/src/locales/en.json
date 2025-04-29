@@ -173,6 +173,7 @@
         "pay_now": "Pay Now",
         "paid": "Paid",
         "payment_expired": "Payment Expired",
+        "not_created":"Not created",
         "close": "Close",
         "submission_details": "Submission Details",
         "responses": "Responses",

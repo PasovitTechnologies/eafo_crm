@@ -52,44 +52,41 @@ const sendEmailRusender = async (recipient, mail) => {
 
 // ✅ Endpoint to send emails and save payments
 router.post("/send", async (req, res) => {
-  const { courseId, submission, paymentUrl, orderId, currency } = req.body;
-  console.log(submission);
+  const { email, courseId, transactionId, orderId, paymentUrl, currency } = req.body;
 
-  if (!submission || !submission.email) {
-    return res.status(400).json({ success: false, message: "❌ Submission data is required." });
+  if (!email || !courseId || !transactionId || !orderId || !paymentUrl) {
+    return res.status(400).json({ success: false, message: "❌ Missing required data." });
   }
-
-  if (!orderId || !paymentUrl || !submission.package || !submission.amount || !submission.currency) {
-    return res.status(400).json({ success: false, message: "❌ Missing payment details." });
-  }
-
-  console.log("📤 Sending invoice email to:", submission.email);
 
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-    // 🔥 Fetch User
-    let user = await User.findOne({ email: submission.email }).session(session);
-    if (!user) {
-      await session.abortTransaction();
-      return res.status(404).json({ success: false, message: "❌ User not found.", email: submission.email });
-    }
+    console.log("📩 Finding User with email:", email);
+    const user = await User.findOne({ email }).session(session);
+    if (!user) throw new Error("❌ User not found");
 
-    // 🔥 Extract Personal Details
-    const { title, firstName, middleName, lastName } = user.personalDetails || {};
-    console.log(`👤 User Found: ${title} ${firstName} ${middleName} ${lastName}`);
+    const userCourse = user.courses.find(c => c.courseId.toString() === courseId);
+    if (!userCourse) throw new Error("❌ User is not enrolled in this course");
 
-    // 🔥 Fetch Course
+    console.log("📋 User Course Payments:", userCourse.payments.map(p => p.paymentId));
+    console.log("🔍 Searching for transactionId:", transactionId);
+
+    const userPayment = userCourse.payments.find(p => p.transactionId === transactionId);
+    if (!userPayment) throw new Error("❌ Transaction ID not found in user payments");
+
+    console.log("✅ Found user payment.");
+
+    // Find course
     const course = await Course.findById(courseId).session(session);
-    if (!course) {
-      await session.abortTransaction();
-      return res.status(404).json({ success: false, message: "❌ Course not found." });
-    }
+    if (!course) throw new Error("❌ Course not found");
 
-    console.log(`📌 Course found: ${course.name}`);
+    const coursePayment = course.payments.find(p => p.transactionId === transactionId);
+    if (!coursePayment) throw new Error("❌ Transaction ID not found in course payments");
 
-    // 🔥 Generate Invoice Number
+    console.log("✅ Found course payment.");
+
+    // Generate next Invoice Number
     let currentInvoiceNumber = course.currentInvoiceNumber || "INV/EAFO-000-00001";
     const match = currentInvoiceNumber.match(/(\d{5})$/);
     let nextInvoiceNumber;
@@ -98,145 +95,76 @@ router.post("/send", async (req, res) => {
       const currentNumber = parseInt(match[0], 10);
       nextInvoiceNumber = currentInvoiceNumber.replace(/\d{5}$/, (currentNumber + 1).toString().padStart(5, "0"));
       course.currentInvoiceNumber = nextInvoiceNumber;
-      await course.save({ session });
     } else {
-      nextInvoiceNumber = "INV/EAFO-000-00001"; // Fallback
+      nextInvoiceNumber = "INV/EAFO-000-00001"; // fallback
     }
 
-    console.log(`✅ Generated Invoice Number: ${nextInvoiceNumber}`);
+    console.log("🧾 Generated Invoice Number:", nextInvoiceNumber);
 
-    // 🔥 Use Provided Payment URL
-    const finalPaymentUrl = paymentUrl;
-    console.log(currency);
+    // Update User Payment
+    userPayment.invoiceNumber = nextInvoiceNumber;
+    userPayment.paymentLink = paymentUrl;
+    userPayment.status = "Pending",
+    userPayment.orderId = orderId; // <-- Push orderId into paymentId field
+    userPayment.time = new Date();
 
-    // 🔥 Format Name Correctly
+    // Update Course Payment
+    coursePayment.invoiceNumber = nextInvoiceNumber;
+    coursePayment.paymentLink = paymentUrl;
+    coursePayment.orderId = orderId;
+    coursePayment.status = "Pending",
+    coursePayment.time = new Date();
+
+    console.log("📝 Updated payment info for User and Course");
+
+    // Save changes
+    await user.save({ session });
+    await course.save({ session });
+
+    console.log("💾 User and Course saved");
+
+    // Prepare and Send Email
+    const { title, firstName, middleName, lastName } = user.personalDetails || {};
+
     const isRussian = currency === "RUP";
     const fullName = isRussian
       ? `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()
       : `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
 
-    // 🔥 Prepare Email Content
     const emailSubject = isRussian
       ? `Счет за 45-й курс онкопатологии EAFO - ${nextInvoiceNumber} от EAFO`
       : `Invoice for the 45th EAFO OncoPathology Course - ${nextInvoiceNumber} from EAFO`;
 
     const emailBody = isRussian
-      ? `
-          <p style="font-size: 18px;"><strong>${fullName}</strong>,</p>
-          <p style="font-size: 16px;">Благодарим Вас за регистрацию на <strong>45-й EAFO курс по онкопатологии «Опухоли головы и шеи»</strong>, который пройдет 13-17 июня 2025 в г. Архангельск.</p>
-          <p style="font-size: 16px;">Вы можете получить доступ к деталям платежа, нажав на ссылку ниже. Завершите процесс регистрации, произведя оплату.</p>
-          <p style="font-size: 16px;"><strong>Ссылка для оплаты для российских участников:</strong></p>
-          <a href="${finalPaymentUrl}" style="font-size: 18px; color:blue; font-weight: bold;">🔗 Оплатить</a>
-          <p style="font-size: 16px;">*Участник должен оплатить сумму, указанную в счете, <strong>в течение 3 дней</strong>.</p>
-          <p style="font-size: 16px;"><strong>После совершения платежа отправьте подтверждение банковского перевода и свое полное имя на адрес <a href="mailto:travel@eafo.info">travel@eafo.info</a></strong>.</p>
-          <p style="font-size: 16px;">Если у вас есть какие-либо вопросы, свяжитесь с командой EAFO по адресу <a href="mailto:info@eafo.info">info@eafo.info</a></p>
-          <p style="font-size: 16px;">С наилучшими пожеланиями,</p>
-          <p style="font-size: 18px;"><strong>Команда EAFO</strong></p>
-        `
-      : `
-          <p style="font-size: 18px;"><strong>${fullName}</strong>,</p>
-          <p style="font-size: 16px;">Thank you for submitting your registration form for the <strong>45th EAFO OncoPathology Course "Head & Neck Tumors"</strong>, which will be held in Archangelsk on June 13 - 17, 2025.</p>
-          <p style="font-size: 16px;">You can access your invoice with payment details by clicking on the link below. Complete the registration process by making payment.</p>
-          <p style="font-size: 16px;"><strong>Payment link for Other country (apart from Russia) Participants:</strong></p>
-          <a href="${finalPaymentUrl}" style="font-size: 18px; color:blue; font-weight: bold;">🔗 Complete Payment</a>
-          <p style="font-size: 16px;">*Participant must pay the amount mentioned in the invoice within <strong>3 days</strong>.</p>
-          <p style="font-size: 16px;">After you make the payment, please send the bank transfer confirmation and your full name to <a href="mailto:travel@eafo.info">travel@eafo.info</a>.</p>
-          <p style="font-size: 16px;"><strong>If you have any questions, contact our team at <a href="mailto:info@eafo.info">info@eafo.info</strong></a></p>
-          <p style="font-size: 16px;">Best regards,</p>
-          <p style="font-size: 18px;"><strong>Team EAFO</strong></p>
-        `;
+      ? `<p>Здравствуйте, ${fullName}. Ваш счет: <a href="${paymentUrl}">Оплатить</a></p>`
+      : `<p>Hello, ${fullName}. Your invoice: <a href="${paymentUrl}">Pay Now</a></p>`;
 
     const mail = { subject: emailSubject, html: emailBody };
-    const emailResult = await sendEmailRusender({ email: submission.email, name: fullName }, mail);
 
-    // 🔥 Save Payment in User Schema
-    let userCourse = user.courses.find((c) => c.courseId.toString() === courseId.toString());
-    if (userCourse) {
-      userCourse.payments.push({
-        invoiceNumber: nextInvoiceNumber,
-        paymentId: orderId,
-        package: submission.package,
-        amount: submission.amount,
-        currency: submission.currency,
-        paymentLink: finalPaymentUrl,
-        status: "Pending",
-        time: new Date(),
-      });
+    const emailResult = await sendEmailRusender({ email, name: fullName }, mail);
 
-      await user.save({ session });
-      console.log(`✅ Payment saved for user: ${submission.email}`);
-    }
-
-    // 🔥 Save Payment in Course Schema
-    course.payments.push({
-      invoiceNumber: nextInvoiceNumber,
-      paymentId: orderId,
-      package: submission.package,
-      amount: submission.amount,
-      currency: submission.currency,
-      paymentLink: finalPaymentUrl,
-      email: submission.email,
-      status: "Pending",
-      time: new Date(),
-    });
-
-    await course.save({ session });
-    console.log(`✅ Payment saved in course: ${courseId}`);
-
-    // 🔥 Create Payment Notification
-    const notification = {
-      type: "payment_created",
-      courseId: courseId,
-      courseName: course.name,
-      invoiceNumber: nextInvoiceNumber,
-      message: {
-        en: `Payment invoice #${nextInvoiceNumber} has been generated for ${course.name}`,
-        ru: `Счет на оплату #${nextInvoiceNumber} был создан для ${course.name}`,
-      },
-      read: false,
-      createdAt: new Date(),
-      paymentLink: finalPaymentUrl,
-      amount: submission.amount,
-      currency: submission.currency
-    };
-
-    let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
-
-    if (!userNotification) {
-      userNotification = new UserNotification({
-        userId: user._id,
-        notifications: [notification]
-      });
-      console.log("📬 Created new UserNotification doc for user.");
-    } else {
-      userNotification.notifications.push(notification);
-      console.log("📬 Appended new notification to existing UserNotification.");
-    }
-
-    await userNotification.save({ session });
-    console.log("🔔 Payment notification saved for user:", user.email);
+    console.log("📧 Email successfully sent to:", email);
 
     await session.commitTransaction();
 
-    res.json({ 
-      success: true, 
-      message: "✅ Invoice email sent & payment saved.", 
-      emailResult,
-      invoiceNumber: nextInvoiceNumber
+    return res.status(200).json({
+      success: true,
+      message: "✅ Invoice updated and email sent successfully",
+      invoiceNumber: nextInvoiceNumber,
+      emailResult
     });
 
   } catch (error) {
     await session.abortTransaction();
-    console.error("❌ Internal Server Error:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: "❌ Internal Server Error.", 
-      error: error.message 
-    });
+    console.error("❌ Error during email sending and updating:", error);
+    return res.status(500).json({ success: false, message: error.message });
   } finally {
     session.endSession();
   }
 });
+
+
+
 
 
 

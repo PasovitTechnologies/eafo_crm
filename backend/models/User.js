@@ -55,23 +55,30 @@ const userSchema = new mongoose.Schema(
             formId: { type: mongoose.Schema.Types.ObjectId, ref: "Form" },   // ✅ Form reference
             formName: { type: String },                                      // ✅ Form name
             isUsedForRegistration: { type: Boolean, default: false },        // ✅ Registration flag
-            isUsedForRussian: { type: Boolean, default: false },             // ✅ Russian flag
+            isUsedForRussian: { type: Boolean, default: false }         // ✅ Russian flag
           }
         ],
         
         // 💳 Payments array
         payments: [
           {
-            invoiceNumber: { type: String, required: true, default: "INV/EAFO-000-00001"  },
-            paymentId: { type: String, required: true },                     // ✅ Unique payment ID
-            paymentLink: { type: String, required: true },                   // ✅ Link to payment gateway
-            package: { type: String, required: true },                       // ✅ Payment package
-            amount: { type: Number, required: true },                        // ✅ Payment amount
-            currency: { type: String, required: true },                      // ✅ Currency used
-            time: { type: Date, default: Date.now },
-            status: { type: String, default: "Not created" }                 // ✅ Payment status
+            transactionId: {
+              type: String,    // 6-digit string
+              required: true
+            }, 
+            package: { type: String, required: false },         // e.g., "Package 1"
+            amount: { type: Number, required: false },           // e.g., 24500
+            currency: { type: String, required: false },         // e.g., "INR"
+        
+            // 👇 Fields you will push LATER during payment processing
+            invoiceNumber: { type: String, required: false, default: "" },
+            paymentId: { type: String, required: false },         // Unique ID from payment gateway
+            paymentLink: { type: String, required: false },       // URL to payment link
+            time: { type: Date },                                 // Will push manually later
+            status: { type: String, default: "Not created" }      // Default payment status
           }
         ]
+        
       }
     ]
 ,    

@@ -135,6 +135,7 @@
 @media (min-width: 768px) {
   .course-custom-dropdown {
     width: 12%;
+    
   }
 }
 
@@ -341,6 +342,9 @@
     justify-content: flex-start;
     align-items: flex-start;
     gap: 15px;
+  }
+  .course-custom-dropdown{
+    text-align: center;
   }
 }
 

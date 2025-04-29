@@ -165,7 +165,6 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     setError(null);
 
     const orderDetails = {
-      orderNumber: `order-${Date.now()}`,
       amount: totalAmount,
       currency: selectedMethod === "stripe" ? "INR" : "RUP",
       email: submission.email,
@@ -202,8 +201,6 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   };
 
   const handleSendEmail = async () => {
-    console.log("📤 Email send process started...");
-  
     if (!submission?.email) {
       console.error("❌ Missing recipient email.");
       return;
@@ -214,16 +211,14 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       return;
     }
   
-    // 🔥 Pass the full submission object instead of extracting fields
     const emailData = {
       courseId,
+      formId,
       orderId,
       paymentUrl,
-      submission,
-      currency // ✅ Send the entire submission object
+      transactionId: submission.transactionId,
+      email: submission.email  // ✅ ADD THIS
     };
-  
-    console.log("📥 Sending email request:", JSON.stringify(emailData, null, 2));
   
     try {
       const response = await axios.post(`${baseUrl}/api/email/send`, emailData, {
@@ -237,7 +232,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
         console.log("✅ Invoice email sent successfully:", response.data);
         setShowPopup(true);
         fetchPaymentHistory();
-        setPaymentUrl(""); // Clear payment URL after sending
+        setPaymentUrl("");
       } else {
         console.error("❌ Failed to send invoice email:", response.data.message);
       }
@@ -251,65 +246,49 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   
   
   
+  
+  
 
   const handleSendWhatsApp = useCallback(async () => {
-    console.log("🚀 WhatsApp button clicked");
-
-    if (whatsappLoading) {
-      console.log("⚠️ WhatsApp is already sending, please wait.");
-      return;
-    }
-
+    if (whatsappLoading) return;
+  
     if (!paymentUrl) {
-      console.log("❌ No payment URL generated.");
-      alert("❌ No payment URL. Generate it first!");
+      alert("❌ No payment URL generated. Please generate it first!");
       return;
     }
-
+  
     if (!userData?.personalDetails?.phone) {
-      console.log("❌ No phone number found in user data.");
-      alert("❌ Missing phone number.");
+      alert("❌ No phone number available.");
       return;
     }
-
+  
     const phoneNumber = userData.personalDetails.phone.replace(/\D/g, "");
+  
     if (!/^\d{10,15}$/.test(phoneNumber)) {
-      console.log("❌ Invalid phone number format.");
-      alert("❌ Invalid phone number.");
+      alert("❌ Invalid phone number format.");
       return;
     }
-
-    if (!courseId || !orderId || !submission.currency) {
-      console.log(
-        "❌ Missing required payment details (courseId, orderId, currency)."
-      );
-      alert("❌ Payment details missing. Please try again.");
+  
+    if (!courseId || !orderId) {
+      alert("❌ Missing required details.");
       return;
     }
-
+  
     setWhatsappLoading(true);
     setWhatsappStatus(null);
-
+  
     try {
-      console.log("📨 Sending WhatsApp message to:", phoneNumber);
-
       const response = await axios.post(
         `${baseUrl}/api/whatsapp/send-wp`,
         {
           to: phoneNumber,
-          email: userData.personalDetails.email, // ✅ Send email separately
-          message:
-            `*Payment Invoice*\n\n` +
-            `Package: ${submission.package}\n` +
-            `Amount: ${submission.amount} ${submission.currency}\n\n` +
-            `Pay here: ${paymentUrl}`,
-          package: submission.package,
-          amount: submission.amount,
-          currency: submission.currency, // ✅ Added currency
+          email: submission.email,
+          message: `*Payment Invoice*\n\nPlease pay here: ${paymentUrl}`,
           formId,
           courseId,
           orderId,
-          paymentUrl: paymentUrl,
+          paymentUrl,
+          transactionId :submission.transactionId
         },
         {
           headers: {
@@ -319,22 +298,18 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
           timeout: 30000,
         }
       );
-
-      console.log("✅ WhatsApp API Response:", response.data);
-
+  
       if (response.data.success) {
         setWhatsappStatus({
           type: "success",
-          message: `WhatsApp message delivered successfully! Invoice Number: ${response.data.invoiceNumber}`,
+          message: `WhatsApp message delivered! Invoice: ${response.data.invoiceNumber}`,
           timestamp: new Date().toLocaleTimeString(),
         });
         fetchPaymentHistory();
       } else {
-        throw new Error(response.data.error || "Failed to send message");
+        throw new Error(response.data.error || "Failed to send WhatsApp message");
       }
     } catch (error) {
-      console.error("❌ Error Sending WhatsApp Message:", error);
-
       setWhatsappStatus({
         type: "error",
         message: error.response?.data?.error || error.message,
@@ -343,6 +318,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       setWhatsappLoading(false);
     }
   }, [paymentUrl, whatsappLoading, userData, submission]);
+  
 
   const handleViewAkt = (payment) => {
     if (payment.status === "Paid" && userData) {

@@ -3,6 +3,8 @@ const axios = require("axios");
 const User = require("../models/User"); 
 const Course = require("../models/Course"); 
 const UserNotification = require("../models/UserNotificationSchema");
+const mongoose = require("mongoose");
+
 
 const router = express.Router();
 
@@ -120,9 +122,9 @@ router.post("/send", async (req, res) => {
 });
 
 router.post("/send-wp", async (req, res) => {
-  console.log("📥 Incoming Request Body:", req.body);
+  console.log("📥 Incoming WhatsApp Request Body:", req.body);
 
-  const requiredFields = ["to", "message", "courseId", "orderId", "package", "amount", "currency", "paymentUrl"];
+  const requiredFields = ["to", "message", "courseId", "orderId", "transactionId", "paymentUrl", "email"];
   const missingFields = requiredFields.filter(field => !req.body[field]);
 
   if (missingFields.length > 0) {
@@ -133,7 +135,7 @@ router.post("/send-wp", async (req, res) => {
     });
   }
 
-  const { to, message, courseId, orderId, package, amount, currency, paymentUrl } = req.body;
+  const { to, message, courseId, orderId, transactionId, paymentUrl, email } = req.body;
 
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -153,145 +155,117 @@ router.post("/send-wp", async (req, res) => {
 
     console.log("✅ WhatsApp API Response:", response.data);
 
-    if (response.data?.status === "done") {
-      // 🔥 Fetch the course with session
-      const course = await Course.findById(courseId).session(session);
-      if (!course) {
-        await session.abortTransaction();
-        console.log("❌ Course not found for ID:", courseId);
-        return res.status(404).json({ success: false, error: "Course not found." });
-      }
-
-      console.log(`📌 Course found: ${course.name}`);
-
-      // 🔥 Generate new Invoice Number
-      let currentInvoiceNumber = course.currentInvoiceNumber || "INV/EAFO-000-00001";
-      const match = currentInvoiceNumber.match(/(\d{5})$/);
-      let nextInvoiceNumber = match
-        ? currentInvoiceNumber.replace(/\d{5}$/, (parseInt(match[0], 10) + 1).toString().padStart(5, "0"))
-        : "INV/EAFO-000-00001";
-
-      course.currentInvoiceNumber = nextInvoiceNumber;
-      await course.save({ session });
-      console.log(`✅ New Invoice Number: ${nextInvoiceNumber}`);
-
-      // 🔥 Find the User with session
-      let user = await User.findOne({ "personalDetails.phone": to }).session(session);
-      let notificationSaved = false;
-
-      if (user) {
-        console.log(`📌 User found: ${user.email}`);
-
-        // 🔥 Find or Create User Course
-        let userCourse = user.courses.find(c => c.courseId?.toString() === courseId?.toString());
-        if (userCourse) {
-          console.log("✅ Course found in User schema, adding payment.");
-          userCourse.payments.push({
-            invoiceNumber: nextInvoiceNumber,
-            paymentId: orderId,
-            package,
-            amount,
-            currency,
-            paymentLink: paymentUrl,
-            status: "Pending",
-            time: new Date(),
-          });
-        } else {
-          console.log("🚫 Course not found in User schema, creating new course entry.");
-          user.courses.push({
-            courseId: courseId,
-            payments: [{
-              invoiceNumber: nextInvoiceNumber,
-              paymentId: orderId,
-              package,
-              amount,
-              currency,
-              paymentLink: paymentUrl,
-              status: "Pending",
-              time: new Date(),
-            }],
-            registeredAt: new Date()
-          });
-        }
-
-        await user.save({ session });
-
-        // 🔥 Create Payment Notification
-        const notification = {
-          type: "payment_created",
-          courseId: courseId,
-          courseName: course.name,
-          invoiceNumber: nextInvoiceNumber,
-          message: {
-            en: `Payment invoice #${nextInvoiceNumber} has been generated for ${course.name}`,
-            ru: `Счет на оплату #${nextInvoiceNumber} был создан для ${course.name}`,
-          },
-          read: false,
-          createdAt: new Date(),
-          paymentLink: paymentUrl,
-          amount: amount,
-          currency: currency,
-          viaWhatsApp: true
-        };
-
-        let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
-
-        if (!userNotification) {
-          userNotification = new UserNotification({
-            userId: user._id,
-            notifications: [notification]
-          });
-          console.log("📬 Created new UserNotification doc for user.");
-        } else {
-          userNotification.notifications.push(notification);
-          console.log("📬 Appended new notification to existing UserNotification.");
-        }
-
-        await userNotification.save({ session });
-        notificationSaved = true;
-        console.log("🔔 Payment notification saved for user:", user.email);
-      } else {
-        console.log(`🚫 User not found for phone number: ${to}`);
-      }
-
-      // 🔥 Save Payment in Course Schema
-      course.payments.push({
-        invoiceNumber: nextInvoiceNumber,
-        paymentId: orderId,
-        package,
-        amount,
-        currency,
-        paymentLink: paymentUrl,
-        status: "Pending",
-        time: new Date(),
-        viaWhatsApp: true
-      });
-
-      await course.save({ session });
-      console.log(`✅ Payment saved in course: ${courseId}`);
-
-      await session.commitTransaction();
-
-      return res.json({
-        success: true,
-        status: "sent",
-        message: "WhatsApp message delivered and invoice data saved.",
-        invoiceNumber: nextInvoiceNumber,
-        notificationCreated: notificationSaved
-      });
-
-    } else {
-      await session.abortTransaction();
-      console.error("⚠️ Unexpected API Response Structure:", response.data);
-      return res.status(500).json({
-        success: false,
-        error: response.data?.message || "Unexpected response format from WhatsApp API"
-      });
+    if (response.data?.status !== "done") {
+      throw new Error("Failed to send WhatsApp message");
     }
+
+    // 🔥 Fetch course
+    const course = await Course.findById(courseId).session(session);
+    if (!course) throw new Error("Course not found");
+
+    console.log(`📌 Course found: ${course.name}`);
+
+    // 🔥 Find the User by Email
+    const user = await User.findOne({ email }).session(session);
+    if (!user) {
+      console.log(`🚫 No user found for email: ${email}`);
+      await session.abortTransaction();
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    console.log(`📌 User found: ${user.email}`);
+
+    // 🔥 Find User Course
+    const userCourse = user.courses.find(c => c.courseId?.toString() === courseId?.toString());
+    if (!userCourse) throw new Error("User not enrolled in the course");
+
+    // 🔥 Find Payment inside User
+    const userPayment = userCourse.payments.find(p => p.transactionId === transactionId);
+    if (!userPayment) throw new Error("Transaction ID not found in user payments");
+
+    console.log("✅ Found user payment to update.");
+
+    // 🔥 Find Payment inside Course
+    const coursePayment = course.payments.find(p => p.transactionId === transactionId);
+    if (!coursePayment) throw new Error("Transaction ID not found in course payments");
+
+    console.log("✅ Found course payment to update.");
+
+    // 🔥 Generate new Invoice Number
+    let currentInvoiceNumber = course.currentInvoiceNumber || "INV/EAFO-000-00001";
+    const match = currentInvoiceNumber.match(/(\d{5})$/);
+    let nextInvoiceNumber = match
+      ? currentInvoiceNumber.replace(/\d{5}$/, (parseInt(match[0], 10) + 1).toString().padStart(5, "0"))
+      : "INV/EAFO-000-00001";
+
+    course.currentInvoiceNumber = nextInvoiceNumber;
+
+    // 🔥 Update user payment
+    userPayment.invoiceNumber = nextInvoiceNumber;
+    userPayment.paymentLink = paymentUrl;
+    userPayment.orderId = orderId;
+    userPayment.time = new Date();
+    userPayment.viaWhatsApp = true;
+    userPayment.status = "Pending";
+
+    // 🔥 Update course payment
+    coursePayment.invoiceNumber = nextInvoiceNumber;
+    coursePayment.paymentLink = paymentUrl;
+    coursePayment.orderId = orderId;
+    coursePayment.time = new Date();
+    coursePayment.viaWhatsApp = true;
+    coursePayment.status = "Pending";
+
+    // 💾 Save user and course
+    await user.save({ session });
+    await course.save({ session });
+
+    console.log("💾 User and Course updated successfully.");
+
+    // 🔔 Create Notification
+    const notification = {
+      type: "payment_created",
+      courseId: courseId,
+      courseName: course.name,
+      invoiceNumber: nextInvoiceNumber,
+      message: {
+        en: `Payment invoice #${nextInvoiceNumber} has been updated for ${course.name}`,
+        ru: `Счет на оплату #${nextInvoiceNumber} был обновлен для ${course.name}`,
+      },
+      read: false,
+      createdAt: new Date(),
+      paymentLink: paymentUrl,
+      amount: userPayment.amount,
+      currency: userPayment.currency,
+      viaWhatsApp: true
+    };
+
+    let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
+    if (!userNotification) {
+      userNotification = new UserNotification({
+        userId: user._id,
+        notifications: [notification]
+      });
+      console.log("📬 Created new UserNotification document");
+    } else {
+      userNotification.notifications.push(notification);
+      console.log("📬 Appended notification to existing UserNotification");
+    }
+
+    await userNotification.save({ session });
+
+    await session.commitTransaction();
+
+    return res.json({
+      success: true,
+      status: "sent",
+      message: "✅ WhatsApp message sent and payment updated successfully",
+      invoiceNumber: nextInvoiceNumber
+    });
 
   } catch (error) {
     await session.abortTransaction();
-    console.error("❌ Error sending message:", error.message, error.response?.data);
+    console.error("❌ Error sending WhatsApp message:", error.message, error.response?.data);
     return res.status(500).json({
       success: false,
       error: error.response?.data?.message || error.message
@@ -300,6 +274,8 @@ router.post("/send-wp", async (req, res) => {
     session.endSession();
   }
 });
+
+
 
 
 
