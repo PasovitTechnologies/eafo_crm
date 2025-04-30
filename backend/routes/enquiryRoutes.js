@@ -12,6 +12,9 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
+
+
+
 // ✅ JWT Authentication Middleware
 const authenticate = (req, res, next) => {
   const token = req.header("Authorization")?.split(" ")[1];
@@ -29,20 +32,23 @@ const authenticate = (req, res, next) => {
 
 // ✅ Create Enquiry with Embedded File
 router.post("/", authenticate, upload.single("file"), async (req, res) => {
-  const { email, message, status } = req.body;
+  const { email, subject, message, status } = req.body;
 
-  if (!email || !message) {
-    return res.status(400).json({ message: "Email and message are required." });
+  // Check if required fields are provided
+  if (!email || !subject || !message) {
+    return res.status(400).json({ message: "Email, subject, and message are required." });
   }
 
   try {
+    // Create a new enquiry object
     const newEnquiry = new Enquiry({
       email,
+      subject,
       message,
-      status: status || "Raised",
+      status: status || "Raised", // Default status is "Raised"
     });
 
-    // ✅ Add file if it exists
+    // Handle file upload if a file is provided
     if (req.file) {
       newEnquiry.file = {
         data: req.file.buffer,           // Store file as Buffer
@@ -51,11 +57,22 @@ router.post("/", authenticate, upload.single("file"), async (req, res) => {
       };
     }
 
+    // Save the new enquiry to the database
     await newEnquiry.save();
+
+    // Return a success response
     res.status(201).json({ message: "Enquiry created successfully.", newEnquiry });
   } catch (error) {
+    // Log the error for debugging
     console.error("🚨 Error creating enquiry:", error);
-    res.status(500).json({ message: "Server error" });
+
+    // Send a more detailed error response for debugging
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: "Validation error.", details: error.errors });
+    }
+
+    // General server error
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 

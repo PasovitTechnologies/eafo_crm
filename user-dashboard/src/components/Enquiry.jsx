@@ -170,24 +170,38 @@ const Enquiry = () => {
   };
   
   const handleSubmit = async () => {
+    // Validation check for subject and message
     if (!subject || !message) {
       toast.error(t('enquiry.enterSubjectMessage'));
       return;
     }
   
+    // Get the email and token from localStorage
+    const email = localStorage.getItem("email");
+    const token = localStorage.getItem("token");
+  
+    // Ensure email and token are present
+    if (!email || !token) {
+      toast.error(t('enquiry.noEmailOrToken'));
+      return;
+    }
+  
     const formData = new FormData();
-    formData.append("email", localStorage.getItem("email"));
+    formData.append("email", email);
     formData.append("subject", subject);
     formData.append("message", message);
     formData.append("status", "Raised");
   
+    // File validation: Check if file exists and is within acceptable limits (example 5MB)
     if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast.error(t('enquiry.fileTooLarge'));
+        return;
+      }
       formData.append("file", file);
     }
   
     try {
-      const token = localStorage.getItem("token");
-  
       const response = await fetch(`${baseUrl}/api/enquiries`, {
         method: "POST",
         headers: {
@@ -197,7 +211,8 @@ const Enquiry = () => {
       });
   
       if (!response.ok) {
-        throw new Error("Failed to submit enquiry.");
+        const errorMessage = await response.text(); // Get more detailed error response
+        throw new Error(`Failed to submit enquiry: ${errorMessage}`);
       }
   
       toast.success(t('enquiry.enquirySubmitted'));
@@ -208,6 +223,7 @@ const Enquiry = () => {
       toast.error(t('enquiry.enquirySubmitFailed'));
     }
   };
+  
   
   const handleEditSubmit = async () => {
     if (!editSubject || !editMessage) {
