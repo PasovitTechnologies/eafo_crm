@@ -144,7 +144,6 @@ const InvoiceCreator = ({ onClose, courseId }) => {
       if (response.data.success) {
         setPaymentUrl(response.data.paymentUrl);
         setOrderId(response.data.orderId);
-        setTransactionId(String(Math.floor(100000 + Math.random() * 900000)));
         toast.success("✅ Payment link generated!");
       } else {
         setError(response.data.message || "Payment failed.");
@@ -158,20 +157,29 @@ const InvoiceCreator = ({ onClose, courseId }) => {
   
   // Email sender
   const handleSendEmail = async () => {
-    if (!selectedUser?.value || !paymentUrl || !transactionId || !orderId) {
+    if (!selectedUser?.value || !paymentUrl || !orderId) {
       return alert("Missing required data for email.");
     }
+
+    const orderNumber = Math.floor(100000 + Math.random() * 900000).toString();
+  
+    const packageName = itemChoice === 'manual' ? customItem : selectedItem?.value;
+    const currencyFinal = itemChoice === 'manual'
+      ? currency
+      : courseItems.find(item => item.name === selectedItem?.value)?.currency;
   
     const emailData = {
       email: selectedUser.value,
       courseId,
       orderId,
       paymentUrl,
-      transactionId
+      transactionId:orderNumber,
+      package: packageName,
+      currency: currencyFinal,
     };
   
     try {
-      const res = await axios.post(`${baseUrl}/api/email/send`, emailData, {
+      const res = await axios.post(`${baseUrl}/api/email/send-email`, emailData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json",
@@ -188,11 +196,17 @@ const InvoiceCreator = ({ onClose, courseId }) => {
     }
   };
   
+  
   // WhatsApp sender
   const handleSendWhatsApp = async () => {
     if (!selectedUser?.value || !paymentUrl || !transactionId || !orderId) {
       return alert("Missing required data for WhatsApp.");
     }
+  
+    const packageName = itemChoice === 'manual' ? customItem : selectedItem?.value;
+    const currencyFinal = itemChoice === 'manual'
+      ? currency
+      : courseItems.find(item => item.name === selectedItem?.value)?.currency;
   
     const wpData = {
       to: selectedUser.value,
@@ -201,7 +215,9 @@ const InvoiceCreator = ({ onClose, courseId }) => {
       orderId,
       transactionId,
       paymentUrl,
-      email: selectedUser.value
+      email: selectedUser.value,
+      package: packageName,
+      currency: currencyFinal,
     };
   
     try {
@@ -221,6 +237,7 @@ const InvoiceCreator = ({ onClose, courseId }) => {
       toast.error(err.response?.data?.message || "WhatsApp error.");
     }
   };
+  
 
   const itemOptions = courseItems.map(item => ({
     value: item.name,

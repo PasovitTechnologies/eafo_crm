@@ -257,8 +257,19 @@ const Users = () => {
         return groupByMonths(data, 3);
       case "6months":
         return groupByMonths(data, 6);
-      case "all":
-        return groupByMonths(data, 12);
+        case "all": {
+          const totalUsers = data.length;
+        
+          return [
+            {
+              label: "All Time",
+              users: totalUsers,
+            },
+          ];
+        }
+        
+        
+        
       default:
         return data;
     }
