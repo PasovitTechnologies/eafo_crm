@@ -323,7 +323,7 @@
     z-index: 10000;
 }
 
-.popup {
+.forms-popup {
     background: white;
     padding: 30px;
     border-radius: 8px;
@@ -348,8 +348,8 @@
 }
 
 /* 🔹 Form Input Fields */
-.popup input,
-.popup select {
+.forms-popup input,
+.forms-popup select {
     width: 100%;
     padding: 8px;
     margin: 6px 0;
@@ -500,7 +500,7 @@
         margin-top: 10px;
     }
 
-    .popup {
+    .forms-popup {
         width: 90%;
         padding: 20px;
     }

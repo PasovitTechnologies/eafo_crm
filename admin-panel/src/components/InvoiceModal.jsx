@@ -212,7 +212,6 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   };
   
   
-
   const handleSendEmail = async () => {
     if (!submission?.email) {
       console.error("❌ Missing recipient email.");
@@ -230,10 +229,12 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       orderId,
       paymentUrl,
       transactionId: submission.transactionId,
-      email: submission.email  // ✅ ADD THIS
+      email: submission.email, // ✅ ADD THIS
     };
   
     try {
+      setEmailSending(true);  // Set the state to "sending" before the request
+  
       const response = await axios.post(`${baseUrl}/api/email/send`, emailData, {
         headers: {
           "Content-Type": "application/json",
@@ -252,8 +253,11 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     } catch (error) {
       console.error("❌ Error sending email request:", error.response?.data || error.message);
       alert(`❌ Error: ${error.response?.data?.message || "Failed to send invoice"}`);
+    } finally {
+      setEmailSending(false);  // Set the state back to "false" when the request completes
     }
   };
+  
   
   
   
@@ -502,9 +506,10 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
             </div>
 
             <div className="invoice-send-actions">
-              <button onClick={handleSendEmail} disabled={emailSending}>
-                <FaEnvelope /> {emailSending ? "Sending..." : "Send via Email"}
-              </button>
+            <button onClick={handleSendEmail} disabled={emailSending}>
+  <FaEnvelope /> {emailSending ? "Sending..." : "Send via Email"}
+</button>
+
 
               <button
                 className="send-invoice-btn whatsapp-btn"

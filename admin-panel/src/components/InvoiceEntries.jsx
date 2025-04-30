@@ -78,7 +78,7 @@ const InvoiceEntries = () => {
 
       const data = await response.json();
       const fullName = `${data.personalDetails?.firstName || ""} ${data.personalDetails?.middleName || ""} ${data.personalDetails?.lastName || ""}`.trim();
-      const phoneWithCode = `${data.personalDetails?.countryCode || ""}${data.personalDetails?.phone || ""}`;
+      const phoneWithCode = `${data.personalDetails?.phone || ""}`;
 
       return { fullName, phone: phoneWithCode };
     } catch (err) {
@@ -180,14 +180,7 @@ const InvoiceEntries = () => {
             )}
           </div>
         </div>
-        <div>
-        <button
-        onClick={() => setShowInvoiceCreator(true)}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
-        Create Invoice
-      </button>
-        </div>
+        
       </div>
 
       <div className="invoice-table-container">

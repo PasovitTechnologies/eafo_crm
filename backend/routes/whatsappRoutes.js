@@ -81,15 +81,15 @@ router.post("/send", async (req, res) => {
   const { to, message } = req.body;
 
   if (!to || !message) {
-    return res.status(400).json({ 
+    return res.status(400).json({
       success: false,
-      error: "'to' and 'message' are required" 
+      error: "'to' and 'message' are required"
     });
   }
 
   try {
     const response = await axios.post(
-      `${WAPPI_BASE_URL}/api/sync/message/send`, // Changed to sync endpoint
+      `${WAPPI_BASE_URL}/api/sync/message/send`,
       {
         body: message,
         recipient: to,
@@ -97,29 +97,47 @@ router.post("/send", async (req, res) => {
       {
         headers: { Authorization: API_TOKEN },
         params: { profile_id: PROFILE_ID },
-        timeout: 30000 // 30 second timeout for synchronous operation
+        timeout: 30000
       }
     );
 
-    if (response.data?.sent) {
-      res.json({
-        success: true,
-        status: 'sent',
-        message: 'Message delivered successfully',
+    console.log("WhatsApp API response:", response.data);
+
+    // Be more flexible with success detection
+    if (response.status === 200 && response.data) {
+      const wasSent = response.data.sent === true;
+
+      return res.status(wasSent ? 200 : 202).json({
+        success: wasSent,
+        status: wasSent ? 'sent' : 'pending',
+        message: wasSent
+          ? 'Message delivered successfully'
+          : 'Message was processed but not confirmed as sent',
         data: response.data
       });
-    } else {
-      throw new Error(response.data?.message || 'Failed to send message');
     }
 
+    return res.status(502).json({
+      success: false,
+      error: 'Unexpected response from WhatsApp API',
+      data: response.data
+    });
+
   } catch (error) {
-    console.error("Error sending message:", error.message);
-    res.status(500).json({
+    // Log more details to aid debugging
+    console.error("Error sending message:", {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data
+    });
+
+    return res.status(500).json({
       success: false,
       error: error.response?.data?.message || error.message
     });
   }
 });
+
 
 router.post("/send-wp", async (req, res) => {
   console.log("📥 Incoming WhatsApp Request Body:", req.body);

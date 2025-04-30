@@ -434,7 +434,7 @@ const CourseForms = () => {
               {/* Popup Modal */}
               {showPopup && (
                 <div className="popup-overlay">
-                  <div className="popup">
+                  <div className="forms-popup">
                     <span
                       className="popup-close"
                       onClick={() => setShowPopup(false)}
