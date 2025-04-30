@@ -62,6 +62,8 @@
     "rate_enquiry": "Оценить запрос",
     "submit_rating": "Отправить оценку",
     "upload_file": "Загрузить файл",
+    "update": "Запрос на обновление",
+    "subject_placeholder": "Введите свою тему",
     "remove": "Удалить",
     "submit_enquiry": "Отправить запрос",
     "enquiry_message_placeholder": "Введите ваше сообщение",
