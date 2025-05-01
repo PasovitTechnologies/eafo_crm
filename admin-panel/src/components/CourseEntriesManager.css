@@ -129,6 +129,8 @@
 
 /* 📚 Course Row with Hover Effect */
 .course-details-row {
+  display: flex;
+  justify-content: space-between;
   background: #ffffff;
   border-radius: 5px;
   padding: 20px;
@@ -150,6 +152,16 @@
 .course-details-row h3 {
   margin: 0;
   font-size: 18px;
+}
+
+.course-entries-count{
+  background-color: #f3f3f3;
+  border-radius: 10px;
+}
+.course-entries-count p{
+  font-weight: bold;
+  font-size: 20px;
+  padding: 10px 20px;
 }
 
 /* ✅ Loading and Error Styles */

@@ -81,17 +81,38 @@
 /* 🌟 Profile Section */
 .profile-div {
   position: relative;
-  grid-row: span 2;
+  grid-row: span 1;
   background: #ffffff;
   display: flex;
-  align-items: flex-start;
   justify-content: center;
-  padding: 30px;
+  padding: 5cqh;
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
   z-index: 2;
   overflow: hidden; /* ✅ Ensures glare effect stays within bounds */
+}
+/* 🌟 Second Profile Info Box */
+.document {
+  grid-column: 1; /* Place in first column under ProfileItem */
+  background: #ffffff;
+  grid-row: 2;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  font-size: 16px;
+  color: #033672;
+}
+.document h3 {
+  margin-bottom: 10px;
+}
+.document p {
+  margin: 4px 0;
+  color: #555;
 }
 
 /* 🌟 Edit Button */
@@ -141,8 +162,8 @@
 
 /* 🌟 Profile Image Container */
 .profile-image-container {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   overflow: hidden;
   border: 4px solid #3498db;
@@ -180,11 +201,9 @@
 
 /* 🌟 Welcome Message with Animation */
 .profile-welcome {
-  font-size: 22px;
   font-weight: bold;
   color: #033672;
   text-align: center;
-  margin-bottom: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -193,8 +212,8 @@
   animation: fadeInUp 1s forwards;
 }
 
-.profile-welcome span {
-  font-size: 26px;
+.profile-welcome{
+  font-size: 18px;
 }
 
 /* 🌟 Animation Keyframes */
@@ -308,6 +327,9 @@
 }
 .profile-text{
   width: 100%;
+}
+.webinars-content h3{
+  color: #033672;
 }
 
 /* Main container for courses item */
@@ -713,6 +735,9 @@
 .social-icon.whatsapp {
   background-color: #25D366;
 }
+.webinar-details h4{
+  font-size: 16px;
+}
 
 @media (max-width: 768px) {
   .dashboard-page {
@@ -755,6 +780,7 @@
     grid-column: span 1;
     grid-row: span 1;
   }
+  
 }
 @media (max-width: 480px) {
   .dashboard-grid {

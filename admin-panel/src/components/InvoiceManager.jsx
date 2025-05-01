@@ -155,12 +155,20 @@ const InvoiceManager = () => {
           filteredCourses.map((course) => (
             <div
               key={course._id}
-              className="invoice-course-card"
+              className="invoice-course-card invoice-card"
               onClick={() => handleCourseClick(course._id)}
             >
-              <h3 className="invoice-course-name">{currentLanguage === "ru"? course.nameRussian : course.name}</h3>
-            
+              
+            <div style={{display:"inline"}}>
+              <h2  className="invoice-course-name">{currentLanguage === "ru"? course.nameRussian : course.name}</h2>
             </div>
+              
+              <div className="invoice-entries-count">
+                <p>{course.payments.length}</p>
+                
+              </div>
+            </div>
+           
           ))
         ) : (
           <p>{t("invoiceManager.noCourses")}</p>

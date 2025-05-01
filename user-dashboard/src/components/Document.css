@@ -1,0 +1,378 @@
+/* Base Styles */
+.document-upload-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+    color: #2d3748;
+  }
+  
+  .document-upload-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  
+  .document-upload-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a365d;
+    margin-bottom: 0.5rem;
+  }
+  
+  .subtitle {
+    font-size: 1rem;
+    color: #4a5568;
+  }
+  
+  /* File Upload Cards */
+  .file-upload-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #e2e8f0;
+    transition: box-shadow 0.2s ease;
+  }
+  
+  .file-upload-card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .file-upload-header h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #2d3748;
+  }
+  
+  .file-description {
+    font-size: 0.875rem;
+    color: #4a5568;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  
+  .file-upload-content {
+    margin-top: 1rem;
+  }
+  
+  /* File Upload Empty State */
+  .file-upload-empty {
+    border: 2px dashed #cbd5e0;
+    border-radius: 8px;
+    padding: 2rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .file-upload-empty:hover {
+    border-color: #90cdf4;
+    background-color: #f8fafc;
+  }
+  
+  .upload-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .upload-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ebf8ff;
+    border-radius: 50%;
+    margin-bottom: 1rem;
+  }
+  
+  .upload-label span {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 0.25rem;
+  }
+  
+  .file-requirements {
+    font-size: 0.75rem;
+    color: #718096;
+  }
+  
+  /* File Preview */
+  .file-preview {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .file-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .file-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #2d3748;
+    flex: 1;
+    min-width: 200px;
+  }
+  
+  .file-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+  
+  .preview-img {
+    max-height: 80px;
+    border-radius: 4px;
+    margin-right: 1rem;
+  }
+  
+  /* Action Buttons */
+  .action-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  .action-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .view-btn {
+    background-color: #38a169;
+    color: white;
+  }
+  
+  .view-btn:hover {
+    background-color: #2f855a;
+  }
+  
+  .download-btn {
+    background-color: #3182ce;
+    color: white;
+  }
+  
+  .download-btn:hover {
+    background-color: #2c5282;
+  }
+  
+  .replace-btn {
+    background-color: #e2e8f0;
+    color: #4a5568;
+  }
+  
+  .replace-btn:hover {
+    background-color: #cbd5e0;
+  }
+  
+  .remove-btn {
+    background-color: #e53e3e;
+    color: white;
+  }
+  
+  .remove-btn:hover {
+    background-color: #c53030;
+  }
+  
+  /* Language Certificate Options */
+  .language-cert-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1rem 0;
+  }
+  
+  .language-cert-option {
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  
+  .language-cert-option:hover {
+    border-color: #90cdf4;
+  }
+  
+  .language-cert-option.active {
+    border-color: #4299e1;
+    background-color: #ebf8ff;
+  }
+  
+  .option-radio {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+  
+  .option-radio input {
+    margin: 0;
+  }
+  
+  .option-radio label {
+    font-weight: 500;
+    color: #2d3748;
+    cursor: pointer;
+  }
+  
+  .option-description {
+    font-size: 0.75rem;
+    color: #4a5568;
+    margin-left: 1.5rem;
+  }
+  
+  /* URL Input */
+  .url-input-container {
+    margin-top: 1rem;
+  }
+  
+  .url-input-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 0.25rem;
+  }
+  
+  .url-input-field {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease;
+  }
+  
+  .url-input-field:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+  }
+  
+  .url-input-hint {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-top: 0.25rem;
+  }
+  
+  /* Referral Section */
+  .referral-section {
+    margin: 1.5rem 0;
+  }
+  
+  .referral-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4a5568;
+    margin-bottom: 0.25rem;
+  }
+  
+  .referral-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease;
+  }
+  
+  .referral-input:focus {
+    outline: none;
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+  }
+  
+  /* Submit Button */
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .submit-btn {
+    background-color: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .submit-btn:hover {
+    background-color: #2c5282;
+  }
+  
+  .submit-btn:disabled {
+    background-color: #a0aec0;
+    cursor: not-allowed;
+  }
+  
+  /* Loading State */
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+  
+  .spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #ffffff;
+    animation: spin 1s ease-in-out infinite;
+  }
+  .saved-referral-note {
+    font-size: 0.75rem;
+    color: #4a5568;
+    margin-top: 0.25rem;
+    font-style: italic;
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 640px) {
+    .document-upload-container {
+      padding: 1rem;
+    }
+    
+    .file-actions {
+      width: 100%;
+      justify-content: flex-end;
+    }
+    
+    .file-name {
+      min-width: 100%;
+      margin-bottom: 0.5rem;
+    }
+  }

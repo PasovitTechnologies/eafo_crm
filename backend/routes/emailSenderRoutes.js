@@ -130,7 +130,7 @@ router.post("/send", async (req, res) => {
     // Prepare and Send Email
     const { title, firstName, middleName, lastName } = user.personalDetails || {};
 
-    const isRussian = currency === "RUP";
+    const isRussian = currency === "RUB";
     const fullName = isRussian
       ? `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()
       : `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
@@ -238,7 +238,7 @@ router.post("/send-email", async (req, res) => {
 
     // 📧 Prepare and Send Email
     const { title, firstName, middleName, lastName } = user.personalDetails || {};
-    const isRussian = currency === "RUP";
+    const isRussian = currency === "RUB";
 
     const fullName = isRussian
       ? `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()

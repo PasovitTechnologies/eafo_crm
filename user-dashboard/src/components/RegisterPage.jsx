@@ -311,7 +311,7 @@ const personalDataText =
   return (
     <form className="register-form" onSubmit={handleSubmit}>
 
-<ToastContainer position="top-right"/>
+<ToastContainer className="toast-container" position="top-right"/>
       <h1>{t("registerPage.register")}</h1>
 
       {/* Title */}

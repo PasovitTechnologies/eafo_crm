@@ -42,8 +42,8 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     {
       id: "stripe",
       name: "Stripe",
-      currencies: ["USD", "EUR", "INR"],
-      defaultCurrency: "USD",
+      currencies: ["INR"],
+      defaultCurrency: "INR",
     },
     {
       id: "alfabank",
@@ -55,7 +55,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
 
   useEffect(() => {
     if (isOpen && submission) {
-      const currency = submission.currency || "USD";
+      const currency = submission.currency || "INR";
 
       setItems(
         submission.package && submission.amount
@@ -70,7 +70,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       );
 
       // Set initial payment method based on currency
-      if (currency === "RUP") {
+      if (currency === "RUB") {
         setSelectedMethod("alfabank");
       } else if (currency === "INR") {
         setSelectedMethod("stripe");
@@ -139,7 +139,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   const addNewItem = () => {
     setItems([
       ...items,
-      { name: "", amount: 0, currency: items[0]?.currency || "USD" },
+      { name: "", amount: 0, currency: items[0]?.currency || "INR" },
     ]);
   };
 
@@ -151,7 +151,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     (sum, item) => sum + (Number(item.amount) || 0),
     0
   );
-  const currency = items[0]?.currency || "USD";
+  const currency = items[0]?.currency || "INR";
 
   const handlePayment = async () => {
     if (!submission.email || items.length === 0 || totalAmount <= 0) {
@@ -167,7 +167,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   
     const orderDetails = {
       amount: totalAmount,
-      currency: selectedMethod === "stripe" ? "INR" : "RUP",
+      currency: selectedMethod === "stripe" ? "INR" : "RUB",
       email: submission.email,
       course: items.map((item) => item.name).join(", "),
       returnUrl: "http://localhost:3000/payment-success",
@@ -394,7 +394,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     setItems(
       items.map((item) => ({
         ...item,
-        currency: method === "stripe" ? "INR" : "RUP",
+        currency: method === "stripe" ? "INR" : "RUB",
       }))
     );
   };

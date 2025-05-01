@@ -148,8 +148,8 @@ router.post("/:courseId/items", authenticateJWT, async (req, res) => {
     return res.status(400).json({ message: "Item name, amount, and currency are required" });
   }
 
-  if (!["INR", "RUP"].includes(currency.toUpperCase())) {
-    return res.status(400).json({ message: "Invalid currency type. Allowed: INR, RUP" });
+  if (!["INR", "RUB"].includes(currency.toUpperCase())) {
+    return res.status(400).json({ message: "Invalid currency type. Allowed: INR, RUB" });
   }
 
   try {
@@ -190,7 +190,7 @@ router.put("/:courseId/items/:itemId", authenticateJWT, async (req, res) => {
     // Update fields only if provided
     if (name) item.name = name;
     if (amount !== undefined) item.amount = amount;
-    if (currency && ["INR", "RUP"].includes(currency.toUpperCase())) {
+    if (currency && ["INR", "RUB"].includes(currency.toUpperCase())) {
       item.currency = currency.toUpperCase();
     }
 

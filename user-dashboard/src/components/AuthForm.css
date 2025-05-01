@@ -21,7 +21,10 @@
 }
 
 /* ✅ Add styles for the logo */
-
+.toast-container{
+    z-index: 100;
+    margin-top: 70px;
+}
 
   
 
@@ -40,8 +43,7 @@
     border-radius: 30px;
     box-shadow: 0 0 30px rgba(0, 0, 0, .2);
     overflow: hidden;
-    z-index: inherit;
-
+    z-index: 0;
 }
 
 .form-box {
@@ -533,6 +535,7 @@
     border-radius: 6px;
     font-size: 14px;
     transition: all 0.3s ease;
+    
 }
 
 .input-box .react-tel-input .form-control:focus {
@@ -542,9 +545,15 @@
 }
 
 .input-box .react-tel-input .flag-dropdown {
-    background: #f8f9fa;
+    background: transparent;
     border: 1px solid #e0e0e0;
     border-radius: 6px 0 0 6px;
+    width: 60px;
+    border-right: none;
+}
+
+.input-box .react-tel-input .flag-dropdown:hover {
+    border-right: none;
 }
 
 /* =============== CHECKBOXES & LINKS =============== */

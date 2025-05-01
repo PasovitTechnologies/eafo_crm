@@ -143,7 +143,7 @@ const LoginPage = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
         width:"100%"
       }}
     >
-      <ToastContainer style={{ color: "#fff" }} />
+      <ToastContainer className="toast-container" style={{ color: "#fff" }} />
       <form
         onSubmit={handleSubmit}
         className="login-form"

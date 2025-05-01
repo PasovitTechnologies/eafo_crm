@@ -590,7 +590,7 @@ const CourseDetail = () => {
         />
         <select name="currency" value={formData.currency} onChange={handleChange}>
           <option value="INR">INR</option>
-          <option value="RUP">RUP</option>
+          <option value="RUB">RUB</option>
         </select>
         </div>
         <button onClick={handleSubmit} className="item-form-save-btn">{t("courseDetail.save")}</button>

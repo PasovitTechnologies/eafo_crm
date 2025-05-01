@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import "./i18n";
+import Document from "./components/Document";
 
 // ✅ Lazy-loaded components
 const MainPage = lazy(() => import("./components/MainPage"));
@@ -164,6 +165,12 @@ const App = () => {
               path="/dashboard/about"
               element={
                 <PrivateRoute element={<><AutoRedirect /><About /></>} />
+              }
+            />
+            <Route
+              path="/dashboard/document"
+              element={
+                <PrivateRoute element={<><AutoRedirect /><Document /></>} />
               }
             />
 

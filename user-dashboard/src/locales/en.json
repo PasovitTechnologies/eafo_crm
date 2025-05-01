@@ -10,6 +10,7 @@
   "submitting": "Submitting...",
   "notifications" : "Notifications",
   "no_notifications" : "No new notifications",
+  "document": "Document",
   
   "enquiry": {
     
@@ -508,7 +509,66 @@
   "type": "Type:",
   "download": "Download",
   "close": "Close"
-}
+},
+
+
+  "documentUpload": {
+    "title": "Document Submission",
+    "subtitle": "Upload all required documents for your application",
+    "loading": "Loading your uploaded documents...",
+    "passport": {
+      "label": "Passport Copy",
+      "description": "For verification of your age and identity"
+    },
+    "motivation": {
+      "label": "Motivation Letter",
+      "description": "Write why you would like to take part in the Basic Courses and how the knowledge gained during the Courses can influence your professional life. It is encouraged to write in English to demonstrate language proficiency."
+    },
+    "resume": {
+      "label": "Resume/CV",
+      "description": "Your professional resume or curriculum vitae (English or Russian)"
+    },
+    "academicCertificates": {
+      "label": "Academic Certificates",
+      "description": "Copies of your academic records, diplomas, or certificates of participation in competitions and conferences"
+    },
+    "languageProficiency": {
+      "label": "Language Proficiency",
+      "description": "Provide proof of your language proficiency",
+      "uploadOption": "Upload Certificate",
+      "uploadDescription": "Upload your language certificate as a PDF file",
+      "linkOption": "Provide Results Link",
+      "linkDescription": "Insert a link to the official exam results website"
+    },
+    "referral": {
+      "label": "How did you hear about us?",
+      "placeholder": "e.g., Friend, University, Social Media...",
+      "savedNote": "Previously saved: {referral}"
+    },
+    "upload": {
+      "prompt": "Click to upload or drag and drop",
+      "requirements": "Accepted formats: {formats}",
+      "maxSize": "Max file size: {size}MB"
+    },
+    "actions": {
+      "view": "View",
+      "download": "Download",
+      "replace": "Replace",
+      "remove": "Remove",
+      "submit": "Submit Documents",
+      "submitting": "Submitting..."
+    },
+    "errors": {
+      "required": "{field} is required",
+      "fileType": "Invalid file type. Accepted formats: {formats}",
+      "fileSize": "File too large. Max size: {size}MB"
+    },
+    "certificatePdf": {
+      "label": "Language Certificate",
+      "description": "Upload your language proficiency certificate"
+    }
+  }
+
 
   
   

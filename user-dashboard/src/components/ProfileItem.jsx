@@ -141,7 +141,6 @@ const ProfileItem = ({ user, expandingSection, setExpandingSection }) => {
               </motion.p>
             )}
           </AnimatePresence>
-          <p className="profile-university">{user?.professionalDetails?.university || "Guest"}</p>
         </div>
       </motion.div>
 

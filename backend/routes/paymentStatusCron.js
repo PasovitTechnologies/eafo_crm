@@ -62,7 +62,7 @@ const checkPendingPayments = async () => {
           console.log(`🔎 Found pending payment _id: ${payment._id}, orderId: ${payment.paymentId || 'MISSING'}`);
 
           // Only check AlfaBank API for payments with currency 'RUP'
-          if (payment.currency === 'RUP' && payment.paymentId) {
+          if (payment.currency === 'RUB' && payment.paymentId) {
             try {
               console.log(`📝 Sending request to AlfaBank API to check status for payment ID: ${payment.paymentId}`);
 

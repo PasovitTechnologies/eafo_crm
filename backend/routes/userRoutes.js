@@ -7,8 +7,22 @@ const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const axios = require("axios");
+const mongoose = require("mongoose");
+const { GridFSBucket } = require("mongodb");
+const crypto = require("crypto");
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
+
+
+
+
+
+let gfs;
+mongoose.connection.once('open', () => {
+  gfs = new GridFSBucket(mongoose.connection.db, {
+    bucketName: 'fs'
+  });
+});
 
 // 🛑 Store Admin Credentials Securely (Passwords are Hashed)
 const adminCredentials = [
@@ -202,6 +216,180 @@ router.post("/", async (req, res) => {
         res.status(500).json({ message: "Internal server error." });
     }
 });
+
+
+router.put(
+  "/:email/documents",
+  upload.fields([
+    { name: "passport" },
+    { name: "motivation" },
+    { name: "resume" },
+    { name: "academicCertificates" },
+    { name: "certificatePdf" },
+  ]),
+  async (req, res) => {
+    try {
+      const email = req.params.email;
+      const { certificateLink = "", referral = "" } = req.body;
+
+      const user = await User.findOne({ email });
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const uploadFileToGridFS = async (fieldName) => {
+        const file = req.files?.[fieldName]?.[0];
+        if (!file) return null;
+
+        const fileName = `${Date.now()}-${crypto.randomBytes(6).toString("hex")}-${file.originalname}`;
+
+        return new Promise((resolve, reject) => {
+          const writeStream = gfs.openUploadStream(fileName, {
+            contentType: file.mimetype,
+            metadata: {
+              fieldName,
+              uploadedBy: email,
+            },
+          });
+
+          writeStream.end(file.buffer);
+
+          writeStream.on("finish", async () => {
+            try {
+              const uploadedFile = await mongoose.connection.db
+                .collection("fs.files")
+                .findOne({ filename: fileName });
+
+              if (!uploadedFile) {
+                return reject(new Error("Uploaded file not found in fs.files"));
+              }
+
+              console.log("✅ Uploaded:", {
+                field: fieldName,
+                fileId: uploadedFile._id,
+                fileName: uploadedFile.filename,
+                size: uploadedFile.length,
+              });
+
+              resolve({
+                fileId: uploadedFile._id,
+                fileName: uploadedFile.filename,
+                contentType: uploadedFile.contentType,
+                size: uploadedFile.length,
+                uploadDate: uploadedFile.uploadDate,
+              });
+            } catch (dbErr) {
+              reject(dbErr);
+            }
+          });
+
+          writeStream.on("error", reject);
+        });
+      };
+
+      const fileFields = [
+        "passport",
+        "motivation",
+        "resume",
+        "academicCertificates",
+        "certificatePdf",
+      ];
+
+      const updatedDocs = {
+        ...user.documents,
+        certificateLink,
+        referral,
+        uploadedAt: new Date(),
+      };
+
+      for (const field of fileFields) {
+        const uploaded = await uploadFileToGridFS(field);
+        if (uploaded) {
+          // Delete previous file from GridFS if it exists
+          const previousFileId = user.documents?.[field]?.fileId;
+          if (previousFileId) {
+            try {
+              await gfs.delete(new mongoose.Types.ObjectId(previousFileId));
+              console.log(`🗑️ Deleted old ${field} file from GridFS`);
+            } catch (delErr) {
+              console.warn(`⚠️ Could not delete old ${field}:`, delErr.message);
+            }
+          }
+
+          updatedDocs[field] = uploaded;
+        }
+      }
+
+      user.documents = updatedDocs;
+      await user.save();
+
+      res.status(200).json({
+        message: "Documents uploaded successfully.",
+        documents: updatedDocs,
+      });
+    } catch (err) {
+      console.error("❌ Upload error:", err);
+      res.status(500).json({
+        message: "Failed to upload documents",
+        error: err.message,
+      });
+    }
+  }
+);
+
+
+
+
+router.get("/file/:fileId", async (req, res) => {
+  try {
+    const fileId = new mongoose.Types.ObjectId(req.params.fileId);
+
+    const file = await mongoose.connection.db
+      .collection("fs.files")
+      .findOne({ _id: fileId });
+      console.log("Trying to retrieve file with ID:", fileId.toString());
+
+
+    if (!file) {
+      return res.status(404).json({ message: "File not found" });
+    }
+
+    res.set("Content-Type", file.contentType || "application/octet-stream");
+    res.set("Content-Disposition", `inline; filename="${file.filename}"`);
+
+    const downloadStream = new mongoose.mongo.GridFSBucket(
+      mongoose.connection.db,
+      { bucketName: "fs" }
+    ).openDownloadStream(fileId);
+
+    downloadStream.pipe(res);
+
+    downloadStream.on("error", (err) => {
+      console.error("❌ Stream error:", err);
+      res.status(500).end();
+    });
+  } catch (err) {
+    console.error("❌ Retrieval error:", err);
+    res.status(500).json({ message: "Error retrieving file", error: err.message });
+  }
+});
+
+
+router.get('/:email/documents', async (req, res) => {
+  try {
+    const { email } = req.params;
+    const user = await User.findOne({ email });
+
+    if (!user || !user.documents) {
+      return res.status(404).json({ message: 'No documents found' });
+    }
+
+    res.json({ documents: user.documents });
+  } catch (error) {
+    console.error("Error fetching user documents:", error);
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
 
 
 router.post("/validate", async (req, res) => {

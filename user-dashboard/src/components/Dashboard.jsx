@@ -9,6 +9,7 @@ import PaymentsItem from "./PaymentsItem";
 import AboutItem from "./AboutItem";
 import ContactItem from "./ContactItem";
 import Loading from "./Loading";
+import DocumentItem from "./DocumentItem";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -103,6 +104,14 @@ const Dashboard = () => {
           expandingSection={expandingSection}
           setExpandingSection={setExpandingSection}
         />
+
+        <DocumentItem
+          user={user}
+          selectedFile={selectedFile}
+          expandingSection={expandingSection}
+          setExpandingSection={setExpandingSection}
+        />
+        
 
         <CoursesItem
           expandingSection={expandingSection}

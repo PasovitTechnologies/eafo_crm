@@ -27,12 +27,14 @@
 
 /* 📦 Course Card */
 .invoice-course-card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   padding: 20px;
   border: 1px solid #ddd;
   border-radius: 12px;
   background-color: #fff;
   display: flex;
-  flex-direction: column;
   gap: 10px;
   transition: box-shadow 0.3s ease;
   margin-bottom: 15px;
@@ -47,6 +49,15 @@
   color: #000;
   font-size: 16px;
   font-weight: 600;
+}
+.invoice-entries-count{
+  background-color: #f3f3f3;
+  border-radius: 10px;
+}
+.invoice-entries-count p{
+  font-weight: bold;
+  font-size: 20px;
+  padding: 10px 20px;
 }
 
 /* 📝 Forms Section */

@@ -1,5 +1,24 @@
 const mongoose = require("mongoose");
 
+const fileSchema = new mongoose.Schema({
+  fileId: mongoose.Schema.Types.ObjectId,
+  fileName: String,
+  contentType: String,
+  size: Number,
+  uploadDate: Date,
+}, { _id: false });
+
+const documentSchema = new mongoose.Schema({
+  passport: fileSchema,
+  motivation: fileSchema,
+  resume: fileSchema,
+  academicCertificates: fileSchema,
+  certificatePdf: fileSchema,
+  certificateLink: String,
+  referral: String,
+  uploadedAt: { type: Date, default: Date.now }
+}, { _id: false });
+
 const userSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true },
@@ -34,6 +53,7 @@ const userSchema = new mongoose.Schema(
       profession: { type: String },
       position: { type: String },
     },
+    documents: documentSchema,
 
     // Webinars Section
     webinars: [
