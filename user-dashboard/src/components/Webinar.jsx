@@ -166,6 +166,10 @@ const Webinar = () => {
 
   const formatSlug = (title) => title.toLowerCase().replace(/\s+/g, "-");
 
+  const handleGoBack = () => {
+    navigate("/dashboard", { replace: true });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -181,6 +185,7 @@ const Webinar = () => {
           type="button"
           className="back-icon-button"
           aria-label={t("forgetPasswordPage.backToLogin")}
+          onClick={handleGoBack}
           >
                         <FaArrowLeft />
                       </button>

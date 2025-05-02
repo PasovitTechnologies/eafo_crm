@@ -306,6 +306,30 @@ const CourseDetails = () => {
 
   console.log(submissionDetails);
 
+  if (loading) {
+    return (
+      <div className="course-details-page loading-skeleton-page">
+        <div className="skeleton-title shimmer" />
+        <div className="skeleton-banner shimmer" />
+        <div className="skeleton-title shimmer" />
+        <div className="skeleton-description shimmer" />
+        <div className="skeleton-dates">
+          <div className="skeleton-date shimmer" />
+          <div className="skeleton-date shimmer" />
+        </div>
+        <div className="skeleton-form-list">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div className="skeleton-form-card shimmer" key={index}>
+              <div className="skeleton-form-name shimmer" />
+              <div className="skeleton-form-btn shimmer" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  
+
   return (
     <motion.div
       className="course-details-page-div"
@@ -329,7 +353,7 @@ const CourseDetails = () => {
           </span>
         </div>
 
-        {loading && <p>{t("course_details.loading")}</p>}
+        
         {error && <p className="error">{error}</p>}
 
         {course && (

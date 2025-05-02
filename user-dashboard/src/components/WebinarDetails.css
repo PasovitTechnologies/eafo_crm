@@ -28,6 +28,145 @@
     padding: 1rem;
     font-family: "Raleway", sans-serif;
   }
+
+  .webinar-details-skeleton {
+    padding: 2rem;
+    margin: auto;
+    max-width: 1200px;
+  }
+  
+  .skeleton-banner {
+    width: 100%;
+    height: 200px;
+    background: #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+  }
+  
+  .skeleton-title {
+    width: 60%;
+    height: 24px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
+  
+  .skeleton-description {
+    width: 100%;
+    height: 60px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 2rem;
+  }
+  
+  .skeleton-expert-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .skeleton-expert-info {
+    flex: 1;
+  }
+  
+  .skeleton-line {
+    height: 16px;
+    width: 80%;
+    background: #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 10px;
+  }
+  
+  .skeleton-line.short {
+    width: 50%;
+  }
+  
+  .skeleton-expert-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: #e0e0e0;
+  }
+  
+  .skeleton-button {
+    width: 180px;
+    height: 40px;
+    background: #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+  }
+  
+  .skeleton-subtitle {
+    width: 30%;
+    height: 20px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
+  
+  .skeleton-other-webinars {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .skeleton-webinar-card {
+    width: 250px;
+    background: #f9f9f9;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  }
+  
+  .skeleton-webinar-img {
+    width: 100%;
+    height: 120px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
+  
+  .skeleton-webinar-text {
+    width: 70%;
+    height: 16px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .skeleton-webinar-sub {
+    width: 60%;
+    height: 14px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
+  
+  .skeleton-webinar-button {
+    width: 100%;
+    height: 30px;
+    background: #e0e0e0;
+    border-radius: 6px;
+  }
+  
+  /* ✨ Shimmer animation */
+  .shimmer {
+    background: linear-gradient(90deg, #f0f0f0, #e0e0e0, #f0f0f0);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
   
   /* Breadcrumb */
   .breadcrumb {

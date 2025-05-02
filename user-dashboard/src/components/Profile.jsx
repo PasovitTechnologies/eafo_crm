@@ -28,7 +28,7 @@ registerLocale("ru", ru);
 
 const Profile = () => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
   const [image, setImage] = useState(null);
@@ -76,33 +76,32 @@ const Profile = () => {
     const fetchUser = async () => {
       const token = localStorage.getItem("token");
       if (!token) return;
-
+  
       try {
-        const response = await fetch(`${baseUrl}/api/user/${userEmail}`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) throw new Error("Failed to fetch user data");
-
-        const data = await response.json();
-
-        // Format phone number before setting state
+        const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+        const [res] = await Promise.all([
+          fetch(`${baseUrl}/api/user/${userEmail}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+          delay(1000), // 🔁 force 2-second loading
+        ]);
+  
+        if (!res.ok) throw new Error("Failed to fetch user data");
+  
+        const data = await res.json();
+  
         if (data?.personalDetails?.phone) {
-          data.personalDetails.phone = formatPhoneNumber(
-            data.personalDetails.phone
-          );
+          data.personalDetails.phone = formatPhoneNumber(data.personalDetails.phone);
         }
-
+  
         setUser(data);
         setUserDetails(data);
-
-        const imageResponse = await fetch(
-          `${baseUrl}/api/user/image/${userEmail}`
-        );
+  
+        const imageResponse = await fetch(`${baseUrl}/api/user/image/${userEmail}`);
         if (imageResponse.ok) {
           const imageBlob = await imageResponse.blob();
           const imageUrl = URL.createObjectURL(imageBlob);
@@ -110,11 +109,14 @@ const Profile = () => {
         }
       } catch (err) {
         console.error("Error fetching user:", err.message);
+      } finally {
+        setIsLoading(false);
       }
     };
-
+  
     fetchUser();
   }, [userEmail]);
+  
 
   const handleSaveChanges = async () => {
     const token = localStorage.getItem("token");
@@ -304,6 +306,41 @@ const Profile = () => {
     setShowHelpPopup(!showHelpPopup);
   };
 
+  if (isLoading) {
+    return (
+      <div className="profile-page">
+        <div className="profile-container">
+          <div className="profile-grid">
+            <div className="profile-header-div">
+              <div className="skeleton-avatar-image shimmer" />
+              <div className="skeleton-line short shimmer" />
+              <div className="skeleton-line shimmer" />
+            </div>
+  
+            <div className="profile-section">
+              <div className="skeleton-section-title shimmer" />
+              <div className="profile-info-grid">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="skeleton-line shimmer" />
+                ))}
+              </div>
+            </div>
+  
+            <div className="profile-section">
+              <div className="skeleton-section-title shimmer" />
+              <div className="profile-info-grid">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="skeleton-line shimmer" />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+
   return (
     <div className="profile-page">
       {showHelpPopup && <ProfileHelp onClose={toggleHelpPopup} />}
@@ -345,39 +382,50 @@ const Profile = () => {
               )}
             </div>
             <motion.div
-              className="profile-image-wrapper"
-              initial={{ opacity: 0, scale: 1.1 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1 }}
-              onMouseEnter={() => setHover(true)}
-              onMouseLeave={() => setHover(false)}
-              onClick={() => fileInputRef.current.click()}
-            >
-              <img
-                src={
-                  image ||
-                  "https://static.wixstatic.com/media/df6cc5_dc3fb9dd45a9412fb831f0b222387da1~mv2.jpg"
-                }
-                alt="Profile"
-                className="profile-image"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src =
-                    "https://static.wixstatic.com/media/df6cc5_dc3fb9dd45a9412fb831f0b222387da1~mv2.jpg";
-                }}
-              />
+  className="profile-image-wrapper"
+  title="Please upload a clear photo. This will be used for event profiles."
+  initial={{ opacity: 0, scale: 1.1 }}
+  animate={{ opacity: 1, scale: 1 }}
+  transition={{ duration: 1 }}
+  onMouseEnter={() => setHover(true)}
+  onMouseLeave={() => setHover(false)}
+  onClick={() => fileInputRef.current.click()}
+>
+  <img
+    src={
+      image ||
+      "https://static.wixstatic.com/media/df6cc5_dc3fb9dd45a9412fb831f0b222387da1~mv2.jpg"
+    }
+    alt="Profile"
+    className="profile-image"
+    onError={(e) => {
+      e.target.onerror = null;
+      e.target.src =
+        "https://static.wixstatic.com/media/df6cc5_dc3fb9dd45a9412fb831f0b222387da1~mv2.jpg";
+    }}
+  />
 
-              {hover && (
-                <div className="upload-overlay">{t("profile.uploadImage")}</div>
-              )}
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                onChange={handleImageUpload}
-                accept="image/*"
-              />
-            </motion.div>
+{hover && (
+    <>
+      <div className="upload-overlay">{t("profile.uploadImage")}</div>
+    </>
+  )}
+
+{hover && (
+  <div className="tooltip-bubble">
+    {t("profile.uploadTooltip", "Please upload a clear photo. This will be used for event profiles.")}
+  </div>
+)}
+
+  <input
+    type="file"
+    ref={fileInputRef}
+    style={{ display: "none" }}
+    onChange={handleImageUpload}
+    accept="image/*"
+  />
+</motion.div>
+
 
             {/* Name & Profession */}
             <div className="profile-name-profession">

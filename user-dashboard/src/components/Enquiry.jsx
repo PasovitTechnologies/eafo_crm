@@ -357,6 +357,12 @@ const Enquiry = () => {
     setShowHelpPopup(!showHelpPopup);
   };
 
+  const handleGoBack = () => {
+    navigate("/dashboard", { replace: true });
+  };
+
+  
+
   return (
     <motion.div
       className="enquiry-container"
@@ -387,6 +393,7 @@ const Enquiry = () => {
                         type="button"
                         className="back-icon-button"
                         aria-label={t("forgetPasswordPage.backToLogin")}
+                        onClick={handleGoBack}
                       >
                         <FaArrowLeft />
                       </button>
@@ -430,7 +437,18 @@ const Enquiry = () => {
 
             <div className="enquiry-list">
               {loading ? (
-                <p>{t("enquiry.loading")}</p>
+  <div className="enquiry-loading-skeletons">
+    {Array.from({ length: 9 }).map((_, index) => (
+      <div key={index} className="enquiry-skeleton-card shimmer">
+        <div className="skeleton-header" />
+        <div className="skeleton-file" />
+        <div className="skeleton-footer">
+          <div className="skeleton-status" />
+          <div className="skeleton-rating" />
+        </div>
+      </div>
+    ))}
+  </div>
               ) : error ? (
                 <p className="error">{error}</p>
               ) : filteredEnquiries.length === 0 ? (

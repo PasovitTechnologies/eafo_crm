@@ -8,6 +8,95 @@
 
 }
 
+.loading-skeleton-page {
+  padding: 2rem;
+  margin: auto;
+}
+
+.skeleton-banner {
+  width: 100%;
+  height: 500px;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.skeleton-title {
+  width: 50%;
+  height: 24px;
+  background-color: #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.skeleton-description {
+  width: 100%;
+  height: 70px;
+  background-color: #e0e0e0;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.skeleton-dates {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.skeleton-date {
+  width: 150px;
+  height: 20px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+}
+
+.skeleton-form-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.skeleton-form-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fafafa;
+  border-radius: 10px;
+  padding: 1rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.skeleton-form-name {
+  width: 50%;
+  height: 16px;
+  background-color: #e0e0e0;
+  border-radius: 6px;
+}
+
+.skeleton-form-btn {
+  width: 120px;
+  height: 32px;
+  background-color: #e0e0e0;
+  border-radius: 6px;
+}
+
+/* Shimmer animation */
+.shimmer {
+  background: linear-gradient(90deg, #f4f4f4, #e0e0e0, #f4f4f4);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+
 .course-details-page {
   width: 100%;
   max-width: 1200px;

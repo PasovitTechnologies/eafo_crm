@@ -33,14 +33,14 @@ const Dashboard = () => {
 
 
   useEffect(() => {
-    if (!userEmail) return; // ✅ Prevents unnecessary API calls
+    if (!userEmail) return;
   
     const controller = new AbortController();
     const signal = controller.signal;
   
-    const fetchUser = async () => {
-      setLoading(true); // ✅ Ensure loading is set before fetching
+    const delay = (ms) => new Promise((res) => setTimeout(res, ms));
   
+    const fetchUser = async () => {
       const token = localStorage.getItem("token");
       if (!token) {
         setError("No authentication token found. Please log in.");
@@ -49,7 +49,9 @@ const Dashboard = () => {
       }
   
       try {
-        const response = await fetch(`${baseUrl}/api/user/${userEmail}`, {
+        setLoading(true);
+  
+        const fetchData = fetch(`${baseUrl}/api/user/${userEmail}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -58,21 +60,25 @@ const Dashboard = () => {
           signal,
         });
   
-        if (!response.ok) {
-          if (response.status === 401) {
+        const [res] = await Promise.all([fetchData, delay(1000)]); // Force minimum 2 sec
+  
+        if (!res.ok) {
+          if (res.status === 401) {
             setError("Session expired. Please log in again.");
-            localStorage.removeItem("token"); // 🔐 Clear invalid token
+            localStorage.removeItem("token");
           } else {
-            throw new Error(`Failed to fetch user data: ${response.statusText}`);
+            throw new Error(`Failed to fetch user data: ${res.statusText}`);
           }
-        } else {
-          const data = await response.json();
-          setUser(data);
+          return;
         }
+  
+        const data = await res.json();
+        setUser(data);
       } catch (err) {
-        if (err.name === "AbortError") return; // ✅ Ignore request cancellation errors
-        console.error("🚨 Error fetching user data:", err);
-        setError(err.message);
+        if (err.name !== "AbortError") {
+          console.error("🚨 Error fetching user data:", err);
+          setError(err.message);
+        }
       } finally {
         setLoading(false);
       }
@@ -80,8 +86,9 @@ const Dashboard = () => {
   
     fetchUser();
   
-    return () => controller.abort(); // Cleanup function to cancel the fetch on unmount
+    return () => controller.abort();
   }, [userEmail]);
+  
   
 
   const handleSectionClick = (section, route) => {
@@ -91,7 +98,24 @@ const Dashboard = () => {
     }, 700);
   };
 
-  if (loading) return <div className="loading"><Loading/></div>;
+  if (loading) {
+    return (
+      <div className="dashboard-page">
+        <div className="dashboard-grid">
+          {Array.from({ length: 9}).map((_, index) => (
+            <div key={index} className="dashboard-item loading-card">
+              <div className="skeleton-avatar" />
+              <div className="skeleton-line short" />
+              <div className="skeleton-line" />
+              <div className="skeleton-line" />
+              
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+  
   if (error) return <div className="error">{error}</div>;
 
   return (

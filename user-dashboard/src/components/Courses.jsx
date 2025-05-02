@@ -22,7 +22,6 @@ const Courses = () => {
   const [registeredCourses, setRegisteredCourses] = useState(new Set());
   const currentLanguage = i18n.language;
   const [showHelpPopup, setShowHelpPopup] = useState(false);
-  
 
   useEffect(() => {
     // ✅ Check if token is available in localStorage
@@ -238,6 +237,10 @@ const Courses = () => {
     setShowHelpPopup(!showHelpPopup);
   };
 
+  const handleGoBack = () => {
+    navigate("/dashboard", { replace: true });
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -245,55 +248,78 @@ const Courses = () => {
       transition={{ duration: 0.8 }}
     >
       <div className="courses-page">
-      {showHelpPopup && <CourseHelp onClose={toggleHelpPopup} />}
+        {showHelpPopup && <CourseHelp onClose={toggleHelpPopup} />}
 
         <div className="breadcrumb courses-head-container">
-          <div style={{display:"flex", gap:"20px"}}>
-          <button
+          <div style={{ display: "flex", gap: "20px" }}>
+            <button
               type="button"
               className="back-icon-button"
               aria-label={t("forgetPasswordPage.backToLogin")}
+              onClick={handleGoBack}
             >
               <FaArrowLeft />
             </button>
-          <div>
-          <span onClick={() => navigate("/dashboard")}>{t("courses.dashboard")}</span> /{" "}
-          <span>{t("courses.courses")}</span>
-          </div>
+            <div>
+              <span onClick={() => navigate("/dashboard")}>
+                {t("courses.dashboard")}
+              </span>{" "}
+              / <span>{t("courses.courses")}</span>
+            </div>
           </div>
 
           <button className="course-help-button" onClick={toggleHelpPopup}>
-          {t("courses.help")}
-        </button>
+            {t("courses.help")}
+          </button>
         </div>
-
-      
 
         {/* 🔎 Search and Filter Section */}
         <div className="course-search-filter-container">
-  <div className="course-search-input-wrapper">
-    <span className="course-search-icon">🔍</span>
-    <input
-      type="text"
-      placeholder={t("courses.search_placeholder")}
-      value={searchQuery}
-      onChange={(e) => setSearchQuery(e.target.value)}
-    />
-  </div>
+          <div className="course-search-input-wrapper">
+            <span className="course-search-icon">🔍</span>
+            <input
+              type="text"
+              placeholder={t("courses.search_placeholder")}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
 
-  <div className="course-custom-dropdown">
-    <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-      <option value="All">{t("courses.all")}</option>
-      <option value="Upcoming">{t("courses.upcoming")}</option>
-      <option value="Past">{t("courses.past")}</option>
-      <option value="Registered">{t("courses.registered")}</option>
-    </select>
-  </div>
-</div>
-
+          <div className="course-custom-dropdown">
+            <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+              <option value="All">{t("courses.all")}</option>
+              <option value="Upcoming">{t("courses.upcoming")}</option>
+              <option value="Past">{t("courses.past")}</option>
+              <option value="Registered">{t("courses.registered")}</option>
+            </select>
+          </div>
+        </div>
 
         <div className="courses-list">
-          {loading && <Loading />}
+          {loading && (
+            <div className="courses-list">
+              {Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="skeleton-course-card">
+                  {/* Left image area */}
+                  <div className="skeleton-course-image shimmer"></div>
+
+                  {/* Center text area */}
+                  <div className="skeleton-course-content">
+                    <div className="skeleton-line long shimmer"></div>
+                    <div className="skeleton-line medium shimmer"></div>
+                    <div className="skeleton-line short shimmer"></div>
+                  </div>
+
+                  {/* Right buttons */}
+                  <div className="skeleton-course-actions">
+                    <div className="skeleton-button shimmer"></div>
+                    <div className="skeleton-button shimmer"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {error && <p className="error">{error}</p>}
           {!loading && filteredCourses.length === 0 && (
             <p>{t("courses.no_results")}</p>
@@ -330,7 +356,9 @@ const Courses = () => {
 
                 <div className="course-actions">
                   <button
-                    className={`register-btn ${isRegistered ? "registered-button disabled" : ""}`}
+                    className={`register-btn ${
+                      isRegistered ? "registered-button disabled" : ""
+                    }`}
                     disabled={isRegistered}
                   >
                     {isRegistered

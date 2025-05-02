@@ -24,6 +24,48 @@
   animation: slowWaveFlow 35s infinite alternate; /* Slower wave animation */
 }
 
+
+.loading-card {
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.skeleton-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #eee, #ddd, #eee);
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.skeleton-line {
+  width: 80%;
+  height: 12px;
+  background: linear-gradient(90deg, #eee, #ddd, #eee);
+  animation: pulse 1.5s infinite ease-in-out;
+  border-radius: 6px;
+}
+
+.skeleton-line.short {
+  width: 50%;
+}
+
+@keyframes pulse {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+
 /* 🌊 Slow, smooth wave animation */
 @keyframes slowWaveFlow {
   0% {

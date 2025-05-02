@@ -6,6 +6,113 @@
     font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
     color: #2d3748;
   }
+
+  .skeleton-title,
+  .skeleton-subtitle,
+  .skeleton-section-title,
+  .skeleton-section-desc,
+  .skeleton-file-box,
+  .skeleton-cert-toggle,
+  .skeleton-url-input,
+  .skeleton-referral-input,
+  .skeleton-submit-button {
+    background: #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+  
+  .skeleton-title {
+    height: 32px;
+    width: 60%;
+  }
+  
+  .skeleton-subtitle {
+    height: 20px;
+    width: 40%;
+  }
+  
+  .skeleton-upload-card {
+    margin-bottom: 32px;
+  }
+  
+  .skeleton-section-title {
+    height: 20px;
+    width: 30%;
+  }
+  
+  .skeleton-section-desc {
+    height: 14px;
+    width: 50%;
+  }
+  
+  .skeleton-file-box {
+    height: 120px;
+    width: 100%;
+  }
+  
+  .skeleton-cert-toggle {
+    height: 40px;
+    width: 60%;
+  }
+  
+  .skeleton-url-input {
+    height: 40px;
+    width: 100%;
+  }
+  
+  .skeleton-referral-input {
+    height: 40px;
+    width: 100%;
+  }
+  
+  .skeleton-submit-button {
+    height: 48px;
+    width: 200px;
+    margin-top: 16px;
+  }
+  
+  /* shimmer effect */
+  .shimmer {
+    animation: shimmer 1.6s infinite linear;
+    background: linear-gradient(
+      to right,
+      #eeeeee 8%,
+      #dddddd 18%,
+      #eeeeee 33%
+    );
+    background-size: 1000px 100%;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+  
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
   
   .document-upload-header {
     text-align: center;

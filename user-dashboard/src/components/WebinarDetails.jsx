@@ -137,7 +137,41 @@ const WebinarDetails = () => {
       .replace(/[^a-z0-9-]/g, "");
   };
 
-  if (!webinar) return <Loading />;
+
+
+  if (loading) {
+    return (
+      <div className="webinar-details-skeleton">
+        <div className="skeleton-banner shimmer" />
+        <div className="skeleton-title shimmer" />
+        <div className="skeleton-description shimmer" />
+        
+        <div className="skeleton-expert-section">
+          <div className="skeleton-expert-info">
+            <div className="skeleton-line shimmer" />
+            <div className="skeleton-line short shimmer" />
+          </div>
+          <div className="skeleton-expert-photo shimmer" />
+        </div>
+  
+        <div className="skeleton-button shimmer" />
+  
+        <h3 className="skeleton-subtitle shimmer" />
+  
+        <div className="skeleton-other-webinars">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="skeleton-webinar-card">
+              <div className="skeleton-webinar-img shimmer" />
+              <div className="skeleton-webinar-text shimmer" />
+              <div className="skeleton-webinar-sub shimmer" />
+              <div className="skeleton-webinar-button shimmer" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  
 
   return (
     <motion.div
@@ -155,7 +189,7 @@ const WebinarDetails = () => {
           <span className="active">{currentLanguage==="ru"?webinar?.titleRussian: webinar?.title}</span>
         </div>
 
-        {loading && <p>Loading...</p>}
+        
         {error && <p className="error">{error}</p>}
 
         {webinar && (

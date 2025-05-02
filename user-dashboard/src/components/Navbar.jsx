@@ -148,7 +148,7 @@ const Navbar = () => {
   return (
     <div className="navbar-page">
       <nav className="ui-navbar">
-        <div className="logo" onClick={() => navigate("/")}>
+        <div className="logo" onClick={() => navigate("/dashboard")}>
           <img
             src="https://static.wixstatic.com/media/e6f22e_a90a0fab7b764c24805e7e43d165d416~mv2.png"
             alt={t("logo_alt", "Logo")}
