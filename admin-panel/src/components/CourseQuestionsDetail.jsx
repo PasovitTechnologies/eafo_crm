@@ -390,30 +390,56 @@ const CourseQuestionsDetail = () => {
     <div className="course-questions-manage-page">
        <ToastContainer position="top-right"  className="custom-toast-container" autoClose={3000} />
       <div className="course-questions-manage-container">
-        <div className="course-question-header">
-          <div className="left-header">
-          <div className="go-back">
-            <FiArrowLeft className="go-back-icon" onClick={handleGoBack} />
-          </div>
-          <h2>{form?.formName}</h2>
-          {errorMessage && <div className="error-message">{errorMessage}</div>}
-        </div>
-        <div className="right-header">
-           <div className="question-search-container">
-              {/* 🔍 Search Icon on Left */}
-              <FiSearch className="form-search-icon" />
-        
-              {/* ✏️ Always Visible Search Input */}
-              <input
-                type="text"
-                placeholder={t('CourseQuestionsDetail.searchPlaceholder')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="form-search-input"
-              />
-            </div>
-            </div>
-        </div>
+      <div className="course-question-header">
+  <div className="left-header">
+    <div className="go-back">
+      <FiArrowLeft className="go-back-icon" onClick={handleGoBack} />
+    </div>
+    <h2>{form?.formName}</h2>
+    {errorMessage && <div className="error-message">{errorMessage}</div>}
+  </div>
+
+  <div className="right-header">
+  {activeTab === "questions" ? (
+  <div className="question-search-container">
+    <FiSearch className="form-search-icon" />
+    <input
+      type="text"
+      placeholder={t("CourseQuestionsDetail.searchPlaceholder")}
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      className="form-search-input"
+    />
+  </div>
+) : (
+  <select
+    className="select-qns-header"
+    value={selectedQuestionId}
+    onChange={(e) => setSelectedQuestionId(e.target.value)}
+  >
+    <option value="">{t("CourseQuestionsDetail.selectQuestion")}</option>
+    {(questions ?? []).map((q) => (
+      <option key={q._id} value={q._id}>
+        {q.label.replace(/<[^>]+>/g, "")} ({q.type})
+      </option>
+    ))}
+  </select>
+)}
+
+
+    {activeTab === "questions" && (
+      <button className="add-header-btn add-question-btn" onClick={addQuestion}>
+        <FaPlus /> {t("QuestionList.addQuestion")}
+      </button>
+    )}
+    {activeTab === "rules" && (
+      <button className="add-header-btn" onClick={addRule}>
+        <FaPlus /> {t("CourseQuestionsDetail.addRule")}
+      </button>
+    )}
+  </div>
+</div>
+
 
         
 
@@ -532,23 +558,7 @@ const CourseQuestionsDetail = () => {
                   ))
                 )}
               </div>
-
-              {/* Select the Question to Add/Edit Rules */}
-              <select className="select-qns"
-                value={selectedQuestionId}
-                onChange={(e) => setSelectedQuestionId(e.target.value)}
-              >
-                <option value="">{t('CourseQuestionsDetail.selectQuestion')}</option>
-                {(questions ?? []).map((q) => (
-                  <option key={q._id} value={q._id}>
-                    {q.label.replace(/<[^>]+>/g, "")} ({q.type})
-                  </option>
-                ))}
-              </select>
-
-              <button className="add-rule-btn" onClick={addRule}>
-                <FaPlus /> {t('CourseQuestionsDetail.addRule')}
-              </button>
+        
             </div>
           )}
 

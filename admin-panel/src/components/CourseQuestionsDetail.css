@@ -315,7 +315,6 @@ input[type="checkbox"] {
 
     /* ➕ Add Question Button */
     .add-question-btn {
-        margin-top: 30px;
         padding: 14px;
         width: 100%;
         border: none;
@@ -324,16 +323,10 @@ input[type="checkbox"] {
         color: white;
         font-size: 1.1rem;
         font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        transition: all 0.3s ease;
     }
 
     .add-question-btn:hover {
         background-color: #218838;
-        transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
@@ -431,11 +424,20 @@ input[type="checkbox"] {
 .remove-rule-btn:hover {
     background-color: var(--delete-btn-hover);
 }
-
+.select-qns-header {
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    min-width: 200px;
+    max-width: 250px; /* Prevent it from stretching */
+    width: auto;       /* Let it size to content */
+  }
+  
 /* 🔽 Select Dropdown */
 .select-qns {
     padding: 14px 18px;
-    width: 100%;
+    max-width: 300px;
     margin: 25px 0;
     border: 1px solid #ddd;
     border-radius: 10px;
@@ -452,7 +454,22 @@ input[type="checkbox"] {
     border-color: #3498db;
     box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
 }
-
+.add-header-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.9rem;
+  }
+  
+.add-header-btn:hover {
+    background-color: #45a049;
+  }
 /* ➕ Add Rule Button */
 .add-rule-btn {
     padding: 16px;

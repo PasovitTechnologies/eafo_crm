@@ -145,10 +145,7 @@ const moveQuestionDown = (index) => {
         )}
       </div>
 
-      {/* ➕ Add Question Button */}
-      <button className="add-question-btn" onClick={addQuestion}>
-        <FaPlus /> {t('QuestionList.addQuestion')}
-      </button>
+      
 
       {/* 🪟 Preview Modal */}
       {isPreviewOpen && (

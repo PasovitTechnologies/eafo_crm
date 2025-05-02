@@ -3,6 +3,8 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Multiselect } from "multiselect-react-dropdown";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 import "./Forms.css";
 import { useTranslation } from "react-i18next"; // 🌍 Import translation hook
 
@@ -16,7 +18,7 @@ const Forms = () => {
   const [answers, setAnswers] = useState({});
   const [errors, setErrors] = useState({});
   const [error, setError] = useState({});
-  const [loading, setLoading] = useState(null);
+  const [loading, setLoading] = useState(true); // ✅
   const [formDetails, setFormDetails] = useState({
     title: "",
     description: "",
@@ -36,59 +38,64 @@ const Forms = () => {
   }, [navigate]);
 
   useEffect(() => {
-    if (!formId) return;
-
-    const controller = new AbortController(); // 🛑 Prevent memory leaks
-    const signal = controller.signal;
-    const token = localStorage.getItem("token"); // 🔐 Retrieve token from localStorage
-
+    if (!formId) {
+      setError("No form ID provided");
+      setLoading(false);
+      return;
+    }
+  
+    const token = localStorage.getItem("token");
     if (!token) {
-      console.error("🚨 No authentication token found.");
+      console.error("No token found");
       setError("Unauthorized: Please log in.");
       setLoading(false);
       return;
     }
-
-    const fetchQuestions = async () => {
+  
+    const fetchData = async () => {
+      setLoading(true);
       try {
-        const response = await fetch(
-          `${baseUrl}/api/form/${formId}/questions`,
-          {
-            method: "GET",
+        const [questionsRes, formRes] = await Promise.all([
+          fetch(`${baseUrl}/api/form/${formId}/questions`, {
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`, // 🔐 Attach Bearer token
+              Authorization: `Bearer ${token}`,
             },
-            signal,
-          }
-        );
-
-        if (!response.ok) {
-          if (response.status === 401)
-            throw new Error("Unauthorized: Invalid token.");
-          if (response.status === 403)
-            throw new Error("Forbidden: Access denied.");
-          throw new Error(`Failed to fetch questions: ${response.statusText}`);
+          }),
+          fetch(`${baseUrl}/api/form/${formId}/info`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+        ]);
+  
+        if (!questionsRes.ok || !formRes.ok) {
+          throw new Error("Failed to load form data.");
         }
-
-        const data = await response.json();
-        console.log(data);
-        setQuestions(data);
-        setVisibleQuestions(data.filter((q) => !q.isConditional));
+  
+        const questionsData = await questionsRes.json();
+        const formData = await formRes.json();
+  
+        setQuestions(questionsData);
+        setVisibleQuestions(questionsData.filter((q) => !q.isConditional));
         setAnswers({});
+        setFormDetails({
+          title: formData.title || "Untitled Form",
+          description: formData.description || "",
+          hasLogo: !!formData.formLogo,
+          isUsedForRussian: formData.isUsedForRussian,
+        });
       } catch (err) {
-        if (err.name === "AbortError") return; // ✅ Ignore if request was aborted
-        console.error("🚨 Error fetching questions:", err);
-        setError(err.message);
+        console.error("Error fetching form data:", err);
+        setError(err.message || "Something went wrong.");
       } finally {
         setLoading(false);
       }
     };
-
-    fetchQuestions();
-
-    return () => controller.abort(); // 🛑 Cleanup function to cancel requests on unmount
+  
+    fetchData();
   }, [formId]);
+  
 
   useEffect(() => {
     if (!formId) {
@@ -584,9 +591,46 @@ const Forms = () => {
     }
   };
 
+
+
+
   return (
     <div className="form-container">
-      <div className="form-header">
+      {loading ? (
+         <div className="skeleton-wrapper">
+         {/* Header */}
+         <div className="skeleton-header" style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+           <Skeleton circle height={80} width={80} />
+           <div style={{ flex: 1 }}>
+             <Skeleton height={24} width="50%" style={{ marginBottom: 10 }} />
+             <Skeleton height={16} width="30%" />
+           </div>
+         </div>
+       
+         {/* Tabs */}
+         <div className="skeleton-tabs" style={{ display: "flex", gap: "1rem", margin: "1rem 0" }}>
+           {Array.from({ length: 4 }).map((_, index) => (
+             <Skeleton key={index} height={30} width={100} />
+           ))}
+         </div>
+       
+         {/* Questions Section */}
+         <div className="skeleton-questions">
+           {Array.from({ length: 5 }).map((_, index) => (
+             <div key={index} className="skeleton-question" style={{ marginBottom: "2rem" }}>
+               {/* Question label */}
+               <Skeleton height={20} width="40%" style={{ marginBottom: 8 }} />
+       
+               {/* Input field */}
+               <Skeleton height={40} width="100%" />
+             </div>
+           ))}
+         </div>
+       </div>
+       
+                ) :
+                <>
+                <div className="form-header">
         <div className="logo-container">
           {formDetails.hasLogo && (
             <div className="form-logo-container">
@@ -614,23 +658,30 @@ const Forms = () => {
         <div className="form-questions-container">
           {visibleQuestions.map((question) => (
             <div key={question._id} className="form-question">
-              {question.type !== "accept" && (
-                <label className="form-label">
-                  <span
-                    dangerouslySetInnerHTML={{ __html: question.label }}
-                  ></span>
-                  {question.isRequired && (
-                    <span className="required-star"> *</span>
-                  )}
-                </label>
-              )}
-              <div className="question-input-wrapper">
-                {renderInputField(question)}
-                {errors[question._id] && (
-                  <span className="error-message">{errors[question._id]}</span>
-                )}
-              </div>
-            </div>
+  {question.type !== "accept" && (
+    <label className="form-label">
+      <span
+        dangerouslySetInnerHTML={{ __html: question.label }}
+      ></span>
+      {question.isRequired && (
+        <span className="required-star"> *</span>
+      )}
+    </label>
+  )}
+
+  <div className="question-input-wrapper">
+    {renderInputField(question)}
+    {question.description && (
+      <div className="question-description">
+        <small>{question.description}</small>
+      </div>
+    )}
+    {errors[question._id] && (
+      <span className="error-message">{errors[question._id]}</span>
+    )}
+  </div>
+</div>
+
           ))}
 
           {visibleQuestions.length === 0 && (
@@ -664,6 +715,9 @@ const Forms = () => {
         draggable
         pauseOnHover
       />
+                
+                </>}
+      
     </div>
   );
 };

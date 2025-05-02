@@ -27,8 +27,8 @@
   }
   
   .form-logo {
-    max-width: 200px;
-    max-height: auto;
+    width: auto;
+    max-height: 80px;
     object-fit: contain;
     border-radius: 4px;
   }
@@ -74,6 +74,13 @@
     margin-bottom: 0.5rem;
     color: #555;
 }
+
+.question-description {
+  margin-top: 4px;
+  font-size: 16px;
+  color: #666;
+}
+
 
 /* 🔲 Input Wrapper */
 .question-input-wrapper {
@@ -262,7 +269,6 @@ input[type="checkbox"] {
 .accept-container {
     display: flex;
     align-items: center;
-    margin-top: 10px;
 }
 
 .accept-label {
@@ -316,15 +322,20 @@ input[type="checkbox"] {
 
 /* 💾 Submit Button (Full Width) */
 button.submit-btn {
-    background-color: #3b82f6;
-    color: white;
-    width: 100%; /* Full-width button */
-    padding: 0.8rem;
-    font-size: 1.1rem;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    transition: background-color 0.2s;
+  background-color: #3b82f6;
+  color: white;
+  width: 100%; /* Full-width button */
+  padding: 0.8rem;
+  font-size: 1.1rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  display: flex; /* Add this */
+  align-items: center; /* Center vertically */
+  justify-content: center; /* Center horizontally */
+  gap: 0.5rem; /* Optional: space between spinner and text */
 }
 
 button.submit-btn:hover {
@@ -339,19 +350,19 @@ button.submit-btn:hover {
     }
     
     .form-logo {
-      max-width: 80px;
-      max-height: 80px;
+      width: auto;
+      max-height: 70px;
     }
   }
 /* 📱 Responsive Design */
 @media (max-width: 768px) {
     .form-container {
         max-width: 90%;
-        padding: 1.5rem;
+        padding: 1rem;
     }
     
     .form-title {
-        font-size: 1.5rem;
+        font-size: 1rem;
     }
 
     button.submit-btn {
@@ -431,3 +442,19 @@ button.submit-btn:hover {
     background-color: #cccccc;
     cursor: not-allowed;
   }
+
+  .skeleton-wrapper {
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 10px;
+  }
+  
+  .skeleton-header-details {
+    margin-top: 1rem;
+  }
+  
+  .skeleton-question {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 1rem;
+  }
+  
