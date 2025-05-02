@@ -82,6 +82,18 @@ const UserDatabaseDetails = () => {
     fetchUserData();
   }, [email, baseUrl, token]);
 
+  const getUserDocuments = () => {
+    if (!userData?.documents || typeof userData.documents !== "object") return [];
+  
+    return Object.entries(userData.documents)
+      .filter(([_, doc]) => doc && doc.fileId)
+      .map(([key, doc]) => ({
+        key,
+        ...doc
+      }));
+  };
+  
+
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
   if (!userData) return <div className="error">User data not available</div>;
@@ -114,6 +126,48 @@ const UserDatabaseDetails = () => {
           <p className="user-info"><strong>Profession:</strong> {userData.professionalDetails?.profession}</p>
           <p className="user-info"><strong>Position:</strong> {userData.professionalDetails?.position}</p>
         </div>
+
+        <div className="user-info-section">
+  <h3 className="sub-heading">Documents</h3>
+  {getUserDocuments().length > 0 ? (
+    <ul className="document-list">
+      {getUserDocuments().map((doc, idx) => {
+        const fileUrl = `${baseUrl}/api/user/file/${doc.fileId}`;
+        const fileName = doc.name || `${doc.key}_${idx + 1}`;
+
+        return (
+          <li key={idx} className="document-item">
+            <strong>{doc.key}:</strong>
+            <div className="document-actions">
+              <button
+                className="view-btn"
+                onClick={() => window.open(fileUrl, "_blank")}
+              >
+                View
+              </button>
+              <button
+                className="download-btn"
+                onClick={() => {
+                  const link = document.createElement("a");
+                  link.href = fileUrl;
+                  link.download = fileName;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+              >
+                Download
+              </button>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  ) : (
+    <p>No documents uploaded.</p>
+  )}
+</div>
+
       </div>
 
       {/* Webinars Section */}

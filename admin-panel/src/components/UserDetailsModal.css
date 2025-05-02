@@ -187,6 +187,47 @@
 .content-info .response-answer {
   color: #000;
 }
+.file-response {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.file-response button {
+  padding: 6px 12px;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.view-btn {
+  background-color: #3b82f6; /* blue */
+  color: white;
+}
+
+.view-btn:hover {
+  background-color: #2563eb;
+}
+
+.download-btn {
+  background-color: #10b981; /* green */
+  color: white;
+}
+
+.download-btn:hover {
+  background-color: #059669;
+}
+
+.file-response i {
+  font-size: 14px;
+}
 
 /* 🔥 Animations */
 @keyframes slideIn {

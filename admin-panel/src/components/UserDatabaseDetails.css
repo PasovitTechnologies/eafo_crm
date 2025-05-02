@@ -59,6 +59,49 @@
   flex-direction: column;
 }
 
+.document-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.document-item {
+  margin-bottom: 10px;
+}
+
+.document-actions {
+  margin-top: 5px;
+  display: flex;
+  gap: 10px;
+}
+
+.view-btn,
+.download-btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #fff;
+}
+
+.view-btn {
+  background-color: #3b82f6;
+}
+
+.view-btn:hover {
+  background-color: #2563eb;
+}
+
+.download-btn {
+  background-color: #10b981;
+}
+
+.download-btn:hover {
+  background-color: #059669;
+}
+
+
 /* Payment Table Styles */
 .payment-table-container {
   width: 100%;

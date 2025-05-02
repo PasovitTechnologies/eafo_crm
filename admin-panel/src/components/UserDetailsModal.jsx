@@ -573,6 +573,19 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
     );
   };
 
+
+  const getProfessionalDocuments = () => {
+    if (!fullUserData?.documents || typeof fullUserData.documents !== "object") return [];
+  
+    return Object.entries(fullUserData.documents)
+      .filter(([_, doc]) => doc && doc.fileId)
+      .map(([key, doc]) => ({
+        key,
+        ...doc
+      }));
+  };
+  
+
   return (
     <div className="userdeatils-modal-overlay" onClick={closeModal}>
       <div className="userdeatils-modal-content" onClick={(e) => e.stopPropagation()}>
@@ -680,6 +693,54 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
                     <p><strong>{t("userDetailsModal.profession")}:</strong> {fullUserData?.professionalDetails?.profession || "N/A"}</p>
                     <p><strong>{t("userDetailsModal.position")}:</strong> {fullUserData?.professionalDetails?.position || "N/A"}</p>
                   </div>
+
+
+                  <div className="subcontent-info">
+  <h3>{t("userDetailsModal.professionalDocuments")}</h3>
+  {getProfessionalDocuments().length > 0 ? (
+    <ul className="submission-responses">
+      {getProfessionalDocuments().map((doc, idx) => {
+        const fileUrl = `${baseUrl}/api/user/file/${doc.fileId}`;
+        const fileName = doc.name || `${doc.key || "document"}_${idx + 1}`;
+
+        return (
+          <li key={idx} className="response-item">
+            <div className="response-question">
+              <strong>{doc?.key || `Document ${idx + 1}`}:</strong>
+            </div>
+            <div className="response-answer file-response">
+              <button
+                className="view-btn"
+                onClick={() => window.open(fileUrl, "_blank")}
+              >
+                <i className="fas fa-eye"></i> {t("userDetailsModal.view")}
+              </button>
+
+              <button
+                className="download-btn"
+                onClick={() => {
+                  const link = document.createElement("a");
+                  link.href = fileUrl;
+                  link.download = fileName;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+              >
+                <i className="fas fa-download"></i> {t("userDetailsModal.download")}
+              </button>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  ) : (
+    <p>{t("userDetailsModal.noDocuments")}</p>
+  )}
+</div>
+
+
+
                 </div>
               )}
 

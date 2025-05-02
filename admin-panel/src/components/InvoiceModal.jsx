@@ -223,17 +223,25 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       return;
     }
   
+    // Extract package, amount, currency
+    const packageName = items.map(item => item.name).join(", ");
+    const amount = totalAmount.toFixed(2);
+    const currency = items[0]?.currency || "INR";
+  
     const emailData = {
       courseId,
       formId,
       orderId,
       paymentUrl,
       transactionId: submission.transactionId,
-      email: submission.email, // ✅ ADD THIS
+      email: submission.email,
+      package: packageName,
+      amount,
+      currency,
     };
   
     try {
-      setEmailSending(true);  // Set the state to "sending" before the request
+      setEmailSending(true);
   
       const response = await axios.post(`${baseUrl}/api/email/send`, emailData, {
         headers: {
@@ -254,7 +262,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       console.error("❌ Error sending email request:", error.response?.data || error.message);
       alert(`❌ Error: ${error.response?.data?.message || "Failed to send invoice"}`);
     } finally {
-      setEmailSending(false);  // Set the state back to "false" when the request completes
+      setEmailSending(false);
     }
   };
   
@@ -265,7 +273,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   
   
   
-
+  
   const handleSendWhatsApp = useCallback(async () => {
     if (whatsappLoading) return;
   
@@ -291,6 +299,17 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       return;
     }
   
+    // Extract package details
+    const packageName = items.map(item => item.name).join(", ");
+    const amount = totalAmount.toFixed(2);
+    const currency = items[0]?.currency || "INR";
+  
+    const message = `*Payment Invoice* 📩
+    
+  💼 *Package:* ${packageName}
+  💰 *Amount:* ${amount} ${currency}
+  🔗 *Payment Link:* ${paymentUrl}`;
+  
     setWhatsappLoading(true);
     setWhatsappStatus(null);
   
@@ -300,12 +319,15 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
         {
           to: phoneNumber,
           email: submission.email,
-          message: `*Payment Invoice*\n\nPlease pay here: ${paymentUrl}`,
+          message,
           formId,
           courseId,
           orderId,
           paymentUrl,
-          transactionId :submission.transactionId
+          transactionId: submission.transactionId,
+          package: packageName,
+          amount,
+          currency,
         },
         {
           headers: {
@@ -334,7 +356,8 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     } finally {
       setWhatsappLoading(false);
     }
-  }, [paymentUrl, whatsappLoading, userData, submission]);
+  }, [paymentUrl, whatsappLoading, userData, submission, items, totalAmount]);
+  
   
 
   const handleViewAkt = (payment) => {

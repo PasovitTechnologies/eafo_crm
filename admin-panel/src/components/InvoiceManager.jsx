@@ -151,28 +151,47 @@ const InvoiceManager = () => {
 
       {/* 📚 Course List */}
       <div className="invoice-course-list">
-        {filteredCourses.length > 0 ? (
-          filteredCourses.map((course) => (
-            <div
-              key={course._id}
-              className="invoice-course-card invoice-card"
-              onClick={() => handleCourseClick(course._id)}
-            >
-              
-            <div style={{display:"inline"}}>
-              <h2  className="invoice-course-name">{currentLanguage === "ru"? course.nameRussian : course.name}</h2>
-            </div>
-              
-              <div className="invoice-entries-count">
-                <p>{course.payments.length}</p>
-                
-              </div>
-            </div>
-           
-          ))
-        ) : (
-          <p>{t("invoiceManager.noCourses")}</p>
-        )}
+      {filteredCourses.length > 0 ? (
+  filteredCourses.map((course) => {
+    const payments = course.payments || [];
+
+    // Analyze payment statuses
+    const stats = {
+      all: payments.length,
+      notCreated: payments.filter(p => p.status === "NotCreated").length,
+      pending: payments.filter(p => p.status === "Pending").length,
+      paid: payments.filter(p => p.status === "Paid").length,
+      expired: payments.filter(p => p.status === "Expired").length,
+    };
+    
+
+    return (
+      <div
+        key={course._id}
+        className="invoice-course-card-modern"
+        onClick={() => handleCourseClick(course._id)}
+      >
+        <div className="invoice-course-header">
+          <h3 className="invoice-course-title">
+            {currentLanguage === "ru" ? course.nameRussian : course.name}
+          </h3>
+        </div>
+
+        <div className="invoice-payment-summary">
+  <span className="badge all">{t("invoiceManager.all")}: {stats.all}</span>
+  <span className="badge not-created">{t("invoiceManager.notCreated")}: {stats.notCreated}</span>
+  <span className="badge pending">{t("invoiceManager.pending")}: {stats.pending}</span>
+  <span className="badge paid">{t("invoiceManager.paid")}: {stats.paid}</span>
+  <span className="badge expired">{t("invoiceManager.expired")}: {stats.expired}</span>
+</div>
+
+      </div>
+    );
+  })
+) : (
+  <p>{t("invoiceManager.noCourses")}</p>
+)}
+
       </div>
     </div>
   );

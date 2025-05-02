@@ -173,6 +173,11 @@
     "currency": "Currency",
     "status": "Status",
 
+
+    "professionalDocuments": "Professional Documents",
+    "view": "View",
+    "download": "Download",
+
     "submissionDetails": "Submission Details",
     "unknownQuestion": "Unknown Question"
   },
@@ -180,6 +185,10 @@
   "invoiceManager": {
       "searchCourses": "Search courses...",
       "all": "All",
+      "notCreated": "Not Created",
+      "paid": "Paid",
+      "pending": "Pending",
+      "expired": "Expired",
       "upcoming": "Upcoming",
       "past": "Past",
       "goBack": "Go Back",
@@ -243,6 +252,7 @@
   "CourseManager": {
     "title": "Course Manager",
     "addCourse": "Add Course",
+    "entries": "Entries",
     "edit": "Edit",
     "delete": "Delete",
     "editTitle": "Edit Course",

@@ -111,6 +111,7 @@
     "upcoming": "Предстоящие",
     "past": "Прошедшие",
     "noCourses": "Курсы не найдены."
+
   },
 
   "courseEntries": {
@@ -174,6 +175,11 @@
     "currency": "Валюта",
     "status": "Статус",
 
+
+    "professionalDocuments": "Профессиональные документы",
+    "view": "Просмотр",
+    "download": "Скачать",
+
     "submissionDetails": "Детали заявки",
     "unknownQuestion": "Неизвестный вопрос"
   },
@@ -182,6 +188,10 @@
       "all": "Все",
       "upcoming": "Предстоящие",
       "past": "Прошедшие",
+      "notCreated": "Не создано",
+      "paid": "Оплачено",
+      "pending": "В ожидании",
+      "expired": "Истекший",
       "goBack": "Назад",
       "courses": "Курсы",
       "startDate": "Дата начала",

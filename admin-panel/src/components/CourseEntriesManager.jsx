@@ -175,26 +175,28 @@ const CourseEntriesManager = () => {
 
         {/* 📃 Full-Width Course List */}
         <div className="course-list-container">
-          {filteredCourses.length > 0 ? (
-            filteredCourses.map((course) => (
-              <div
-                key={course._id}
-                className="course-details-row"
-                onClick={() => handleCourseClick(course._id)}
-              >
-                <div className="">
-                <h3>
-                  {currentLanguage === "ru" ? course.nameRussian : course.name}
-                </h3>
-                </div>
-                <div className="course-entries-count">
-                  <p>{course.payments.length}</p>
-                  </div>
-              </div>
-            ))
-          ) : (
-            <p className="no-courses">{t("courseManager.noCourses")}</p>
-          )}
+        {filteredCourses.length > 0 ? (
+  filteredCourses.map((course) => (
+    <div
+      key={course._id}
+      className="course-card"
+      onClick={() => handleCourseClick(course._id)}
+    >
+      <div className="course-card-header">
+        <h3>
+          {currentLanguage === "ru" ? course.nameRussian : course.name}
+        </h3>
+        <span className="course-badge">
+          {course.payments.length}
+        </span>
+      </div>
+    </div>
+  ))
+) : (
+  <p className="no-courses">{t("courseManager.noCourses")}</p>
+)}
+
+
         </div>
       </div>
     </div>

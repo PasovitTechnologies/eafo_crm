@@ -56,7 +56,7 @@ const sendEmailRusender = async (recipient, mail) => {
 
 // ✅ Endpoint to send emails and save payments
 router.post("/send", async (req, res) => {
-  const { email, courseId, transactionId, orderId, paymentUrl, currency } = req.body;
+  const { email, courseId, transactionId, orderId, paymentUrl, currency, package: packageName,amount } = req.body;
 
   if (!email || !courseId || !transactionId || !orderId || !paymentUrl) {
     return res.status(400).json({ success: false, message: "❌ Missing required data." });
@@ -111,6 +111,9 @@ router.post("/send", async (req, res) => {
     userPayment.status = "Pending",
     userPayment.orderId = orderId; // <-- Push orderId into paymentId field
     userPayment.time = new Date();
+    userPayment.package = packageName;
+    userPayment.amount = amount;
+    userPayment.currency = currency;
 
     // Update Course Payment
     coursePayment.invoiceNumber = nextInvoiceNumber;
@@ -118,6 +121,9 @@ router.post("/send", async (req, res) => {
     coursePayment.orderId = orderId;
     coursePayment.status = "Pending",
     coursePayment.time = new Date();
+    coursePayment.package = packageName;
+    coursePayment.amount = amount;
+    coursePayment.currency = currency;
 
     console.log("📝 Updated payment info for User and Course");
 

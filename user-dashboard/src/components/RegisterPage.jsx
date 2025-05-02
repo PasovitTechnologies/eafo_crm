@@ -274,8 +274,8 @@ const RegisterPage = ({ onSwitchToLogin }) => {
 
   const lang = i18n.language;
 
-  const privacyPolicyUrl = "/privacy-policy"; // or t("registerPage.privacyPolicyUrl")
-  const termsUrl = "/terms"; // or t("registerPage.termsUrl")
+  const privacyPolicyUrl = "https://www.eafo.info/privacy-policy"; // or t("registerPage.privacyPolicyUrl")
+  const termsUrl = "https://www.eafo.info/terms"; // or t("registerPage.termsUrl")
 
 
   const termsText =

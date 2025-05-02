@@ -25,39 +25,62 @@
   scrollbar-color: #aaa #f9f9f9;
 }
 
-/* 📦 Course Card */
-.invoice-course-card {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  padding: 20px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  background-color: #fff;
-  display: flex;
-  gap: 10px;
-  transition: box-shadow 0.3s ease;
-  margin-bottom: 15px;
+.invoice-course-card-modern {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  transition: 0.3s ease;
   cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.invoice-course-card:hover {
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+.invoice-course-card-modern:hover {
+  transform: translateY(-4px);
+  background-color: #f8faff;
 }
 
-.invoice-course-card .invoice-course-name {
-  color: #000;
-  font-size: 16px;
+.invoice-course-title {
+  font-size: 18px;
   font-weight: 600;
+  color: #222;
+  margin-bottom: 12px;
 }
-.invoice-entries-count{
-  background-color: #f3f3f3;
-  border-radius: 10px;
+
+.invoice-payment-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
-.invoice-entries-count p{
-  font-weight: bold;
-  font-size: 20px;
-  padding: 10px 20px;
+
+.badge {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: #fff;
+}
+
+.badge.all {
+  background-color: #5a67d8;
+}
+
+.badge.not-created {
+  background-color: #ed8936;
+}
+
+.badge.paid {
+  background-color: #38a169;
+}
+
+.badge.expired {
+  background-color: #e53e3e;
+}
+.badge.pending {
+  background-color: #f6ad55; /* orange */
 }
 
 /* 📝 Forms Section */
