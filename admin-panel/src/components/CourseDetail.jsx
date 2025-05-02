@@ -374,15 +374,28 @@ const CourseDetail = () => {
   return (
     <div className="course-detail-page">
        <ToastContainer     className="custom-toast-container"/>
-      <div className="course-details-header">
-      <div className="go-back">
-                  <FiArrowLeft
-                    className="go-back-icon"
-                    onClick={handleGoBack}
-                  />
-                </div>
-      <h2 className="course-heading">{currentLanguage==="ru" ? course?.nameRussian:course?.name }</h2>
-      </div>
+       <div className="course-details-header">
+  <div className="header-left">
+    <div className="go-back">
+      <FiArrowLeft className="go-back-icon" onClick={handleGoBack} />
+    </div>
+    <h2 className="course-heading">{currentLanguage === "ru" ? course?.nameRussian : course?.name}</h2>
+  </div>
+
+  <div className="header-right">
+    {activeTab === "items" && (
+      <button className="add-header-btn" onClick={() => openModal("addItem")}>
+        + {t("courseDetail.addItem")}
+      </button>
+    )}
+    {activeTab === "rules" && (
+      <button className="add-header-btn" onClick={openAddRuleForm}>
+        + {t("courseDetail.addRule")}
+      </button>
+    )}
+  </div>
+</div>
+
       
 
       <div className="tab-menu">
@@ -416,9 +429,7 @@ const CourseDetail = () => {
         ))
       )}
 
-      <button className="add-item-btn" onClick={() => openModal("addItem")}>
-        + {t("courseDetail.addItem")}
-      </button>
+     
     </div>
   ) : null}
 
@@ -464,7 +475,7 @@ const CourseDetail = () => {
 
 
 
-      <button className="add-rule-button" onClick={openAddRuleForm}>+ {t("courseDetail.addRule")}</button>
+    
 
       {/* Rule Form */}
       {showRuleForm && (

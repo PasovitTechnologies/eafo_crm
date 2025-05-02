@@ -7,10 +7,9 @@
   overflow-y: hidden;
 
 }
-
 .course-details-header {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: center;
   background: #ffffff;
   padding: 12px 20px;
@@ -22,6 +21,35 @@
   gap: 20px;
   padding-top: 80px;
 }
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.add-header-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 12px 15px;
+  font-size: 0.9rem;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.add-header-btn:hover {
+  background-color: #45a049;
+}
+
 
 .course-heading {
   text-align: center;
