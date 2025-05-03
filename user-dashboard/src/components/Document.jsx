@@ -14,6 +14,7 @@ const Document = () => {
     certificatePdf: null,
     certificateLink: "",
     referral: "",
+    institutionDocument: null
   });
 
   const [filePreviews, setFilePreviews] = useState({});
@@ -58,6 +59,13 @@ const Document = () => {
       maxSize: 5 * 1024 * 1024,
       errorMessage: t("documentUpload.errors.fileType", { formats: ".pdf" }),
     },
+    institutionDocument: {
+      accept: ".pdf,.jpg,.jpeg,.png",
+      maxSize: 5 * 1024 * 1024,
+      errorMessage: t("documentUpload.errors.fileType", {
+        formats: ".pdf, .jpg, .jpeg, .png",
+      }),
+    }
   };
 
   useEffect(() => {
@@ -190,6 +198,7 @@ const Document = () => {
       "resume",
       "academicCertificates",
       "certificatePdf",
+      "institutionDocument",
     ];
     fileFields.forEach((field) => {
       if (formData[field]) {
@@ -525,6 +534,12 @@ const Document = () => {
               </p>
             )}
           </div>
+
+          {renderFileSection(
+  "institutionDocument",
+  "institutionDocument.label",
+  "institutionDocument.description"
+)}
 
           <div className="form-actions">
             <button

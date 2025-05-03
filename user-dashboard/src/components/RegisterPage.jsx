@@ -59,6 +59,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
     gender: "",
     agreePersonalData: false,
     acceptTerms: false,
+    acceptPromotions: false,
   });
 
   const [countryOptions, setCountryOptions] = useState([]);
@@ -234,6 +235,8 @@ const RegisterPage = ({ onSwitchToLogin }) => {
         country: formData.country,
         acceptTerms: formData.acceptTerms,
         agreePersonalData: formData.agreePersonalData,
+        acceptPromotions: formData.acceptPromotions,
+
       },
       professionalDetails: {
         university: formData.university,
@@ -278,31 +281,37 @@ const RegisterPage = ({ onSwitchToLogin }) => {
   const termsUrl = "https://www.eafo.info/terms"; // or t("registerPage.termsUrl")
 
 
+
   const termsText =
   lang === "ru" ? (
     <>
-      Я принимаю <a href={termsUrl} target="_blank" rel="noopener noreferrer">условия пользования</a> сервисами <strong>EAFO</strong>
+      Согласен с <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">Договором-оферты</a></strong> и <strong><a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer">Политикой конфиденциальности</a></strong>
     </>
   ) : (
     <>
-      I accept the Terms & Conditions of <strong>EAFO</strong> in submitting this registration.{" "}
-      <a href={termsUrl} target="_blank" rel="noopener noreferrer">
-        Terms of Use
-      </a>
+      I agree with the <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">Terms of the Agreement</a></strong> and the <strong><a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer">Privacy Policy</a></strong>
     </>
   );
 
 const personalDataText =
   lang === "ru" ? (
     <>
-      Я даю согласие на обработку персональных данных и соглашаюсь с <a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer">политикой конфиденциальности EAFO</a>
+      Даю <strong>Согласие</strong> на обработку моих персональных данных
     </>
   ) : (
     <>
-      I grant permission to <strong>EAFO</strong> to use my personal data.{" "}
-      <a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer">
-        Privacy Policy
-      </a>
+      I give my <strong>Consent</strong> to the processing of my personal data
+    </>
+  );
+
+const promotionsText =
+  lang === "ru" ? (
+    <>
+      Даю <strong>Согласие</strong> на получение рекламных материалов
+    </>
+  ) : (
+    <>
+      I give my <strong>Consent</strong> to receive promotional materials
     </>
   );
 
@@ -619,33 +628,47 @@ const personalDataText =
       </div>
 
       {/* Checkboxes */}
-      <div className="checkbox-group">
-        <label>
-          <input
-            type="checkbox"
-            checked={formData.agreePersonalData}
-            onChange={(e) =>
-              setFormData({ ...formData, agreePersonalData: e.target.checked })
-            }
-            required
-          />
-          <span>{personalDataText}</span>
-        </label>
-      </div>
+      {/* Checkboxes */}
+<div className="checkbox-group">
+  <label>
+    <input
+      type="checkbox"
+      checked={formData.acceptTerms}
+      onChange={(e) =>
+        setFormData({ ...formData, acceptTerms: e.target.checked })
+      }
+      required
+    />
+    <span className="checkbox-text">{termsText}</span>
+  </label>
+</div>
 
-      <div className="checkbox-group">
-        <label>
-          <input
-            type="checkbox"
-            checked={formData.acceptTerms}
-            onChange={(e) =>
-              setFormData({ ...formData, acceptTerms: e.target.checked })
-            }
-            required
-          />
-          <span>{termsText}</span>
-        </label>
-      </div>
+<div className="checkbox-group">
+  <label>
+    <input
+      type="checkbox"
+      checked={formData.agreePersonalData}
+      onChange={(e) =>
+        setFormData({ ...formData, agreePersonalData: e.target.checked })
+      }
+      required
+    />
+    <span className="checkbox-text">{personalDataText}</span>
+  </label>
+</div>
+
+<div className="checkbox-group">
+  <label>
+    <input
+      type="checkbox"
+      checked={formData.acceptPromotions}
+      onChange={(e) =>
+        setFormData({ ...formData, acceptPromotions: e.target.checked })
+      }
+    />
+    <span className="checkbox-text">{promotionsText}</span>
+  </label>
+</div>
 
 
 

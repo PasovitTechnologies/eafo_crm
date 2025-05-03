@@ -7,9 +7,11 @@ import Courses from "./DashboardGrids/Courses";
 import Webinars from "./DashboardGrids/Webinars";
 import Payments from "./DashboardGrids/Payments";
 import { useTranslation } from "react-i18next";
+import PreRegisterForm from "./PreRegisterForm";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("Users");
+  const [showForm, setShowForm] = useState(false);
   const { t } = useTranslation();   // ✅ Translation hook
 
   const renderContent = () => {
@@ -48,6 +50,10 @@ const Dashboard = () => {
             >
               {t('Dashboard.welcome')}
             </motion.h2>
+
+            <button onClick={() => setShowForm(true)}>Pre-Register</button>
+
+            
           </div>
 
           {/* 🌟 Navigation */}
@@ -75,6 +81,8 @@ const Dashboard = () => {
       <div className="content-section">
         {renderContent()}
       </div>
+
+      {showForm && <PreRegisterForm courseId="abc123" onClose={() => setShowForm(false)} />}
     </div>
   );
 };

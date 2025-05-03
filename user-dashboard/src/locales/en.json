@@ -566,7 +566,13 @@
     "certificatePdf": {
       "label": "Language Certificate",
       "description": "Upload your language proficiency certificate"
+    },
+  
+    "institutionDocument": {
+      "label": "Document attesting that you work or study at the public (governmental)/non-for-profit institution",
+      "description": "Mandatory for applicants seeking preferential non-competitive participation; if such a document is available, it must be attached by applicants for competitive participation"
     }
+  
   }
 
 

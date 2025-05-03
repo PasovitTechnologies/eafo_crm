@@ -1,0 +1,142 @@
+/* General container for course list */
+.course-list-container {
+    margin: 2rem auto;
+    padding: 1rem;
+    margin-top: 80px;
+    margin-left: 80px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .heading {
+    font-size: 2rem;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+  }
+  
+  .course-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .course-item {
+    width: 100%;
+    padding: 1rem;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .course-item:hover {
+    background-color: #f0f8ff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* PreCourse.css */
+  .user-list {
+    width: 100%;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    padding-left: 100px;
+  }
+  
+  /* Modernized Table Design */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  table th,
+  table td {
+    padding: 12px;
+    text-align: left;
+    font-size: 1rem;
+  }
+  
+  table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  table td {
+    background-color: #fff;
+    color: #333;
+  }
+  
+  table tr:hover td {
+    background-color: #f9f9f9;
+  }
+  
+  /* Status Indicators */
+  .status-green {
+    color: green;
+    font-weight: bold;
+  }
+  
+  .status-red {
+    color: red;
+    font-weight: bold;
+  }
+  
+  /* User contact icons container */
+  .user-contact-icons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .user-contact-icons div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 1.5em;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+
+  }
+  
+  .user-icon-email {
+    background-color: #007bff; /* Blue for email */
+  }
+  
+  .user-icon-whatsapp {
+    background-color: #25d366; /* Green for WhatsApp */
+  }
+  
+  .user-icon-telegram {
+    background-color: #0088cc; /* Blue for Telegram */
+  }
+  
+  .user-contact-icons div svg {
+    font-size: 1.2em;
+  }
+  
+  /* Responsive styles for small screens */
+  @media (max-width: 768px) {
+    .user-list {
+      padding-left: 20px;
+    }
+    
+    table {
+      margin-left: 0;
+      margin-right: 0;
+    }
+  
+    .heading {
+      font-size: 1.8rem;
+    }
+  }
+  

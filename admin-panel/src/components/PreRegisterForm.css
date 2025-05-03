@@ -1,0 +1,121 @@
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .precourse-modal {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 1rem;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    position: relative;
+    animation: slide-in 0.3s ease-in-out;
+  }
+  
+  @keyframes slide-in {
+    from {
+      transform: translateY(-30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .precourse-modal h2 {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #1f2937;
+  }
+  
+  .precourse-modal input,
+  .precourse-modal .PhoneInput input,
+  .precourse-modal .country-select {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+  
+  .precourse-modal input:focus,
+  .precourse-modal .PhoneInput input:focus {
+    border-color: #2563eb;
+    outline: none;
+  }
+  
+  .phone-input-wrapper {
+    width: 100%;
+    margin-bottom: 1rem;
+  }
+  
+  .precourse-modal .checkboxes {
+    margin-bottom: 1.5rem;
+    width: 100%;
+  }
+  
+  .precourse-modal .checkboxes label {
+    display: flex;
+    align-items: flex-start; /* Align items to the top */
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    color: #374151;
+    line-height: 1.4;
+    width: 100%;
+    cursor: pointer;
+    padding-left: 0; /* Remove any padding if present */
+    margin-left: 0; /* Remove any margin if present */
+  }
+  
+  .precourse-modal .checkboxes input[type="checkbox"] {
+    margin: 0; /* Remove any default margins */
+    flex-shrink: 0; /* Prevent checkbox from shrinking */
+    width: 1rem; /* Fixed width for checkboxes */
+    height: 1rem; /* Fixed height for checkboxes */
+  }
+  
+  .precourse-modal button[type="submit"] {
+    background-color: #2563eb;
+    color: #fff;
+    border: none;
+    padding: 0.75rem;
+    width: 100%;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .precourse-modal button[type="submit"]:hover {
+    background-color: #1e40af;
+  }
+  
+  .close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  
+  .close-btn:hover {
+    color: #111827;
+  }

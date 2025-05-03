@@ -83,6 +83,7 @@ const telegramRoutes = require("./routes/telegramRoutes");
 const whatsappRoutes = require("./routes/whatsappRoutes");
 const enquiryRoutes = require("./routes/enquiryRoutes");
 const notificationRoutes = require("./routes/notificationsRoutes");
+const preCourseRoutes = require("./routes/preCourseRoutes");
 
 
 // ✅ Base URL Configuration
@@ -102,6 +103,7 @@ app.use("/api/telegram", telegramRoutes);
 app.use("/api/whatsapp", whatsappRoutes);
 app.use("/api/enquiries", enquiryRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/precourse", preCourseRoutes);
 
 // ✅ Serve Static Files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

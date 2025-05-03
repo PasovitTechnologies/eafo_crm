@@ -4,8 +4,23 @@
     "user_logout": "Logout",
     "logo_alt": "Logo",
     "english": "English",
-    "russian": "Русский"
-    ,
+    "russian": "Русский",
+
+
+  "preRegister": "Pre-Registration for the XI EAFO Basic Medical Courses",
+  "firstName": "First Name",
+  "middleName": "Middle Name",
+  "lastName": "Last Name",
+  "email": "Email",
+  "phone": "Phone",
+  "agreement": "I agree with the Terms of the Agreement and the Privacy Policy",
+  "personalData": "I give my Consent to the processing of my personal data",
+  "promotions": "I give my Consent to receive promotional materials",
+  "submit": "Submit",
+  "pleaseAgree": "Please agree to the required terms before submitting.",
+  "formError": "Error submitting form",
+  "registerSuccess": "Successfully registered",
+    
     "sidebar": {
     "webinarDashboard": "Webinar Dashboard",
     "webinarManagement": "Webinar Management",
@@ -19,7 +34,9 @@
     "enquiry": "Enquiry",
     "logout": "Logout",
     "userbase": "User Database",
-    "telegram": "Telegarm"
+    "telegram": "Telegarm",
+    "preCourse": "Pre course"
+
   },
 
   "login": {

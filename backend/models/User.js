@@ -44,6 +44,8 @@ const userSchema = new mongoose.Schema(
       gender: { type: String, required: true },
       agreePersonalData: { type: Boolean, required: true },
       acceptTerms: { type: Boolean, required: true },
+      acceptPromotions: { type: Boolean, required: true },
+
     },
 
     // Professional Details Section

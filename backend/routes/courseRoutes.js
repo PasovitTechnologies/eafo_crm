@@ -76,6 +76,7 @@ router.post("/", authenticateJWT, async (req, res) => {
       rules: [],
     });
 
+  
     // Save to DB
     await course.save();
     res.status(201).json(course);

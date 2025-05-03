@@ -30,6 +30,9 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import UserDatabaseDetails from "./components/UserDatabaseDetails";
 import Telegram from "./components/Telegram";
+import PreCourse from "./components/PreCourse";
+import PreCourseUsers from "./components/PreCourseUsers";
+
 
 
 
@@ -178,6 +181,9 @@ const App = () => {
                     path="/userbase/userbase-details/:email"
                     element={<UserDatabaseDetails selectedLanguage={selectedLanguage} />}
                   />
+
+                  <Route path="/precourse" element={<PreCourse selectedLanguage={selectedLanguage}/>} />
+                  <Route path="/precourse/:courseId" element={<PreCourseUsers selectedLanguage={selectedLanguage}/>} />
 
                   {/* Webinar Routes */}
                   <Route
