@@ -10,47 +10,51 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 // ✅ Create Payment Link
 router.post("/create-payment-link", async (req, res) => {
-  try {
-    console.log("📩 Incoming Payment Request:", req.body);
-    const { amount, email, course } = req.body;
-
-    if (!amount || !email || !course) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing required fields (amount, email, course)",
-      });
-    }
-
-    const clientUrl = "http://localhost:3000";
-
-    const session = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
-      customer_email: email,
-      billing_address_collection: "required",
-      client_reference_id: email, // ✅ Track user by email
-      line_items: [
-        {
-          price_data: {
-            currency: "inr",
-            product_data: { name: course },
-            unit_amount: amount * 100,
+    try {
+      console.log("📩 Incoming Payment Request:", req.body);
+      const { amount, email, course } = req.body;
+  
+      if (!amount || !email || !course) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing required fields (amount, email, course)",
+        });
+      }
+  
+      const clientUrl = "http://localhost:3000";
+  
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ["card"],
+        customer_email: email,
+        billing_address_collection: "required",
+        client_reference_id: email, // ✅ Track user by email
+        line_items: [
+          {
+            price_data: {
+              currency: "inr",
+              product_data: { name: course },
+              unit_amount: amount * 100,
+            },
+            quantity: 1,
           },
-          quantity: 1,
-        },
-      ],
-      mode: "payment",
-      expires_at: Math.floor(Date.now() / 1000) + 82800, // ~23 hours
-      success_url: `${clientUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${clientUrl}/payment/fail`,
-    });
-
-    console.log("✅ Payment Link Created:", session.url);
-    res.json({ success: true, paymentUrl: session.url, orderId: session.id });
-  } catch (error) {
-    console.error("❌ Payment Link Error:", error.message);
-    res.status(500).json({ success: false, message: "Error creating payment link" });
-  }
-});
+        ],
+        mode: "payment",
+        expires_at: Math.floor(Date.now() / 1000) + 82800, // ~23 hours
+        success_url: `${clientUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${clientUrl}/payment/fail`,
+      });
+  
+      // ✅ Log full session object for debugging
+      console.log("🧾 Full Session Object:");
+      console.dir(session, { depth: null });
+  
+      res.json({ success: true, paymentUrl: session.url, orderId: session.id });
+    } catch (error) {
+      console.error("❌ Payment Link Error:", error.message);
+      res.status(500).json({ success: false, message: "Error creating payment link" });
+    }
+  });
+  
 
 // ✅ Webhook to Track Payment Status
 router.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
