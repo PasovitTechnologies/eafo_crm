@@ -16,6 +16,7 @@ const documentSchema = new mongoose.Schema({
   certificatePdf: fileSchema,
   certificateLink: String,
   referral: String,
+  institutionDocument: fileSchema,
   uploadedAt: { type: Date, default: Date.now }
 }, { _id: false });
 
