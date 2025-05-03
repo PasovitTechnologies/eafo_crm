@@ -229,6 +229,7 @@ router.put(
     { name: "resume" },
     { name: "academicCertificates" },
     { name: "certificatePdf" },
+    { name :"institutionDocument"}
   ]),
   async (req, res) => {
     try {
@@ -294,6 +295,7 @@ router.put(
         "resume",
         "academicCertificates",
         "certificatePdf",
+        "institutionDocument"
       ];
 
       const updatedDocs = {
