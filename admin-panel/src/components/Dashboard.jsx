@@ -51,7 +51,6 @@ const Dashboard = () => {
               {t('Dashboard.welcome')}
             </motion.h2>
 
-            <button onClick={() => setShowForm(true)}>Pre-Register</button>
 
             
           </div>
@@ -82,7 +81,7 @@ const Dashboard = () => {
         {renderContent()}
       </div>
 
-      {showForm && <PreRegisterForm courseId="abc123" onClose={() => setShowForm(false)} />}
+     
     </div>
   );
 };
