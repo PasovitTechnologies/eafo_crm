@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 
 import "./PreRegisterForm.css";
 
-const baseUrl = "http://localhost:4000";
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export default function PreRegisterForm({ courseId, onClose }) {
   const { t } = useTranslation();

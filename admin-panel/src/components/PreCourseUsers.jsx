@@ -7,7 +7,7 @@ import EmailModal from "./EmailModal";
 import WhatsAppChatBot from "./WhatsAppChatBot";
 import TelegramChatBot from "./TelegramChatBot";
 
-const baseUrl = "http://localhost:4000";
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export default function PreCourseUsers() {
   const { courseId } = useParams();
@@ -121,13 +121,13 @@ export default function PreCourseUsers() {
     return (
       <div className="user-contact-icons">
         <div className="user-icon-email" onClick={() => handleEmailClick(email)}>
-          <FaEnvelope />
+          <FaEnvelope/>
         </div>
         <div className="user-icon-whatsapp" onClick={() => handleWhatsAppClick(phone)}>
-          <FaWhatsapp />
+          <FaWhatsapp/>
         </div>
         <div className="user-icon-telegram" onClick={() => handleTelegramClick(phone)}>
-          <FaTelegramPlane />
+          <FaTelegramPlane/>
         </div>
       </div>
     );
