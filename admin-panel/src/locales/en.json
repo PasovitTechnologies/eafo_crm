@@ -35,7 +35,7 @@
     "logout": "Logout",
     "userbase": "User Database",
     "telegram": "Telegarm",
-    "preCourse": "Pre course"
+    "preCourse": "Pre-Register"
 
   },
 
@@ -196,7 +196,10 @@
     "download": "Download",
 
     "submissionDetails": "Submission Details",
-    "unknownQuestion": "Unknown Question"
+    "unknownQuestion": "Unknown Question",
+
+    "certificateLink": "Certificate Link",
+    "referral": "Referral"
   },
 
   "invoiceManager": {

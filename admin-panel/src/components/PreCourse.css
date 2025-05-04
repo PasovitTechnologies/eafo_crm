@@ -1,5 +1,5 @@
 /* General container for course list */
-.course-list-container {
+.pre-course-list-container {
     margin: 2rem auto;
     padding: 1rem;
     margin-top: 80px;
@@ -14,13 +14,13 @@
     color: #333;
   }
   
-  .course-list {
+  .pre-course-list {
     display: flex;
     flex-direction: column;
     gap: 1rem;
   }
   
-  .course-item {
+  .pre-course-item {
     width: 100%;
     padding: 1rem;
     background-color: #ffffff;
@@ -31,13 +31,13 @@
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
   }
   
-  .course-item:hover {
+  .pre-course-item:hover {
     background-color: #f0f8ff;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   }
   
   /* PreCourse.css */
-  .user-list {
+  .pre-user-list {
     width: 100%;
     padding: 20px;
     font-family: Arial, sans-serif;
@@ -45,7 +45,7 @@
   }
   
   /* Modernized Table Design */
-  table {
+  .pre-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
@@ -54,26 +54,26 @@
     overflow: hidden;
   }
   
-  table th,
-  table td {
+  .pre-table th,
+  .pre-table td {
     padding: 12px;
     text-align: left;
     font-size: 1rem;
   }
   
-  table th {
+  .pre-table th {
     background-color: #f4f4f4;
     font-weight: bold;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
   
-  table td {
+  .pre-table td {
     background-color: #fff;
     color: #333;
   }
   
-  table tr:hover td {
+  .pre-table tr:hover td {
     background-color: #f9f9f9;
   }
   
@@ -126,11 +126,11 @@
   
   /* Responsive styles for small screens */
   @media (max-width: 768px) {
-    .user-list {
+    .pre-user-list {
       padding-left: 20px;
     }
     
-    table {
+    .pre-table {
       margin-left: 0;
       margin-right: 0;
     }

@@ -28,12 +28,12 @@ export default function PreCourse() {
   }, []);
 
   return (
-    <div className="course-list-container">
-      <div className="course-list">
+    <div className="pre-course-list-container">
+      <div className="pre-course-list">
         {courses.map((course) => (
           <div
             key={course._id}
-            className="course-item"
+            className="pre-course-item"
             onClick={() => navigate(`/precourse/${course._id}`)}
           >
             {course.name}

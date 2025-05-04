@@ -576,6 +576,8 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
 
   const getProfessionalDocuments = () => {
     if (!fullUserData?.documents || typeof fullUserData.documents !== "object") return [];
+    console.log(fullUserData)
+    console.log(fullUserData.documents.certificateLink)
   
     return Object.entries(fullUserData.documents)
       .filter(([_, doc]) => doc && doc.fileId)
@@ -584,6 +586,16 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
         ...doc
       }));
   };
+
+
+
+  
+
+  const certificateLink = fullUserData?.documents?.certificateLink?.value || "";
+  const referral = fullUserData?.documents?.referral?.value || "";
+
+
+
   
 
   return (
@@ -697,47 +709,72 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
 
                   <div className="subcontent-info">
   <h3>{t("userDetailsModal.professionalDocuments")}</h3>
-  {getProfessionalDocuments().length > 0 ? (
-    <ul className="submission-responses">
-      {getProfessionalDocuments().map((doc, idx) => {
-        const fileUrl = `${baseUrl}/api/user/file/${doc.fileId}`;
-        const fileName = doc.name || `${doc.key || "document"}_${idx + 1}`;
+  <ul className="submission-responses">
+    {getProfessionalDocuments().map((doc, idx) => {
+      const fileUrl = `${baseUrl}/api/user/file/${doc.fileId}`;
+      const fileName = doc.fileName || doc.name || `${doc.key || "document"}_${idx + 1}`;
+      const uploadDate = doc.uploadDate ? new Date(doc.uploadDate).toLocaleString() : "N/A";
 
-        return (
-          <li key={idx} className="response-item">
-            <div className="response-question">
-              <strong>{doc?.key || `Document ${idx + 1}`}:</strong>
-            </div>
-            <div className="response-answer file-response">
-              <button
-                className="view-btn"
-                onClick={() => window.open(fileUrl, "_blank")}
-              >
-                <i className="fas fa-eye"></i> {t("userDetailsModal.view")}
-              </button>
+      return (
+        <li key={idx} className="response-item">
+          <div className="response-question">
+            <strong>{doc?.key || `Document ${idx + 1}`}:</strong>
+          </div>
+          <div className="response-answer file-response">
+            <p><strong>Filename:</strong> {fileName}</p>
+            <p><strong>Uploaded:</strong> {uploadDate}</p>
+            <button className="view-btn" onClick={() => window.open(fileUrl, "_blank")}>
+              <i className="fas fa-eye"></i> {t("userDetailsModal.view")}
+            </button>
+            <button className="download-btn" onClick={() => {
+              const link = document.createElement("a");
+              link.href = fileUrl;
+              link.download = fileName;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}>
+              <i className="fas fa-download"></i> {t("userDetailsModal.download")}
+            </button>
+          </div>
+        </li>
+      );
+    })}
 
-              <button
-                className="download-btn"
-                onClick={() => {
-                  const link = document.createElement("a");
-                  link.href = fileUrl;
-                  link.download = fileName;
-                  document.body.appendChild(link);
-                  link.click();
-                  document.body.removeChild(link);
-                }}
-              >
-                <i className="fas fa-download"></i> {t("userDetailsModal.download")}
-              </button>
-            </div>
-          </li>
-        );
-      })}
-    </ul>
-  ) : (
-    <p>{t("userDetailsModal.noDocuments")}</p>
-  )}
+    {/* Manually add certificateLink if it exists */}
+    {certificateLink && (
+      <li className="response-item">
+        <div className="response-question">
+          <strong>Certificate Link:</strong>
+        </div>
+        <div className="response-answer file-response">
+          <a href={certificateLink} target="_blank" rel="noopener noreferrer">
+            {certificateLink}
+          </a>
+        </div>
+      </li>
+    )}
+
+    {/* Manually add referral if it exists */}
+    {referral && (
+      <li className="response-item">
+        <div className="response-question">
+          <strong>Referral:</strong>
+        </div>
+        <div className="response-answer file-response">
+          {referral}
+        </div>
+      </li>
+    )}
+  </ul>
 </div>
+
+
+
+
+
+
+
 
 
 

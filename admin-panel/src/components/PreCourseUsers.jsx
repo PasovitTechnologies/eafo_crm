@@ -12,6 +12,7 @@ const baseUrl = "http://localhost:4000";
 export default function PreCourseUsers() {
   const { courseId } = useParams();
   const [users, setUsers] = useState([]);
+  const [preUsers, setPreUsers] = useState([]);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailDetails, setEmailDetails] = useState({});
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
@@ -36,6 +37,8 @@ export default function PreCourseUsers() {
         });
 
         console.log("User Data:", userRes.data);  // Debugging: Check the structure of the response
+        setPreUsers(userRes.data); // ✅ Correct
+        
 
         const allUsers = userRes.data.filter(user => user.courseId === courseId);
 
@@ -77,6 +80,9 @@ export default function PreCourseUsers() {
             return {
               email: user.email,
               phone: user.phone, // Using phone from `precourses`
+              firstName: user.firstName,
+              middleName: user.middleName,
+              lastName: user.lastName,
               uiStatus,
               courseStatus,
             };
@@ -128,11 +134,12 @@ export default function PreCourseUsers() {
   };
 
   return (
-    <div className="user-list">
+    <div className="pre-user-list">
       <h2>Registered Users for Course</h2>
-      <table>
+      <table className="pre-table">
         <thead>
           <tr>
+            <th>Name</th>
             <th>Email</th>
             <th>UI Status</th>
             <th>Course Status</th>
@@ -147,7 +154,8 @@ export default function PreCourseUsers() {
           ) : (
             users.map((user, idx) => (
               <tr key={idx}>
-                <td>{user.email}</td>
+               <td>{user.firstName || "-"} {user.middleName || ""} {user.lastName || "-"}</td>
+               <td>{user.email}</td>
                 <td>
                   <span className={user.uiStatus === "green" ? "status-green" : "status-red"}>
                     {user.uiStatus === "green" ? "Registered" : "Not Registered"}
