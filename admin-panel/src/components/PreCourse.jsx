@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./PreCourse.css";
 
-const baseUrl = "http://localhost:4000";
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export default function PreCourse() {
   const [courses, setCourses] = useState([]);
