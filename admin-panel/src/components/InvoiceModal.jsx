@@ -448,6 +448,66 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     return method?.currencies.includes(items[0]?.currency);
   };
 
+  const handleResendEmail = async (payment) => {
+    if (!payment?.email) {
+      toast.error("Recipient email missing");
+      return;
+    }
+  
+    try {
+      setEmailSending(true);
+      const response = await axios.post(`${baseUrl}/api/resend-email`, {
+        invoiceNumber: payment.invoiceNumber,
+        email: payment.email
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+  
+      if (response.data.success) {
+        toast.success("Email resent successfully");
+        fetchPaymentHistory();
+      } else {
+        toast.error(response.data.message || "Failed to resend email");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error resending email");
+    } finally {
+      setEmailSending(false);
+    }
+  };
+  
+  const handleResendWhatsApp = async (payment) => {
+    if (!userData?.personalDetails?.phone) {
+      toast.error("No phone number available");
+      return;
+    }
+  
+    try {
+      setWhatsappLoading(true);
+      const response = await axios.post(`${baseUrl}/api/resend-whatsapp`, {
+        invoiceNumber: payment.invoiceNumber,
+        phone: userData.personalDetails.phone
+      }, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+      });
+  
+      if (response.data.success) {
+        toast.success("WhatsApp message resent");
+        fetchPaymentHistory();
+      } else {
+        toast.error(response.data.message || "Failed to resend WhatsApp");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error resending WhatsApp");
+    } finally {
+      setWhatsappLoading(false);
+    }
+  };
+
   return (
     <>
     <ToastContainer     className="custom-toast-container"/>
@@ -617,6 +677,25 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
           {t("InvoiceModal.contract")}
         </button>
       </div>
+      <button
+    onClick={() => handleResendEmail(payment)}
+    className="email-resend-btn"
+    title="Resend via Email"
+    disabled={emailSending}
+  >
+    <FaEnvelope size={18} />
+    {emailSending && <span className="resend-loading">Sending...</span>}
+  </button>
+  
+  <button
+    onClick={() => handleResendWhatsApp(payment)}
+    className="whatsapp-resend-btn"
+    title="Resend via WhatsApp"
+    disabled={whatsappLoading}
+  >
+    <FaWhatsapp size={18} />
+    {whatsappLoading && <span className="resend-loading">Sending...</span>}
+  </button>
     </li>
   ))}
 </ul>

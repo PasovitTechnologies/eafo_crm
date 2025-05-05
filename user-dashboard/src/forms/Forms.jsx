@@ -343,7 +343,6 @@ const Forms = () => {
             type={question.type === "phone" ? "tel" : question.type}
             value={value}
             onChange={(e) => handleAnswerChange(question._id, e.target.value)}
-            placeholder={`Enter ${question.label}`}
             required={question.required}
             className="form-input"
           />
@@ -354,7 +353,6 @@ const Forms = () => {
           <textarea
             value={value}
             onChange={(e) => handleAnswerChange(question._id, e.target.value)}
-            placeholder={`Enter ${question.label}`}
             required={question.required}
             className="form-textarea"
           />

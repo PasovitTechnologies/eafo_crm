@@ -268,7 +268,7 @@ input[type="checkbox"] {
 /* 🌟 Accept Terms Container */
 .accept-container {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .accept-label {
@@ -285,10 +285,9 @@ input[type="checkbox"] {
 }
 
 .accept-text {
-    font-size: 14px;
+    font-size: 1rem;
     color: #333;
     line-height: 1.2;
-    margin-top: 10px;
     display: inline-block;
 }
 

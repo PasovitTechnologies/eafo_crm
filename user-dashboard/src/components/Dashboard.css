@@ -131,7 +131,6 @@
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
-  z-index: 2;
   overflow: hidden; /* ✅ Ensures glare effect stays within bounds */
 }
 /* 🌟 Second Profile Info Box */
@@ -215,7 +214,7 @@
   align-items: center;
   background: #fff;
   margin-bottom: 6px;
-  z-index: 12; /* Ensure it's on top */
+  margin-top: 15px;
   box-shadow: 2px 5px 14px rgba(52, 152, 219, 0.7); /* Blue Glow */
 }
 /* Expanding Background Effect */
@@ -429,7 +428,7 @@
 
 .course-slider {
   position: relative;
-  z-index: 1000;
+  z-index: 1;
 }
 
 .course-details {
@@ -565,7 +564,6 @@
 .dashboard-item.payments {
   grid-column: span 1;
   grid-row: span 1;
-  z-index: 10;
 }
 
 .payments:hover {
@@ -657,7 +655,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
+  z-index: 10;
 }
 
 .contact-popup-content {
