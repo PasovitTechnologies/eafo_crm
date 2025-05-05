@@ -827,7 +827,7 @@
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: 15px;
-    padding-bottom: 30px;
+    padding-bottom: 10px;
     overflow-y: auto;
     scroll-behavior:smooth;
   }
