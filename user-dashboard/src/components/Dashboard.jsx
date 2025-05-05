@@ -10,6 +10,8 @@ import AboutItem from "./AboutItem";
 import ContactItem from "./ContactItem";
 import Loading from "./Loading";
 import DocumentItem from "./DocumentItem";
+import Navbar from "./Navbar";
+
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -101,6 +103,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="dashboard-page">
+        <div className="dashboard-content">
         <div className="dashboard-grid">
           {Array.from({ length: 9}).map((_, index) => (
             <div key={index} className="dashboard-item loading-card">
@@ -112,6 +115,7 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
+        </div>
       </div>
     );
   };
@@ -119,7 +123,11 @@ const Dashboard = () => {
   if (error) return <div className="error">{error}</div>;
 
   return (
+    <div className="dashboard">
+       <Navbar/>
+   
     <div className="dashboard-page">
+
       <motion.div className="dashboard-grid">
         {/* 🌟 Profile Section (Now a separate component) */}
         <ProfileItem
@@ -158,6 +166,7 @@ const Dashboard = () => {
           setExpandingSection={setExpandingSection}
         />
       </motion.div>
+    </div>
     </div>
   );
 };

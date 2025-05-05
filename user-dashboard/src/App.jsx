@@ -71,14 +71,14 @@ const Layout = ({ children }) => {
   const location = useLocation();
 
   const navbarPaths = [
-    "/", "/dashboard", "/dashboard/webinars", "/dashboard/webinars/",
+    "/",  "/dashboard/webinars", "/dashboard/webinars/",
     "/dashboard/courses", "/dashboard/courses/", "/profile", "/scroll",
     "/forms", "/webinars", "/dashboard/enquiry", "/dashboard/about",
   ];
 
-  const showNavbar = navbarPaths.some((path) =>
-    location.pathname.startsWith(path)
-  );
+
+
+  const showNavbar = location.pathname !== "/dashboard";
 
   return (
     <>

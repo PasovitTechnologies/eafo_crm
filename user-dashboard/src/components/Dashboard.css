@@ -1,5 +1,16 @@
 /* 🌟 Dashboard Container */
 /* 🌟 Dashboard Container */
+.dashboard{
+  display: flex;
+  flex-direction: column;
+  height: 100vh; 
+  overflow: hidden;
+}
+.dashboard-content {
+  flex: 1;
+  overflow-y: auto; /* Enables scrolling */
+  padding-bottom: 20px; /* Prevents bottom cutoff */
+}
 .dashboard-page {
   display: flex;
   flex-direction: column;
@@ -7,10 +18,8 @@
   align-items: center;
   background: #033672; /* Base deep blue */
   box-sizing: border-box;
-  overflow: hidden;
   font-family: "Poppins", sans-serif;
-  overflow-y: auto;
-  height: 100vh;
+  min-height: calc(100vh - 60px);
 
   /* Blue-on-blue mixed paint effect */
   background:
@@ -89,10 +98,11 @@
   gap: 15px;
   width: 85%;
   max-width: 1100px;
-  height: calc(100vh - 80px); /* ✅ Adjust height with padding */
   border-radius: 15px;
   box-sizing: border-box;
   margin: 20px;
+  min-height: calc(100vh - 140px);
+  overflow-y: auto;
 }
 
 /* 🌟 Common Dashboard Items */
@@ -828,7 +838,6 @@
     grid-template-columns: 1fr;
     gap: 15px;
     padding-bottom: 10px;
-    overflow-y: auto;
     scroll-behavior:smooth;
   }
 
