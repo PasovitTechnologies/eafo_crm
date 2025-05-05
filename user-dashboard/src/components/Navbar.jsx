@@ -3,9 +3,52 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { FaSignOutAlt, FaBell } from "react-icons/fa";
 import Flag from "react-world-flags";
-import axios from "axios";
-import "./Navbar.css";
+import { FaChevronDown } from "react-icons/fa";
 import NotificationPanel from "./NotificationPanel";
+import "./Navbar.css";
+
+const LanguageDropdown = () => {
+  const { i18n } = useTranslation();
+  const [open, setOpen] = useState(false);
+
+  const languages = [
+    { code: "en", label: "English", country: "US" },
+    { code: "ru", label: "Русский", country: "RU" },
+  ];
+
+  const handleChange = (lang) => {
+    i18n.changeLanguage(lang);
+    localStorage.setItem("language", lang);
+    setOpen(false);
+  };
+
+  const currentLang = languages.find((l) => l.code === i18n.language);
+
+  return (
+    <div className="custom-dropdown" onClick={() => setOpen(!open)}>
+      <div className="selected">
+  <Flag code={currentLang?.country || "US"} className="flag-icon" />
+  <span>{currentLang?.label}</span>
+  <FaChevronDown className="dropdown-arrow" />
+</div>
+
+      {open && (
+        <div className="dropdown-options">
+          {languages.map((lang) => (
+            <div
+              key={lang.code}
+              className="dropdown-option"
+              onClick={() => handleChange(lang.code)}
+            >
+              <Flag code={lang.country} className="flag-icon" />
+              <span>{lang.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -36,14 +79,9 @@ const Navbar = () => {
     try {
       const token = localStorage.getItem("token");
       const email = localStorage.getItem("email");
-  
-      if (!token || !email) {
-        console.warn("⚠️ Missing token or email.");
-        return;
-      }
-  
-      console.log("📡 Fetching notifications...");
-  
+
+      if (!token || !email) return;
+
       const response = await fetch(`${baseUrl}/api/notifications?email=${email}`, {
         method: "GET",
         headers: {
@@ -51,24 +89,19 @@ const Navbar = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
-      if (!response.ok) {
-        throw new Error("Failed to fetch notifications.");
-      }
-  
+
+      if (!response.ok) throw new Error("Failed to fetch notifications.");
+
       const rawNotifications = await response.json();
-  
-      console.log("🧾 rawNotifications received:", rawNotifications);
-  
       const userLang = localStorage.getItem("language") || "en";
-  
+
       const normalizedNotifications = Array.isArray(rawNotifications)
         ? rawNotifications.map((n) => {
             const message =
               typeof n.message === "object"
                 ? n.message[userLang] || n.message["en"]
                 : n.message;
-  
+
             return {
               _id: n._id,
               type: n.type,
@@ -78,13 +111,11 @@ const Navbar = () => {
             };
           })
         : [];
-  
-      console.log("🔄 Normalized Notifications:", normalizedNotifications);
-  
+
       setNotifications(normalizedNotifications);
       setUnreadCount(normalizedNotifications.filter((n) => !n.isRead).length);
     } catch (error) {
-      console.error("❌ Error fetching notifications:", error);
+      console.error("Error fetching notifications:", error);
       setNotifications([]);
       setUnreadCount(0);
     }
@@ -94,7 +125,7 @@ const Navbar = () => {
     try {
       const token = localStorage.getItem("token");
       const email = localStorage.getItem("email");
-  
+
       const response = await fetch(
         `${baseUrl}/api/notifications/${notificationId}/read?email=${email}`,
         {
@@ -105,21 +136,13 @@ const Navbar = () => {
           },
         }
       );
-  
-      if (!response.ok) {
-        throw new Error("Failed to mark notification as read.");
-      }
-  
-      // Refresh notifications
+
+      if (!response.ok) throw new Error("Failed to mark notification as read.");
       fetchNotifications();
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
   };
-  
-  
-  
-  
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -129,21 +152,9 @@ const Navbar = () => {
     window.location.reload();
   };
 
-  const changeLanguage = (lang) => {
-    i18n.changeLanguage(lang);
-    localStorage.setItem("language", lang);
-  };
-
-  const getCountryCode = (lang) => {
-    const map = { en: "US", ru: "RU" };
-    return map[lang] || "US";
-  };
-
   const toggleNotifications = () => {
     setShowNotifications((prev) => !prev);
   };
-
- 
 
   return (
     <div className="navbar-page">
@@ -178,17 +189,7 @@ const Navbar = () => {
           )}
 
           <div className="language-selector">
-            <div className="flag-dropdown">
-              <Flag code={getCountryCode(i18n.language)} className="flag-icon" />
-              <select
-                className="language-dropdown"
-                value={i18n.language}
-                onChange={(e) => changeLanguage(e.target.value)}
-              >
-                <option value="en">English</option>
-                <option value="ru">Русский</option>
-              </select>
-            </div>
+            <LanguageDropdown />
           </div>
 
           {location.pathname !== "/" && (

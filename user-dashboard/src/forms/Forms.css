@@ -456,4 +456,6 @@ button.submit-btn:hover {
     border-bottom: 1px solid #eee;
     padding-bottom: 1rem;
   }
-  
+  .required-star{
+    color: #cc0000;
+  }
