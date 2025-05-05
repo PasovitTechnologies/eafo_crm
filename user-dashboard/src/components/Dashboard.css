@@ -8,7 +8,7 @@
 }
 .dashboard-content {
   flex: 1;
-  overflow-y: auto; /* Enables scrolling */
+  overflow-y: hidden; /* Enables scrolling */
   padding-bottom: 20px; /* Prevents bottom cutoff */
 }
 .dashboard-page {
