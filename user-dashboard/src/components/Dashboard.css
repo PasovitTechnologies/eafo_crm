@@ -10,6 +10,7 @@
   overflow: hidden;
   font-family: "Poppins", sans-serif;
   overflow-y: auto;
+  height: 100vh;
 
   /* Blue-on-blue mixed paint effect */
   background:
@@ -826,6 +827,9 @@
   .dashboard-grid {
     grid-template-columns: 1fr;
     gap: 15px;
+    padding-bottom: 30px;
+    overflow-y: auto;
+    scroll-behavior:smooth;
   }
 
   .profile-welcome span {
