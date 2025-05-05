@@ -103,7 +103,6 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="dashboard-page">
-        <div className="dashboard-content">
         <div className="dashboard-grid">
           {Array.from({ length: 9}).map((_, index) => (
             <div key={index} className="dashboard-item loading-card">
@@ -115,7 +114,7 @@ const Dashboard = () => {
             </div>
           ))}
         </div>
-        </div>
+       
       </div>
     );
   };
@@ -125,6 +124,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard">
        <Navbar/>
+       
    
     <div className="dashboard-page">
 

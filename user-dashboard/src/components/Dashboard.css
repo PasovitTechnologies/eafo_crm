@@ -19,7 +19,7 @@
   background: #033672; /* Base deep blue */
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
-  min-height: calc(100vh - 60px);
+  min-height: calc(100vh - 80px);
 
   /* Blue-on-blue mixed paint effect */
   background:
@@ -238,7 +238,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 10; /* Ensure it's on top */
+  z-index: 1; /* Ensure it's on top */
 }
 
 /* 🌟 Profile Image */
@@ -439,7 +439,6 @@
 
 .course-slider {
   position: relative;
-  z-index: 1;
 }
 
 .course-details {
