@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { FaEnvelope, FaWhatsapp, FaTelegramPlane } from "react-icons/fa"; // Import React Icons for action buttons
+import { FaEnvelope, FaWhatsapp, FaTelegramPlane } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
+import "../i18n"; // Ensure this is imported once at root level
+
 import "./PreCourse.css";
 import EmailModal from "./EmailModal";
 import WhatsAppChatBot from "./WhatsAppChatBot";
@@ -11,38 +14,34 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 
 export default function PreCourseUsers() {
   const { courseId } = useParams();
+  const { t } = useTranslation();
+
   const [users, setUsers] = useState([]);
-  const [preUsers, setPreUsers] = useState([]);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailDetails, setEmailDetails] = useState({});
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
   const [whatsappPhoneNumber, setWhatsappPhoneNumber] = useState("");
   const [showTelegramModal, setShowTelegramModal] = useState(false);
   const [telegramPhoneNumber, setTelegramPhoneNumber] = useState("");
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     const fetchEmails = async () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          console.warn("No token found. Please log in.");
+          console.warn("No token found.");
           return;
         }
 
-        // Step 1: Get all users who registered
         const userRes = await axios.get(`${baseUrl}/api/precourse/users`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        console.log("User Data:", userRes.data);  // Debugging: Check the structure of the response
-        setPreUsers(userRes.data); // ✅ Correct
-        
-
         const allUsers = userRes.data.filter(user => user.courseId === courseId);
 
-        // Step 2: Check UI and Course status for each email
         const enhancedUsers = await Promise.all(
           allUsers.map(async (user) => {
             let uiStatus = "red";
@@ -50,36 +49,24 @@ export default function PreCourseUsers() {
 
             try {
               const uiRes = await axios.get(`${baseUrl}/api/user/${user.email}`, {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
+                headers: { Authorization: `Bearer ${token}` },
               });
               if (uiRes.data?.email) uiStatus = "green";
-            } catch (err) {
-              console.warn(`UI check failed for ${user.email}`);
-            }
+            } catch (err) {}
 
             try {
               const courseRes = await axios.get(`${baseUrl}/api/courses/${courseId}`, {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
+                headers: { Authorization: `Bearer ${token}` },
               });
 
               const payments = courseRes.data?.payments || [];
-              const paymentEmails = payments.map(p => p.email);
-              const exists = paymentEmails.includes(user.email);
+              const exists = payments.some(p => p.email === user.email);
               if (exists) courseStatus = "green";
-            } catch (err) {
-              console.warn(`Course check failed for ${user.email}`);
-            }
-
-            // Debugging: Check the user information
-            console.log("User:", user);
+            } catch (err) {}
 
             return {
               email: user.email,
-              phone: user.phone, // Using phone from `precourses`
+              phone: user.phone,
               firstName: user.firstName,
               middleName: user.middleName,
               lastName: user.lastName,
@@ -89,7 +76,6 @@ export default function PreCourseUsers() {
           })
         );
 
-        console.log("Enhanced Users:", enhancedUsers);  // Check enhanced data
         setUsers(enhancedUsers);
       } catch (err) {
         console.error("Failed to fetch users", err);
@@ -105,65 +91,79 @@ export default function PreCourseUsers() {
   };
 
   const handleWhatsAppClick = (phone) => {
-    console.log(`Initiating WhatsApp chat with phone: +${phone}`);
     setWhatsappPhoneNumber(phone);
-    setShowWhatsAppModal(true); // Show WhatsApp modal or start a chat
+    setShowWhatsAppModal(true);
   };
 
   const handleTelegramClick = (phone) => {
-    console.log(`Initiating Telegram chat with phone: +${phone}`);
     setTelegramPhoneNumber(phone);
-    setShowTelegramModal(true); // Show Telegram modal or initiate chat
+    setShowTelegramModal(true);
   };
 
-  // Generate contact icons for email, whatsapp, telegram
-  const generateContactIcons = (email, phone) => {
-    return (
-      <div className="user-contact-icons">
-        <div className="user-icon-email" onClick={() => handleEmailClick(email)}>
-          <FaEnvelope/>
-        </div>
-        <div className="user-icon-whatsapp" onClick={() => handleWhatsAppClick(phone)}>
-          <FaWhatsapp/>
-        </div>
-        <div className="user-icon-telegram" onClick={() => handleTelegramClick(phone)}>
-          <FaTelegramPlane/>
-        </div>
+  const generateContactIcons = (email, phone) => (
+    <div className="user-contact-icons">
+      <div className="user-icon-email" onClick={() => handleEmailClick(email)}>
+        <FaEnvelope />
       </div>
-    );
-  };
+      <div className="user-icon-whatsapp" onClick={() => handleWhatsAppClick(phone)}>
+        <FaWhatsapp />
+      </div>
+      <div className="user-icon-telegram" onClick={() => handleTelegramClick(phone)}>
+        <FaTelegramPlane />
+      </div>
+    </div>
+  );
+
+  const filteredUsers = users.filter(user => {
+    if (filter === "not_registered") return user.uiStatus === "red" && user.courseStatus === "red";
+    if (filter === "ui_registered") return user.uiStatus === "green" && user.courseStatus === "red";
+    if (filter === "all_registered") return user.uiStatus === "green" && user.courseStatus === "green";
+    return true;
+  });
 
   return (
     <div className="pre-user-list">
-      <h2>Registered Users for Course</h2>
+      <h2>{t("preCourseUsers.registered_users")}</h2>
+
+      <div className="precourse-filter-container">
+        <label>{t("preCourseUsers.filter_label")}: </label>
+        <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+          <option value="all">{t("preCourseUsers.filter.all")}</option>
+          <option value="not_registered">{t("preCourseUsers.filter.not_registered")}</option>
+          <option value="ui_registered">{t("preCourseUsers.filter.ui_registered")}</option>
+          <option value="all_registered">{t("preCourseUsers.filter.all_registered")}</option>
+        </select>
+      </div>
+
       <table className="pre-table">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>UI Status</th>
-            <th>Course Status</th>
-            <th>Contact</th>
+            <th>{t("preCourseUsers.name")}</th>
+            <th>{t("preCourseUsers.email")}</th>
+            <th>{t("preCourseUsers.ui_status")}</th>
+            <th>{t("preCourseUsers.course_status")}</th>
+            <th>{t("preCourseUsers.contact")}</th>
           </tr>
         </thead>
         <tbody>
-          {users.length === 0 ? (
+          {filteredUsers.length === 0 ? (
             <tr>
-              <td colSpan="4">No users registered yet.</td>
+              <td colSpan="5">{t("preCourseUsers.no_users")}</td>
             </tr>
           ) : (
-            users.map((user, idx) => (
+            filteredUsers.map((user, idx) => (
               <tr key={idx}>
-               <td>{user.firstName || "-"} {user.middleName || ""} {user.lastName || "-"}</td>
-               <td>{user.email}</td>
+                <td>{user.firstName} {user.middleName} {user.lastName}</td>
+                <td>{user.email}</td>
                 <td>
                   <span className={user.uiStatus === "green" ? "status-green" : "status-red"}>
-                    {user.uiStatus === "green" ? "Registered" : "Not Registered"}
+                  {t(`preCourseUsers.${user.uiStatus === "green" ? "registered" : "not_registered"}`)}
                   </span>
                 </td>
                 <td>
                   <span className={user.courseStatus === "green" ? "status-green" : "status-red"}>
-                    {user.courseStatus === "green" ? "Registered" : "Not Registered"}
+                    {t(`preCourseUsers.${user.uiStatus === "green" ? "registered" : "not_registered"}`)}
+
                   </span>
                 </td>
                 <td>{generateContactIcons(user.email, user.phone)}</td>

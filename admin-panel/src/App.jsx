@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./components/Dashboard";
@@ -33,15 +33,12 @@ import Telegram from "./components/Telegram";
 import PreCourse from "./components/PreCourse";
 import PreCourseUsers from "./components/PreCourseUsers";
 
-
-
-
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("ru");
   const [selectedOS, setSelectedOS] = useState("Webinar");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
+
   const isTokenValid = () => {
     const token = localStorage.getItem("token");
     if (!token) return false;
@@ -54,7 +51,6 @@ const App = () => {
     }
   };
 
-  // ✅ Authentication Verification
   const checkAuthentication = () => {
     const role = localStorage.getItem("role");
     if (isTokenValid() && role === "admin") {
@@ -66,7 +62,6 @@ const App = () => {
     }
   };
 
-  // ✅ Handle Token Validation and Auto Logout
   useEffect(() => {
     setIsAuthenticated(checkAuthentication());
 
@@ -81,160 +76,156 @@ const App = () => {
     return () => clearInterval(interval);
   }, []);
 
-
-
-
-
   return (
-      <div className="app-container">
-        {isAuthenticated ? (
-          <>
-           <ToastContainer position="top-right" autoClose={3000} />
-            {/* Navbar */}
-            <Navbar
-              isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen}
-            />
+    <div className="app-container">
+      {isAuthenticated ? (
+        <>
+          <ToastContainer position="top-right" autoClose={3000} />
+          {/* Navbar */}
+          <Navbar
+            isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen}
+          />
 
-            {/* Sidebar */}
-            <Sidebar
-              selectedLanguage={selectedLanguage}
-              selectedOS={selectedOS}
-              isSidebarOpen={isSidebarOpen}
-              setIsSidebarOpen={setIsSidebarOpen} 
-            />
+          {/* Sidebar */}
+          <Sidebar
+            selectedLanguage={selectedLanguage}
+            selectedOS={selectedOS}
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+          />
 
-            <div className="main-section">
-              <div className={`main-content ${isSidebarOpen ? "sidebar-open" : ""}`}>
-                <Routes>
-                  {/* Admin Routes */}
-                  <Route
-                    path="/admin-dashboard"
-                    element={<Dashboard selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/course-entries"
-                    element={<CourseEntriesManager selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/course-entries/:courseId"
-                    element={<CourseEntries selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/forms/:formId/entries"
-                    element={<FormEntries selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/details/:email"
-                    element={<FormDetails selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/course-manager"
-                    element={<CourseManager selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/course-manager/course/:courseId"
-                    element={<CourseDetail selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/course-questions"
-                    element={<CourseQuestions selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/forms/:formId/questions"
-                    element={<CourseQuestionsDetail selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/webinar-forms"
-                    element={<WebinarFormEntries selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/forms"
-                    element={<CourseForms selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/invoice"
-                    element={<InvoiceManager selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/whatsapp"
-                    element={<WhatsApp selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/telegram"
-                    element={<Telegram selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/invoice/invoice-manager/:courseId"
-                    element={<InvoiceEntries selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/enquiry"
-                    element={<Enquiry selectedLanguage={selectedLanguage} />}
-                  />
+          <div className="main-section">
+            <div className={`main-content ${isSidebarOpen ? "sidebar-open" : ""}`}>
+              <Routes>
+                {/* Admin Routes */}
+                <Route
+                  path="/admin-dashboard"
+                  element={<Dashboard selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/course-entries"
+                  element={<CourseEntriesManager selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/course-entries/:courseId"
+                  element={<CourseEntries selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/forms/:formId/entries"
+                  element={<FormEntries selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/details/:email"
+                  element={<FormDetails selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/course-manager"
+                  element={<CourseManager selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/course-manager/course/:courseId"
+                  element={<CourseDetail selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/course-questions"
+                  element={<CourseQuestions selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/forms/:formId/questions"
+                  element={<CourseQuestionsDetail selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/webinar-forms"
+                  element={<WebinarFormEntries selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/forms"
+                  element={<CourseForms selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/invoice"
+                  element={<InvoiceManager selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/whatsapp"
+                  element={<WhatsApp selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/telegram"
+                  element={<Telegram selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/invoice/invoice-manager/:courseId"
+                  element={<InvoiceEntries selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/enquiry"
+                  element={<Enquiry selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/userbase"
+                  element={<UserDatabase selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/userbase/userbase-details/:email"
+                  element={<UserDatabaseDetails selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/precourse"
+                  element={<PreCourse selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/precourse/:courseId"
+                  element={<PreCourseUsers selectedLanguage={selectedLanguage} />}
+                />
+                {/* Webinar Routes */}
+                <Route
+                  path="/webinar-dashboard"
+                  element={<WebinarDashboard selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/webinar-dashboard/:webinarId/webinar-participants"
+                  element={<WebinarParticipants selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/webinar-management"
+                  element={<WebinarManagement selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/webinar-dashboard/:webinarId/webinar-participants/user-details/:email"
+                  element={<UserDetails selectedLanguage={selectedLanguage} />}
+                />
 
-                  <Route
-                    path="/userbase"
-                    element={<UserDatabase selectedLanguage={selectedLanguage} />}
-                  />
-
-<Route
-                    path="/userbase/userbase-details/:email"
-                    element={<UserDatabaseDetails selectedLanguage={selectedLanguage} />}
-                  />
-
-                  <Route path="/precourse" element={<PreCourse selectedLanguage={selectedLanguage}/>} />
-                  <Route path="/precourse/:courseId" element={<PreCourseUsers selectedLanguage={selectedLanguage}/>} />
-
-                  {/* Webinar Routes */}
-                  <Route
-                    path="/webinar-dashboard"
-                    element={<WebinarDashboard selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/webinar-dashboard/:webinarId/webinar-participants"
-                    element={<WebinarParticipants selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/webinar-management"
-                    element={<WebinarManagement selectedLanguage={selectedLanguage} />}
-                  />
-                  <Route
-                    path="/webinar-dashboard/:webinarId/webinar-participants/user-details/:email"
-                    element={<UserDetails selectedLanguage={selectedLanguage} />}
-                  />
-
-                  
-
-                  {/* Fallback Redirect */}
-                  <Route path="*" element={<Navigate to="/admin-dashboard" />} />
-                </Routes>
-              </div>
+                {/* Fallback Redirect */}
+                <Route path="*" element={<Navigate to="/admin-dashboard" />} />
+              </Routes>
             </div>
+          </div>
 
-            <SettingsButton
+          <SettingsButton
             setSelectedLanguage={setSelectedLanguage}
             setSelectedOS={setSelectedOS}
           />
-          </>
-        ) : (
-          <>
-            {/* Unauthenticated Routes */}
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <AdminLogin
-                    setIsAuthenticated={setIsAuthenticated}
-                    setSelectedLanguage={setSelectedLanguage}
-                    selectedLanguage={selectedLanguage}
-                  />
-                }
-              />
-              <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
-          </>
-        )}
-      </div>
+        </>
+      ) : (
+        <>
+          {/* Unauthenticated Routes */}
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <AdminLogin
+                  setIsAuthenticated={setIsAuthenticated}
+                  setSelectedLanguage={setSelectedLanguage}
+                  selectedLanguage={selectedLanguage}
+                />
+              }
+            />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </>
+      )}
+    </div>
   );
 };
 

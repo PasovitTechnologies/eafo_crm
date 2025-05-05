@@ -729,5 +729,23 @@
     "values": {
       "notAvailable": "N/A"
     }
+  },
+  "preCourseUsers": {
+    "registered_users": "Registered Users for Course",
+  "name": "Name",
+  "email": "Email",
+  "ui_status": "UI Status",
+  "course_status": "Course Status",
+  "contact": "Contact",
+  "registered": "Registered",
+  "not_registered": "Not Registered",
+  "no_users": "No users registered yet.",
+  "filter_label": "Filter",
+  "filter": {
+    "all": "All",
+    "not_registered": "Not Registered",
+    "ui_registered": "UI Registered",
+    "all_registered": "All Registered"
+  }
   }
 }

@@ -727,6 +727,24 @@
     "values": {
       "notAvailable": "Н/Д"
     }
+  },
+  "preCourseUsers": {
+    "registered_users": "Зарегистрированные пользователи курса",
+  "name": "Имя",
+  "email": "Электронная почта",
+  "ui_status": "UI Статус",
+  "course_status": "Статус курса",
+  "contact": "Контакты",
+  "registered": "Зарегистрирован",
+  "not_registered": "Не зарегистрирован",
+  "no_users": "Пользователи пока не зарегистрированы.",
+  "filter_label": "Фильтр",
+  "filter": {
+    "all": "Все",
+    "not_registered": "Не зарегистрированы",
+    "ui_registered": "UI зарегистрированы",
+    "all_registered": "Полностью зарегистрированы"
+  }
   }
 
 }
