@@ -105,13 +105,29 @@ const sendEmailRusender = async (recipient, mail) => {
 
 // POST /api/precourse/register
 router.post("/register", async (req, res) => {
-  const { firstName, middleName, lastName, email, phone, country, courseId } = req.body;
+  const { firstName, middleName, lastName, email, phone, country, courseId, language } = req.body;
 
+  // Required field validation
   if (!email || !courseId) {
     return res.status(400).json({ message: "Email and Course ID are required." });
   }
 
+  // Language validation
+  const supportedLanguages = {
+    'ru': 'russian',
+    'en': 'english'
+  };
+
+  if (!language || !supportedLanguages[language.toLowerCase()]) {
+    return res.status(400).json({ 
+      message: "Valid language parameter is required. Use 'ru' for Russian or 'en' for English." 
+    });
+  }
+
+  const selectedLanguage = supportedLanguages[language.toLowerCase()];
+
   try {
+    // Save registration without language field
     const newEntry = new PreCourse({
       firstName,
       middleName,
@@ -119,31 +135,41 @@ router.post("/register", async (req, res) => {
       email,
       phone,
       country,
-      courseId,
+      courseId
     });
 
     await newEntry.save();
     
-    // Prepare recipient data
+    // Prepare email
     const fullName = [firstName, middleName, lastName].filter(Boolean).join(' ');
     const recipient = {
       email: email,
       name: fullName || "User"
     };
 
-    // Send both language versions
-    await sendEmailRusender(recipient, emailTemplates.russian);
-    await sendEmailRusender(recipient, emailTemplates.english);
+    // Send email in selected language only
+    await sendEmailRusender(recipient, emailTemplates[selectedLanguage]);
 
-    res.status(201).json({ message: "Pre-registration successful! Check your email for further instructions." });
+    res.status(201).json({ 
+      message: selectedLanguage === 'russian' 
+        ? "Предварительная регистрация успешна! Проверьте вашу почту." 
+        : "Pre-registration successful! Check your email.",
+      language: language.toLowerCase()
+    });
+
   } catch (err) {
     if (err.code === 11000) {
-      return res.status(409).json({
-        message: "You've already registered for this course with this email.",
-      });
+      const message = selectedLanguage === 'russian'
+        ? "Вы уже зарегистрированы на этот курс с этим email."
+        : "You've already registered for this course with this email.";
+      return res.status(409).json({ message });
     }
     console.error("Registration error:", err);
-    res.status(500).json({ message: "Server error. Please try again later." });
+    res.status(500).json({ 
+      message: selectedLanguage === 'russian'
+        ? "Ошибка сервера. Пожалуйста, попробуйте позже."
+        : "Server error. Please try again later."
+    });
   }
 });
 
