@@ -2,7 +2,7 @@ const axios = require('axios');
 
 class TelegramApi {
   constructor() {
-    this.botToken = '7619570332:AAEeKpVmxdOMtDWb9V6LuOGvEAFaBnvB4I0';  // Replace with your actual bot token
+    this.botToken = '8135466966:AAEgtEVnzhq0e73BORoLzxlY5vU2A4dAdKw';  // Replace with your actual bot token
     this.chat_id = null;
     this.text = null;
   }
