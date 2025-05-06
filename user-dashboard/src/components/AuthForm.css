@@ -865,6 +865,9 @@
     margin: 0;
     padding: 0;
   }
+  .register-form{
+    padding-top: 50px;
+  }
 
   .container {
     height: 100vh;
@@ -904,7 +907,7 @@
     width: 100%;
     height: 300%;
     background: #033672;
-    border-radius: 20vw 20vw 0 0;
+    border-radius: 20vw 20vw 20vw 20vw;
     z-index: 2;
   }
 
