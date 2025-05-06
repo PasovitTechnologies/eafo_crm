@@ -19,6 +19,7 @@ const Forms = () => {
   const [errors, setErrors] = useState({});
   const [error, setError] = useState({});
   const [loading, setLoading] = useState(true); // ✅
+  const [submissionSuccess, setSubmissionSuccess] = useState(false);
   const [formDetails, setFormDetails] = useState({
     title: "",
     description: "",
@@ -275,6 +276,7 @@ const Forms = () => {
       toast.success("Form submitted successfully!");
       setAnswers({});
       setErrors({});
+      setSubmissionSuccess(true);
       navigate(-1);
       return result;
     } catch (error) {
@@ -626,6 +628,15 @@ const Forms = () => {
          </div>
        </div>
        
+                ) :
+
+                submissionSuccess ? (
+                  <div className="submission-success-message">
+                    <h2>🎉 You have successfully submitted the form for the course: {formDetails.title}</h2>
+                    <p>
+                      We’ve sent more details to your email address. Don’t forget to check your spam folder too!
+                    </p>
+                  </div>
                 ) :
                 <>
                 <div className="form-header">

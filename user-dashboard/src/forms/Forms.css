@@ -459,3 +459,16 @@ button.submit-btn:hover {
   .required-star{
     color: #cc0000;
   }
+  .submission-success-message {
+    padding: 2rem;
+    background-color: #e6f7ec;
+    border: 1px solid #b5e3c0;
+    border-radius: 10px;
+    text-align: center;
+    max-width: 600px;
+    margin: 2rem auto;
+  }
+  .submission-success-message h2 {
+    color: #2e7d32;
+  }
+  
