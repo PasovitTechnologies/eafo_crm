@@ -91,10 +91,10 @@ const AuthForm = () => {
             </div>
 
             <div className="toggle-panel toggle-right">
-              <button className="help-button" onClick={toggleHelpPopup}>
+              <button className="auth-help-button" onClick={toggleHelpPopup}>
                 {t("auth.help")}
               </button>
-              <h1 className="toggle-heading">{t("auth.welcomeBack")}</h1>
+              
               <p>{t("auth.haveAccount")}</p>
               <button className="switch-button" onClick={showLogin}>
                 {t("auth.login")}

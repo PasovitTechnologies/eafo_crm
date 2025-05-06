@@ -603,10 +603,8 @@
   }
   
   /* Help Button Styles */
-.help-button {
-    position: absolute;
-    top: 20px;
-    right: 20px;
+.auth-help-button {
+   
     padding: 10px 15px;
     background-color: #4285f4;
     color: white;
