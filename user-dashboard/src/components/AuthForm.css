@@ -923,6 +923,9 @@
 
   .toggle-panel.toggle-right {
     bottom: -20%;
+    padding-top: 10px;
+    margin-top: -10px;
+    
   }
 
   .container.active .toggle-panel.toggle-right {
