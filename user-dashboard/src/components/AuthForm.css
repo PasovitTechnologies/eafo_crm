@@ -87,6 +87,55 @@
     transition: all 0.6s ease-in-out;
   }
 
+  /* Hide the native date picker dropdown arrow in Chrome/Safari */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 1;
+  position: relative;
+  z-index: 1;
+}
+
+/* Style for the input when empty */
+.has-placeholder {
+  color: transparent;
+}
+
+/* Custom placeholder styling */
+.date-placeholder {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+  font-size: 16px;
+  font-weight: 400;
+  z-index: 0;
+}
+
+/* Hide placeholder when input has value or is focused */
+input:focus + .date-placeholder,
+input:not(.has-placeholder) + .date-placeholder {
+  display: none;
+}
+
+/* Ensure proper stacking */
+.date-input-container {
+  position: relative;
+}
+
+/* Make sure the input has proper styling */
+.date-input-container input {
+  width: 100%;
+  padding: 13px 20px;
+  background: #eee;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+}
+
   @media screen and (min-width: 850px) {
   .auth-page {
     display: flex;
@@ -866,7 +915,7 @@
     padding: 0;
   }
   .register-form{
-    padding-top: 70px;
+    padding-top: 80px;
   }
 
   .container {

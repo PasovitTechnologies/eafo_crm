@@ -117,15 +117,23 @@ const ForgetPasswordPage = ({ onBackToLogin }) => {
         />
       </div>
 
-      <div className="input-box">
-        <input
-          type="date"
-          value={dob}
-          onChange={(e) => setDob(e.target.value)}
-          required
-          aria-label={t("forgetPasswordPage.dobAriaLabel")}
-        />
-      </div>
+      <div className="input-box date-input-container">
+  <input
+    type="text"
+    onFocus={(e) => (e.target.type = "date")}
+    onBlur={(e) => !e.target.value && (e.target.type = "text")}
+    value={dob}
+    onChange={(e) => setDob(e.target.value)}
+    required
+    className={!dob ? "has-placeholder" : ""}
+    aria-label={t("forgetPasswordPage.dobAriaLabel")}
+  />
+  {!dob && (
+    <span className="date-placeholder">
+      {t("forgetPasswordPage.dobPlaceholder")}
+    </span>
+  )}
+</div>
 
       {showPasswordFields && (
         <>
