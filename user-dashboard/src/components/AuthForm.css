@@ -8,14 +8,18 @@
     font-family: "Poppins", sans-serif;
     text-decoration: none;
     list-style: none;
+  
 
 }
-
+.intro-page{
+    height: 100vh;
+    overflow-y: hidden;
+}
 .auth-page {
     /* display: flex;
     justify-content: center;
     align-items: center; */
-    min-height: 100vh;
+    height: 100vh;
     overflow-y: hidden;
     background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
 }
@@ -836,4 +840,124 @@
     /* .form-box { padding: 20px; } */
 
     .toggle-panel h1{font-size: 30px; }
+}
+/* Mobile-first adjustments */
+@media screen and (max-width: 850px) {
+  .intro-page, 
+  .auth-page {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .auth-wrapper {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .container {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+    overflow: hidden;
+  }
+
+  /* Form positioning */
+  .form-box {
+    position: absolute;
+    width: 100%;
+    height: 70%;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    margin: 0;
+    border-radius: 30px 30px 0 0;
+    overflow-y: auto;
+  }
+
+  /* Active state adjustments */
+  .container.active .form-box {
+    height: 70%;
+    bottom: 30%;
+  }
+
+  /* Toggle panel styling */
+  .toggle-box::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: -270%;
+    width: 100%;
+    height: 300%;
+    background: #033672;
+    border-radius: 20vw 20vw 0 0;
+    z-index: 2;
+  }
+
+  .container.active .toggle-box::before {
+    top: 70%;
+    height: 100%;
+  }
+
+  .toggle-panel {
+    position: absolute;
+    width: 100%;
+    height: 30%;
+    padding: 20px;
+    z-index: 3;
+  }
+
+  .toggle-panel.toggle-left {
+    top: 0;
+  }
+
+  .toggle-panel.toggle-right {
+    bottom: -30%;
+  }
+
+  .container.active .toggle-panel.toggle-right {
+    bottom: 0;
+  }
+
+  /* Help button positioning */
+  .help-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    margin: 0;
+    z-index: 10;
+  }
+}
+
+/* Extra small devices (phones under 400px) */
+@media screen and (max-width: 400px) {
+  .toggle-heading {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .toggle-panel p {
+    font-size: 13px;
+  }
+  
+  .switch-button {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+  
+  .form-box {
+    padding: 15px;
+  }
 }

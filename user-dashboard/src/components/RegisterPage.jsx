@@ -57,9 +57,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
     profession: "",
     position: "",
     gender: "",
-    agreePersonalData: false,
     acceptTerms: false,
-    acceptPromotions: false,
   });
 
   const [countryOptions, setCountryOptions] = useState([]);
@@ -234,8 +232,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
         gender: formData.gender,
         country: formData.country,
         acceptTerms: formData.acceptTerms,
-        agreePersonalData: formData.agreePersonalData,
-        acceptPromotions: formData.acceptPromotions,
+        
 
       },
       professionalDetails: {
@@ -285,35 +282,18 @@ const RegisterPage = ({ onSwitchToLogin }) => {
   const termsText =
   lang === "ru" ? (
     <>
-      Согласен с <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">Договором-оферты</a></strong> и <strong><a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer">Политикой конфиденциальности</a></strong>
+    Нажимая на кнопку, я соглашаюсь на <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">обработку персональных</a></strong> данных, <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">получение рекламных</a></strong> материалов, с <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">договором-оферты</a></strong> и <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">политикой конфиденциальности</a></strong>.
     </>
   ) : (
     <>
-      I agree with the <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">Terms of the Agreement</a></strong> and the <strong><a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer">Privacy Policy</a></strong>
-    </>
+  By clicking the button, I agree to the <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">processing of personal data</a></strong>, <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">receiving promotional materials</a></strong>, and accept the <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">public offer agreement</a></strong> and the <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">privacy policy</a></strong>.
+</>
+
   );
 
-const personalDataText =
-  lang === "ru" ? (
-    <>
-      Даю <strong>Согласие</strong> на обработку моих персональных данных
-    </>
-  ) : (
-    <>
-      I give my <strong>Consent</strong> to the processing of my personal data
-    </>
-  );
 
-const promotionsText =
-  lang === "ru" ? (
-    <>
-      Даю <strong>Согласие</strong> на получение рекламных материалов
-    </>
-  ) : (
-    <>
-      I give my <strong>Consent</strong> to receive promotional materials
-    </>
-  );
+
+
 
 
 
@@ -643,32 +623,7 @@ const promotionsText =
   </label>
 </div>
 
-<div className="checkbox-group">
-  <label>
-    <input
-      type="checkbox"
-      checked={formData.agreePersonalData}
-      onChange={(e) =>
-        setFormData({ ...formData, agreePersonalData: e.target.checked })
-      }
-      required
-    />
-    <span className="checkbox-text">{personalDataText}</span>
-  </label>
-</div>
 
-<div className="checkbox-group">
-  <label>
-    <input
-      type="checkbox"
-      checked={formData.acceptPromotions}
-      onChange={(e) =>
-        setFormData({ ...formData, acceptPromotions: e.target.checked })
-      }
-    />
-    <span className="checkbox-text">{promotionsText}</span>
-  </label>
-</div>
 
 
 

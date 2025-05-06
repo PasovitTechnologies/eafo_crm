@@ -130,10 +130,13 @@ const About = () => {
 
   return (
     <div className="about-container">
-       <div className="about-breadcrumb">
-          <span onClick={() => navigate("/")}>{t("courses.dashboard")}</span> /{" "}
+      <div className="aboutus-navigation">
+      <div className="about-breadcrumb">
+          <span onClick={() => navigate("/dashboard")}>{t("courses.dashboard")}</span> /{" "}
           <span>{i18n.language === "ru" ? "О нас" : "About us"}</span>
         </div>
+      </div>
+
       <h1 className="about-title">
         {i18n.language === "ru" ? "О нас" : "About us"}
       </h1>

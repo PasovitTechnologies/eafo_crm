@@ -13,6 +13,11 @@
   font-size: 14px;
   color: #555;
   margin-bottom: 20px;
+  
+}
+.aboutus-navigation{
+  max-width: 1200px;
+  margin-left: auto;
 }
 
 .about-breadcrumb span {

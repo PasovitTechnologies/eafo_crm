@@ -158,12 +158,9 @@ router.post("/", async (req, res) => {
             !personalDetails.gender ||
             !personalDetails.country ||
             !personalDetails.acceptTerms ||
-            !personalDetails.agreePersonalData ||
             !professionalDetails ||
             !professionalDetails.university ||
-            !professionalDetails.department ||
-            !professionalDetails.acceptPromotions
-
+            !professionalDetails.department
             
         ) {
             return res.status(400).json({ message: "All required fields must be filled." });

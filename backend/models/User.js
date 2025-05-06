@@ -43,9 +43,7 @@ const userSchema = new mongoose.Schema(
       dob: { type: Date, required: true },
       country: { type: String, required: true },
       gender: { type: String, required: true },
-      agreePersonalData: { type: Boolean, required: true },
       acceptTerms: { type: Boolean, required: true },
-      acceptPromotions: { type: Boolean, required: false },
 
     },
 

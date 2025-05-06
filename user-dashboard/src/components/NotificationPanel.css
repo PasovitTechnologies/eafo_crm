@@ -73,6 +73,7 @@
   /* Item content */
   .notification-content {
     margin-bottom: 6px;
+    font-size: 14px;
   }
   
   .notification-time {
@@ -165,7 +166,7 @@
   @media (max-width: 480px) {
     .notification-panel {
       right: 5px;
-      left: 5px;
+      left: -100px;
       width: auto;
       top: 50px;
       max-height: calc(100vh - 60px);

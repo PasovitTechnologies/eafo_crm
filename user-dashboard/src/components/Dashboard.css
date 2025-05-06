@@ -175,13 +175,13 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: bold;
   color: #fff;
   cursor: pointer;
   transition: background 0.2s ease-in-out;
   background-color: #033672;
-  padding: 8px 15px;
+  padding: 6px 8px;
   border-radius: 25px;
   
 }
@@ -193,7 +193,7 @@
 /* 🌟 Edit Icon */
 .edit-icon {
   padding-left: 3px;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 
@@ -435,10 +435,12 @@
   bottom: 0;
   height: auto;
   height: 150px;
+  z-index: 0;
 }
 
 .course-slider {
   position: relative;
+  z-index: 1;
 }
 
 .course-details {

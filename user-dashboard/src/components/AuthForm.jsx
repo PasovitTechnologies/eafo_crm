@@ -49,6 +49,7 @@ const AuthForm = () => {
   }, []);
 
   return (
+    <div className="intro-page">
     <div className="auth-page">
       {showHelpPopup && <HelpPopup onClose={toggleHelpPopup} />}
       <div className={isMobile ? "" : "auth-wrapper"}>
@@ -102,6 +103,7 @@ const AuthForm = () => {
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

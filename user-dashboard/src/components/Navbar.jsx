@@ -175,7 +175,7 @@ const Navbar = () => {
             <div className="notification-icon-container">
               <FaBell className="notification-icon" onClick={toggleNotifications} />
               {unreadCount > 0 && (
-                <span className="notification-badge">{unreadCount}</span>
+                <span className="notification-badge" onClick={toggleNotifications}>{unreadCount}</span>
               )}
               {showNotifications && (
                 <NotificationPanel
