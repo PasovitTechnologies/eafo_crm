@@ -3,7 +3,7 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const axios = require("axios");
 
-// Define schema
+// PreCourse Schema
 const preCourseSchema = new mongoose.Schema({
   firstName: { type: String },
   middleName: { type: String },
@@ -14,15 +14,14 @@ const preCourseSchema = new mongoose.Schema({
   courseId: { type: String, required: true },
 });
 
-// Create unique compound index to prevent duplicate course registration
+// Prevent duplicate registrations for same course/email
 preCourseSchema.index({ email: 1, courseId: 1 }, { unique: true });
-
-// Create model
 const PreCourse = mongoose.model("PreCourse", preCourseSchema);
 
+// Email API
 const RUSENDER_API = "https://api.beta.rusender.ru/api/v1/external-mails/send";
 
-// Email templates
+// Email templates (used only for email, not stored)
 const emailTemplates = {
   russian: {
     subject: 'Регистрация на XI EAFO Базовые медицинские курсы',
@@ -70,7 +69,7 @@ const emailTemplates = {
   }
 };
 
-// Helper function to send emails using Rusender
+// Email sender helper
 const sendEmailRusender = async (recipient, mail) => {
   const emailData = {
     mail: {
@@ -107,81 +106,51 @@ const sendEmailRusender = async (recipient, mail) => {
 router.post("/register", async (req, res) => {
   const { firstName, middleName, lastName, email, phone, country, courseId, language } = req.body;
 
-  // Required field validation
   if (!email || !courseId) {
     return res.status(400).json({ message: "Email and Course ID are required." });
   }
 
-  // Language validation
-  const supportedLanguages = {
-    'ru': 'russian',
-    'en': 'english'
-  };
-
-  if (!language || !supportedLanguages[language.toLowerCase()]) {
-    return res.status(400).json({ 
-      message: "Valid language parameter is required. Use 'ru' for Russian or 'en' for English." 
-    });
-  }
-
-  const selectedLanguage = supportedLanguages[language.toLowerCase()];
+  const supportedLanguages = { ru: "russian", en: "english" };
+  const selectedLanguage = supportedLanguages[language?.toLowerCase()] || "english";
 
   try {
-    // Save registration without language field
-    const newEntry = new PreCourse({
-      firstName,
-      middleName,
-      lastName,
-      email,
-      phone,
-      country,
-      courseId
-    });
-
+    // Save to DB (language is not stored)
+    const newEntry = new PreCourse({ firstName, middleName, lastName, email, phone, country, courseId });
     await newEntry.save();
-    
-    // Prepare email
-    const fullName = [firstName, middleName, lastName].filter(Boolean).join(' ');
-    const recipient = {
-      email: email,
-      name: fullName || "User"
-    };
 
-    // Send email in selected language only
+    const fullName = [firstName, middleName, lastName].filter(Boolean).join(" ");
+    const recipient = { email, name: fullName };
+
     await sendEmailRusender(recipient, emailTemplates[selectedLanguage]);
 
-    res.status(201).json({ 
-      message: selectedLanguage === 'russian' 
-        ? "Предварительная регистрация успешна! Проверьте вашу почту." 
-        : "Pre-registration successful! Check your email.",
-      language: language.toLowerCase()
-    });
+    const message = selectedLanguage === "russian"
+      ? "Предварительная регистрация успешна! Проверьте вашу почту."
+      : "Pre-registration successful! Check your email.";
 
+    return res.status(201).json({ message });
   } catch (err) {
     if (err.code === 11000) {
-      const message = selectedLanguage === 'russian'
+      const message = selectedLanguage === "russian"
         ? "Вы уже зарегистрированы на этот курс с этим email."
         : "You've already registered for this course with this email.";
       return res.status(409).json({ message });
     }
+
     console.error("Registration error:", err);
-    res.status(500).json({ 
-      message: selectedLanguage === 'russian'
-        ? "Ошибка сервера. Пожалуйста, попробуйте позже."
-        : "Server error. Please try again later."
-    });
+    const message = selectedLanguage === "russian"
+      ? "Ошибка сервера. Пожалуйста, попробуйте позже."
+      : "Server error. Please try again later.";
+
+    return res.status(500).json({ message });
   }
 });
 
+// GET /api/precourse/users
 router.get("/users", async (req, res) => {
   const { courseId } = req.query;
 
   try {
-    let query = {};
-    if (courseId) {
-      query.courseId = courseId;
-    }
-
+    const query = courseId ? { courseId } : {};
     const users = await PreCourse.find(query, "email courseId phone firstName middleName lastName");
     res.json(users);
   } catch (err) {
