@@ -7,7 +7,7 @@ import {
   FaTrashAlt,
   FaCheckCircle,
   FaTimesCircle,
-  FaRegCopy
+  FaRegCopy,
 } from "react-icons/fa"; // Import icons
 
 import AktDocument from "./AktDocument";
@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import ContractDocument from "./ContractDocument";
 import { useCallback } from "react";
 import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 
 const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   const [items, setItems] = useState([]);
@@ -95,22 +95,29 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   const fetchPaymentHistory = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${baseUrl}/api/user/${submission.email}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await axios.get(
+        `${baseUrl}/api/user/${submission.email}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       const course = response.data.courses.find((c) => c.courseId === courseId);
       if (!course?.payments) {
         setPaymentHistory([]);
         return;
       }
-      setPaymentHistory(course.payments.map(payment => ({
-        ...payment,
-        time: payment.time ? new Date(payment.time).toLocaleString() : "N/A"
-      })));
+      setPaymentHistory(
+        course.payments.map((payment) => ({
+          ...payment,
+          time: payment.time ? new Date(payment.time).toLocaleString() : "N/A",
+        }))
+      );
       setUserData(response.data);
     } catch (error) {
       console.error("Payment history error:", error);
-      setError(error.response?.data?.message || "Failed to fetch payment history");
+      setError(
+        error.response?.data?.message || "Failed to fetch payment history"
+      );
     }
   };
 
@@ -135,7 +142,6 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     return coursePayment ? coursePayment.status : payment.status || "Unknown";
   };
 
-
   const addNewItem = () => {
     setItems([
       ...items,
@@ -155,16 +161,22 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
 
   const handlePayment = async () => {
     if (!submission.email || items.length === 0 || totalAmount <= 0) {
-      setError("Please ensure email is available and items have valid amounts.");
-      console.error("Validation failed:", { email: submission.email, items, totalAmount });
+      setError(
+        "Please ensure email is available and items have valid amounts."
+      );
+      console.error("Validation failed:", {
+        email: submission.email,
+        items,
+        totalAmount,
+      });
       return;
     }
-  
+
     setLoading(true);
     setError(null);
-  
+
     const orderNumber = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
-  
+
     const orderDetails = {
       amount: totalAmount,
       currency: selectedMethod === "stripe" ? "INR" : "RUB",
@@ -174,26 +186,26 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       failUrl: "http://localhost:3000/payment-failed",
       orderNumber, // <-- ADD THIS
     };
-  
+
     console.log("Initiating payment with details:", orderDetails);
-  
+
     try {
       const endpoint =
         selectedMethod === "stripe"
           ? `${baseUrl}/api/stripe/create-payment-link`
           : `${baseUrl}/api/payment/alfabank/pay`;
-  
+
       console.log("Selected payment endpoint:", endpoint);
-  
+
       const response = await axios.post(endpoint, orderDetails, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json",
         },
       });
-  
+
       console.log("Payment response received:", response.data);
-  
+
       if (response.data.success) {
         toast.success("Payment link generated");
         setPaymentUrl(response.data.paymentUrl);
@@ -203,31 +215,35 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
         setError(response.data.message || "Payment failed.");
       }
     } catch (error) {
-      console.error("Payment request error:", error.response?.data || error.message);
+      console.error(
+        "Payment request error:",
+        error.response?.data || error.message
+      );
       setError(error.response?.data?.message || "Payment request failed.");
     } finally {
       setLoading(false);
       console.log("Payment process completed");
     }
   };
-  
-  
+
   const handleSendEmail = async () => {
     if (!submission?.email) {
       console.error("❌ Missing recipient email.");
       return;
     }
-  
+
     if (!paymentUrl) {
-      alert("❌ No payment URL generated. Please generate a payment link first.");
+      alert(
+        "❌ No payment URL generated. Please generate a payment link first."
+      );
       return;
     }
-  
+
     // Extract package, amount, currency
-    const packageName = items.map(item => item.name).join(", ");
+    const packageName = items.map((item) => item.name).join(", ");
     const amount = totalAmount.toFixed(2);
     const currency = items[0]?.currency || "INR";
-  
+
     const emailData = {
       courseId,
       formId,
@@ -239,80 +255,84 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       amount,
       currency,
     };
-  
+
     try {
       setEmailSending(true);
-  
-      const response = await axios.post(`${baseUrl}/api/email/send`, emailData, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-  
+
+      const response = await axios.post(
+        `${baseUrl}/api/email/send`,
+        emailData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
       if (response.data.success) {
         console.log("✅ Invoice email sent successfully:", response.data);
         setShowPopup(true);
         fetchPaymentHistory();
         setPaymentUrl("");
       } else {
-        console.error("❌ Failed to send invoice email:", response.data.message);
+        console.error(
+          "❌ Failed to send invoice email:",
+          response.data.message
+        );
       }
     } catch (error) {
-      console.error("❌ Error sending email request:", error.response?.data || error.message);
-      alert(`❌ Error: ${error.response?.data?.message || "Failed to send invoice"}`);
+      console.error(
+        "❌ Error sending email request:",
+        error.response?.data || error.message
+      );
+      alert(
+        `❌ Error: ${error.response?.data?.message || "Failed to send invoice"}`
+      );
     } finally {
       setEmailSending(false);
     }
   };
-  
-  
-  
-  
-  
-  
-  
-  
-  
+
   const handleSendWhatsApp = useCallback(async () => {
     if (whatsappLoading) return;
-  
+
     if (!paymentUrl) {
       alert("❌ No payment URL generated. Please generate it first!");
       return;
     }
-  
+
     if (!userData?.personalDetails?.phone) {
       alert("❌ No phone number available.");
       return;
     }
-  
+
     const phoneNumber = userData.personalDetails.phone.replace(/\D/g, "");
-  
+
     if (!/^\d{10,15}$/.test(phoneNumber)) {
       alert("❌ Invalid phone number format.");
       return;
     }
-  
+
     if (!courseId || !orderId) {
       alert("❌ Missing required details.");
       return;
     }
-  
+
     // Extract package details
-    const packageName = items.map(item => item.name).join(", ");
+    const packageName = items.map((item) => item.name).join(", ");
     const amount = totalAmount.toFixed(2);
     const currency = items[0]?.currency || "INR";
-  
+
     const message = `*Payment Invoice* 📩
     
   💼 *Package:* ${packageName}
   💰 *Amount:* ${amount} ${currency}
   🔗 *Payment Link:* ${paymentUrl}`;
-  
+
     setWhatsappLoading(true);
     setWhatsappStatus(null);
-  
+
     try {
       const response = await axios.post(
         `${baseUrl}/api/whatsapp/send-wp`,
@@ -337,7 +357,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
           timeout: 30000,
         }
       );
-  
+
       if (response.data.success) {
         setWhatsappStatus({
           type: "success",
@@ -345,8 +365,13 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
           timestamp: new Date().toLocaleTimeString(),
         });
         fetchPaymentHistory();
+        setTimeout(() => {
+          setPaymentUrl("");
+        }, 1000);
       } else {
-        throw new Error(response.data.error || "Failed to send WhatsApp message");
+        throw new Error(
+          response.data.error || "Failed to send WhatsApp message"
+        );
       }
     } catch (error) {
       setWhatsappStatus({
@@ -357,8 +382,6 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       setWhatsappLoading(false);
     }
   }, [paymentUrl, whatsappLoading, userData, submission, items, totalAmount]);
-  
-  
 
   const handleViewAkt = (payment) => {
     if (payment.status === "Paid" && userData) {
@@ -449,25 +472,30 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   };
 
   const handleResendEmail = async (payment) => {
-    if (!payment?.email) {
+    const recipientEmail = payment?.email || submission?.email;
+    if (!recipientEmail) {
       toast.error("Recipient email missing");
       return;
     }
   
     try {
       setEmailSending(true);
-      const response = await axios.post(`${baseUrl}/api/resend-email`, {
-        invoiceNumber: payment.invoiceNumber,
-        email: payment.email
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
+      const response = await axios.post(
+        `${baseUrl}/api/email/resend`,
+        {
+          invoiceNumber: payment.invoiceNumber,
+          email: recipientEmail,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-      });
+      );
   
       if (response.data.success) {
         toast.success("Email resent successfully");
-        fetchPaymentHistory();
+        fetchPaymentHistory(); // refresh list
       } else {
         toast.error(response.data.message || "Failed to resend email");
       }
@@ -478,22 +506,33 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     }
   };
   
+
   const handleResendWhatsApp = async (payment) => {
-    if (!userData?.personalDetails?.phone) {
+    const phone = userData?.personalDetails?.phone;
+    if (!phone) {
       toast.error("No phone number available");
+      return;
+    }
+  
+    if (!payment?.invoiceNumber) {
+      toast.error("Invoice number missing");
       return;
     }
   
     try {
       setWhatsappLoading(true);
-      const response = await axios.post(`${baseUrl}/api/resend-whatsapp`, {
-        invoiceNumber: payment.invoiceNumber,
-        phone: userData.personalDetails.phone
-      }, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
+      const response = await axios.post(
+        `${baseUrl}/api/whatsapp/resend-whatsapp`,
+        {
+          phone,
+          invoiceNumber: payment.invoiceNumber,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-      });
+      );
   
       if (response.data.success) {
         toast.success("WhatsApp message resent");
@@ -507,10 +546,11 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       setWhatsappLoading(false);
     }
   };
+  
 
   return (
     <>
-    <ToastContainer     className="custom-toast-container"/>
+      <ToastContainer className="custom-toast-container" />
       <div
         className={`invoice-modal-overlay ${isOpen ? "open" : ""}`}
         onClick={onClose}
@@ -557,7 +597,10 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
                 placeholder="Amount"
               />
               <span className="currency-type">{currency}</span>
-              <button className="invoice-dlt-btn" onClick={() => removeItem(index)}>
+              <button
+                className="invoice-dlt-btn"
+                onClick={() => removeItem(index)}
+              >
                 <FaTrashAlt />
               </button>
             </div>
@@ -589,10 +632,9 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
             </div>
 
             <div className="invoice-send-actions">
-            <button onClick={handleSendEmail} disabled={emailSending}>
-  <FaEnvelope /> {emailSending ? "Sending..." : "Send via Email"}
-</button>
-
+              <button onClick={handleSendEmail} disabled={emailSending}>
+                <FaEnvelope /> {emailSending ? "Sending..." : "Send via Email"}
+              </button>
 
               <button
                 className="send-invoice-btn whatsapp-btn"
@@ -624,81 +666,113 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
           </div>
         )}
 
-<div className="payment-history">
+        <div className="payment-history">
           <h3>{t("InvoiceModal.paymentHistory")}</h3>
           {error ? (
             <p className="error-message">{error}</p>
           ) : paymentHistory.length > 0 ? (
             <ul className="payment-info-list">
-  {paymentHistory.map((payment, index) => (
-    <li key={index} className="payment-info-item">
-      <div>
-        <p><strong>{t("InvoiceModal.invoiceNumber")}:</strong> {payment.invoiceNumber}</p>
-        <p><strong>{t("InvoiceModal.package")}:</strong> {payment.package}</p>
-        <p><strong>{t("InvoiceModal.amount")}:</strong> {payment.amount} {payment.currency}</p>
-        <p><strong>{t("InvoiceModal.status")}:</strong> {getRealPaymentStatus(payment)}</p>
-        <p><strong>{t("InvoiceModal.date")}:</strong> {payment.time}</p>
-        
-        <div className="payment-link-container">
-  <a href={payment.paymentLink} target="_blank" rel="noopener noreferrer">
-    {t("InvoiceModal.paymentLink")}
-  </a>
+              {paymentHistory.map((payment, index) => (
+                <li key={index} className="payment-info-item">
+                  <div>
+                    <p>
+                      <strong>{t("InvoiceModal.invoiceNumber")}:</strong>{" "}
+                      {payment.invoiceNumber}
+                    </p>
+                    <p>
+                      <strong>{t("InvoiceModal.package")}:</strong>{" "}
+                      {payment.package}
+                    </p>
+                    <p>
+                      <strong>{t("InvoiceModal.amount")}:</strong>{" "}
+                      {payment.amount} {payment.currency}
+                    </p>
+                    <p>
+                      <strong>{t("InvoiceModal.status")}:</strong>{" "}
+                      {getRealPaymentStatus(payment)}
+                    </p>
+                    <p>
+                      <strong>{t("InvoiceModal.date")}:</strong> {payment.time}
+                    </p>
 
-  <button
-    onClick={() => {
-      navigator.clipboard.writeText(payment.paymentLink);
-      toast.success("Link copied!");
-    }}
-    className="copy-button"
-    title={t("InvoiceModal.copyLink")}
-  >
-    <FaRegCopy size={18} />
-  </button>
-</div>
+                    <div className="payment-link-container">
+                      <a
+                        href={payment.paymentLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {t("InvoiceModal.paymentLink")}
+                      </a>
+
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(payment.paymentLink);
+                          toast.success("Link copied!");
+                        }}
+                        className="copy-button"
+                        title={t("InvoiceModal.copyLink")}
+                      >
+                        <FaRegCopy size={18} />
+                      </button>
+                    </div>
 
 
-      </div>
+                    {payment.paymentLink && (
+  <>
+    <button
+      onClick={() => handleResendEmail(payment)}
+      className="email-resend-btn"
+      title="Resend via Email"
+      disabled={emailSending}
+    >
+      <FaEnvelope size={18} />
+      {emailSending && (
+        <span className="resend-loading">Sending...</span>
+      )}
+    </button>
 
-      <div className="payment-actions">
-        {/* AKT Button - Only if paid */}
-        <button
-          onClick={() => handleViewAkt(payment)}
-          disabled={getRealPaymentStatus(payment) !== "Paid"}
-          className={getRealPaymentStatus(payment) === "Paid" ? "btn-paid" : "btn-disabled"}
-        >
-          {t("InvoiceModal.akt")}
-        </button>
+    <button
+      onClick={() => handleResendWhatsApp(payment)}
+      className="whatsapp-resend-btn"
+      title="Resend via WhatsApp"
+      disabled={whatsappLoading}
+    >
+      <FaWhatsapp size={18} />
+      {whatsappLoading && (
+        <span className="resend-loading">Sending...</span>
+      )}
+    </button>
+  </>
+)}
+                  </div>
 
-        {/* Contract Button - Always enabled */}
-        <button
-          onClick={() => handleViewContract(payment)}
-          className="btn-paid"
-        >
-          {t("InvoiceModal.contract")}
-        </button>
-      </div>
-      <button
-    onClick={() => handleResendEmail(payment)}
-    className="email-resend-btn"
-    title="Resend via Email"
-    disabled={emailSending}
-  >
-    <FaEnvelope size={18} />
-    {emailSending && <span className="resend-loading">Sending...</span>}
-  </button>
-  
-  <button
-    onClick={() => handleResendWhatsApp(payment)}
-    className="whatsapp-resend-btn"
-    title="Resend via WhatsApp"
-    disabled={whatsappLoading}
-  >
-    <FaWhatsapp size={18} />
-    {whatsappLoading && <span className="resend-loading">Sending...</span>}
-  </button>
-    </li>
-  ))}
-</ul>
+                  <div className="payment-actions">
+                    {/* AKT Button - Only if paid */}
+                    <button
+                      onClick={() => handleViewAkt(payment)}
+                      disabled={getRealPaymentStatus(payment) !== "Paid"}
+                      className={
+                        getRealPaymentStatus(payment) === "Paid"
+                          ? "btn-paid"
+                          : "btn-disabled"
+                      }
+                    >
+                      {t("InvoiceModal.akt")}
+                    </button>
+
+                    {/* Contract Button - Always enabled */}
+                    <button
+                      onClick={() => handleViewContract(payment)}
+                      className="btn-paid"
+                    >
+                      {t("InvoiceModal.contract")}
+                    </button>
+                  </div>
+                  
+
+                </li>
+              ))}
+            </ul>
           ) : (
             <p>{t("InvoiceModal.noSubmissions")}</p>
           )}
@@ -719,7 +793,6 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
           <ContractDocument data={contractData} onClose={handleCloseContract} />
         </div>
       )}
-      
     </>
   );
 };

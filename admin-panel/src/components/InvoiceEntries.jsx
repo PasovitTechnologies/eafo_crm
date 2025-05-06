@@ -248,7 +248,7 @@ const InvoiceEntries = () => {
             </tbody>
           </table>
         ) : (
-          <p>{t("InvoiceEntries.noSubmissions")}</p>
+          <p className="no-invoice-submission">{t("InvoiceEntries.noSubmissions")}</p>
         )}
       </div>
 

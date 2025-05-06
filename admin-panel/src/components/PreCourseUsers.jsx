@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaEnvelope, FaWhatsapp, FaTelegramPlane } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
@@ -15,7 +15,7 @@ const baseUrl = import.meta.env.VITE_BASE_URL;
 export default function PreCourseUsers() {
   const { courseId } = useParams();
   const { t } = useTranslation();
-
+  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [emailDetails, setEmailDetails] = useState({});
@@ -121,6 +121,20 @@ export default function PreCourseUsers() {
     return true;
   });
 
+  const handleRowClick = (uiStatus, email) => {
+    if (uiStatus === "red") {
+      toast.warn(
+        <div>
+          <p>{t("preCourseUsers.user_not_registered")}</p>
+          <p>{t("preCourseUsers.register_first")}</p>
+        </div>,
+        { autoClose: 3000 }
+      );
+      return;
+    }
+    navigate(`/userbase/userbase-details/${email}`);
+  };
+
   return (
     <div className="pre-user-list">
       <h2>{t("preCourseUsers.registered_users")}</h2>
@@ -152,21 +166,30 @@ export default function PreCourseUsers() {
             </tr>
           ) : (
             filteredUsers.map((user, idx) => (
-              <tr key={idx}>
+              <tr 
+                key={idx}
+                onClick={() => handleRowClick(user.uiStatus, user.email)}
+                style={{ 
+                  cursor: user.uiStatus === "green" ? 'pointer' : 'not-allowed',
+                  opacity: user.uiStatus === "red" ? 0.8 : 1
+                }}
+                className={`user-row ${user.uiStatus === "red" ? 'disabled-row' : ''}`}
+              >
                 <td>{user.firstName} {user.middleName} {user.lastName}</td>
                 <td>{user.email}</td>
                 <td>
                   <span className={user.uiStatus === "green" ? "status-green" : "status-red"}>
-                  {t(`preCourseUsers.${user.uiStatus === "green" ? "registered" : "not_registered"}`)}
+                    {t(`preCourseUsers.${user.uiStatus === "green" ? "registered" : "not_registered"}`)}
                   </span>
                 </td>
                 <td>
                   <span className={user.courseStatus === "green" ? "status-green" : "status-red"}>
-                    {t(`preCourseUsers.${user.uiStatus === "green" ? "registered" : "not_registered"}`)}
-
+                    {t(`preCourseUsers.${user.courseStatus === "green" ? "registered" : "not_registered"}`)}
                   </span>
                 </td>
-                <td>{generateContactIcons(user.email, user.phone)}</td>
+                <td onClick={(e) => e.stopPropagation()}>
+                  {generateContactIcons(user.email, user.phone)}
+                </td>
               </tr>
             ))
           )}

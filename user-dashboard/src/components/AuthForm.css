@@ -26,7 +26,7 @@
 
 /* ✅ Add styles for the logo */
 .toast-container{
-    z-index: 100;
+    z-index: 10000;
     margin-top: 70px;
 }
 
@@ -60,7 +60,6 @@
     align-items: center;
     color: #333;
     padding: 30px 10px;
-    z-index: 1;
     margin-right: 20px;
     transition: .6s ease-in-out 1.2s, visibility 0s 1s;
 }
@@ -79,7 +78,7 @@
   
   .form-box.register,
   .form-box.forget-password {
-    z-index: 2;
+    z-index: 1;
   }
   
   /* Smooth transitions */
@@ -707,7 +706,6 @@ input:not(.has-placeholder) + .date-placeholder {
     height: 100%;
     background: #033672;
     border-radius: 150px;
-    z-index: 2;
     transition: 1.8s ease-in-out;
 }
 

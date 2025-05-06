@@ -319,6 +319,9 @@
   flex-direction: column;
   gap: 10px;
 }
+.email-resend-btn{
+  margin-right: 10px;
+}
 
 /* ================================
    Error Message

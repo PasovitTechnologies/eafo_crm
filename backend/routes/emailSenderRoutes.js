@@ -281,6 +281,71 @@ router.post("/send-email", async (req, res) => {
   }
 });
 
+router.post("/resend", async (req, res) => {
+  const { email, invoiceNumber } = req.body;
+
+  if (!email || !invoiceNumber) {
+    return res.status(400).json({
+      success: false,
+      message: "❌ Missing email or invoice number.",
+    });
+  }
+
+  try {
+    // Find the user and their payment
+    const user = await User.findOne({ email });
+    if (!user) throw new Error("❌ User not found");
+
+    const course = await Course.findOne({
+      "payments.invoiceNumber": invoiceNumber,
+    });
+    if (!course) throw new Error("❌ Course with this invoice not found");
+
+    const coursePayment = course.payments.find(
+      (p) => p.invoiceNumber === invoiceNumber
+    );
+    const userCourse = user.courses.find((c) =>
+      c.payments.some((p) => p.invoiceNumber === invoiceNumber)
+    );
+
+    const userPayment =
+      userCourse?.payments.find((p) => p.invoiceNumber === invoiceNumber);
+
+    const payment = coursePayment || userPayment;
+    if (!payment) throw new Error("❌ Payment not found");
+
+    const { title, firstName, middleName, lastName } = user.personalDetails || {};
+    const isRussian = payment.currency === "RUB";
+
+    const fullName = isRussian
+      ? `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()
+      : `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
+
+    const emailSubject = isRussian
+      ? `Счет за 45-й курс онкопатологии EAFO - ${invoiceNumber} от EAFO`
+      : `Invoice for the 45th EAFO OncoPathology Course - ${invoiceNumber} from EAFO`;
+
+    const emailBody = isRussian
+      ? `<p>Здравствуйте, ${fullName}.<br/>Ваш счет: <a href="${payment.paymentLink}">Оплатить</a></p>`
+      : `<p>Hello, ${fullName}.<br/>Your invoice: <a href="${payment.paymentLink}">Pay Now</a></p>`;
+
+    const mail = { subject: emailSubject, html: emailBody };
+    const emailResult = await sendEmailRusender({ email, name: fullName }, mail);
+
+    console.log("📧 Invoice resent to:", email);
+
+    return res.status(200).json({
+      success: true,
+      message: "✅ Invoice email resent",
+      emailResult,
+    });
+  } catch (error) {
+    console.error("❌ Resend email error:", error.message);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+
 
 
 

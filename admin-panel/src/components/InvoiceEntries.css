@@ -336,6 +336,11 @@
   border-radius: 12px;
 }
 
+.no-invoice-submission{
+  padding: 10px;
+  text-align: center;
+}
+
 /* 🌟 Responsive Adjustments */
 @media (max-width: 1200px) {
   .invoice-entries-container {

@@ -299,6 +299,82 @@ router.post("/send-wp", async (req, res) => {
   }
 });
 
+router.post("/resend-whatsapp", async (req, res) => {
+  const { phone, invoiceNumber } = req.body;
+
+  if (!phone || !invoiceNumber) {
+    return res.status(400).json({
+      success: false,
+      message: "❌ Missing phone or invoice number",
+    });
+  }
+
+  try {
+    // Find the course containing the invoice
+    const course = await Course.findOne({
+      "payments.invoiceNumber": invoiceNumber,
+    });
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "❌ Invoice not found in any course",
+      });
+    }
+
+    const payment = course.payments.find(
+      (p) => p.invoiceNumber === invoiceNumber
+    );
+
+    if (!payment) {
+      return res.status(404).json({
+        success: false,
+        message: "❌ Payment not found",
+      });
+    }
+
+    // Compose WhatsApp message
+    const message = `*Payment Invoice* 📩
+
+💼 *Package:* ${payment.package}
+💰 *Amount:* ${payment.amount} ${payment.currency}
+📄 *Invoice No:* ${payment.invoiceNumber}
+🔗 *Payment Link:* ${payment.paymentLink}`;
+
+    const response = await axios.post(
+      `${WAPPI_BASE_URL}/api/sync/message/send`,
+      {
+        body: message,
+        recipient: phone,
+      },
+      {
+        headers: { Authorization: API_TOKEN },
+        params: { profile_id: PROFILE_ID },
+        timeout: 30000,
+      }
+    );
+
+    if (response.data?.status !== "done") {
+      throw new Error("Failed to send WhatsApp message");
+    }
+
+    console.log("✅ WhatsApp resent:", response.data);
+
+    return res.status(200).json({
+      success: true,
+      message: "✅ WhatsApp message resent",
+      invoiceNumber,
+    });
+  } catch (error) {
+    console.error("❌ Resend WhatsApp error:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: error.response?.data?.message || error.message,
+    });
+  }
+});
+
+
 
 
 
