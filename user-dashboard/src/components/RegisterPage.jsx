@@ -274,19 +274,23 @@ const RegisterPage = ({ onSwitchToLogin }) => {
 
   const lang = i18n.language;
 
-  const privacyPolicyUrl = "https://www.eafo.info/privacy-policy"; // or t("registerPage.privacyPolicyUrl")
-  const termsUrl = "https://www.eafo.info/terms"; // or t("registerPage.termsUrl")
+  const firstLink = "https://workdrive.zohoexternal.com/file/ddmoqd07c238d03b641309ce3c263d6f7eb41";
+  const secondLink = "https://workdrive.zohoexternal.com/file/ddmoq2fabfdce574e41db8cdffd1416f18d3d";
+  const thirdLink = "https://workdrive.zohoexternal.com/file/ddmoqd74740f24acb4948a5fd734db5cd8e00";
+  const fourthLink = "https://workdrive.zohoexternal.com/file/ddmoqd6e00dae72934d0cabbb3a441b5f9105";
+
+
 
 
 
   const termsText =
   lang === "ru" ? (
     <>
-    Нажимая на кнопку, я соглашаюсь на <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">обработку персональных</a></strong> данных, <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">получение рекламных</a></strong> материалов, с <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">договором-оферты</a></strong> и <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">политикой конфиденциальности</a></strong>.
+    Нажимая на кнопку, я соглашаюсь на <strong><a href={firstLink} target="_blank" rel="noopener noreferrer">обработку персональных</a></strong> данных, <strong><a href={secondLink} target="_blank" rel="noopener noreferrer">получение рекламных</a></strong> материалов, с <strong><a href={thirdLink} target="_blank" rel="noopener noreferrer">договором-оферты</a></strong> и <strong><a href={fourthLink} target="_blank" rel="noopener noreferrer">политикой конфиденциальности</a></strong>.
     </>
   ) : (
     <>
-  By clicking the button, I agree to the <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">processing of personal data</a></strong>, <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">receiving promotional materials</a></strong>, and accept the <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">public offer agreement</a></strong> and the <strong><a href={termsUrl} target="_blank" rel="noopener noreferrer">privacy policy</a></strong>.
+  By clicking the button, I agree to the <strong><a href={firstLink} target="_blank" rel="noopener noreferrer">processing of personal data</a></strong>, <strong><a href={secondLink} target="_blank" rel="noopener noreferrer">receiving promotional materials</a></strong>, and accept the <strong><a href={thirdLink} target="_blank" rel="noopener noreferrer">public offer agreement</a></strong> and the <strong><a href={fourthLink} target="_blank" rel="noopener noreferrer">privacy policy</a></strong>.
 </>
 
   );
