@@ -33,6 +33,8 @@ const paymentSchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   currency: { type: String, required: true },
   paymentLink: { type: String, required: false },
+  orderId: { type: String, required: false },   
+
   status: {
     type: String,
     enum: ["Not created", "Pending", "Paid", "Failed", "Expired"],

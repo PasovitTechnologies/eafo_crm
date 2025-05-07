@@ -741,6 +741,7 @@
   "not_registered": "Not Registered",
   "no_users": "No users registered yet.",
   "filter_label": "Filter",
+  "export_csv": "Export CSV",
   "filter": {
     "all": "All",
     "not_registered": "Not Registered",

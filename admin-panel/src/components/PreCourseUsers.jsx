@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { FaEnvelope, FaWhatsapp, FaTelegramPlane } from "react-icons/fa";
+import { FaEnvelope, FaWhatsapp, FaTelegramPlane, FaFileCsv } from "react-icons/fa";
 import { useTranslation } from "react-i18next";
 import "../i18n"; // Ensure this is imported once at root level
 
@@ -135,10 +135,47 @@ export default function PreCourseUsers() {
     navigate(`/userbase/userbase-details/${email}`);
   };
 
+
+  const exportToCSV = () => {
+    const headers = [
+      "First Name",
+      "Middle Name",
+      "Last Name",
+      "Email",
+      "Phone",
+      "UI Status",
+      "Course Status"
+    ].join(",");
+  
+    const rows = filteredUsers.map(user => 
+      [
+        `"${user.firstName || ''}"`,
+        `"${user.middleName || ''}"`,
+        `"${user.lastName || ''}"`,
+        `"${user.email || ''}"`,
+        `"${user.phone || ''}"`,
+        `"${user.uiStatus === 'green' ? 'Registered' : 'Not Registered'}"`,
+        `"${user.courseStatus === 'green' ? 'Registered' : 'Not Registered'}"`
+      ].join(",")
+    ).join("\n");
+  
+    const csvContent = `\uFEFF${headers}\n${rows}`; // <- Add BOM here
+  
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `course_users_${courseId}_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  
+
   return (
     <div className="pre-user-list">
       <h2>{t("preCourseUsers.registered_users")}</h2>
-
+   <div className="pre-course-header">
       <div className="precourse-filter-container">
         <label>{t("preCourseUsers.filter_label")}: </label>
         <select value={filter} onChange={(e) => setFilter(e.target.value)}>
@@ -148,6 +185,16 @@ export default function PreCourseUsers() {
           <option value="all_registered">{t("preCourseUsers.filter.all_registered")}</option>
         </select>
       </div>
+
+      <button 
+          onClick={exportToCSV}
+          className="export-csv-btn"
+        >
+          <FaFileCsv />
+          {t("preCourseUsers.export_csv")}
+        </button>
+
+        </div>
 
       <table className="pre-table">
         <thead>

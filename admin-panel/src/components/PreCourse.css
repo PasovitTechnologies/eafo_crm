@@ -164,7 +164,33 @@
     border-color: #007bff;
     outline: none;
   }
+
+  .pre-course-header{
+    display: flex;
+    float: right;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+  }
+  .export-csv-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background-color: #033672;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+    white-space: nowrap;
+  }
   
+  .export-csv-btn:hover {
+    background-color: #022d5e;
+  }
   
   /* Responsive styles for small screens */
   @media (max-width: 768px) {

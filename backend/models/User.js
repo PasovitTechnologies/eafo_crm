@@ -90,7 +90,8 @@ const userSchema = new mongoose.Schema(
             package: { type: String, required: false },         // e.g., "Package 1"
             amount: { type: Number, required: false },           // e.g., 24500
             currency: { type: String, required: false },         // e.g., "INR"
-        
+            orderId: { type: String, required: false },         // e.g., "INR"
+
             // 👇 Fields you will push LATER during payment processing
             invoiceNumber: { type: String, required: false, default: "" },
             paymentId: { type: String, required: false },         // Unique ID from payment gateway

@@ -131,7 +131,7 @@ const getCompetitiveEmailTemplate = (lang, user) => {
     return {
       subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
       html: `
-        <p>Уважаемый(ая) ${fullName},</p>
+        <p><strong>Уважаемый(ая) ${fullName},</strong></p>
 
         <p>Мы благодарим Вас за регистрацию и будем рады видеть Вас на Базовых курсах!</p>
 
@@ -146,26 +146,26 @@ const getCompetitiveEmailTemplate = (lang, user) => {
         <p>Участники, подавшие заявку с 17 по 22 июля, могут претендовать только на участие по ценам соответствующего неконкурсного участия третьего уровня.</p>
 
         <p><strong>Участники, подавшие <span style="color:#cc0000">все</span> необходимые документы до указанных сроков, претендуют на конкурсные цены соответствующего уровня, независимо от даты оглашения результатов отбора.</strong></p>
-
-        <p><strong>Участники, подавшие <strong style="color:#cc0000">все</strong> необходимые документы до указанных сроков, претендуют на конкурсные цены соответствующего уровня, независимо от даты оглашения результатов отбора.</strong></p>
         
-        <p style:"color:#0070bf"><strong>Рекомендации по написанию мотивационного письма и резюме:</strong></p>
-        <p><strong>Мотивационное письмо</strong><br>
+        <p style="color:#0000ff"><strong style="color:#0000ff">Рекомендации по написанию мотивационного письма и резюме:</strong></p>
+        <p><strong style="text-decoration:underline">Мотивационное письмо</strong><br>
         Напишите, почему Вы бы хотели принять участие в Базовых курсах и как знания, полученные во время Курсов, могут повлиять на Вашу профессиональную жизнь. Вы можете раскрыть свою жизненную позицию, описать Ваши таланты и деятельность, которой посвящаете время помимо учебы. Приветствуется написание мотивационного письма на английском языке – таким образом Вы доказываете достойное им владение (письмо на русском также будет принято).</p>
 
-        <p><strong>Резюме</strong><br>
+        <p><strong style="text-decoration:underline">Резюме</strong><br>
         Ваше резюме может отражать Ваши научные публикации, выступления на конференциях, опыт работы, стажировки и др. Вы можете отправить резюме на русском, английском или обоих языках.</p>
 
-        <p style="color:#cc0000"><strong style="color:#cc0000">ВНИМАНИЕ! Информация о тестировании для участников конкурсного отбора.</strong><br>
-        В следующем письме от ______________  Вы получите ссылку на вступительное тестирование с инструкциями к его выполнению. После выполнения тестовых заданий и загрузки всех необходимых документов будут оглашены результаты конкурсного отбора. На тестировании предусмотрен строгий <strong>прокторинг</strong> (контроль честности тестирования).</p>
+        <p style="color:#cc0000"><strong style="color:#cc0000;text-decoration:underline">ВНИМАНИЕ! Информация о тестировании для участников конкурсного отбора.</strong><br></p>
+        <p>В следующем письме от ______________  Вы получите ссылку на вступительное тестирование с инструкциями к его выполнению. После выполнения тестовых заданий и загрузки всех необходимых документов будут оглашены результаты конкурсного отбора. На тестировании предусмотрен строгий <strong>прокторинг</strong> (контроль честности тестирования).</p>
 
         <p><strong>Результаты первой волны конкурсного отбора будут объявлены до 23:59 7 июня, второй – до 23:59 7 июля, третьей – до 23:59 18 июля.</strong> Вы получите письмо с почтового ящика: <a href="mailto:basic@eafo.info">basic@eafo.info</a> , в котором будут оглашаться результаты отбора со ссылкой на оплату.</p>
 
         
         <p>Если Вы пройдете конкурсный отбор, Вы будете участвовать по цене конкурсного участия того уровня, который был на момент подачи всех необходимых документов в личный кабинет. Если Вы не окажетесь в числе самых сильных кандидатов, прошедших конкурсный отбор, Вы будете претендовать на участие в Курсах по ценам льготного неконкурсного участия соответствующего уровня, в зависимости от срока подачи всех необходимых документов.</p>
 
-        <p>Команда Базовых курсов и специалисты технической поддержки готовы ответить на Ваши вопросы, адресованные нам на почту <a href="mailto:basic@eafo.info">basic@eafo.info</a>. </p>
-
+        <p>Если у вас возникнут вопросы, вы можете связаться с нами по адресу: basic@eafo.info или по телефону: +7 (931) 111-22-55</p>
+        
+        <p>В случае возникновения любых вопросов, пожалуйста, свяжитесь с нашей службой технической поддержки по адресу: support@eafo.info</p>
+        
         <p>Будем рады видеть Вас на Курсах!</p>
 
         <p>С уважением,<br>Организационный комитет Базовых курсов.</p>
@@ -204,7 +204,8 @@ const getCompetitiveEmailTemplate = (lang, user) => {
 
 <p>If your application is strong enough, you will qualify to participate in the courses at the competitive participation price of the corresponding level; if not, you'll qualify for participation for the price of a subsidized non-competitive participation of the respective level, according to the time of all required documents submission.</p>
 
-<p>The Team of the Basic Courses and the Technical Support Team are ready to clarify any query addressed us by email to basic@eafo.info.</p>
+<p>If you have any questions, you can contact us at: basic@eafo.info or by  phone at: +7 (931) 111-22-55</p>
+<p>For any technical issues, please contact our support team at: support@eafo.info</p>
 
 <p>We are looking forward to seeing you at our Courses!</p>
 
@@ -223,22 +224,24 @@ const getSubsidizedParticipationEmailTemplate = (lang, user) => {
     return {
       subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
       html: `
-        <p>${fullName},</p>
+        <p><strong>Уважаемый(ая) ${fullName},</strong></p>
 
         <p>Мы благодарим Вас за регистрацию и будем рады видеть Вас на Базовых курсах!</p>
 
-        <p>Вы выбрали вариант льготного неконкурсного участия. Информируем Вас, что Вы в <strong style="color:cc0000">обязательном</strong> порядке должны прикрепить <strong>факт учебы/работы в государственном/некоммерческом учреждении и копию паспорта</strong> в разделе «Документы» личного кабинета EAFO. Подача других документов, обозначенных в этом разделе личного кабинета, является необязательным, но очень желательным условием участия – нам интересно познакомиться с Вашей профессиональной историей и достижениями!</p>
+        <p>Вы выбрали вариант льготного неконкурсного участия. Информируем Вас, что Вы в <strong style="color:#cc0000">обязательном</strong> порядке должны прикрепить <strong>факт учебы/работы в государственном/некоммерческом учреждении и копию паспорта</strong> в разделе «Документы» личного кабинета EAFO. Подача других документов, обозначенных в этом разделе личного кабинета, является необязательным, но очень желательным условием участия – нам интересно познакомиться с Вашей профессиональной историей и достижениями!</p>
 
-        <p style="color:0000ff"><strong>Рекомендации по написанию мотивационного письма и резюме:</strong></p>
-        <p><strong>Мотивационное письмо</strong>
+        <p style="color:#0000ff"><strong style="color:#0000ff">Рекомендации по написанию мотивационного письма и резюме:</strong></p>
+        <p><strong style="text-decoration:underline">Мотивационное письмо</strong>
         Напишите, почему Вы бы хотели принять участие в Базовых курсах и как знания, полученные во время Курсов, могут повлиять на Вашу профессиональную жизнь. Вы можете раскрыть свою жизненную позицию, описать Ваши таланты и деятельность, которой посвящаете время помимо учебы. Приветствуется написание мотивационного письма на английском языке – таким образом Вы доказываете достойное им владение (письмо на русском также будет принято).</p>
-        <p><strong>Резюме</strong>
+        <p><strong style="text-decoration:underline">Резюме</strong>
         Ваше резюме может отражать Ваши научные публикации, выступления на конференциях, опыт работы, стажировки и др. Вы можете отправить резюме на русском, английском или обоих языках.</p>
 
-        <p><strong style="color:cc0000">Обращаем Ваше внимание,</strong> что <strong style="color:cc0000">оплата</strong> Базовых курсов, в соответствии с таблицей стоимости регистрации и указанными в ней сроками, должна быть произведена в <strong style="color:cc0000">течение 72 часов</strong> с момента получения настоящего письма. Вы получите от нашей команды <a href="mailto:basic@eafo.info">basic@eafo.info</a> письмо со ссылкой на оплату (проверяйте папку спам, если не получите от нас письмо в ближайшее время).</p>
+        <p><strong style="color:#cc0000">Обращаем Ваше внимание,</strong> что <strong style="color:#cc0000">оплата</strong> Базовых курсов, в соответствии с таблицей стоимости регистрации и указанными в ней сроками, должна быть произведена в <strong style="color:#cc0000">течение 72 часов</strong> с момента получения настоящего письма. Вы получите от нашей команды <a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a> письмо со ссылкой на оплату (проверяйте папку спам, если не получите от нас письмо в ближайшее время).</p>
 
-        <p>Команда Базовых курсов и специалисты технической поддержки готовы ответить на Ваши вопросы, адресованные нам на почту <a href="mailto:basic@eafo.info">basic@eafo.info</a>.</p>
-
+        <p>Если у вас возникнут вопросы, вы можете связаться с нами по адресу: basic@eafo.info или по телефону: +7 (931) 111-22-55</p>
+        
+        <p>В случае возникновения любых вопросов, пожалуйста, свяжитесь с нашей службой технической поддержки по адресу: support@eafo.info</p>
+        
         <p>Будем рады видеть Вас на Курсах!</p>
 
         <p>С уважением,<br>Оргкомитет XI Базовых курсов – 2025</p>
@@ -249,24 +252,25 @@ const getSubsidizedParticipationEmailTemplate = (lang, user) => {
   return {
     subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
     html: `
-      <p>Dear ${fullName},</p>
+      <p><strong>Dear ${fullName},</strong></p>
 
       <p>You are welcome to the XI EAFO Basic Oncology/Oncopathology Courses and are delighted to await seeing you soon!</p>
 
-      <p>You have chosen an option of a subsidized non-competitive participation. We inform you that <strong>uploading the document attesting that you study or work at the public (governmental)/non-for-profit institution</strong> at the “Documents” section of your EAFO personal profile is <strong style="color:cc0000">obligatory.</strong> Although being optional for a non-competitive admission, the other documents in this section are strongly recommended for submission – we are curious to get acquainted with you through your resume, professional achievements and motivation letter.</p>
+      <p>You have chosen an option of a subsidized non-competitive participation. We inform you that <strong>uploading the document attesting that you study or work at the public (governmental)/non-for-profit institution</strong> at the “Documents” section of your EAFO personal profile is <strong style="color:#cc0000">obligatory.</strong> Although being optional for a non-competitive admission, the other documents in this section are strongly recommended for submission – we are curious to get acquainted with you through your resume, professional achievements and motivation letter.</p>
 
       <p>The other documents in that section are optional for non-competitive admission, but strongly recommended. We are eager to get to know you through your resume, achievements, and motivation letter.</p>
 
-      <p style="color:0000ff"><strong>Recommendations on compiling a Letter of Motivation and Resume (CV):</strong></p>
-      <p><strong>Letter of Motivation</strong>
+      <p style="color:#0000ff"><strong>Recommendations on compiling a Letter of Motivation and Resume (CV):</strong></p>
+      <p><strong style="text-decoration:underline">Letter of Motivation</strong>
       Your Letter of Motivation is a way to tell us why you are interested in the Basic Medical Courses and how the attained knowledge can contribute to the establishment of a well-trained specialist in medicine or allied sciences. We are curious to get initial understanding of your life philosophy, talents, and hobbies. The Letter can be written in any language, though writing it in English for Russian & Commonwealth citizens and in Russian for citizens of other countries would be highly appreciated!</p>
-      <p><strong>Resume (CV)</strong>
+      <p><strong style="text-decoration:underline">Resume (CV)</strong>
       In your Resume (CV) you are welcome to reflect your publication list (articles and abstracts), most important conferences and courses you participated in, internships, work experience etc. The Resume can be written in English, Russian, or both languages.</p>
 
-      <p style="color:cc0000"><strong>ATTENTION!</strong> We highlight that the <strong style="color:red">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:red">within 72 hours</strong> from the moment you have received this letter. Our team (<a href="mailto:basic@eafo.info">basic@eafo.info</a>) will send you a payment link shortly, please regularly check your Spam folder.</p>
+      <p><strong style="text-decoration:underline">ATTENTION!</strong> We highlight that the <strong style="color:#cc0000">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:#cc0000">within 72 hours</strong> from the moment you have received this letter. Our team (<a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a>) will send you a payment link shortly, please regularly check your Spam folder.</p>
 
-      <p>The Team of the Basic Courses and the Technical Support Team are ready to clarify any query addressed to us by email to <a href="mailto:basic@eafo.info">basic@eafo.info</a>.</p>
-
+      <p>If you have any questions, you can contact us at: basic@eafo.info or by  phone at: +7 (931) 111-22-55</p>
+      <p>For any technical issues, please contact our support team at: support@eafo.info</p>
+      
       <p>We are looking forward to seeing you at our Courses!</p>
 
       <p>Best regards,<br>Organizing Committee of the XI Basic Medical Courses – 2025</p>
@@ -285,15 +289,17 @@ const getNonCompetitiveParticipationEmailTemplate = (lang, user) => {
     return {
       subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
       html: `
-        <p>Уважаемый(ая) ${fullName},</p>
+        <p><strong>Уважаемый(ая) ${fullName},</strong></p>
 
 <p>Мы благодарим Вас за регистрацию на Базовые курсы!</p>
 
-<p>Вы выбрали участие в тематических модулях. Подача документов, обозначенных в разделе личного кабинета EAFO «Документы», является необязательным, но очень желательным условием участия – нам интересно познакомиться с Вашей профессиональной историей и достижениями! <strong style="color:cc0000">Подача копии паспорта в этой секции является обязательной.</strong></p>
+<p>Вы выбрали участие в тематических модулях. Подача документов, обозначенных в разделе личного кабинета EAFO «Документы», является необязательным, но очень желательным условием участия – нам интересно познакомиться с Вашей профессиональной историей и достижениями! <strong style="color:#cc0000">Подача копии паспорта в этой секции является обязательной.</strong></p>
 
 <p>С Вами в ближайшее время свяжется член нашей команды для уточнения деталей участия и пришлет ссылку на оплату. </p>
 
-<p>Команда Базовых курсов и специалисты технической поддержки готовы ответить на Ваши вопросы, адресованные нам на почту <a href="mailto:basic@eafo.info">basic@eafo.info</a>.</p>
+<p>Если у вас возникнут вопросы, вы можете связаться с нами по адресу: basic@eafo.info или по телефону: +7 (931) 111-22-55</p>
+
+<p>В случае возникновения любых вопросов, пожалуйста, свяжитесь с нашей службой технической поддержки по адресу: support@eafo.info</p>
 
 <p>Будем рады видеть Вас на Курсах!</p>
 
@@ -306,17 +312,18 @@ const getNonCompetitiveParticipationEmailTemplate = (lang, user) => {
   return {
     subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
     html: `
-      <p>Dear ${fullName},</p>
+      <p><strong>Dear ${fullName},</strong></p>
 
       <p>You are welcome to the XI EAFO Basic Oncology/Oncopathology Courses and are delighted to await seeing you soon!</p>
 
-      <p>You have chosen an option of participation in modules without competition. We inform you that uploading the <strong>copy of your passport/ID</strong> at the “Documents” section of your EAFO personal profile is <strong style="color:cc0000">obligatory.</strong> Although being optional for a non-competitive admission, the other documents in this section are strongly recommended for submission – we are curious to get acquainted with you through your resume, professional achievements and motivation letter.</p>
+      <p>You have chosen an option of participation in modules without competition. We inform you that uploading the <strong>copy of your passport/ID</strong> at the “Documents” section of your EAFO personal profile is <strong style="color:#cc0000">obligatory.</strong> Although being optional for a non-competitive admission, the other documents in this section are strongly recommended for submission – we are curious to get acquainted with you through your resume, professional achievements and motivation letter.</p>
 
       <p>The other documents in this section are optional for a non-competitive admission, but strongly recommended. We are curious to get acquainted with you through your resume, professional achievements and motivation letter.</p>
 
-      <p style="color:cc0000"><strong>ATTENTION!</strong> We highlight that the <strong style="color:cc0000">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:cc0000">within 72 hours</strong> from the moment you have received this letter. Our team <a href="mailto:basic@eafo.info">basic@eafo.info</a> will send you a payment link shortly, please regularly check your Spam folder.</p>
+      <p style="text-decoration:underline"><strong style="color:#cc0000;">ATTENTION!</strong> We highlight that the <strong style="color:cc0000">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:cc0000">within 72 hours</strong> from the moment you have received this letter. Our team <a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a> will send you a payment link shortly, please regularly check your Spam folder.</p>
 
-      <p>The Team of the Basic Courses and the Technical Support Team are ready to clarify any query addressed to us by email to <a href="mailto:basic@eafo.info">basic@eafo.info</a>.</p>
+      <p>If you have any questions, you can contact us at: basic@eafo.info or by  phone at: +7 (931) 111-22-55</p>
+      <p>For any technical issues, please contact our support team at: support@eafo.info</p>
 
       <p>We are looking forward to seeing you at our Courses!</p>
 
@@ -336,21 +343,24 @@ const getSponsoredParticipationEmailTemplate = (lang, user) => {
     return {
       subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
       html: `
-        <p>${fullName},</p>
+        <p><strong>Уважаемый(ая) ${fullName},</strong></p>
 
         <p>Мы благодарим Вас за регистрацию и будем рады видеть Вас на Базовых курсах!</p>
 
-        <p>Вы выбрали вариант льготного неконкурсного участия. Информируем Вас, что Вы в <strong style="color:cc0000">обязательном</strong> порядке должны прикрепить <strong>факт учебы/работы в государственном/некоммерческом учреждении и копию паспорта</strong> в разделе «Документы» личного кабинета EAFO. Подача других документов, обозначенных в этом разделе личного кабинета, является необязательным, но очень желательным условием участия – нам интересно познакомиться с Вашей профессиональной историей и достижениями!</p>
+        <p>Вы выбрали вариант неконкурсного участия (для сотрудников коммерческих клиник, спонсируемых участников, представителей фармацевтических компаний и медицинской промышленности).</p>
+        
+        <p>Подача документов, обозначенных в разделе личного кабинета EAFO «Документы», является необязательным, но очень желательным условием участия – нам интересно познакомиться с Вашей профессиональной историей и достижениями! <strong style="color:#cc0000">Подача копии паспорта в этой секции является обязательной.<strong></p>
 
-        <p style="color:0000ff"><strong>Рекомендации по написанию мотивационного письма и резюме:</strong></p>
-        <p><strong>Мотивационное письмо</strong>
+        <p style="color:#0000ff"><strong>Рекомендации по написанию мотивационного письма и резюме:</strong></p>
+        <p><strong style="text-decoration:underline">Мотивационное письмо</strong>
         Напишите, почему Вы бы хотели принять участие в Базовых курсах и как знания, полученные во время Курсов, могут повлиять на Вашу профессиональную жизнь. Вы можете раскрыть свою жизненную позицию, описать Ваши таланты и деятельность, которой посвящаете время помимо учебы. Приветствуется написание мотивационного письма на английском языке – таким образом Вы доказываете достойное им владение (письмо на русском также будет принято).</p>
-        <p><strong>Резюме</strong>
+        <p><strong style="text-decoration:underline">Резюме</strong>
         Ваше резюме может отражать Ваши научные публикации, выступления на конференциях, опыт работы, стажировки и др. Вы можете отправить резюме на русском, английском или обоих языках.</p>
 
-        <p><strong style="color:cc0000">Обращаем Ваше внимание,</strong> что <strong style="color:cc0000">оплата</strong> Базовых курсов, в соответствии с таблицей стоимости регистрации и указанными в ней сроками, должна быть произведена в <strong style="color:cc0000">течение 72 часов</strong> с момента получения настоящего письма. Вы получите от нашей команды <a href="mailto:basic@eafo.info">basic@eafo.info</a> письмо со ссылкой на оплату (проверяйте папку спам, если не получите от нас письмо в ближайшее время).</p>
-
-        <p>Команда Базовых курсов и специалисты технической поддержки готовы ответить на Ваши вопросы, адресованные нам на почту <a href="mailto:basic@eafo.info">basic@eafo.info</a>.</p>
+        <p><strong style="color:#cc0000">Обращаем Ваше внимание,</strong> что <strong style="color:#cc0000">оплата</strong> Базовых курсов, в соответствии с таблицей стоимости регистрации и указанными в ней сроками, должна быть произведена в <strong style="color:#cc0000">течение 72 часов</strong> с момента получения настоящего письма. Вы получите от нашей команды <a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a> письмо со ссылкой на оплату (проверяйте папку спам, если не получите от нас письмо в ближайшее время).</p>
+        
+        <p>Если у вас возникнут вопросы, вы можете связаться с нами по адресу: basic@eafo.info или по телефону: +7 (931) 111-22-55</p>
+        <p>В случае возникновения любых вопросов, пожалуйста, свяжитесь с нашей службой технической поддержки по адресу: support@eafo.info</p>
 
         <p>Будем рады видеть Вас на Курсах!</p>
 
@@ -363,24 +373,23 @@ const getSponsoredParticipationEmailTemplate = (lang, user) => {
   return {
     subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
     html: `
-      <p>Dear ${fullName},</p>
+      <p><strong>Dear ${fullName},</strong></p>
 
       <p>You are welcome to the XI EAFO Basic Oncology/Oncopathology Courses and are delighted to await seeing you soon!</p>
 
-      <p>You have chosen an option of a subsidized non-competitive participation. We inform you that <strong>uploading the document attesting that you study or work at the public (governmental)/non-for-profit institution</strong> at the “Documents” section of your EAFO personal profile is <strong style="color:cc0000">obligatory.</strong> Although being optional for a non-competitive admission, the other documents in this section are strongly recommended for submission – we are curious to get acquainted with you through your resume, professional achievements and motivation letter.</p>
+      <p>You have chosen an option of sponsored non-competitive participation. We inform you that uploading the <strong>copy of your passport/ID</strong> at the “Documents” section of your EAFO personal profile is <strong style="color:#cc0000">obligatory.</strong> Although being optional for a non-competitive admission, the other documents in this section are strongly recommended for submission – we are curious to get acquainted with you through your resume, professional achievements and motivation letter.</p>
 
-      <p>The other documents in that section are optional for non-competitive admission, but strongly recommended. We are eager to get to know you through your resume, achievements, and motivation letter.</p>
-
-      <p style="color:0000ff"><strong>Recommendations on compiling a Letter of Motivation and Resume (CV):</strong></p>
-      <p><strong>Letter of Motivation</strong>
-      Your Letter of Motivation is a way to tell us why you are interested in the Basic Medical Courses and how the attained knowledge can contribute to the establishment of a well-trained specialist in medicine or allied sciences. We are curious to get initial understanding of your life philosophy, talents, and hobbies. The Letter can be written in any language, though writing it in English for Russian & Commonwealth citizens and in Russian for citizens of other countries would be highly appreciated!</p>
-      <p><strong>Resume (CV)</strong>
+      <p style="color:#0000ff"><strong>Recommendations on compiling a Letter of Motivation and Resume (CV):</strong></p>
+      <p><strong style="text-decoration:underline">Letter of Motivation</strong></p>
+      <p>Your Letter of Motivation is a way to tell us why you are interested in the Basic Medical Courses and how the attained knowledge can contribute to the establishment of a well-trained specialist in medicine or allied sciences. We are curious to get initial understanding of your life philosophy, talents, and hobbies. The Letter can be written in any language, though writing it in English for Russian & Commonwealth citizens and in Russian for citizens of other countries would be highly appreciated!</p>
+      <p><strong style="text-decoration:underline">Resume (CV)</strong>
       In your Resume (CV) you are welcome to reflect your publication list (articles and abstracts), most important conferences and courses you participated in, internships, work experience etc. The Resume can be written in English, Russian, or both languages.</p>
 
-      <p style="color:cc0000"><strong>ATTENTION!</strong> We highlight that the <strong style="color:cc0000">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:cc0000">within 72 hours</strong> from the moment you have received this letter. Our team (<a href="mailto:basic@eafo.info">basic@eafo.info</a>) will send you a payment link shortly, please regularly check your Spam folder.</p>
+      <p><strong style="color:#cc0000;text-decoration:underline">ATTENTION!</strong> We highlight that the <strong style="color:#cc0000">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:#cc0000">within 72 hours</strong> from the moment you have received this letter. Our team (<a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a>) will send you a payment link shortly, please regularly check your Spam folder.</p>
 
-      <p>The Team of the Basic Courses and the Technical Support Team are ready to clarify any query addressed to us by email to <a href="mailto:basic@eafo.info">basic@eafo.info</a>.</p>
-
+      <p>If you have any questions, you can contact us at: basic@eafo.info or by  phone at: +7 (931) 111-22-55</p>
+      <p>For any technical issues, please contact our support team at: support@eafo.info</p>
+      
       <p>We are looking forward to seeing you at our Courses!</p>
 
       <p>Best regards,<br>Organizing Committee of the XI Basic Medical Courses – 2025</p>
