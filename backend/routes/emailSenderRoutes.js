@@ -50,10 +50,6 @@ const sendEmailRusender = async (recipient, mail) => {
 };
 
 
-
-
-
-
 // ✅ Endpoint to send emails and save payments
 router.post("/send", async (req, res) => {
   const { email, courseId, transactionId, orderId, paymentUrl, currency, package: packageName,amount } = req.body;

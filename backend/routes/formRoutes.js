@@ -139,24 +139,24 @@ const getCompetitiveEmailTemplate = (lang, user) => {
 
         <p>Обращаем Ваше внимание, что их подача осуществляется <strong>(указано Московское время, GMT+3):</strong></p>
         <ul>
-          <li>По конкурсным ценам первого уровня – до 23:59 <strong>31 мая [СБ] 2025</strong></li>
-          <li>Второго уровня – до 23:59 <strong>30 июня [ПН] 2025</strong></li>
-          <li>Третьего уровня – до 23:59 <strong>16 июля [СР] 2025</strong></li>
+          <li>По конкурсным ценам первого уровня – до 23:59 <strong style="color:#cc0000">31 мая [СБ] 2025</strong></li>
+          <li>Второго уровня – до 23:59 <strong style="color:#cc0000">30 июня [ПН] 2025</strong></li>
+          <li>Третьего уровня – до 23:59 <strong style="color:#cc0000">16 июля [СР] 2025</strong></li>
         </ul>
         <p>Участники, подавшие заявку с 17 по 22 июля, могут претендовать только на участие по ценам соответствующего неконкурсного участия третьего уровня.</p>
 
-        <p>Участники, подавшие все необходимые документы до указанных сроков, претендуют на конкурсные цены соответствующего уровня, независимо от даты оглашения результатов отбора.</p>
+        <p><strong>Участники, подавшие <span style="color:#cc0000">все</span> необходимые документы до указанных сроков, претендуют на конкурсные цены соответствующего уровня, независимо от даты оглашения результатов отбора.</strong></p>
 
-        <p><strong>Участники, подавшие <strong color:"red">все</strong> необходимые документы до указанных сроков, претендуют на конкурсные цены соответствующего уровня, независимо от даты оглашения результатов отбора.</strong></p>
+        <p><strong>Участники, подавшие <strong style="color:#cc0000">все</strong> необходимые документы до указанных сроков, претендуют на конкурсные цены соответствующего уровня, независимо от даты оглашения результатов отбора.</strong></p>
         
-        <p style:"color:blue"><strong>Рекомендации по написанию мотивационного письма и резюме:</strong></p>
+        <p style:"color:#0070bf"><strong>Рекомендации по написанию мотивационного письма и резюме:</strong></p>
         <p><strong>Мотивационное письмо</strong><br>
         Напишите, почему Вы бы хотели принять участие в Базовых курсах и как знания, полученные во время Курсов, могут повлиять на Вашу профессиональную жизнь. Вы можете раскрыть свою жизненную позицию, описать Ваши таланты и деятельность, которой посвящаете время помимо учебы. Приветствуется написание мотивационного письма на английском языке – таким образом Вы доказываете достойное им владение (письмо на русском также будет принято).</p>
 
         <p><strong>Резюме</strong><br>
         Ваше резюме может отражать Ваши научные публикации, выступления на конференциях, опыт работы, стажировки и др. Вы можете отправить резюме на русском, английском или обоих языках.</p>
 
-        <p><strong>ВНИМАНИЕ! Информация о тестировании для участников конкурсного отбора.</strong><br>
+        <p style="color:#cc0000"><strong style="color:#cc0000">ВНИМАНИЕ! Информация о тестировании для участников конкурсного отбора.</strong><br>
         В следующем письме от ______________  Вы получите ссылку на вступительное тестирование с инструкциями к его выполнению. После выполнения тестовых заданий и загрузки всех необходимых документов будут оглашены результаты конкурсного отбора. На тестировании предусмотрен строгий <strong>прокторинг</strong> (контроль честности тестирования).</p>
 
         <p><strong>Результаты первой волны конкурсного отбора будут объявлены до 23:59 7 июня, второй – до 23:59 7 июля, третьей – до 23:59 18 июля.</strong> Вы получите письмо с почтового ящика: <a href="mailto:basic@eafo.info">basic@eafo.info</a> , в котором будут оглашаться результаты отбора со ссылкой на оплату.</p>
@@ -175,42 +175,40 @@ const getCompetitiveEmailTemplate = (lang, user) => {
 
   return {
     subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
-    html: `
-      <p><strong>Dear ${fullName},</strong></p>
+    html: `<p><strong>Dear ${fullName},</strong></p>
 
-      <p>You are welcome to the XI EAFO Basic Oncology/Oncopathology Courses and are delighted to await seeing you soon!</p>
+<p>You are welcome to the XI EAFO Basic Oncology/Oncopathology Courses and are delighted to await seeing you soon!</p>
 
-      <p>To participate in the Courses at the particular reduced price, you <strong>must upload</strong> all the required files (copy of your passport, motivation letter, CV, and, if you have them, academic and language certificates) in the “Documents” section of your EAFO personal profile.</p>
+<p>To participate in the Courses at the particular reduced price, you <strong>must upload</strong> all the required files (copy of your passport, motivation letter, CV, and, if you have them, academic and language certificates) in the "Documents" section of your EAFO personal profile.</p>
 
-      <p>The submission of all required files should be performed by <strong>(Moscow time, GMT +3):</strong></p>
-      <ul>
-        <li>Most favorable subsidized participation fee (first-level price) – before 23:59 <strong style="color:red">May 31 (Saturday), 2025</li>
-        <li>Second-level price – before 23:59 <strong style="color:red">June 30 (Monday), 2025</strong></li>
-        <li>Third-level price – before 23:59 <strong style="color:red">July 16 (Wednesday), 2025</strong></li>
-      </ul>
-      <p>Those who apply on July 17-22, 2025 can qualify only for a third-level price of the respective non-competitive participation.</p>
-      <p><strong>Participants who have submitted <strong style="color:"red">all</strong> the requested documents as per the above-mentioned timeline, are eligible for the fees of the respective level, regardless of the results announcement date</strong></p>
+<p>The submission of all required files should be performed by <strong>(Moscow time, GMT +3):</strong></p>
+<ul>
+  <li>Most favorable subsidized participation fee (first-level price) – before 23:59 <strong style="color:#ff0000">May 31 (Saturday), 2025</strong></li>
+  <li>Second-level price – before 23:59 <strong style="color:#ff0000">June 30 (Monday), 2025</strong></li>
+  <li>Third-level price – before 23:59 <strong style="color:#ff0000">July 16 (Wednesday), 2025</strong></li>
+</ul>
+<p>Those who apply on July 17-22, 2025 can qualify only for a third-level price of the respective non-competitive participation.</p>
+<p><strong>Participants who have submitted <strong style="color:#ff0000">all</strong> the requested documents as per the above-mentioned timeline, are eligible for the fees of the respective level, regardless of the results announcement date</strong></p>
 
-      <p><strong style="color:blue">Recommendations for Letter of Motivation and Resume (CV):</strong></p>
-      <p><strong>Letter of Motivation:</strong></p>
-      <p>Your Letter of Motivation is a way to tell us why you are interested in the Basic Medical Courses and how the attained knowledge can contribute to the establishment of a well-trained specialist in medicine or allied sciences. We are curious to get initial understanding of your life philosophy, talents, and hobbies. The Letter can be written in any language, though writing it in English for Russian & Commonwealth citizens and in Russian for citizens of other countries would be highly appreciated!</p>
-      <p><strong>Resume (CV)</strong></p>
-      <p>In your Resume (CV) you are welcome to reflect your publication list (articles and abstracts), most important conferences and courses you participated in, internships, work experience etc. The Resume can be written in English, Russian, or both languages.</p>
+<p><strong style="color:#0000ff">Recommendations for Letter of Motivation and Resume (CV):</strong></p>
+<p><strong>Letter of Motivation:</strong></p>
+<p>Your Letter of Motivation is a way to tell us why you are interested in the Basic Medical Courses and how the attained knowledge can contribute to the establishment of a well-trained specialist in medicine or allied sciences. We are curious to get initial understanding of your life philosophy, talents, and hobbies. The Letter can be written in any language, though writing it in English for Russian & Commonwealth citizens and in Russian for citizens of other countries would be highly appreciated!</p>
+<p><strong>Resume (CV)</strong></p>
+<p>In your Resume (CV) you are welcome to reflect your publication list (articles and abstracts), most important conferences and courses you participated in, internships, work experience etc. The Resume can be written in English, Russian, or both languages.</p>
 
-      <p style="color:red"><strong>ATTENTION!</strong> Instructions on the entry testing for the competitive admission.</p>
+<p style="color:#ff0000"><strong>ATTENTION!</strong> Instructions on the entry testing for the competitive admission.</p>
 
-      <p>In the next email from __________  you will receive a link to the entry testing with further instructions. Remember: you are eligible for competitive selection provided you have submitted all the required documents, and entry testing is only one part of it. The entrance test will be <strong style="color:red">proctored. NB!</strong> The entrance test will be <strong style="color:red">IN RUSSIAN LANGUAGE</strong> because most of the lectures and other activities at the course will be in Russian and there won’t be any synchronous translation.</p>
+<p>In the next email from __________ you will receive a link to the entry testing with further instructions. Remember: you are eligible for competitive selection provided you have submitted all the required documents, and entry testing is only one part of it. The entrance test will be <strong style="color:#ff0000">proctored. NB!</strong> The entrance test will be <strong style="color:#ff0000">IN RUSSIAN LANGUAGE</strong> because most of the lectures and other activities at the course will be in Russian and there won't be any synchronous translation.</p>
 
-      <p><strong>The results of competitive selection will be announced before 23:59 June, 7 for the first admission wave, before 23:59 July, 7 – for the second wave, before July, 18 – for the third wave.</strong> You will here from us from <a href="mailto:basic@eafo.info">basic@eafo.info</a>  with the results and a payment link.</p>
-      
-      <p>If your application is strong enough, you will qualify to participate in the courses at the competitive participation price of the corresponding level; if not, you’ll qualify for participation for the price of a subsidized non-competitive participation of the respective level, according to the time of all required documents submission.</p>
+<p><strong>The results of competitive selection will be announced before 23:59 June, 7 for the first admission wave, before 23:59 July, 7 – for the second wave, before July, 18 – for the third wave.</strong> You will here from us from <a href="mailto:basic@eafo.info">basic@eafo.info</a> with the results and a payment link.</p>
 
-      <p>The Team of the Basic Courses and the Technical Support Team are ready to clarify any query addressed us by email to basic@eafo.info.</p>
+<p>If your application is strong enough, you will qualify to participate in the courses at the competitive participation price of the corresponding level; if not, you'll qualify for participation for the price of a subsidized non-competitive participation of the respective level, according to the time of all required documents submission.</p>
 
-      <p>We are looking forward to seeing you at our Courses!</p>
+<p>The Team of the Basic Courses and the Technical Support Team are ready to clarify any query addressed us by email to basic@eafo.info.</p>
 
-      <p>With best regards,<br>Organizing Committee of the XI Basic Medical Courses – 2025</p>
-    `
+<p>We are looking forward to seeing you at our Courses!</p>
+
+<p>With best regards,<br>Organizing Committee of the XI Basic Medical Courses – 2025</p>`
   };
 };
 

@@ -615,8 +615,8 @@ const Forms = () => {
           <div className="success-message">
             <p>
               {formDetails.isUsedForRussian
-                ? "Подтверждение отправлено с eafo@e-register.org"
-                : "Confirmation sent from eafo@e-register.org"}
+                ? "Подтверждение и дальнейшие инструкции были отправлены на вашу электронную почту с адреса eafo@e-register.org."
+                : "Confirmation & further instructions have been sent to your email from eafo@e-register.org."}
             </p>
             <p>
               {formDetails.isUsedForRussian
