@@ -184,7 +184,7 @@ const getCompetitiveEmailTemplate = (lang, user) => {
 
       <p>The submission of all required files should be performed by <strong>(Moscow time, GMT +3):</strong></p>
       <ul>
-        <li>Most favorable subsidized participation fee (first-level price) – before 23:59 <strong style="color:"red">May 31 (Saturday), 2025</li>
+        <li>Most favorable subsidized participation fee (first-level price) – before 23:59 <strong style="color:red">May 31 (Saturday), 2025</li>
         <li>Second-level price – before 23:59 <strong style="color:red">June 30 (Monday), 2025</strong></li>
         <li>Third-level price – before 23:59 <strong style="color:red">July 16 (Wednesday), 2025</strong></li>
       </ul>
@@ -197,9 +197,9 @@ const getCompetitiveEmailTemplate = (lang, user) => {
       <p><strong>Resume (CV)</strong></p>
       <p>In your Resume (CV) you are welcome to reflect your publication list (articles and abstracts), most important conferences and courses you participated in, internships, work experience etc. The Resume can be written in English, Russian, or both languages.</p>
 
-      <p style="color:"red"><strong>ATTENTION!</strong> Instructions on the entry testing for the competitive admission.</p>
+      <p style="color:red"><strong>ATTENTION!</strong> Instructions on the entry testing for the competitive admission.</p>
 
-      <p>In the next email from __________  you will receive a link to the entry testing with further instructions. Remember: you are eligible for competitive selection provided you have submitted all the required documents, and entry testing is only one part of it. The entrance test will be <strong>proctored. NB!</strong> The entrance test will be <strong>IN RUSSIAN LANGUAGE</strong> because most of the lectures and other activities at the course will be in Russian and there won’t be any synchronous translation.</p>
+      <p>In the next email from __________  you will receive a link to the entry testing with further instructions. Remember: you are eligible for competitive selection provided you have submitted all the required documents, and entry testing is only one part of it. The entrance test will be <strong style="color:red">proctored. NB!</strong> The entrance test will be <strong style="color:red">IN RUSSIAN LANGUAGE</strong> because most of the lectures and other activities at the course will be in Russian and there won’t be any synchronous translation.</p>
 
       <p><strong>The results of competitive selection will be announced before 23:59 June, 7 for the first admission wave, before 23:59 July, 7 – for the second wave, before July, 18 – for the third wave.</strong> You will here from us from <a href="mailto:basic@eafo.info">basic@eafo.info</a>  with the results and a payment link.</p>
       
