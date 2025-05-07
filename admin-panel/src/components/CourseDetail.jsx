@@ -225,6 +225,7 @@ const CourseDetail = () => {
       }
   
       Swal.fire(t("courseDetail.successTitle"), t("courseDetail.successText"), "success");
+      
   
       setRules((prevRules) => prevRules.filter((rule) => rule._id !== ruleId));
     } catch (error) {
@@ -331,7 +332,10 @@ const CourseDetail = () => {
 
     // ✅ Remove item from state
     setItems((prevItems) => prevItems.filter((item) => item._id !== itemId));
-
+    setCourse((prevCourse) => ({
+      ...prevCourse,
+      items: (prevCourse.items || []).filter((item) => item._id !== itemId),
+    }));
     toast.success(t("courseDetail.itemDeleted"));
   } catch (error) {
     console.error("🚨 Error deleting item:", error);
