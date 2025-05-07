@@ -459,16 +459,158 @@ button.submit-btn:hover {
   .required-star{
     color: #cc0000;
   }
-  .submission-success-message {
-    padding: 2rem;
-    background-color: #e6f7ec;
-    border: 1px solid #b5e3c0;
-    border-radius: 10px;
-    text-align: center;
-    max-width: 600px;
-    margin: 2rem auto;
+  /* Success Message Container */
+.success-animation-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 70vh;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+}
+
+.success-content {
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+  padding: 2.5rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Animated Checkmark */
+.success-animation {
+  margin: 0 auto 1.5rem;
+  width: 80px;
+  height: 80px;
+}
+
+.checkmark-circle {
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  stroke-width: 2;
+  stroke-miterlimit: 10;
+  stroke: #4CAF50;
+  fill: none;
+  animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+  transform-origin: 50% 50%;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  stroke: #4CAF50;
+  animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+/* Text Styling */
+.success-title {
+  color: #2E7D32;
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+}
+
+.success-message {
+  color: #455A64;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.success-message p {
+  margin: 0.5rem 0;
+}
+
+.form-reference {
+  background: #F1F8E9;
+  padding: 0.8rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+  font-weight: 500;
+  color: #1B5E20;
+}
+
+/* Button Styling */
+.success-action-btn {
+  background: #4CAF50;
+  color: white;
+  border: none;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 1rem 0;
+  font-weight: 500;
+  box-shadow: 0 4px 6px rgba(76, 175, 80, 0.2);
+}
+
+.success-action-btn:hover {
+  background: #3E8E41;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(76, 175, 80, 0.3);
+}
+
+/* Email Note */
+.email-note {
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: #78909C;
+  font-style: italic;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  .submission-success-message h2 {
-    color: #2e7d32;
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes scale {
+  0%, 100% {
+    transform: none;
+  }
+  50% {
+    transform: scale3d(1.1, 1.1, 1);
+  }
+}
+
+.checkmark {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: block;
+  stroke-width: 3;
+  stroke: #4CAF50;
+  stroke-miterlimit: 10;
+  margin: 0 auto;
+  animation: scale 0.3s ease-in-out 0.9s both;
+}
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
   }
   
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }

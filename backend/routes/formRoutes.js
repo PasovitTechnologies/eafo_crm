@@ -265,7 +265,7 @@ const getSubsidizedParticipationEmailTemplate = (lang, user) => {
       <p><strong>Resume (CV)</strong>
       In your Resume (CV) you are welcome to reflect your publication list (articles and abstracts), most important conferences and courses you participated in, internships, work experience etc. The Resume can be written in English, Russian, or both languages.</p>
 
-      <p style="color:"red"><strong>ATTENTION!</strong> We highlight that the <strong style="color:"red">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:"red">within 72 hours</strong> from the moment you have received this letter. Our team (<a href="mailto:basic@eafo.info">basic@eafo.info</a>) will send you a payment link shortly, please regularly check your Spam folder.</p>
+      <p style="color:red"><strong>ATTENTION!</strong> We highlight that the <strong style="color:red">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:red">within 72 hours</strong> from the moment you have received this letter. Our team (<a href="mailto:basic@eafo.info">basic@eafo.info</a>) will send you a payment link shortly, please regularly check your Spam folder.</p>
 
       <p>The Team of the Basic Courses and the Technical Support Team are ready to clarify any query addressed to us by email to <a href="mailto:basic@eafo.info">basic@eafo.info</a>.</p>
 
@@ -316,7 +316,7 @@ const getNonCompetitiveParticipationEmailTemplate = (lang, user) => {
 
       <p>The other documents in this section are optional for a non-competitive admission, but strongly recommended. We are curious to get acquainted with you through your resume, professional achievements and motivation letter.</p>
 
-      <p style="color:"red"><strong>ATTENTION!</strong> We highlight that the <strong style="color:"red">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:"red">within 72 hours</strong> from the moment you have received this letter. Our team <a href="mailto:basic@eafo.info">basic@eafo.info</a> will send you a payment link shortly, please regularly check your Spam folder.</p>
+      <p style="color:red"><strong>ATTENTION!</strong> We highlight that the <strong style="color:red">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:red">within 72 hours</strong> from the moment you have received this letter. Our team <a href="mailto:basic@eafo.info">basic@eafo.info</a> will send you a payment link shortly, please regularly check your Spam folder.</p>
 
       <p>The Team of the Basic Courses and the Technical Support Team are ready to clarify any query addressed to us by email to <a href="mailto:basic@eafo.info">basic@eafo.info</a>.</p>
 
@@ -379,7 +379,7 @@ const getSponsoredParticipationEmailTemplate = (lang, user) => {
       <p><strong>Resume (CV)</strong>
       In your Resume (CV) you are welcome to reflect your publication list (articles and abstracts), most important conferences and courses you participated in, internships, work experience etc. The Resume can be written in English, Russian, or both languages.</p>
 
-      <p style="color:"red"><strong>ATTENTION!</strong> We highlight that the <strong style="color:"red">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:"red">within 72 hours</strong> from the moment you have received this letter. Our team (<a href="mailto:basic@eafo.info">basic@eafo.info</a>) will send you a payment link shortly, please regularly check your Spam folder.</p>
+      <p style="color:red"><strong>ATTENTION!</strong> We highlight that the <strong style="color:red">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:red">within 72 hours</strong> from the moment you have received this letter. Our team (<a href="mailto:basic@eafo.info">basic@eafo.info</a>) will send you a payment link shortly, please regularly check your Spam folder.</p>
 
       <p>The Team of the Basic Courses and the Technical Support Team are ready to clarify any query addressed to us by email to <a href="mailto:basic@eafo.info">basic@eafo.info</a>.</p>
 

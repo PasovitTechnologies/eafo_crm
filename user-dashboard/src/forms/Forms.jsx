@@ -18,7 +18,8 @@ const Forms = () => {
   const [answers, setAnswers] = useState({});
   const [errors, setErrors] = useState({});
   const [error, setError] = useState({});
-  const [loading, setLoading] = useState(true); // ✅
+  const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
   const [formDetails, setFormDetails] = useState({
     title: "",
@@ -184,14 +185,13 @@ const Forms = () => {
     e.preventDefault();
 
     // Show submitting state
-    setLoading(true);
-
+    setIsSubmitting(true);
     // Authentication and validation
     const email = localStorage.getItem("email");
     const token = localStorage.getItem("token");
     if (!email || !token) {
       toast.error("You must be logged in to submit this form.");
-      setLoading(false);
+      setIsSubmitting(false);
       return;
     }
 
@@ -215,7 +215,7 @@ const Forms = () => {
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       toast.error("Please fill in all required fields.");
-      setLoading(false);
+      setIsSubmitting(false);
       return;
     }
 
@@ -277,7 +277,6 @@ const Forms = () => {
       setAnswers({});
       setErrors({});
       setSubmissionSuccess(true);
-      navigate(-1);
       return result;
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -286,7 +285,7 @@ const Forms = () => {
       );
       throw error;
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -596,48 +595,63 @@ const Forms = () => {
 
   return (
     <div className="form-container">
-      {loading ? (
-         <div className="skeleton-wrapper">
-         {/* Header */}
-         <div className="skeleton-header" style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-           <Skeleton circle height={80} width={80} />
-           <div style={{ flex: 1 }}>
-             <Skeleton height={24} width="50%" style={{ marginBottom: 10 }} />
-             <Skeleton height={16} width="30%" />
-           </div>
-         </div>
-       
-         {/* Tabs */}
-         <div className="skeleton-tabs" style={{ display: "flex", gap: "1rem", margin: "1rem 0" }}>
-           {Array.from({ length: 4 }).map((_, index) => (
-             <Skeleton key={index} height={30} width={100} />
-           ))}
-         </div>
-       
-         {/* Questions Section */}
-         <div className="skeleton-questions">
-           {Array.from({ length: 5 }).map((_, index) => (
-             <div key={index} className="skeleton-question" style={{ marginBottom: "2rem" }}>
-               {/* Question label */}
-               <Skeleton height={20} width="40%" style={{ marginBottom: 8 }} />
-       
-               {/* Input field */}
-               <Skeleton height={40} width="100%" />
-             </div>
-           ))}
-         </div>
-       </div>
-       
-                ) :
-
-                submissionSuccess ? (
-                  <div className="submission-success-message">
-                    <h2>🎉 You have successfully submitted the form for the course: {formDetails.title}</h2>
-                    <p>
-                      We’ve sent more details to your email address. Don’t forget to check your spam folder too!
-                    </p>
-                  </div>
-                ) :
+      {submissionSuccess ? (
+        <div className="success-animation-container">
+        <div className="success-content">
+          {/* Animated checkmark */}
+          <div className="success-animation">
+            <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+              <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+              <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+          </div>
+          
+          <h2 className="success-title">
+            {formDetails.isUsedForRussian 
+              ? "Форма успешно отправлена!" 
+              : "Form submitted successfully!"}
+          </h2>
+          
+          <div className="success-message">
+            <p>
+              {formDetails.isUsedForRussian
+                ? "Подтверждение отправлено с eafo@e-register.org"
+                : "Confirmation sent from eafo@e-register.org"}
+            </p>
+            <p>
+              {formDetails.isUsedForRussian
+                ? "Мы отправили детали на вашу электронную почту"
+                : "We've sent the details to your email"}
+            </p>
+          </div>
+          
+          <div className="form-reference">
+            <p>
+              {formDetails.isUsedForRussian
+                ? `Форма: ${formDetails.title}`
+                : `Form: ${formDetails.title}`}
+            </p>
+          </div>
+          
+          <button 
+            className="success-action-btn"
+            onClick={() => navigate(-1)}
+          >
+            {formDetails.isUsedForRussian 
+              ? "Вернуться к формам" 
+              : "Back to forms"}
+          </button>
+          
+          <div className="email-note">
+            <p>
+              {formDetails.isUsedForRussian
+                ? "Не получили письмо? Проверьте папку спам"
+                : "Didn't receive email? Check spam folder"}
+            </p>
+          </div>
+        </div>
+      </div>
+      ) : 
                 <>
                 <div className="form-header">
         <div className="logo-container">
@@ -701,16 +715,20 @@ const Forms = () => {
         </div>
 
         <div className="form-controls">
-          <button type="submit" className="submit-btn" disabled={loading}>
-      {loading ? (
-        <>
-          <span className="spinner"></span>
-          {t('submitting')}
-        </>
-      ) : (
-        t('submit')
-      )}
-    </button>
+        <button 
+  type="submit" 
+  className="submit-btn" 
+  disabled={isSubmitting} // Changed from loading to isSubmitting
+>
+  {isSubmitting ? ( // Changed from loading to isSubmitting
+    <>
+      <span className="spinner"></span>
+      {formDetails.isUsedForRussian ? "Отправка..." : "Submitting..."}
+    </>
+  ) : (
+    formDetails.isUsedForRussian ? "Отправить" : "Submit"
+  )}
+</button>
         </div>
       </form>
       <ToastContainer
