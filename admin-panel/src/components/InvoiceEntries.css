@@ -552,6 +552,7 @@
   padding: 0 20px 20px;
   overflow-y: auto;
   flex-grow: 1;
+  color: #000;
 }
 
 .section-header {
@@ -610,6 +611,8 @@
   border-radius: 4px;
   resize: none;
   font-family: inherit;
+  background-color: #fff;
+  color: #000;
 }
 
 .note-footer {
