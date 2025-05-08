@@ -1,22 +1,24 @@
 /* ✅ Wrapper Layout */
 .course-manager-entries-page {
   background-color: #fff;
+  scroll-behavior: smooth;
 }
 
 .course-manager-wrapper {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  min-height: 100vh;
   background: #f4f6f8;
   padding: 20px;
-  box-sizing: border-box;
   padding-left: 100px;
   margin-top: 60px;
+  box-sizing: border-box;
 }
 
 /* 🔎 Search & Filter Container */
 .search-filter-container {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 15px;
   position: relative;
@@ -35,7 +37,6 @@
   max-width: 400px;
 }
 
-/* 🔥 Removed border for the input field */
 .course-search-input {
   width: 100%;
   outline: none;
@@ -77,11 +78,11 @@
   color: #007bff;
 }
 
-/* 🌟 Bubble Modal Positioned Below */
+/* 🌟 Filter Bubble */
 .course-filter-bubble {
   position: absolute;
   top: 60px;
-  right: 0px;
+  right: 0;
   background: #ffffff;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
@@ -124,29 +125,23 @@
   flex-direction: column;
   gap: 15px;
   overflow-y: auto;
-  padding: 20px 0;
+  -webkit-overflow-scrolling: touch;
 }
 
-
-
-.course-details-row h3 {
-  margin: 0;
-  font-size: 18px;
-}
-
-.course-card {
-  background: #ffffff;
+/* 📋 Course Card */
+.course-manager-card {
+  background-color: #fff;
   border-radius: 12px;
-  padding: 24px 28px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  cursor: pointer;
+  justify-content: space-between;
 }
 
-.course-card:hover {
+.course-manager-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
   background-color: #f9fbff;
@@ -157,6 +152,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .course-card-header h3 {
@@ -164,6 +160,7 @@
   font-size: 20px;
   color: #222;
   font-weight: 600;
+  word-break: break-word;
 }
 
 /* 🏷️ Badge */
@@ -174,26 +171,30 @@
   font-size: 20px;
   padding: 6px 12px;
   border-radius: 20px;
+  white-space: nowrap;
 }
 
-/* 📅 Date + Button Section */
+/* 📅 Body Section */
 .course-card-body {
   display: flex;
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
   color: #555;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  gap: 10px;
 }
 
 .course-date {
   margin: 0;
-  font-size: 14px;
   display: flex;
   align-items: center;
   gap: 5px;
+  font-size: 14px;
 }
 
-/* 🔘 View Button */
+/* 🔘 Button */
 .course-view-button {
   background: #3366cc;
   color: #ffffff;
@@ -210,35 +211,6 @@
 }
 
 /* 📱 Responsive */
-@media (max-width: 768px) {
-  .course-card-body {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .course-view-button {
-    width: 100%;
-  }
-}
-
-/* ✅ Loading and Error Styles */
-.loading,
-.error {
-  font-size: 18px;
-  color: red;
-  text-align: center;
-  margin-top: 20px;
-}
-
-.no-courses {
-  font-size: 18px;
-  color: #555;
-  text-align: center;
-  margin-top: 20px;
-}
-
-/* 📱 Mobile Responsiveness */
 @media (max-width: 1024px) {
   .course-manager-wrapper {
     padding-left: 30px;
@@ -246,7 +218,7 @@
 
   .search-filter-container {
     flex-direction: row;
-    gap: 20px;
+    gap: 15px;
     align-items: flex-start;
   }
 
@@ -273,7 +245,25 @@
   }
 }
 
-/* 📱 Mobile Small Screens */
+@media (max-width: 768px) {
+  .course-card-body {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .course-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .course-view-button {
+    width: 100%;
+  }
+}
+
+/* 📱 Small Screens */
 @media (max-width: 600px) {
   .course-manager-wrapper {
     padding-left: 20px;
@@ -289,8 +279,8 @@
   }
 
   .filter-icon-wrapper {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
   }
 
   .course-filter-bubble {
@@ -307,4 +297,14 @@
   .no-courses {
     font-size: 14px;
   }
+}
+
+/* ✅ Loading and Error Styles */
+.loading,
+.error,
+.no-courses {
+  font-size: 18px;
+  color: #555;
+  text-align: center;
+  margin-top: 20px;
 }

@@ -179,7 +179,7 @@ const CourseEntriesManager = () => {
   filteredCourses.map((course) => (
     <div
       key={course._id}
-      className="course-card"
+      className="course-manager-card"
       onClick={() => handleCourseClick(course._id)}
     >
       <div className="course-card-header">
