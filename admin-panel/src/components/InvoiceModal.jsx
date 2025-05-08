@@ -742,6 +742,30 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
                       </button>
                     </div>
 
+                    <div className="payment-actions">
+                    {/* AKT Button - Only if paid */}
+                    <button
+  onClick={() => handleViewAkt(payment)}
+  disabled={getRealPaymentStatus(payment) !== "paid"}
+  className={
+    getRealPaymentStatus(payment) === "paid"
+      ? "btn-paid"
+      : "btn-disabled"
+  }
+>
+  {t("InvoiceModal.akt")}
+</button>
+
+
+                    {/* Contract Button - Always enabled */}
+                    <button
+                      onClick={() => handleViewContract(payment)}
+                      className="btn-paid"
+                    >
+                      {t("InvoiceModal.contract")}
+                    </button>
+                  </div>
+
 
                     {payment.paymentLink && (
   <div className="resend-actions">
@@ -770,31 +794,10 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     </button>
   </div>
 )}
+
                   </div>
 
-                  <div className="payment-actions">
-                    {/* AKT Button - Only if paid */}
-                    <button
-  onClick={() => handleViewAkt(payment)}
-  disabled={getRealPaymentStatus(payment) !== "paid"}
-  className={
-    getRealPaymentStatus(payment) === "paid"
-      ? "btn-paid"
-      : "btn-disabled"
-  }
->
-  {t("InvoiceModal.akt")}
-</button>
-
-
-                    {/* Contract Button - Always enabled */}
-                    <button
-                      onClick={() => handleViewContract(payment)}
-                      className="btn-paid"
-                    >
-                      {t("InvoiceModal.contract")}
-                    </button>
-                  </div>
+                  
                   
 
                 </li>

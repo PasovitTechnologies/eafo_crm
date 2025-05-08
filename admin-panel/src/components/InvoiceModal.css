@@ -317,8 +317,9 @@
 }
 .payment-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 10px;
+  margin-bottom: 10px;
 }
 .email-resend-btn{
   margin-right: 10px;
@@ -410,9 +411,9 @@
   .copy-button{
     margin-top: 10px;
     margin-left: 0px;
-
-
+    margin-bottom: 10px;
   }
+  
 }
 
 @media (max-width: 480px) {
