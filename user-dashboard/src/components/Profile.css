@@ -6,6 +6,7 @@
   background: #f4f6f9;
 }
 
+/* 🌟 Skeleton Loading Styles */
 .skeleton-avatar-image {
   width: 200px;
   height: 100px;
@@ -49,7 +50,6 @@
   }
 }
 
-
 /* 🌟 Container */
 .profile-container {
   max-width: 1000px;
@@ -59,18 +59,22 @@
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-  margin: auto;
+  margin: 0 auto;
   padding: 20px;
   flex-grow: 1;
-  /* Ensures full height usage */
+  box-sizing: border-box;
 }
-.go-back-div{
-  width: 1000px;
-  margin: auto;
+
+.go-back-div {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
   padding: 20px;
   display: flex;
   gap: 20px;
+  box-sizing: border-box;
 }
+
 .go-back {
   display: flex;
   align-items: center;
@@ -93,17 +97,18 @@
 }
 
 .profile-help-button {
-    padding: 10px 15px;
-    background-color: #4285f4;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .profile-help-button:hover {
-    background-color: #3367d6;
-  }
+  padding: 10px 15px;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.profile-help-button:hover {
+  background-color: #3367d6;
+}
+
 /* 🌟 Profile Grid */
 .profile-grid {
   display: flex;
@@ -123,19 +128,22 @@
   background: white;
   border: 1px solid #ddd;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
 }
 
 .details-div {
   display: flex;
   gap: 20px;
   overflow: visible;
+  flex-wrap: wrap;
 }
 
-/* 🌟 Profile Image with Hover Upload Effect */
+/* 🌟 Profile Image */
 .profile-image-wrapper {
   position: relative;
   width: 150px;
   height: 150px;
+  min-width: 150px;
   border-radius: 50%;
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
@@ -157,9 +165,8 @@
 }
 
 .upload-tooltip {
-
   position: absolute;
-  bottom: -40px; /* adjust as needed */
+  bottom: -40px;
   left: 50%;
   transform: translateX(-50%);
   background-color: #333;
@@ -172,14 +179,8 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   opacity: 0.95;
   transition: opacity 0.3s ease;
-  pointer-events: none; 
+  pointer-events: none;
 }
-
-.profile-image-wrapper {
-  position: relative;
-  cursor: pointer;
-}
-
 
 .upload-overlay {
   position: absolute;
@@ -202,24 +203,23 @@
   opacity: 1;
 }
 
-
-
 /* 🌟 Name & Profession */
 .profile-name-profession {
   display: flex;
   flex-direction: column;
+  min-width: 200px;
+  flex: 1;
 }
 
 .profile-name {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: clamp(20px, 2vw, 24px);
+  font-weight: 700;
   color: #033672;
   margin: 0;
-  font-weight: bold;
 }
 
 .profile-profession {
-  font-size: 18px;
+  font-size: clamp(16px, 1.8vw, 18px);
   color: #777;
   margin-top: 5px;
 }
@@ -232,26 +232,24 @@
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.07);
   border: 1px solid #ddd;
   flex: 1;
-  padding: 30px;
-
+  box-sizing: border-box;
 }
 
 /* 🌟 Section Heading */
 .section-heading {
-  font-size: 20px;
+  font-size: clamp(18px, 2vw, 20px);
   font-weight: 600;
   color: #033672;
   margin-bottom: 15px;
 }
 
-/* 🌟 Form Fields: Display One by One */
+/* 🌟 Form Fields */
 .profile-info-grid {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* 🌟 Label & Input Styling */
 .profile-field {
   display: flex;
   flex-direction: column;
@@ -273,9 +271,10 @@
   border-radius: 6px;
   color: #333;
   transition: all 0.2s ease-in-out;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Focus Effect */
 .profile-field input:focus,
 .profile-field select:focus {
   border-color: #007bff;
@@ -284,12 +283,12 @@
   box-shadow: 0px 2px 6px rgba(0, 123, 255, 0.2);
 }
 
-/* 🌟 Edit Mode Input */
 .editable-input {
   background: white;
   border-color: #007bff;
 }
 
+/* 🌟 Edit/Save Buttons */
 .profile-edit-icon {
   position: absolute;
   top: 20px;
@@ -297,7 +296,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  /* Space between text & icon */
 }
 
 .edit-button,
@@ -305,7 +303,6 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  /* Space between text & icon */
   padding: 8px 12px;
   font-size: 14px;
   font-weight: bold;
@@ -315,7 +312,6 @@
   transition: all 0.3s ease;
 }
 
-/* Edit button styles */
 .edit-button {
   background-color: #3498db;
   color: white;
@@ -325,7 +321,6 @@
   background-color: #2980b9;
 }
 
-/* Save button styles */
 .save-button {
   background-color: #2ecc71;
   color: white;
@@ -335,11 +330,9 @@
   background-color: #27ae60;
 }
 
-/* Icon styles */
 .edit-button svg,
 .save-button svg {
   font-size: 16px;
-  /* Adjust icon size */
 }
 
 /* Name Edit Section */
@@ -349,15 +342,10 @@
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.07);
   border: 1px solid #ddd;
-
   margin: 20px 0;
-  overflow: visible;
-  /* Changed from hidden to visible */
   position: relative;
-  /* Establish new stacking context */
   z-index: 1;
-  /* Base z-index for the section */
-
+  box-sizing: border-box;
 }
 
 .section-subheading {
@@ -372,23 +360,7 @@
   gap: 15px;
 }
 
-/* Make sure the inputs in the name edit section look good */
-.name-edit-section .profile-field input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #ced4da;
-  border-radius: 4px;
-  font-size: 0.9rem;
-}
-
-.name-edit-section .profile-field label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: 500;
-  color: #495057;
-}
-
-/* Title select dropdown styling with high z-index */
+/* React Select Overrides */
 .react-select__menu {
   z-index: 9999 !important;
 }
@@ -397,49 +369,73 @@
   z-index: 999 !important;
 }
 
-/* Ensure the dropdown appears above other elements */
 .react-select__menu-list {
   position: relative;
   z-index: 9999 !important;
 }
 
-/* If you have any other dropdowns (like country select) */
-.react-select__menu {
-  z-index: 9999 !important;
-}
-
 /* 🌟 Responsive Design */
-@media (max-width: 768px) {
-  .go-back-div{
-    width: 1000px;
-    margin: auto;
-    padding: 10px;
-  }
+@media (max-width: 900px) {
   .profile-header-div {
     flex-direction: column;
-    align-items: center;
     text-align: center;
+    align-items: center;
+    gap: 20px;
   }
-
+  
+  .details-div {
+    justify-content: center;
+    flex-direction: column;
+  }
+  
+  .profile-edit-icon {
+    position: relative;
+    top: auto;
+    right: auto;
+    margin-top: 15px;
+    justify-content: center;
+  }
+  
   .profile-name-profession {
     align-items: center;
   }
+}
 
-  .profile-info-grid {
-    flex-direction: column;
+@media (max-width: 600px) {
+  .profile-container,
+  .go-back-div {
+    padding: 15px;
   }
-
-  .details-div {
-    display: flex;
-    flex-direction: column;
+  
+  .profile-image-wrapper {
+    width: 120px;
+    height: 120px;
+    min-width: 120px;
   }
+  
+  .name-edit-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .profile-section {
+    padding: 15px;
+  }
+}
 
+@media (max-width: 400px) {
+  .go-back-div {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
   .profile-edit-icon {
-    position: relative;
-    margin-left: auto;
+    flex-direction: column;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 20px;
   }
-
+  
+  .edit-button,
+  .save-button {
+    width: 100%;
+    justify-content: center;
+  }
 }

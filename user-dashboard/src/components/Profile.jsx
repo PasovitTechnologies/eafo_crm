@@ -354,9 +354,9 @@ const Profile = () => {
           {t("profile.help")}
         </button>
 
-        <div></div>
       </div>
 
+            {showHelpPopup && <ProfileHelp onClose={toggleHelpPopup} />}
 
 
       <div className="profile-container">

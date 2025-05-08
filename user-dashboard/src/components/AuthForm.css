@@ -955,7 +955,6 @@ input:not(.has-placeholder) + .date-placeholder {
     height: 300%;
     background: #033672;
     border-radius: 20vw 20vw 20vw 20vw;
-    z-index: 2;
   }
 
   .container.active .toggle-box::before {
