@@ -529,6 +529,12 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       setEmailSending(false);
     }
   };
+
+  requestAnimationFrame(() => {
+    const modal = document.querySelector('.invoice-modal');
+    modal?.scrollTo(0, modal.scrollHeight);
+  });
+  
   
 
   const handleResendWhatsApp = async (payment) => {
