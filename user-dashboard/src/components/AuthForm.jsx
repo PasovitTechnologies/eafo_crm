@@ -83,7 +83,6 @@ const AuthForm = () => {
 
           <div className="toggle-box">
             <div className="toggle-panel toggle-left">
-              <h1 className="toggle-heading">{t("auth.welcome")}</h1>
               <p>{t("auth.noAccount")}</p>
               <button className="switch-button" onClick={showRegister}>
                 {t("auth.register")}
