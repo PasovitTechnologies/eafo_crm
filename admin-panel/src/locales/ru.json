@@ -262,7 +262,7 @@
     "paymentLink": "Ссылка для оплаты",
     "successPopup": "Счет успешно отправлен!",
     "akt": "АКТ",
-    "contract": "Контракт",
+    "contract": "Счета",
     "orderId": "Номер заказа",
     "invoiceNumber":"Номер счета",
      "paymentMethod":"Способ оплаты"

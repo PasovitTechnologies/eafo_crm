@@ -30,7 +30,8 @@
   right: 0;
   width: 600px;
   max-width: 100%;
-  height: 100vh;
+  max-height: 100vh;     /* ensures modal fits viewport */
+  overflow-y: auto;
   background: #fff;
   box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
   padding: 30px 20px;
@@ -407,8 +408,9 @@
     margin-top: 10px;
   }
   .copy-button{
-    width: fit-content;
-    margin: 10px;
+    margin-top: 10px;
+    margin-left: 0px;
+
 
   }
 }
@@ -440,5 +442,12 @@
     display: inline-block;
     width: auto !important;
     max-width: none;
+  }
+  .payment-actions{
+    flex-direction: row;
+    width: 100%;
+  }
+  .payment-actions button{
+    flex: 1;
   }
 }

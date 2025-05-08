@@ -263,7 +263,7 @@
     "paymentLink": "Payment Link",
     "successPopup": "Invoice Sent Successfully!",
     "akt":"AKT",
-    "contract":"Contract",
+    "contract":"INV",
     "orderId":"Order Id",
     "invoiceNumber":"Invoice Number",
     "whatsappSuccess": "WhatsApp message queued successfully!",
