@@ -66,6 +66,7 @@
   padding-left: 80px;
   box-sizing: border-box;
   background-color: #fff;
+  min-height: 100vh;
 }
 
 /* Table Container for Horizontal Scrolling */
