@@ -174,7 +174,6 @@ export default function PreCourseUsers() {
 
   return (
     <div className="pre-user-list">
-      <h2>{t("preCourseUsers.registered_users")}</h2>
    <div className="pre-course-header">
       <div className="precourse-filter-container">
         <label>{t("preCourseUsers.filter_label")}: </label>
@@ -195,7 +194,7 @@ export default function PreCourseUsers() {
         </button>
 
         </div>
-
+    <div className="pre-table-container">
       <table className="pre-table">
         <thead>
           <tr>
@@ -242,7 +241,7 @@ export default function PreCourseUsers() {
           )}
         </tbody>
       </table>
-
+      </div>
       {showEmailModal && (
         <EmailModal emailDetails={emailDetails} onClose={() => setShowEmailModal(false)} />
       )}
