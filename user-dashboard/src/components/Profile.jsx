@@ -357,7 +357,6 @@ const Profile = () => {
         <div></div>
       </div>
 
-      {showHelpPopup && <ProfileHelp onClose={toggleHelpPopup} />}
 
 
       <div className="profile-container">
