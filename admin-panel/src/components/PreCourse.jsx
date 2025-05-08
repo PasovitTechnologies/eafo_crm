@@ -11,37 +11,43 @@ export default function PreCourse() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem("token");
-
-        // Fetch all courses
-        const courseRes = await axios.get(`${baseUrl}/api/courses`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setCourses(courseRes.data);
-
-        // Fetch all precourse users
-        const userRes = await axios.get(`${baseUrl}/api/precourse/users`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        // Count users per courseId
-        const userList = userRes.data;
-        const courseCounts = {};
-        userList.forEach(user => {
-          if (user.courseId) {
-            courseCounts[user.courseId] = (courseCounts[user.courseId] || 0) + 1;
+        // 1. Get token from localStorage
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+          throw new Error('Authentication token not found');
+        }
+    
+        // 2. Make request with authorization header
+        const response = await axios.get(`${baseUrl}/api/user`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
           }
         });
-
-        setRegistrations(courseCounts);
-      } catch (err) {
-        console.error("Failed to fetch data", err);
+    
+        // 3. Handle successful response
+        setUsers(response.data);
+    
+      } catch (error) {
+        // 4. Handle errors
+        console.error("Error fetching users:", error);
+        
+        // Show error notification
+        setNotifications(prev => [...prev, {
+          id: Date.now(),
+          message: error.response?.data?.message || 'Failed to fetch users',
+          type: 'error'
+        }]);
+    
+        // If unauthorized (401), clear token and redirect
+        if (error.response?.status === 401) {
+          localStorage.removeItem('authToken');
+          // Redirect to login or handle as needed
+        }
       }
     };
-
-    fetchData();
   }, []);
 
   return (

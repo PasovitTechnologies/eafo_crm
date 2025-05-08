@@ -343,7 +343,6 @@ const Profile = () => {
 
   return (
     <div className="profile-page">
-      {showHelpPopup && <ProfileHelp onClose={toggleHelpPopup} />}
 
       <ToastContainer />
       <div className="go-back-div">
@@ -357,6 +356,9 @@ const Profile = () => {
 
         <div></div>
       </div>
+
+      {showHelpPopup && <ProfileHelp onClose={toggleHelpPopup} />}
+
 
       <div className="profile-container">
         <div className="profile-grid">

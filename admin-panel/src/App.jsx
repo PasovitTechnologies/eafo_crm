@@ -32,6 +32,7 @@ import UserDatabaseDetails from "./components/UserDatabaseDetails";
 import Telegram from "./components/Telegram";
 import PreCourse from "./components/PreCourse";
 import PreCourseUsers from "./components/PreCourseUsers";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -178,6 +179,12 @@ const App = () => {
                   path="/precourse/:courseId"
                   element={<PreCourseUsers selectedLanguage={selectedLanguage} />}
                 />
+                <Route
+                  path="/notifications"
+                  element={<Notification selectedLanguage={selectedLanguage} />}
+                />
+
+
                 {/* Webinar Routes */}
                 <Route
                   path="/webinar-dashboard"

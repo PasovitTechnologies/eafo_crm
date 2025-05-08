@@ -10,7 +10,8 @@ import {
   MdWhatsapp,
   MdHelpOutline,
   MdPeople,
-  MdSend
+  MdSend,
+  MdNotificationsActive
 } from "react-icons/md";
 import { useTranslation } from "react-i18next";
 import "./Sidebar.css";
@@ -57,6 +58,8 @@ const Sidebar = ({ selectedOS, isSidebarOpen, setIsSidebarOpen }) => {
       { to: "/enquiry", icon: <MdHelpOutline />, label: t("sidebar.enquiry") },
       { to: "/userbase", icon: <MdPeople />, label: t("sidebar.userbase") },
       { to: "/precourse", icon: <MdPeople />, label: t("sidebar.preCourse") },
+      { to: "/notifications", icon: <MdNotificationsActive />, label: t("sidebar.notifications") },
+
 
     ];
 

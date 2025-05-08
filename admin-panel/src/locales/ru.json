@@ -35,7 +35,9 @@
     "logout": "Выход",
     "userbase": "База данных",
     "telegram": "Телеграмма",
-    "preCourse": "Пре-Регистрация"
+    "preCourse": "Пре-Регистрация",
+    "notifications": "Уведомления"
+
   },
   "login": {
     "welcomeBack": "Добро пожаловать!",
