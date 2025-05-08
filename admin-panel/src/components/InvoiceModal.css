@@ -169,7 +169,6 @@ body.modal-open {
   cursor: pointer;
   transition: background 0.3s, transform 0.2s;
   font-size: 15px;
-  width: fit-content;
 }
 
 .invoice-modal button:hover,
@@ -318,19 +317,37 @@ body.modal-open {
 .payment-link-container{
   gap: 20px;
 }
+
 .copy-button{
   margin-left: 20px;
+}
+.buttons-container{
+  width: 100%;
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+
 }
 .payment-actions {
   display: flex;
   flex-direction: row;
   gap: 10px;
-  margin-bottom: 10px;
+}
+.payment-actions button{
+  width: 100%;
 }
 .email-resend-btn{
   margin-right: 10px;
 }
-
+.resend-action{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.resend-action .resend-btn{
+  width: 100%;
+  flex: 1;
+}
 /* ================================
    Error Message
 ================================ */
@@ -419,6 +436,10 @@ body.modal-open {
     margin-top: 10px;
     margin-left: 0px;
     margin-bottom: 10px;
+  }
+  .buttons-container {
+    flex-direction: column;
+    gap: 10px;
   }
   
 }

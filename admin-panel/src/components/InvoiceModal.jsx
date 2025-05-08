@@ -747,6 +747,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
                         <FaRegCopy size={18} />
                       </button>
                     </div>
+                    <div className="buttons-container">
 
                     <div className="payment-actions">
                     {/* AKT Button - Only if paid */}
@@ -800,6 +801,8 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     </button>
   </div>
 )}
+
+                  </div>
 
                   </div>
 
