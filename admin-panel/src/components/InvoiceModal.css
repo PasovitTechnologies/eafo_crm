@@ -389,6 +389,7 @@ body.modal-open {
   .invoice-modal {
     width: 100%;
     padding: 20px 16px;
+    padding-bottom: 40px;
   }
 
   .payment-details {
