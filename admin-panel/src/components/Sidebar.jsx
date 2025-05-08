@@ -57,7 +57,7 @@ const Sidebar = ({ selectedOS, isSidebarOpen, setIsSidebarOpen }) => {
       { to: "/telegram", icon: <MdSend />, label: t("sidebar.telegram") },
       { to: "/enquiry", icon: <MdHelpOutline />, label: t("sidebar.enquiry") },
       { to: "/userbase", icon: <MdPeople />, label: t("sidebar.userbase") },
-      { to: "/precourse", icon: <MdPeople />, label: t("sidebar.preCourse") },
+      { to: "/preregister", icon: <MdPeople />, label: t("sidebar.preCourse") },
       { to: "/notifications", icon: <MdNotificationsActive />, label: t("sidebar.notifications") },
 
 

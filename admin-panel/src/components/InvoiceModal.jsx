@@ -135,12 +135,28 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   };
 
   const getRealPaymentStatus = (payment) => {
-    if (!payment || !payment.invoiceNumber) return "Unknown";
+    if (!payment || !payment.invoiceNumber) {
+      console.log("⚠️ Missing payment or invoice number");
+      return "unknown";
+    }
+  
     const coursePayment = coursePayments.find(
       (cp) => cp.invoiceNumber === payment.invoiceNumber
     );
-    return coursePayment ? coursePayment.status : payment.status || "Unknown";
+  
+    const status = coursePayment?.status || payment.status || "unknown";
+    const normalizedStatus = status.toLowerCase();
+  
+    console.log(
+      `🧾 Checking status for invoice ${payment.invoiceNumber}:`,
+      status,
+      "→ normalized:",
+      normalizedStatus
+    );
+  
+    return normalizedStatus;
   };
+  
 
   const addNewItem = () => {
     setItems([
@@ -384,12 +400,14 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   }, [paymentUrl, whatsappLoading, userData, submission, items, totalAmount]);
 
   const handleViewAkt = (payment) => {
-    if (payment.status === "Paid" && userData) {
+    console.log("🧾 handleViewAkt clicked", payment); // ✅ Debug log
+  
+    if (getRealPaymentStatus(payment) === "paid" && userData) {
+      console.log("✅ Valid paid payment, opening AKT modal");
+  
       const aktDetails = {
         full_name: `${userData.personalDetails.title} ${userData.personalDetails.firstName} ${userData.personalDetails.lastName}`,
-        date_of_birth: new Date(
-          userData.personalDetails.dob
-        ).toLocaleDateString(),
+        date_of_birth: new Date(userData.personalDetails.dob).toLocaleDateString(),
         email: userData.email,
         phone_no: userData.personalDetails.phone || "N/A",
         agreement_number: `${payment.invoiceNumber}`,
@@ -398,11 +416,17 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
         total_amount: `${payment.amount} ${payment.currency}`,
         userData,
       };
-
+  
       setAktData(aktDetails);
       setIsAktOpen(true);
+    } else {
+      console.warn("❌ Not a paid payment or userData missing", {
+        status: getRealPaymentStatus(payment),
+        userData,
+      });
     }
   };
+  
 
   const handleCloseAkt = () => {
     setIsAktOpen(false);
@@ -673,7 +697,9 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
           ) : paymentHistory.length > 0 ? (
             <ul className="payment-info-list">
               {paymentHistory.map((payment, index) => (
+                
                 <li key={index} className="payment-info-item">
+                  
                   <div>
                     <p>
                       <strong>{t("InvoiceModal.invoiceNumber")}:</strong>{" "}
@@ -718,10 +744,10 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
 
 
                     {payment.paymentLink && (
-  <>
+  <div className="resend-actions">
     <button
       onClick={() => handleResendEmail(payment)}
-      className="email-resend-btn"
+      className="email-resend-btn resend-btn"
       title="Resend via Email"
       disabled={emailSending}
     >
@@ -733,7 +759,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
 
     <button
       onClick={() => handleResendWhatsApp(payment)}
-      className="whatsapp-resend-btn"
+      className="whatsapp-resend-btn resend-btn"
       title="Resend via WhatsApp"
       disabled={whatsappLoading}
     >
@@ -742,23 +768,24 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
         <span className="resend-loading">Sending...</span>
       )}
     </button>
-  </>
+  </div>
 )}
                   </div>
 
                   <div className="payment-actions">
                     {/* AKT Button - Only if paid */}
                     <button
-                      onClick={() => handleViewAkt(payment)}
-                      disabled={getRealPaymentStatus(payment) !== "Paid"}
-                      className={
-                        getRealPaymentStatus(payment) === "Paid"
-                          ? "btn-paid"
-                          : "btn-disabled"
-                      }
-                    >
-                      {t("InvoiceModal.akt")}
-                    </button>
+  onClick={() => handleViewAkt(payment)}
+  disabled={getRealPaymentStatus(payment) !== "paid"}
+  className={
+    getRealPaymentStatus(payment) === "paid"
+      ? "btn-paid"
+      : "btn-disabled"
+  }
+>
+  {t("InvoiceModal.akt")}
+</button>
+
 
                     {/* Contract Button - Always enabled */}
                     <button

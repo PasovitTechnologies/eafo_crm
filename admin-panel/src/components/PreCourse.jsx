@@ -51,7 +51,7 @@ export default function PreCourse() {
           <div
             key={course._id}
             className="pre-course-item"
-            onClick={() => navigate(`/precourse/${course._id}`)}
+            onClick={() => navigate(`/preregister/${course._id}`)}
           >
             <span className="pre-course-name">{course.name}</span>
             <span className="registered-count">

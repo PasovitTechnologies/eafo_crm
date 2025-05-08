@@ -172,11 +172,11 @@ const App = () => {
                   element={<UserDatabaseDetails selectedLanguage={selectedLanguage} />}
                 />
                 <Route
-                  path="/precourse"
+                  path="/preregister"
                   element={<PreCourse selectedLanguage={selectedLanguage} />}
                 />
                 <Route
-                  path="/precourse/:courseId"
+                  path="/preregister/:courseId"
                   element={<PreCourseUsers selectedLanguage={selectedLanguage} />}
                 />
                 <Route

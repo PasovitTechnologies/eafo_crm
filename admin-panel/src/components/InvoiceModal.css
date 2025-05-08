@@ -398,6 +398,19 @@
     right: 15px;
     padding: 10px 18px;
   }
+  .resend-btn{
+    flex: 1;
+  }
+  .resend-actions{
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+  }
+  .copy-button{
+    width: fit-content;
+    margin: 10px;
+
+  }
 }
 
 @media (max-width: 480px) {
