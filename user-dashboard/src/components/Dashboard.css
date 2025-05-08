@@ -103,6 +103,8 @@
   margin: 20px;
   min-height: calc(100vh - 140px);
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
 }
 
 /* 🌟 Common Dashboard Items */
