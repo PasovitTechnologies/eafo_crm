@@ -842,6 +842,11 @@
   .enquiry-container {
     padding: 1rem;
   }
+  .enquiry-head-container{
+    flex-direction: column;
+   align-items: flex-start;
+   gap: 20px;
+  }
   
   .sidebar {
     flex-direction: column;
