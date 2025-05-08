@@ -8,6 +8,7 @@
   max-width: 100%;
   box-sizing: border-box;
   background-color: #fff;
+  min-height: 100vh;
 }
 
 .heading {
@@ -42,7 +43,10 @@
 .pre-course-item:hover {
   background-color: #e9ecef;
 }
-
+.pre-course-name{
+  color: #000;
+  font-weight: bold;
+}
 .registered-count {
   font-size: clamp(1rem, 1.2vw, 1.4rem);
   color: #000;
@@ -93,6 +97,7 @@
   overflow: hidden;
   text-overflow: ellipsis; /* Adds ... if text is too long */
   max-width: 200px;
+  color: #000;
 }
 
 .pre-table th {
