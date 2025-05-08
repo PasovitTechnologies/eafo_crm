@@ -99,7 +99,14 @@ const userSchema = new mongoose.Schema(
             time: { type: Date },                                 // Will push manually later
             status: { type: String, default: "Not created" }      // Default payment status
           }
-        ]
+        ],
+
+        notes: [{
+          paymentId: { type: mongoose.Schema.Types.ObjectId, required: true },
+          text: { type: String, required: true },
+          createdAt: { type: Date, default: Date.now }
+        }]
+      
         
       }
     ]

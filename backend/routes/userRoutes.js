@@ -611,4 +611,109 @@ router.put("/update/:email", authenticateJWT, async (req, res) => {
   }
 });
 
+
+router.get('/:email/courses/:courseId/notes', authenticateJWT, async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.params.email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const course = user.courses.find(c => c.courseId.toString() === req.params.courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found for this user' });
+    }
+
+    res.json({ notes: course.notes });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.post('/:email/courses/:courseId/notes', authenticateJWT, async (req, res) => {
+  try {
+    const { paymentId, text } = req.body;
+    const user = await User.findOne({ email: req.params.email });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    let course = user.courses.find(c => c.courseId.toString() === req.params.courseId);
+    if (!course) {
+      // If course doesn't exist for user, create it
+      course = { courseId: req.params.courseId, notes: [] };
+      user.courses.push(course);
+    }
+
+    const newNote = {
+      paymentId,
+      text,
+      createdAt: new Date()
+    };
+
+    course.notes.push(newNote);
+    await user.save();
+
+    res.status(201).json({ note: newNote });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.put('/:email/courses/:courseId/notes/:noteId', authenticateJWT, async (req, res) => {
+  try {
+    const { text } = req.body;
+    const user = await User.findOne({ email: req.params.email });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const course = user.courses.find(c => c.courseId.toString() === req.params.courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found for this user' });
+    }
+
+    const noteIndex = course.notes.findIndex(n => n._id.toString() === req.params.noteId);
+    if (noteIndex === -1) {
+      return res.status(404).json({ message: 'Note not found' });
+    }
+
+    course.notes[noteIndex].text = text;
+    await user.save();
+
+    res.json({ note: course.notes[noteIndex] });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.delete('/:email/courses/:courseId/notes/:noteId', authenticateJWT, async (req, res) => {
+  try {
+    const user = await User.findOne({ email: req.params.email });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const course = user.courses.find(c => c.courseId.toString() === req.params.courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found for this user' });
+    }
+
+    const noteIndex = course.notes.findIndex(n => n._id.toString() === req.params.noteId);
+    if (noteIndex === -1) {
+      return res.status(404).json({ message: 'Note not found' });
+    }
+
+    course.notes.splice(noteIndex, 1);
+    await user.save();
+
+    res.json({ message: 'Note deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

@@ -61,7 +61,8 @@ const Notification = () => {
   };
 
   const handleEditorInput = (e) => {
-    setCurrentMessage(e.target.innerHTML);
+    const content = editorRef.current?.innerHTML || "";
+    setCurrentMessage(content);
   };
 
   const handleTextSelection = () => {
@@ -72,29 +73,44 @@ const Notification = () => {
     }
   };
 
-  const addNotification = () => {
-    if (notificationType === "common") {
-      const newNotification = {
-        id: Date.now(),
-        message: currentLanguage === "en" ? messageEn : messageRu,
-        type: "info",
-        richText: true,
-      };
-      setNotifications([...notifications, newNotification]);
-    } else if (selectedUsers.length > 0) {
-      selectedUsers.forEach((user) => {
-        const newNotification = {
-          id: Date.now() + Math.random(),
-          message: `To ${user.email}: ${messageEn}`,
-          type: "user",
-          richText: true,
-        };
-        setNotifications((prev) => [...prev, newNotification]);
-      });
+  const addNotification = async () => {
+    const token = localStorage.getItem("token");
+  
+    const message = {
+      en: messageEn,
+      ru: messageRu || messageEn,
+    };
+  
+    const payload = {
+      message,
+      type: "info",
+      users: notificationType === "user" ? selectedUsers.map((u) => u._id || u.uid) : [],
+    };
+  
+    console.log("Sending notification payload:", payload); // ✅ Log before sending
+  
+    try {
+      const response = await axios.post(
+        `${baseUrl}/api/notifications`,
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+  
+      console.log("Notification sent successfully:", response.data);
+      setShowModal(false);
+      resetForm();
+    } catch (error) {
+      console.error("Failed to send notification:", error.response?.data || error);
     }
-    setShowModal(false);
-    resetForm();
   };
+  
+  
+  
 
   const removeNotification = (id) => {
     setNotifications(notifications.filter((n) => n.id !== id));
@@ -118,50 +134,45 @@ const Notification = () => {
   };
 
   const applyFormatting = (format) => {
-    if (!activeSelection || selectedText.length === 0) return;
-
-    const range = activeSelection.getRangeAt(0);
-    const span = document.createElement("span");
-
+    const selection = window.getSelection();
+    if (!selection.rangeCount) return;
+  
+    const range = selection.getRangeAt(0);
+    if (range.collapsed) return; // No text selected
+  
+    let wrapper;
+  
     switch (format) {
       case "bold":
-        span.style.fontWeight = isBold ? "normal" : "bold";
-        setIsBold(!isBold);
+        wrapper = document.createElement("strong");
         break;
       case "italic":
-        span.style.fontStyle = isItalic ? "normal" : "italic";
-        setIsItalic(!isItalic);
+        wrapper = document.createElement("em");
         break;
       case "link":
-        if (isLink) {
-          const parent = range.startContainer.parentNode;
-          if (parent.tagName === "A") {
-            const text = document.createTextNode(parent.innerText);
-            parent.parentNode.replaceChild(text, parent);
-          }
-          setIsLink(false);
-          return;
-        } else {
-          const url = prompt("Enter URL:", "https://");
-          if (!url) return;
-          setLinkUrl(url);
-          const a = document.createElement("a");
-          a.href = url;
-          a.textContent = selectedText;
-          range.deleteContents();
-          range.insertNode(a);
-          setIsLink(true);
-          return;
-        }
-      default:
+        const url = prompt("Enter URL:", "https://");
+        if (!url) return;
+        wrapper = document.createElement("a");
+        wrapper.href = url;
+        wrapper.target = "_blank";
         break;
+      default:
+        return;
     }
-
-    span.textContent = selectedText;
-    range.deleteContents();
-    range.insertNode(span);
-    activeSelection.removeAllRanges();
+  
+    try {
+      wrapper.appendChild(range.extractContents());
+      range.insertNode(wrapper);
+  
+      // Optional: Clear selection to improve UX
+      selection.removeAllRanges();
+    } catch (e) {
+      console.error("Formatting error:", e);
+    }
+  
+    handleEditorInput(); // Update state after formatting
   };
+  
 
   const getCurrentMessage = () => {
     return currentLanguage === "en" ? messageEn : messageRu;
@@ -177,7 +188,10 @@ const Notification = () => {
 
   return (
     <div className="notification-system">
-      <button className="add-notification-btn" onClick={() => setShowModal(true)}>
+      <button
+        className="add-notification-btn"
+        onClick={() => setShowModal(true)}
+      >
         Add Notification
       </button>
 
@@ -185,7 +199,9 @@ const Notification = () => {
         {notifications.map((notification) => (
           <div key={notification.id} className="notification">
             <div dangerouslySetInnerHTML={{ __html: notification.message }} />
-            <button onClick={() => removeNotification(notification.id)}>×</button>
+            <button onClick={() => removeNotification(notification.id)}>
+              ×
+            </button>
           </div>
         ))}
       </div>
@@ -218,6 +234,21 @@ const Notification = () => {
             {notificationType === "user" && (
               <div className="user-selection">
                 <h4>Select Users:</h4>
+                {selectedUsers.length > 0 && (
+                  <div className="selected-users">
+                    {selectedUsers.map((user) => (
+                      <span key={user.uid} className="selected-user-tag">
+                        {user.email}
+                        <button
+                          onClick={() => handleUserSelect(user)}
+                          className="remove-user-btn"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
                 <div className="dropdown-container">
                   <div
                     className="dropdown-header"
@@ -226,7 +257,13 @@ const Notification = () => {
                     {selectedUsers.length > 0
                       ? `${selectedUsers.length} user(s) selected`
                       : "Select users"}
-                    <span className={`dropdown-arrow ${isDropdownOpen ? "open" : ""}`}>▼</span>
+                    <span
+                      className={`dropdown-arrow ${
+                        isDropdownOpen ? "open" : ""
+                      }`}
+                    >
+                      ▼
+                    </span>
                   </div>
 
                   {isDropdownOpen && (
@@ -246,32 +283,20 @@ const Notification = () => {
                             <input
                               type="checkbox"
                               id={`user-${user.uid}`}
-                              checked={selectedUsers.some((u) => u.uid === user.uid)}
+                              checked={selectedUsers.some(
+                                (u) => u.uid === user.uid
+                              )}
                               onChange={() => handleUserSelect(user)}
                             />
-                            <label htmlFor={`user-${user.uid}`}>{user.email}</label>
+                            <label htmlFor={`user-${user.uid}`}>
+                              {user.email}
+                            </label>
                           </div>
                         ))
                       )}
                     </div>
                   )}
                 </div>
-
-                {selectedUsers.length > 0 && (
-                  <div className="selected-users">
-                    {selectedUsers.map((user) => (
-                      <span key={user.uid} className="selected-user-tag">
-                        {user.email}
-                        <button
-                          onClick={() => handleUserSelect(user)}
-                          className="remove-user-btn"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                )}
               </div>
             )}
 
@@ -312,14 +337,14 @@ const Notification = () => {
                 </button>
               </div>
               <div
-                ref={editorRef}
-                className="message-editor"
-                contentEditable
-                dangerouslySetInnerHTML={{ __html: getCurrentMessage() }}
-                onInput={handleEditorInput}
-                onMouseUp={handleTextSelection}
-                onKeyUp={handleTextSelection}
-              />
+  ref={editorRef}
+  className="message-editor"
+  contentEditable
+  onInput={handleEditorInput}
+  onMouseUp={handleTextSelection}
+  onKeyUp={handleTextSelection}
+/>
+
             </div>
 
             <div className="modal-actions">

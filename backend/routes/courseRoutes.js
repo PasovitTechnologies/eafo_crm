@@ -335,6 +335,8 @@ router.delete("/:courseId/rules/:ruleId", authenticateJWT, async (req, res) => {
 
 
 
+
+
 module.exports = router;
 
 
