@@ -5,6 +5,8 @@
   flex-direction: column;
   height: 100vh; 
   overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+
 }
 .dashboard-content {
   flex: 1;
@@ -20,6 +22,8 @@
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
   min-height: calc(100vh - 80px);
+  -webkit-overflow-scrolling: touch;
+
 
   /* Blue-on-blue mixed paint effect */
   background:
