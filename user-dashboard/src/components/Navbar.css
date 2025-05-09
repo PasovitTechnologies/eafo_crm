@@ -249,25 +249,25 @@
   }
   
   .language-dropdown {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
   }
 }
 
 /* Small mobile devices (360px - 479px) */
 @media (max-width: 479px) {
   .ui-navbar {
-    padding: 20px;
+    padding: 10px;
   }
   
   .logo img {
-    height: 28px;
+    height: 25px;
   }
   
   .flag-dropdown {
     min-width: 65px;
     padding: 3px 5px;
-  gap: 4px;
-  border-radius: 6px;
+    gap: 4px;
+    border-radius: 6px;
   }
   
   .flag-icon {
@@ -282,7 +282,7 @@
 }
 
 /* Extra small mobile devices (up to 359px) */
-@media (max-width: 359px) {
+@media (max-width: 365px) {
   .ui-navbar {
     justify-content: center;
     gap: 10px;
