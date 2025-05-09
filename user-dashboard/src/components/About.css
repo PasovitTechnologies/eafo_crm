@@ -1,6 +1,6 @@
 /* ✅ Base Container Styling */
 .about-container {
-  max-height: 100vh;
+  min-height: 100vh;
   padding: 50px 20px;
   background: #f5f5f5;
   color: #333;
