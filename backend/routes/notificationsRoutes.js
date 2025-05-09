@@ -2,6 +2,8 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const UserNotification = require("../models/UserNotificationSchema");
+const CommonNotification = require("../models/CommonNotification");
+
 
 // Get notifications by email
 router.get("/", async (req, res) => {
@@ -70,66 +72,59 @@ router.patch("/:notificationId/read", async (req, res) => {
 
 
 // POST /api/notifications
+
 router.post("/", async (req, res) => {
   const { message, type = "info", users = [] } = req.body;
 
-  // Log the incoming request for debugging
-  console.log("Received request payload:", req.body);
-
-  // Validate that message contains both English and Russian fields
   if (!message?.en || !message?.ru) {
     return res.status(400).json({ error: "Message (en and ru) is required" });
   }
 
+  const newNotification = {
+    message,
+    type,
+    createdAt: new Date(),
+    isRead: false,
+  };
+
   try {
     if (users.length > 0) {
-      // User-specific notification logic
+      // 🎯 User-specific notifications
       for (const userId of users) {
-        // Find the existing record or create a new one
         let record = await UserNotification.findOne({ userId });
 
-        const newNotification = {
-          message,
-          type,
-          createdAt: new Date(),
-          isRead: false, // Default value for 'isRead'
-        };
-
         if (record) {
-          // If the record exists, push the new notification
           record.notifications.push(newNotification);
-          await record.save();  // Save the updated record
-          console.log(`Notification added for user ${userId}`);
+          await record.save();
         } else {
-          // If the record doesn't exist, create new UserNotification for the user
           await UserNotification.create({
             userId,
             notifications: [newNotification],
           });
-          console.log(`Created new notification record for user ${userId}`);
         }
       }
     } else {
-      // Broadcasting to all users (logic can be implemented here)
-      console.log("Broadcast to all users is not implemented yet.");
+      // 📣 Store a single common notification
+      await CommonNotification.create({
+        message,
+        type: "common", // explicitly mark
+      });
     }
 
-    // Send success response with a message and confirmation
     return res.status(200).json({
       success: true,
       message: "Notification(s) added successfully",
     });
   } catch (err) {
-    // Log error for debugging
     console.error("Error saving notification:", err);
-
-    // Send error response with more details
     return res.status(500).json({
       error: "Server error",
       details: err.message || "An unexpected error occurred",
     });
   }
 });
+
+
 
 
 module.exports = router;
