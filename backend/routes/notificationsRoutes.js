@@ -38,7 +38,7 @@ router.patch("/:notificationId/read", async (req, res) => {
     const email = req.query.email || req.user?.email;
 
     if (!email) {
-      return res.status(400).json({ message: "Email is required to mark notification as read." });
+      return res.status(400).json({ message: "Email is required" });
     }
 
     const user = await User.findOne({ email });
@@ -46,29 +46,49 @@ router.patch("/:notificationId/read", async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // 🔍 Try to find the notification in user's personal notifications
     const userNotification = await UserNotification.findOne({ userId: user._id });
-    if (!userNotification) {
-      return res.status(404).json({ message: "No notifications found for user" });
+
+    // First, check if it's a personal notification
+    let personalNotification = null;
+    if (userNotification) {
+      personalNotification = userNotification.notifications.id(notificationId);
     }
 
-    const notification = userNotification.notifications.id(notificationId);
-    if (!notification) {
+    if (personalNotification) {
+      // ✅ Personal notification logic
+      if (personalNotification.isRead) {
+        return res.status(200).json({ message: "Notification already marked as read." });
+      }
+
+      personalNotification.isRead = true;
+      await userNotification.save();
+
+      return res.json({ message: "Notification marked as read." });
+    }
+
+    // 🔍 If not personal, maybe it's a common notification
+    const commonNotification = await CommonNotification.findById(notificationId);
+    if (!commonNotification) {
       return res.status(404).json({ message: "Notification not found" });
     }
 
-    if (notification.isRead) {
-      return res.status(200).json({ message: "Notification already marked as read." });
+    const alreadyRead = commonNotification.isReadBy.includes(user._id.toString());
+    if (alreadyRead) {
+      return res.status(200).json({ message: "Common notification already marked as read." });
     }
 
-    notification.isRead = true;
-    await userNotification.save();
+    commonNotification.isReadBy.push(user._id.toString());
+    await commonNotification.save();
 
-    res.json({ message: "Notification marked as read." });
+    return res.json({ message: "Common notification marked as read." });
+
   } catch (error) {
     console.error("❌ Error marking notification as read:", error);
-    res.status(500).json({ message: "Server error while marking notification as read." });
+    res.status(500).json({ message: "Server error." });
   }
 });
+
 
 
 // POST /api/notifications
@@ -123,6 +143,57 @@ router.post("/", async (req, res) => {
     });
   }
 });
+
+router.get("/important", async (req, res) => {
+  try {
+    const email = req.query.email;  // Get the user email from query
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Fetch all important notifications from the database
+    const notifications = await CommonNotification.find().sort({ createdAt: -1 });
+
+    // Check if the user has read the notification (i.e., user is in `isReadBy` array)
+    const notificationsWithReadStatus = notifications.map((n) => {
+      const isRead = n.isReadBy && n.isReadBy.includes(user._id.toString());
+      return {
+        ...n.toObject(),
+        isRead, // Add the user-specific read status
+      };
+    });
+
+    res.status(200).json(notificationsWithReadStatus);
+  } catch (err) {
+    console.error("Error fetching important notifications:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.get('/get', async (req, res) => {
+  try {
+    // Fetch notifications for the authenticated user
+    const notifications = await CommonNotification.find()
+      .sort({ createdAt: -1 }) // Sort by most recent
+      .exec();
+
+    // You can filter notifications based on the userId or other criteria
+    return res.status(200).json({ notifications });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error fetching notifications' });
+  }
+});
+
+
+
+
+
 
 
 

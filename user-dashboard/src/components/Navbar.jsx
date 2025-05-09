@@ -54,6 +54,7 @@ const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [importantNotifications, setImportantNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const { i18n, t } = useTranslation();
   const navigate = useNavigate();
@@ -72,6 +73,7 @@ const Navbar = () => {
 
     if (token) {
       fetchNotifications();
+      fetchImportantNotifications();
     }
   }, [i18n.language]);
 
@@ -121,6 +123,43 @@ const Navbar = () => {
     }
   };
 
+  const fetchImportantNotifications = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const email = localStorage.getItem("email");
+  
+      if (!token || !email) return;
+  
+      const response = await fetch(`${baseUrl}/api/notifications/important?email=${email}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) throw new Error("Failed to fetch important notifications");
+  
+      const raw = await response.json();
+      const lang = localStorage.getItem("language") || "en";
+  
+      const formatted = raw.map((n) => ({
+        _id: n._id,
+        type: "important",
+        isRead: n.isRead, // Directly use the `isRead` status sent by the server
+        createdAt: n.createdAt,
+        message: typeof n.message === "object" ? n.message[lang] || n.message["en"] : n.message,
+      }));
+  
+      setImportantNotifications(formatted);
+    } catch (err) {
+      console.error("Error fetching important notifications:", err);
+      setImportantNotifications([]);
+    }
+  };
+  
+  
+
+
+
   const markAsRead = async (notificationId) => {
     try {
       const token = localStorage.getItem("token");
@@ -139,10 +178,14 @@ const Navbar = () => {
 
       if (!response.ok) throw new Error("Failed to mark notification as read.");
       fetchNotifications();
+      fetchImportantNotifications();
     } catch (error) {
       console.error("Error marking notification as read:", error);
     }
   };
+
+
+ 
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -180,6 +223,7 @@ const Navbar = () => {
               {showNotifications && (
                 <NotificationPanel
                   notifications={notifications}
+                  importantNotifications={importantNotifications}
                   onMarkAsRead={markAsRead}
                   onClose={() => setShowNotifications(false)}
                   currentLanguage={i18n.language}

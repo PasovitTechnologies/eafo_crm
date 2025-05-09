@@ -10,6 +10,7 @@ const axios = require("axios");
 const mongoose = require("mongoose");
 const { GridFSBucket } = require("mongodb");
 const crypto = require("crypto");
+const { message } = require("telegram/client");
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
@@ -715,5 +716,40 @@ router.delete('/:email/courses/:courseId/notes/:noteId', authenticateJWT, async 
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+// In your userRoutes.js file
+router.post('/filtered', authenticateJWT, async (req, res) => {
+  try {
+    const { filter } = req.body;
+    let query = {};
+
+    if (filter === "old") {
+      const threeMonthsAgo = new Date();
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+      query.registeredAt = { $lte: threeMonthsAgo };
+    } else if (filter === "paid") {
+      query["courses.payments.status"] = "Paid";
+    }
+
+    const users = await User.find(query)
+      .select("email _id registeredAt courses.payments.status")
+      .lean();
+
+    const cleanedUsers = users.map(user => ({
+      ...user,
+      uid: user._id.toString(),
+      isOld: filter === "old" ? true : undefined,
+      hasPaid: filter === "paid" ? true : undefined
+    }));
+
+    res.json({ users: cleanedUsers });
+  } catch (error) {
+    console.error("Error filtering users", error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+
 
 module.exports = router;
