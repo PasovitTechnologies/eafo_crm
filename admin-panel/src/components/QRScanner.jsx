@@ -1,7 +1,6 @@
-// QRScanner.jsx
 import React, { useEffect, useRef, useState } from 'react';
 import jsQR from 'jsqr';
-import { FiCamera, FiCheckCircle, FiXCircle, FiLink } from 'react-icons/fi';
+import { FiCamera, FiCheckCircle, FiXCircle, FiLink, FiRotateCw } from 'react-icons/fi';
 import './QRScanner.css';
 
 export default function QRScanner() {
@@ -10,32 +9,69 @@ export default function QRScanner() {
   const [status, setStatus] = useState('loading'); // loading, ready, success, error
   const [scannedData, setScannedData] = useState(null);
   const [showRedirect, setShowRedirect] = useState(false);
+  const [cameraFacingMode, setCameraFacingMode] = useState('environment');
+  const animationFrameRef = useRef();
 
-  useEffect(() => {
-    const startCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
-            facingMode: 'environment',
-            width: { ideal: 1920 },
-            height: { ideal: 1080 }
-          } 
-        });
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-        setStatus('ready');
+  const isValidUrl = (string) => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current?.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+    }
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+  };
+
+  const startCamera = async () => {
+    stopCamera();
+    setStatus('loading');
+    setScannedData(null);
+    setShowRedirect(false);
+
+    try {
+      const constraints = {
+        video: { 
+          facingMode: cameraFacingMode,
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      videoRef.current.srcObject = stream;
+      await videoRef.current.play();
+      setStatus('ready');
+
+      const scanFrame = () => {
+        if (!videoRef.current || status !== 'ready') return;
+
+        const canvas = canvasRef.current;
+        const video = videoRef.current;
         
-        const scanFrame = () => {
-          if (!videoRef.current || status !== 'ready') return;
-
-          const canvas = canvasRef.current;
+        // Only scan when video is ready
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
           const context = canvas.getContext('2d');
-          canvas.width = videoRef.current.videoWidth;
-          canvas.height = videoRef.current.videoHeight;
-          context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-          const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-          const code = jsQR(imageData.data, canvas.width, canvas.height);
+          // Focus on center area (where the frame is)
+          const centerSize = Math.min(canvas.width, canvas.height) * 0.7;
+          const x = (canvas.width - centerSize) / 2;
+          const y = (canvas.height - centerSize) / 2;
+          
+          const imageData = context.getImageData(x, y, centerSize, centerSize);
+          const code = jsQR(imageData.data, centerSize, centerSize, {
+            inversionAttempts: 'dontInvert',
+          });
 
           if (code) {
             setStatus('success');
@@ -46,34 +82,35 @@ export default function QRScanner() {
                 window.location.href = code.data;
               }, 2000);
             }
-          } else {
-            requestAnimationFrame(scanFrame);
+            stopCamera();
           }
-        };
+        }
+        
+        if (status === 'ready') {
+          animationFrameRef.current = requestAnimationFrame(scanFrame);
+        }
+      };
 
-        requestAnimationFrame(scanFrame);
-      } catch (err) {
-        console.error('Camera access denied:', err);
-        setStatus('error');
-      }
-    };
-
-    startCamera();
-
-    return () => {
-      if (videoRef.current?.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, [status]);
-
-  const isValidUrl = (string) => {
-    try {
-      new URL(string);
-      return true;
-    } catch (_) {
-      return false;
+      animationFrameRef.current = requestAnimationFrame(scanFrame);
+    } catch (err) {
+      console.error('Camera error:', err);
+      setStatus('error');
     }
+  };
+
+  const toggleCamera = () => {
+    setCameraFacingMode(prev => 
+      prev === 'environment' ? 'user' : 'environment'
+    );
+  };
+
+  useEffect(() => {
+    startCamera();
+    return stopCamera;
+  }, [cameraFacingMode]);
+
+  const rescan = () => {
+    startCamera();
   };
 
   return (
@@ -105,6 +142,9 @@ export default function QRScanner() {
               <FiXCircle className="error-icon" />
               <p>Camera access denied</p>
               <p className="small">Please allow camera permissions to scan QR codes</p>
+              <button className="retry-button" onClick={startCamera}>
+                Retry
+              </button>
             </div>
           )}
           {status === 'success' && (
@@ -123,6 +163,17 @@ export default function QRScanner() {
         <canvas ref={canvasRef} style={{ display: 'none' }} />
       </div>
 
+      <div className="qr-scanner-controls">
+        <button className="camera-toggle-button" onClick={toggleCamera}>
+          <FiRotateCw /> Switch Camera
+        </button>
+        {status === 'success' && (
+          <button className="rescan-button" onClick={rescan}>
+            Scan Another QR
+          </button>
+        )}
+      </div>
+
       {scannedData && (
         <div className="qr-scanner-result">
           <h3>Scanned Content:</h3>
@@ -132,7 +183,7 @@ export default function QRScanner() {
               className="qr-open-button"
               onClick={() => window.open(scannedData, '_blank')}
             >
-              Open URL
+              <FiLink /> Open URL
             </button>
           )}
         </div>
