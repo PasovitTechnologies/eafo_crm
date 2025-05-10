@@ -266,14 +266,14 @@ const Notification = () => {
           <div className="notification-body">
             {notification.message.en && (
               <div className="notification-section">
-                <p className="notification-label">English</p>
-                {renderHtmlContent(notification.message.en)}
+                <p className="notification-label">English: <span>
+                {renderHtmlContent(notification.message.en)}</span></p>
               </div>
             )}
             {notification.message.ru && (
               <div className="notification-section">
-                <p className="notification-label">Russian</p>
-                {renderHtmlContent(notification.message.ru)}
+                <p className="notification-label">Russian: <span>
+                {renderHtmlContent(notification.message.ru)}</span></p>
               </div>
             )}
           </div>
@@ -288,7 +288,7 @@ const Notification = () => {
       <div className="modal-header">
         <h2>Create New Notification</h2>
         <button 
-          className="close-button" 
+          className="notification-close-button" 
           onClick={() => setShowModal(false)}
           aria-label="Close modal"
         >

@@ -8,7 +8,7 @@
   gap: 1.5rem;
   padding: 1.5rem;
   margin: auto;
-  padding-top: 120px;
+  padding-top: 130px;
   padding-left: 100px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -17,12 +17,13 @@
 .notification-card {
   background-color: #fff;
   border-radius: 12px;
-  padding: 1.2rem 1.5rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 10px 15px;
+  box-shadow: 1px 1px 2px 2px rgba(0, 0, 0, 0.08);
   transition: box-shadow 0.3s ease;
 }
 
 .notification-card:hover {
+  cursor:pointer;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
 }
 
@@ -61,10 +62,9 @@
 
 .notification-section {
   background-color: #f9f9f9;
-  padding: 0.8rem;
+  padding: 8px 10px;
   border-radius: 8px;
   font-size: 0.95rem;
-  line-height: 1.5;
   color: #333;
 }
 
@@ -126,7 +126,7 @@
   color: #333;
 }
 
-.close-button {
+.notification-close-button {
   background: none;
   border: none;
   cursor: pointer;
@@ -136,7 +136,7 @@
   transition: all 0.2s;
 }
 
-.close-button:hover {
+.notification-close-button:hover {
   color: #333;
   background-color: #f5f5f5;
 }
@@ -605,4 +605,51 @@
 
 .secondary-button:hover {
   background-color: #f5f5f5;
+}
+
+@media (max-width: 768px) {
+.notifications-container {
+  padding-top: 130px;
+  padding-left: 20px;
+}
+}
+
+@media (max-width: 450px) {
+.notification-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+.radio-group{
+  flex-direction: column;
+}
+.filter-tabs{
+  flex-direction: column;
+}
+.modal-content{
+  padding: 10px;
+}
+.modal-header h2{
+  font-size: 18px;
+}
+.modal-content {
+  margin-bottom: 10px;
+}
+
+.section {
+  margin-bottom: 10px;
+}
+.user-card {
+  padding: 10px;
+  border-bottom: 1px solid #f5f5f5;
+  gap: 10px;
+}
+.user-avatar {
+  width: 30px;
+  height: 30px;
+}
+.notification-modal {
+  width: 100%;
+}
 }
