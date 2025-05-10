@@ -1,47 +1,49 @@
 import React, { useState } from 'react';
-import QRReader from 'react-qr-reader';
+import ReactQRScanner from 'react-qr-scanner';
 import { FiCamera, FiCheckCircle, FiXCircle, FiLink, FiRotateCw } from 'react-icons/fi';
 import './QRScanner.css';
 
-const QRScanner = () => {
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
-  const [facingMode, setFacingMode] = useState('environment');
+export default function QRScanner() {
+  const [status, setStatus] = useState('loading'); // States: loading, error, success
+  const [scannedData, setScannedData] = useState(null);
   const [showRedirect, setShowRedirect] = useState(false);
+  const [cameraFacingMode, setCameraFacingMode] = useState('environment'); // Default to back camera
+  const [permissionDenied, setPermissionDenied] = useState(false);
 
+  // Callback when a QR is scanned successfully
+  const handleScan = (data) => {
+    if (data) {
+      setScannedData(data);
+      setStatus('success');
+      if (isValidUrl(data)) {
+        setShowRedirect(true);
+        setTimeout(() => {
+          window.location.href = data; // Redirect to the URL after 2 seconds
+        }, 2000);
+      }
+    }
+  };
+
+  // Callback when an error occurs during scanning
+  const handleError = (err) => {
+    console.error('QR Scan Error:', err);
+    setStatus('error');
+    setPermissionDenied(true);
+  };
+
+  // Check if a string is a valid URL
   const isValidUrl = (string) => {
     try {
-      new URL(string);
+      new URL(string); // Try creating a URL object
       return true;
     } catch (_) {
       return false;
     }
   };
 
-  const handleScan = (data) => {
-    if (data) {
-      setResult(data);
-      if (isValidUrl(data)) {
-        setShowRedirect(true);
-        setTimeout(() => {
-          window.location.href = data;
-        }, 2000);
-      }
-    }
-  };
-
-  const handleError = (err) => {
-    console.error(err);
-    setError(err?.message || 'Failed to access camera');
-  };
-
+  // Toggle between front and back camera
   const toggleCamera = () => {
-    setFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
-  };
-
-  const resetScanner = () => {
-    setResult(null);
-    setShowRedirect(false);
+    setCameraFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
   };
 
   return (
@@ -52,49 +54,54 @@ const QRScanner = () => {
       </div>
 
       <div className="qr-scanner-video-container">
-        {error ? (
-          <div className="qr-scanner-error">
-            <FiXCircle className="error-icon" />
-            <p>{error}</p>
-            <button onClick={() => setError(null)}>Retry</button>
-          </div>
-        ) : result ? (
-          <div className="qr-scanner-success">
-            <FiCheckCircle className="success-icon" />
-            <p>QR Code Scanned</p>
-            {showRedirect && (
-              <div className="qr-redirect-notice">
-                <FiLink className="link-icon" />
-                <p>Redirecting to URL...</p>
-              </div>
-            )}
-          </div>
-        ) : (
-          <QRReader
-            delay={300} // Delay between scans
-            facingMode={facingMode} // Camera facing mode (environment or user)
-            onScan={handleScan} // Callback when a QR is scanned
-            onError={handleError} // Callback for scan errors
-            style={{ width: '100%', height: '100%' }} // Fullscreen video for the scanner
-          />
-        )}
+        {/* QR Scanner Video Overlay */}
+        <div className="qr-scanner-overlay">
+          {status === 'loading' && <p>Loading camera...</p>}
+          {status === 'error' && (
+            <div className="qr-scanner-error">
+              <FiXCircle className="error-icon" />
+              <p>{permissionDenied ? 'Camera permission denied' : 'Camera error'}</p>
+              <button onClick={() => setStatus('loading')}>Retry</button>
+            </div>
+          )}
+          {status === 'success' && (
+            <div className="qr-scanner-success">
+              <FiCheckCircle className="success-icon" />
+              <p>QR Code Scanned</p>
+              {showRedirect && (
+                <div className="qr-redirect-notice">
+                  <FiLink className="link-icon" />
+                  <p>Redirecting to URL...</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* QR Scanner Component */}
+        <ReactQRScanner
+          delay={300} // Delay between scans
+          facingMode={cameraFacingMode} // Camera facing mode (environment or user)
+          onScan={handleScan} // Callback for scan success
+          onError={handleError} // Callback for scan errors
+          style={{ width: '100%', height: 'auto' }} // Fullscreen video for the scanner
+          key={cameraFacingMode} // This forces a re-render when facingMode changes
+        />
       </div>
 
+      {/* Camera Controls */}
       <div className="qr-scanner-controls">
-        <button onClick={toggleCamera}>
-          <FiRotateCw /> Switch Camera
-        </button>
-        {result && <button onClick={resetScanner}>Scan Another</button>}
+        <button onClick={toggleCamera}><FiRotateCw /> Switch Camera</button>
+        {status === 'success' && <button onClick={() => setStatus('loading')}>Scan Another</button>}
       </div>
 
-      {result && !showRedirect && (
+      {/* Display Raw QR Code Content */}
+      {scannedData && !showRedirect && (
         <div className="qr-scanner-result">
-          <h3>Scanned Content</h3>
-          <p>{result}</p>
+          <h3>Raw QR Code Content</h3>
+          <p>{scannedData}</p>
         </div>
       )}
     </div>
   );
-};
-
-export default QRScanner;
+}
