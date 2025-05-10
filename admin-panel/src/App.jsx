@@ -33,6 +33,7 @@ import Telegram from "./components/Telegram";
 import PreCourse from "./components/PreCourse";
 import PreCourseUsers from "./components/PreCourseUsers";
 import Notification from "./components/Notification";
+import QRScanner from "./components/QRScanner";
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -182,6 +183,10 @@ const App = () => {
                 <Route
                   path="/notifications"
                   element={<Notification selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/qrscanner"
+                  element={<QRScanner selectedLanguage={selectedLanguage} />}
                 />
 
 
