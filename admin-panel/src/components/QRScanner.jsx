@@ -12,17 +12,20 @@ export default function QRScanner() {
 
   // Callback when a QR is scanned successfully
   const handleScan = (data) => {
-    if (data) {
-      setScannedData(data);
+    console.log('Scanned Data:', data); // Log the entire data object to the console
+  
+    if (data && data.text) { // Ensure there's text data in the object
+      setScannedData(data.text); // Store only the text part of the QR scan result
       setStatus('success');
-      if (isValidUrl(data)) {
+      if (isValidUrl(data.text)) {
         setShowRedirect(true);
         setTimeout(() => {
-          window.location.href = data; // Redirect to the URL after 2 seconds
+          window.location.href = data.text; // Redirect to the URL after 2 seconds
         }, 2000);
       }
     }
   };
+  
 
   // Callback when an error occurs during scanning
   const handleError = (err) => {
@@ -99,7 +102,7 @@ export default function QRScanner() {
       {scannedData && !showRedirect && (
         <div className="qr-scanner-result">
           <h3>Raw QR Code Content</h3>
-          <p>{scannedData}</p>
+          <p>{scannedData}</p> {/* Display just the text */}
         </div>
       )}
     </div>
