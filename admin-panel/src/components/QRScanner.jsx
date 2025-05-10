@@ -83,13 +83,14 @@ export default function QRScanner() {
 
         {/* QR Scanner Component */}
         <ReactQRScanner
-          delay={300} // Delay between scans
-          facingMode={cameraFacingMode} // Camera facing mode (environment or user)
-          onScan={handleScan} // Callback for scan success
-          onError={handleError} // Callback for scan errors
-          style={{ width: '100%', height: 'auto' }} // Fullscreen video for the scanner
-          key={cameraFacingMode} // This forces a re-render when facingMode changes
-        />
+  delay={300}
+  facingMode="environment" // This tells the browser to request the rear camera
+  onScan={handleScan}
+  onError={handleError}
+  style={{ width: '100%', height: 'auto' }}
+  key={cameraFacingMode}
+/>
+
       </div>
 
       {/* Camera Controls */}
