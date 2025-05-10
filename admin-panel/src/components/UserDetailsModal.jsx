@@ -22,7 +22,12 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
   const [isLoading, setIsLoading] = useState(true);
   const { t, i18n } = useTranslation();
   const [otherForms, setOtherForms] = useState([]);
+  const [qrCodes, setQrCodes] = useState([]);
+  const [selectedQrCode, setSelectedQrCode] = useState(null);
   const [otherFormsData, setOtherFormsData] = useState({});
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [qrImageUrl, setQrImageUrl] = useState(null);
+
   const [otherFormsSubmissions, setOtherFormsSubmissions] = useState({});
   const token = localStorage.getItem("token");
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -131,8 +136,80 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
     fetchData();
   }, [courseId, userData, submission.responses, token]);
 
+
+  useEffect(() => {
+    if (fullUserData && courseId) {
+      // Find the current course
+      const course = fullUserData.courses.find(c => c.courseId === courseId);
+      if (course?.qrCodes?.length > 0) {
+        setQrCodes(course.qrCodes);
+        setSelectedQrCode(course.qrCodes[0]); // Select first QR code by default
+      }
+    }
+  }, [fullUserData, courseId]);
+
   const handleTabChange = (tab) => {
     setActiveTab(tab);
+  };
+
+  useEffect(() => {
+    const fetchQRImage = async () => {
+      try {
+        if (!selectedQrCode?.qrFileId) return;
+  
+        const response = await fetch(`${baseUrl}/api/form/files/${selectedQrCode.qrFileId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        if (!response.ok) throw new Error("Failed to fetch QR image");
+  
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        setQrImageUrl(objectUrl);
+      } catch (error) {
+        console.error("Failed to load QR code image", selectedQrCode);
+      }
+    };
+  
+    fetchQRImage();
+  }, [selectedQrCode]);
+  
+
+  const downloadQRCode = async (qrCode) => {
+    try {
+      if (!qrCode?.qrFileId) {
+        throw new Error("QR code file ID missing");
+      }
+  
+      const response = await fetch(`${baseUrl}/api/form/files/${qrCode.qrFileId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to download QR code: ${response.statusText}`);
+      }
+  
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `QR_Code_${qrCode.formId}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error downloading QR code:", error);
+      alert(`Failed to download QR code: ${error.message}`);
+    }
+  };
+  
+  const viewQRCode = (qrCode) => {
+    window.open(qrCode.url, '_blank');
   };
 
   const sanitizeLabel = (label) => {
@@ -643,6 +720,42 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
               {t('userDetailsModal.exportPDF')}
             </button>
           </div>
+          {/* Add this section where appropriate in your modal */}
+          {selectedQrCode && selectedQrCode.qrFileId && (
+  <div className="qr-code-display">
+    {/* QR Code Image */}
+    <div className="qr-code-image-container">
+      {!imageLoaded && <Skeleton height={120} width={120} />}
+      {qrImageUrl ? (
+  <img
+    src={qrImageUrl}
+    alt="QR Code"
+    className="qr-code-image"
+    onLoad={() => setImageLoaded(true)}
+    onError={(e) => {
+      e.currentTarget.onerror = null;
+      e.currentTarget.src = '/images/qr-fallback.png';
+    }}
+  />
+) : (
+  <Skeleton height={120} width={120} />
+)}
+
+    </div>
+
+
+    {/* Actions */}
+    <div className="qr-code-actions">
+      <button className="view-btn" onClick={() => viewQRCode(selectedQrCode)}>
+        <i className="fas fa-external-link-alt"></i> View Link
+      </button>
+      <button className="download-btn" onClick={() => downloadQRCode(selectedQrCode)}>
+        <i className="fas fa-download"></i> Download QR Code
+      </button>
+    </div>
+  </div>
+)}
+
         </div>
 
         {/* Navigation Bar */}

@@ -1,6 +1,62 @@
 /* 🔥 Overlay */
 @import url('https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@400;700&display=swap');
+/* Add to your CSS file */
+.qr-code-section {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
 
+.qr-code-selector {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+  overflow-x: auto;
+}
+
+.qr-code-tab {
+  padding: 8px 15px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  background: white;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.qr-code-tab.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.qr-code-display {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+}
+
+.qr-code-image-container {
+  padding: 5px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.qr-code-image {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+
+
+.qr-code-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 .userdeatils-modal-overlay {
   position: fixed;
   top: 0;
@@ -26,7 +82,7 @@
   animation: slideIn 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow-y: scroll;
 }
 
 .download-btn {

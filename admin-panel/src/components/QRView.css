@@ -1,0 +1,358 @@
+/* QRView.css */
+
+:root {
+    --primary: #4f46e5;
+    --primary-light: #e0e7ff;
+    --primary-dark: #4338ca;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --text-primary: #111827;
+    --text-secondary: #6b7280;
+    --border: #e5e7eb;
+    --bg: #f9fafb;
+    --card-bg: #ffffff;
+    --radius: 12px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  /* Base Styles */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: var(--text-primary);
+    line-height: 1.5;
+    background-color: var(--bg);
+  }
+  
+  /* Loading State */
+  .loading-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: var(--card-bg);
+  }
+  
+  .loading-animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .loading-spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--primary-light);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  /* Error State */
+  .error-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+    background-color: var(--card-bg);
+  }
+  
+  .error-card {
+    max-width: 400px;
+    width: 100%;
+    padding: 2rem;
+    background-color: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    text-align: center;
+  }
+  
+  .error-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    color: var(--error);
+  }
+  
+  .error-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .retry-btn {
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .retry-btn:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  /* Dashboard Layout */
+  .verification-dashboard {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    margin-top: 60px;
+    background-color: var(--card-bg);
+  }
+  
+  .dashboard-header {
+    padding: 1.5rem;
+    background-color: var(--primary);
+    color: white;
+    border-bottom-left-radius: var(--radius);
+    border-bottom-right-radius: var(--radius);
+  }
+  
+  .header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .header-content h1 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    text-align: center;
+  }
+  
+  .scan-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    opacity: 0.9;
+  }
+  
+  .scan-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  
+  /* Profile Card */
+  .profile-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    margin: 1.5rem;
+    background-color: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+  
+  /* Add these styles to your existing CSS */
+.avatar {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-light);
+    color: var(--primary);
+    border-radius: 50%;
+    overflow: hidden;
+  }
+  
+  .avatar-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .avatar-icon {
+    width: 32px;
+    height: 32px;
+    color: var(--primary);
+  }
+  
+  .profile-info h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  
+  .member-id {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+  }
+  
+  /* Tabs Navigation */
+  .dashboard-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+  }
+  
+  .tab-btn {
+    flex: 1;
+    padding: 0.75rem 0;
+    background: none;
+    border: none;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    position: relative;
+  }
+  
+  .tab-btn.active {
+    color: var(--primary);
+    font-weight: 600;
+  }
+  
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--primary);
+  }
+  
+  /* Dashboard Content */
+  .dashboard-content {
+    padding: 1.5rem;
+  }
+  
+  /* Overview Grid */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .overview-card {
+    background-color: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background-color: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .card-header svg {
+    color: var(--primary);
+  }
+  
+  .card-body {
+    padding: 1.25rem;
+  }
+  
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+  }
+  
+  .info-row:not(:last-child) {
+    border-bottom: 1px solid var(--border);
+  }
+  
+  /* Status Pill */
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .status-pill svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  /* Detail Cards */
+  .detail-card {
+    margin-top: 1rem;
+    background-color: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.25rem;
+  }
+  
+  .detail-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+  }
+  
+  .detail-item:not(:last-child) {
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .detail-label {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+  }
+  
+  .detail-value {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    text-align: right;
+  }
+  
+  /* No Data State */
+  .no-data {
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+  
+  /* Animations */
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .dashboard-header {
+        padding: 1rem;
+     }
+
+     .profile-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        margin: 1rem;
+      }
+      .profile-info h2 {
+        font-size: 1rem;
+        font-weight: 900;
+        margin-bottom: 0.25rem;
+      }
+
+  }

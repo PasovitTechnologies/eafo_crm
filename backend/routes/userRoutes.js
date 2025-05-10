@@ -750,6 +750,33 @@ router.post('/filtered', authenticateJWT, async (req, res) => {
 });
 
 
+// Assuming you're using Express and Mongoose
+
+// Sample Express.js route
+router.get("/getqrDetails/:userId", authenticateJWT, async (req, res) => {
+  try {
+    // Get the userId from the URL parameters
+    const { userId } = req.params;
+
+    // Find the user by matching userId with User._id
+    const user = await User.findById(userId).populate('courses.payments');
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Send back the user data
+    res.json(user);
+  } catch (err) {
+    console.error("Error fetching QR details:", err);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+
+
+
+
 
 
 module.exports = router;

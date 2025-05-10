@@ -34,6 +34,24 @@ router.get("/", authenticateJWT, async (req, res) => {
   }
 });
 
+router.get("/:courseId/getName", authenticateJWT, async (req, res) => {
+  try {
+    const { courseId } = req.params;
+
+    const course = await Course.findById(courseId).select("name nameRussian");
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    res.json({ name: course.name, nameRussian: course.nameRussian });
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching course name", error: err.message });
+  }
+});
+
+
+
 // ✅ Add a new course
 router.post("/", authenticateJWT, async (req, res) => {
   try {

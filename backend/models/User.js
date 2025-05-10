@@ -101,6 +101,15 @@ const userSchema = new mongoose.Schema(
           }
         ],
 
+        qrCodes: [{
+          qrFileId: { type: mongoose.Schema.Types.ObjectId, required: true },
+          formId: { type: mongoose.Schema.Types.ObjectId, required: true },
+          courseId: { type: mongoose.Schema.Types.ObjectId, required: true },
+          url: { type: String, required: true },
+          generatedAt: { type: Date, default: Date.now },
+          isActive: { type: Boolean, default: true }
+        }],
+
         notes: [{
           paymentId: { type: mongoose.Schema.Types.ObjectId, required: true },
           text: { type: String, required: true },

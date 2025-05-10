@@ -13,6 +13,7 @@ const axios = require("axios");
 const { TelegramApi } = require('./TelegramApi');
 const { GridFSBucket } = require("mongodb");
 const UserNotification = require("../models/UserNotificationSchema");
+const QRCode = require('qrcode');
 
 // ✅ Initialize GridFS bucket
 let gfs;
@@ -1036,7 +1037,9 @@ const extractInvoiceFields = (processedSubmissions) => {
     }));
 };
 
-// 3. Updated route handler
+
+
+
 router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -1186,16 +1189,15 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
         );
 
         if (!userCourse) {
-          // Create and push the new course
           user.courses.push({
             courseId,
             registeredForms: [],
             payments: [],
+            qrCodes: [],
             submittedAt: new Date()
           });
           console.log("📚 Added new course to user.courses[]");
 
-          // 🔥 Re-fetch course properly after push
           userCourse = user.courses.find(
             (course) => course.courseId.toString() === courseId.toString()
           );
@@ -1224,8 +1226,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             userCourse.payments = [];
             console.log("🆕 userCourse.payments array initialized.");
           }
-        
-          // Generate 6-digit orderId
+          
           const generateOrderId = () => {
             return Math.floor(100000 + Math.random() * 900000).toString();
           };
@@ -1233,7 +1234,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
           const transactionId = generateOrderId();
           console.log(`🆔 Generated Order ID: ${transactionId}`);
         
-          // Push payment to user's course
           userCourse.payments.push({
             transactionId,
             package: linkedItemDetails.name,
@@ -1250,11 +1250,9 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             currency: linkedItemDetails.currency
           });
         
-          // Save updated USER
           await user.save({ session });
           console.log("✅ User saved successfully with new payment.");
         
-          // Fetch and update Course
           const course = await Course.findById(courseId).session(session);
         
           if (!course.payments) {
@@ -1283,111 +1281,162 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
           await course.save({ session });
           console.log("✅ Course saved successfully with new payment.");
 
+          // Generate and store QR code
+          try {
+            console.log("🔳 Generating QR code...");
+            
+            const qrUrl = `https://testadmin.eafo.info/qrscanner/view/${user._id}/${courseId}/${formId}`;
+            
+            const qrBuffer = await QRCode.toBuffer(qrUrl, {
+              errorCorrectionLevel: 'H',
+              type: 'image/png',
+              quality: 0.9,
+              margin: 1,
+              width: 300
+            });
 
-          // === Add notification after form submission ===
-const notification = {
-  type: "form_submission",
-  formId: formId,
-  formName: formName,
-  courseId: courseId,
-  message: {
-    en: `Your submission for "${formName}" was received`,
-    ru: `Ваша заявка на форму "${formName}" получена`,
-  },
-  read: false,
-  createdAt: new Date()
-};
+            const qrFileName = `qr-${user._id}-${courseId}-${formId}-${Date.now()}.png`;
+            
+            const qrWriteStream = gfs.openUploadStream(qrFileName, {
+              contentType: 'image/png',
+              metadata: {
+                userId: user._id,
+                courseId: courseId,
+                formId: formId,
+                purpose: 'registration_qr_code',
+                generatedAt: new Date()
+              }
+            });
 
-let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
+            qrWriteStream.write(qrBuffer);
+            qrWriteStream.end();
 
-if (!userNotification) {
-  userNotification = new UserNotification({
-    userId: user._id,
-    notifications: [notification]
-  });
-  console.log("📬 Created new UserNotification doc for user.");
-} else {
-  userNotification.notifications.push(notification);
-  console.log("📬 Appended new notification to existing UserNotification.");
-}
+            const qrFile = await new Promise((resolve, reject) => {
+              qrWriteStream.on('finish', () => resolve({
+                fileId: qrWriteStream.id,
+                fileName: qrFileName,
+                contentType: 'image/png',
+                size: qrBuffer.length,
+                url: qrUrl,
+                generatedAt: new Date()
+              }));
+              qrWriteStream.on('error', reject);
+            });
 
-await userNotification.save({ session });
-console.log("🔔 Notification saved for user:", user.email);
+            console.log("✅ QR code generated and stored:", qrFile.fileId);
 
-// === Optional: registration-specific logic ===
-// === Optional: registration-specific logic ===
-if (isUsedForRegistration && linkedItemDetails) {
-  try {
-    const lang = isUsedForRussian ? "ru" : "en";
+            if (!userCourse.qrCodes) {
+              userCourse.qrCodes = [];
+            }
 
-    const invoiceAnswerRaw = invoiceFields.find(
-      f => typeof f.answer === 'string'
-    )?.answer?.trim();
+            userCourse.qrCodes.push({
+              qrFileId: qrFile.fileId,
+              formId: formId,
+              courseId: courseId,
+              url: qrUrl,
+              generatedAt: new Date(),
+              isActive: true
+            });
 
-    const isCompetitiveParticipation =
-      invoiceAnswerRaw === "Competitive participation" ||
-      invoiceAnswerRaw === "Конкурсное участие";
+            console.log("📝 QR code reference added to user.courses[].qrCodes");
+          } catch (qrError) {
+            console.error("⚠️ QR code generation failed (non-critical):", qrError.message);
+          }
 
-    const isSubsidizedParticipation =
-      invoiceAnswerRaw === "Subsidized Non-competitive participation" ||
-      invoiceAnswerRaw === "Льготное Внеконкурсное участие";
-      const isSponsoredParticipation =
-      invoiceAnswerRaw === "Sponsored Non-competitive participation" ||
-      invoiceAnswerRaw === "Спонсируемое внеконкурса участие Внеконкурсное";
+          // Notification
+          const notification = {
+            type: "form_submission",
+            formId: formId,
+            formName: formName,
+            courseId: courseId,
+            message: {
+              en: `Your submission for "${formName}" was received`,
+              ru: `Ваша заявка на форму "${formName}" получена`,
+            },
+            read: false,
+            createdAt: new Date()
+          };
 
-    const isNonCompetitiveParticipation =
-      invoiceAnswerRaw === "Non-competitive participation in thematic modules" ||
-      invoiceAnswerRaw === "Внеконкурсное участие в тематических модулях";
+          let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
 
-    let emailTemplate;
+          if (!userNotification) {
+            userNotification = new UserNotification({
+              userId: user._id,
+              notifications: [notification]
+            });
+            console.log("📬 Created new UserNotification doc for user.");
+          } else {
+            userNotification.notifications.push(notification);
+            console.log("📬 Appended new notification to existing UserNotification.");
+          }
 
-    if (isCompetitiveParticipation) {
-      emailTemplate = getCompetitiveEmailTemplate(lang, user);
-    } else if (isSubsidizedParticipation) {
-      emailTemplate = getSubsidizedParticipationEmailTemplate(lang, user);
-    } else if (isNonCompetitiveParticipation) {
-      emailTemplate = getNonCompetitiveParticipationEmailTemplate(lang, user);
-    } else {
-      emailTemplate = getSponsoredParticipationEmailTemplate(
-        lang,
-        user
-      );
-    }
+          await userNotification.save({ session });
+          console.log("🔔 Notification saved for user:", user.email);
 
-    await sendEmailRusender(
-      { email: user.email, firstName: user.firstName },
-      emailTemplate
-    );
-    console.log("✅ Registration email sent using template:", emailTemplate.subject);
+          // Registration-specific logic
+          if (isUsedForRegistration && linkedItemDetails) {
+            try {
+              const lang = isUsedForRussian ? "ru" : "en";
 
-    const telegram = new TelegramApi();
-    telegram.chat_id = '-4614501397';  // Replace with your group chat ID
-    telegram.text = `
-  📢 <b>Новая заявка</b>
-  👤 <b>Имя:</b> ${user.personalDetails?.firstName || "Н/Д"} ${user.personalDetails?.lastName || ""}
-  📧 <b>Электронная почта:</b> ${user.email}
-  📦 <b>Пакет:</b> ${linkedItemDetails?.name || "Н/Д"}
-  🕒 <b>Дата регистрации:</b> ${new Date().toLocaleString()}
-`;
+              const invoiceAnswerRaw = invoiceFields.find(
+                f => typeof f.answer === 'string'
+              )?.answer?.trim();
 
+              const isCompetitiveParticipation =
+                invoiceAnswerRaw === "Competitive participation" ||
+                invoiceAnswerRaw === "Конкурсное участие";
 
-    await telegram.sendMessage();
-    console.log("✅ Notification sent to Telegram group!");
+              const isSubsidizedParticipation =
+                invoiceAnswerRaw === "Subsidized Non-competitive participation" ||
+                invoiceAnswerRaw === "Льготное Внеконкурсное участие";
+                const isSponsoredParticipation =
+                invoiceAnswerRaw === "Sponsored Non-competitive participation" ||
+                invoiceAnswerRaw === "Спонсируемое внеконкурса участие Внеконкурсное";
 
-  } catch (error) {
-    console.error("⚠️ Failed to send email or Telegram message (non-critical):", error.message);
-  }
-}
+              const isNonCompetitiveParticipation =
+                invoiceAnswerRaw === "Non-competitive participation in thematic modules" ||
+                invoiceAnswerRaw === "Внеконкурсное участие в тематических модулях";
 
+              let emailTemplate;
 
+              if (isCompetitiveParticipation) {
+                emailTemplate = getCompetitiveEmailTemplate(lang, user);
+              } else if (isSubsidizedParticipation) {
+                emailTemplate = getSubsidizedParticipationEmailTemplate(lang, user);
+              } else if (isNonCompetitiveParticipation) {
+                emailTemplate = getNonCompetitiveParticipationEmailTemplate(lang, user);
+              } else {
+                emailTemplate = getSponsoredParticipationEmailTemplate(
+                  lang,
+                  user
+                );
+              }
 
+              await sendEmailRusender(
+                { email: user.email, firstName: user.firstName },
+                emailTemplate
+              );
+              console.log("✅ Registration email sent using template:", emailTemplate.subject);
 
+              const telegram = new TelegramApi();
+              telegram.chat_id = '-4614501397';
+              telegram.text = `
+            📢 <b>Новая заявка</b>
+            👤 <b>Имя:</b> ${user.personalDetails?.firstName || "Н/Д"} ${user.personalDetails?.lastName || ""}
+            📧 <b>Электронная почта:</b> ${user.email}
+            📦 <b>Пакет:</b> ${linkedItemDetails?.name || "Н/Д"}
+            🕒 <b>Дата регистрации:</b> ${new Date().toLocaleString()}
+          `;
+
+              await telegram.sendMessage();
+              console.log("✅ Notification sent to Telegram group!");
+
+            } catch (error) {
+              console.error("⚠️ Failed to send email or Telegram message (non-critical):", error.message);
+            }
+          }
         }
         
-        
-        
-        
-
         await user.save({ session });
         updatedUser = user;
       }
@@ -1400,7 +1449,10 @@ if (isUsedForRegistration && linkedItemDetails) {
       message: "Form submitted successfully!",
       submission: newSubmission,
       user: updatedUser || null,
-      ...(isUsedForRegistration && { linkedItemDetails })
+      ...(isUsedForRegistration && { linkedItemDetails }),
+      ...(updatedUser?.courses?.[0]?.qrCodes?.[0] && { 
+        qrCodeUrl: updatedUser.courses[0].qrCodes[0].url 
+      })
     };
 
     res.status(201).json(responsePayload);
