@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { FiCamera, FiCheckCircle, FiXCircle, FiLink, FiRotateCw } from 'react-icons/fi';
-import './QRScanner.css';
-
-// Using react-qr-reader instead as it's more commonly used
 import QrReader from 'react-qr-reader';
+import './QRScanner.css';
 
 export default function QRScanner() {
   const [status, setStatus] = useState('loading');
   const [scannedData, setScannedData] = useState(null);
   const [showRedirect, setShowRedirect] = useState(false);
-  const [cameraFacingMode, setCameraFacingMode] = useState('environment');
+  const [availableCameras, setAvailableCameras] = useState([]);
+  const [activeCameraId, setActiveCameraId] = useState(null);
   const [permissionDenied, setPermissionDenied] = useState(false);
 
-  // Helper function moved outside component
   const isValidUrl = (string) => {
     try {
       new URL(string);
@@ -22,9 +20,8 @@ export default function QRScanner() {
     }
   };
 
-  const checkCameraPermission = async () => {
+  const enumerateCameras = async () => {
     try {
-      // Modern browsers require explicit permission requests
       await navigator.mediaDevices.getUserMedia({ video: true });
       const devices = await navigator.mediaDevices.enumerateDevices();
       const videoDevices = devices.filter(device => device.kind === 'videoinput');
@@ -32,15 +29,26 @@ export default function QRScanner() {
       if (videoDevices.length === 0) {
         setPermissionDenied(true);
         setStatus('error');
-        return false;
+        return;
       }
-      return true;
+
+      setAvailableCameras(videoDevices);
+      setActiveCameraId(videoDevices[0].deviceId);
+      setStatus('loading');
     } catch (error) {
       console.error("Error accessing media devices:", error);
       setPermissionDenied(true);
       setStatus('error');
-      return false;
     }
+  };
+
+  const switchCamera = () => {
+    if (availableCameras.length < 2) return;
+    
+    const currentIndex = availableCameras.findIndex(cam => cam.deviceId === activeCameraId);
+    const nextIndex = (currentIndex + 1) % availableCameras.length;
+    setActiveCameraId(availableCameras[nextIndex].deviceId);
+    setStatus('loading');
   };
 
   const handleScan = (data) => {
@@ -49,7 +57,6 @@ export default function QRScanner() {
       setStatus('success');
       if (isValidUrl(data)) {
         setShowRedirect(true);
-        // Add confirmation before redirecting
         const shouldRedirect = window.confirm(`You're about to be redirected to:\n${data}\n\nContinue?`);
         if (shouldRedirect) {
           setTimeout(() => {
@@ -68,11 +75,6 @@ export default function QRScanner() {
     setPermissionDenied(err.name === 'NotAllowedError');
   };
 
-  const toggleCamera = () => {
-    setCameraFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
-    setStatus('loading');
-  };
-
   const resetScanner = () => {
     setScannedData(null);
     setShowRedirect(false);
@@ -80,13 +82,7 @@ export default function QRScanner() {
   };
 
   useEffect(() => {
-    const initializeCamera = async () => {
-      const hasPermission = await checkCameraPermission();
-      if (hasPermission) {
-        setStatus('loading');
-      }
-    };
-    initializeCamera();
+    enumerateCameras();
   }, []);
 
   return (
@@ -107,7 +103,7 @@ export default function QRScanner() {
           <div className="qr-scanner-error">
             <FiXCircle className="error-icon" />
             <p>{permissionDenied ? 'Camera permission denied or no camera found' : 'Camera error'}</p>
-            <button onClick={resetScanner}>Retry</button>
+            <button onClick={enumerateCameras}>Retry</button>
           </div>
         )}
 
@@ -122,22 +118,30 @@ export default function QRScanner() {
               </div>
             )}
           </div>
-        ) : status === 'loading' && (
+        ) : status === 'loading' && activeCameraId && (
           <QrReader
             delay={500}
-            facingMode={cameraFacingMode}
             onError={handleError}
             onScan={handleScan}
             style={{ width: '100%' }}
-            key={cameraFacingMode}
+            key={activeCameraId}
+            constraints={{
+              video: { deviceId: activeCameraId }
+            }}
           />
         )}
       </div>
 
       <div className="qr-scanner-controls">
-        <button onClick={toggleCamera} aria-label="Switch camera">
-          <FiRotateCw /> Switch Camera
-        </button>
+        {availableCameras.length > 1 && (
+          <button 
+            onClick={switchCamera} 
+            aria-label="Switch camera"
+            disabled={availableCameras.length < 2}
+          >
+            <FiRotateCw /> Switch Camera ({availableCameras.length} available)
+          </button>
+        )}
         {status === 'success' && (
           <button onClick={resetScanner}>Scan Another</button>
         )}
