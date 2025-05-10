@@ -1,67 +1,81 @@
-/* QRScanner.css */
 .qr-scanner-container {
     max-width: 600px;
     margin: 0 auto;
-    text-align: center;
+    padding: 20px;
+    font-family: Arial, sans-serif;
   }
   
   .qr-scanner-header {
+    text-align: center;
     margin-bottom: 20px;
   }
   
   .qr-scanner-video-container {
     position: relative;
     width: 100%;
+    aspect-ratio: 1;
+    background: #000;
+    margin-bottom: 20px;
+    overflow: hidden;
   }
   
-  .qr-scanner-overlay {
+  .qr-scanner-error,
+  .qr-scanner-success {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     color: white;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10;
+  }
+  
+  .error-icon {
+    color: #ff4444;
+    font-size: 48px;
+    margin-bottom: 10px;
+  }
+  
+  .success-icon {
+    color: #00C851;
+    font-size: 48px;
+    margin-bottom: 10px;
   }
   
   .qr-scanner-controls {
-    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
   }
   
-  .qr-scanner-error,
-  .qr-scanner-success,
-  .qr-redirect-notice {
-    margin-top: 10px;
-    padding: 10px;
-    background-color: rgba(0, 0, 0, 0.6);
-    border-radius: 5px;
+  .qr-scanner-controls button {
+    padding: 10px 15px;
+    background: #4285f4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
   
   .qr-scanner-result {
-    margin-top: 20px;
-    text-align: left;
+    background: #f5f5f5;
+    padding: 15px;
+    border-radius: 4px;
+    word-break: break-all;
   }
   
-  .qr-scanner-error button {
+  .qr-redirect-notice {
     margin-top: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
   }
-  
-  .qr-scanner-success button {
-    margin-top: 10px;
-  }
-  
-  button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  

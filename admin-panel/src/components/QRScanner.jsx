@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { QrScanner } from '@yudiel/react-qr-scanner';
 import { FiCamera, FiCheckCircle, FiXCircle, FiLink, FiRotateCw } from 'react-icons/fi';
-import QrReader from 'react-qr-reader';
 import './QRScanner.css';
 
-export default function QRScanner() {
-  const [status, setStatus] = useState('loading');
-  const [scannedData, setScannedData] = useState(null);
+const QRScanner = () => {
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const [facingMode, setFacingMode] = useState('environment');
   const [showRedirect, setShowRedirect] = useState(false);
-  const [availableCameras, setAvailableCameras] = useState([]);
-  const [activeCameraId, setActiveCameraId] = useState(null);
-  const [permissionDenied, setPermissionDenied] = useState(false);
 
   const isValidUrl = (string) => {
     try {
@@ -20,70 +18,26 @@ export default function QRScanner() {
     }
   };
 
-  const enumerateCameras = async () => {
-    try {
-      await navigator.mediaDevices.getUserMedia({ video: true });
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      const videoDevices = devices.filter(device => device.kind === 'videoinput');
-      
-      if (videoDevices.length === 0) {
-        setPermissionDenied(true);
-        setStatus('error');
-        return;
-      }
-
-      setAvailableCameras(videoDevices);
-      setActiveCameraId(videoDevices[0].deviceId);
-      setStatus('loading');
-    } catch (error) {
-      console.error("Error accessing media devices:", error);
-      setPermissionDenied(true);
-      setStatus('error');
-    }
-  };
-
-  const switchCamera = () => {
-    if (availableCameras.length < 2) return;
-    
-    const currentIndex = availableCameras.findIndex(cam => cam.deviceId === activeCameraId);
-    const nextIndex = (currentIndex + 1) % availableCameras.length;
-    setActiveCameraId(availableCameras[nextIndex].deviceId);
-    setStatus('loading');
-  };
-
   const handleScan = (data) => {
     if (data) {
-      setScannedData(data);
-      setStatus('success');
+      setResult(data);
       if (isValidUrl(data)) {
         setShowRedirect(true);
-        const shouldRedirect = window.confirm(`You're about to be redirected to:\n${data}\n\nContinue?`);
-        if (shouldRedirect) {
-          setTimeout(() => {
-            window.location.href = data;
-          }, 1000);
-        } else {
-          setShowRedirect(false);
-        }
+        setTimeout(() => {
+          window.location.href = data;
+        }, 2000);
       }
     }
   };
 
-  const handleError = (err) => {
-    console.error('QR Scan Error:', err);
-    setStatus('error');
-    setPermissionDenied(err.name === 'NotAllowedError');
+  const toggleCamera = () => {
+    setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
   };
 
   const resetScanner = () => {
-    setScannedData(null);
+    setResult(null);
     setShowRedirect(false);
-    setStatus('loading');
   };
-
-  useEffect(() => {
-    enumerateCameras();
-  }, []);
 
   return (
     <div className="qr-scanner-container">
@@ -93,21 +47,13 @@ export default function QRScanner() {
       </div>
 
       <div className="qr-scanner-video-container">
-        {status === 'loading' && (
-          <div className="qr-scanner-loading">
-            <p>Loading camera...</p>
-          </div>
-        )}
-
-        {status === 'error' && (
+        {error ? (
           <div className="qr-scanner-error">
             <FiXCircle className="error-icon" />
-            <p>{permissionDenied ? 'Camera permission denied or no camera found' : 'Camera error'}</p>
-            <button onClick={enumerateCameras}>Retry</button>
+            <p>{error}</p>
+            <button onClick={() => setError(null)}>Retry</button>
           </div>
-        )}
-
-        {status === 'success' ? (
+        ) : result ? (
           <div className="qr-scanner-success">
             <FiCheckCircle className="success-icon" />
             <p>QR Code Scanned</p>
@@ -118,49 +64,36 @@ export default function QRScanner() {
               </div>
             )}
           </div>
-        ) : status === 'loading' && activeCameraId && (
-          <QrReader
-            delay={500}
-            onError={handleError}
-            onScan={handleScan}
-            style={{ width: '100%' }}
-            key={activeCameraId}
+        ) : (
+          <QrScanner
+            onDecode={handleScan}
+            onError={(err) => setError(err?.message || 'Failed to access camera')}
             constraints={{
-              video: { deviceId: activeCameraId }
+              facingMode: facingMode,
+              width: { ideal: 1280 },
+              height: { ideal: 720 }
             }}
+            containerStyle={{ width: '100%', height: '100%' }}
+            videoStyle={{ width: '100%' }}
           />
         )}
       </div>
 
       <div className="qr-scanner-controls">
-        {availableCameras.length > 1 && (
-          <button 
-            onClick={switchCamera} 
-            aria-label="Switch camera"
-            disabled={availableCameras.length < 2}
-          >
-            <FiRotateCw /> Switch Camera ({availableCameras.length} available)
-          </button>
-        )}
-        {status === 'success' && (
-          <button onClick={resetScanner}>Scan Another</button>
-        )}
+        <button onClick={toggleCamera}>
+          <FiRotateCw /> Switch Camera
+        </button>
+        {result && <button onClick={resetScanner}>Scan Another</button>}
       </div>
 
-      {scannedData && !showRedirect && (
+      {result && !showRedirect && (
         <div className="qr-scanner-result">
           <h3>Scanned Content</h3>
-          <p>{scannedData}</p>
-          {navigator.clipboard && (
-            <button 
-              onClick={() => navigator.clipboard.writeText(scannedData)}
-              className="copy-button"
-            >
-              Copy to Clipboard
-            </button>
-          )}
+          <p>{result}</p>
         </div>
       )}
     </div>
   );
-}
+};
+
+export default QRScanner;
