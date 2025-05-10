@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import ReactQRScanner from 'react-qr-scanner';
+import React, { useState, useEffect } from 'react';
 import { FiCamera, FiCheckCircle, FiXCircle, FiLink, FiRotateCw } from 'react-icons/fi';
 import './QRScanner.css';
+
+// Using react-qr-reader instead as it's more commonly used
+import QrReader from 'react-qr-reader';
 
 export default function QRScanner() {
   const [status, setStatus] = useState('loading');
@@ -10,41 +12,82 @@ export default function QRScanner() {
   const [cameraFacingMode, setCameraFacingMode] = useState('environment');
   const [permissionDenied, setPermissionDenied] = useState(false);
 
-  // Callback when a QR is scanned successfully
-  const handleScan = (data) => {
-    if (data) {
-      setScannedData(data);
-      setStatus('success');
-      if (isValidUrl(data)) {
-        setShowRedirect(true);
-        setTimeout(() => {
-          window.location.href = data; // Redirect to the URL after 2 seconds
-        }, 2000);
-      }
-    }
-  };
-
-  // Callback when an error occurs during scanning
-  const handleError = (err) => {
-    console.error('QR Scan Error:', err);
-    setStatus('error');
-    setPermissionDenied(true);
-  };
-
-  // Check if a string is a valid URL
+  // Helper function moved outside component
   const isValidUrl = (string) => {
     try {
-      new URL(string); // Try creating a URL object
+      new URL(string);
       return true;
     } catch (_) {
       return false;
     }
   };
 
-  // Toggle between front and back camera
+  const checkCameraPermission = async () => {
+    try {
+      // Modern browsers require explicit permission requests
+      await navigator.mediaDevices.getUserMedia({ video: true });
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoDevices = devices.filter(device => device.kind === 'videoinput');
+      
+      if (videoDevices.length === 0) {
+        setPermissionDenied(true);
+        setStatus('error');
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Error accessing media devices:", error);
+      setPermissionDenied(true);
+      setStatus('error');
+      return false;
+    }
+  };
+
+  const handleScan = (data) => {
+    if (data) {
+      setScannedData(data);
+      setStatus('success');
+      if (isValidUrl(data)) {
+        setShowRedirect(true);
+        // Add confirmation before redirecting
+        const shouldRedirect = window.confirm(`You're about to be redirected to:\n${data}\n\nContinue?`);
+        if (shouldRedirect) {
+          setTimeout(() => {
+            window.location.href = data;
+          }, 1000);
+        } else {
+          setShowRedirect(false);
+        }
+      }
+    }
+  };
+
+  const handleError = (err) => {
+    console.error('QR Scan Error:', err);
+    setStatus('error');
+    setPermissionDenied(err.name === 'NotAllowedError');
+  };
+
   const toggleCamera = () => {
     setCameraFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
+    setStatus('loading');
   };
+
+  const resetScanner = () => {
+    setScannedData(null);
+    setShowRedirect(false);
+    setStatus('loading');
+  };
+
+  useEffect(() => {
+    const initializeCamera = async () => {
+      const hasPermission = await checkCameraPermission();
+      if (hasPermission) {
+        setStatus('loading');
+      }
+    };
+    initializeCamera();
+  }, []);
 
   return (
     <div className="qr-scanner-container">
@@ -54,58 +97,64 @@ export default function QRScanner() {
       </div>
 
       <div className="qr-scanner-video-container">
-        {/* QR Scanner Video Overlay */}
-        <div className="qr-scanner-overlay">
-          {status === 'loading' && <p>Loading camera...</p>}
-          {status === 'error' && (
-            <div className="qr-scanner-error">
-              <FiXCircle className="error-icon" />
-              <p>{permissionDenied ? 'Camera permission denied' : 'Camera error'}</p>
-              <button onClick={() => setStatus('loading')}>Retry</button>
-            </div>
-          )}
-          {status === 'success' && (
-            <div className="qr-scanner-success">
-              <FiCheckCircle className="success-icon" />
-              <p>QR Code Scanned</p>
-              {showRedirect && (
-                <div className="qr-redirect-notice">
-                  <FiLink className="link-icon" />
-                  <p>Redirecting to URL...</p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        {status === 'loading' && (
+          <div className="qr-scanner-loading">
+            <p>Loading camera...</p>
+          </div>
+        )}
 
-        {/* QR Scanner Component with increased resolution */}
-        <ReactQRScanner
-          delay={300} // Delay between scans
-          facingMode={cameraFacingMode} // Camera facing mode (environment or user)
-          onScan={handleScan} // Callback for scan success
-          onError={handleError} // Callback for scan errors
-          style={{ width: '100%', height: 'auto' }} // Fullscreen video for the scanner
-          key={cameraFacingMode} // This forces a re-render when facingMode changes
-          // Increase the resolution for better clarity
-          videoConstraints={{
-            facingMode: cameraFacingMode,
-            width: { ideal: 1280 }, // Set the ideal width
-            height: { ideal: 720 }, // Set the ideal height
-          }}
-        />
+        {status === 'error' && (
+          <div className="qr-scanner-error">
+            <FiXCircle className="error-icon" />
+            <p>{permissionDenied ? 'Camera permission denied or no camera found' : 'Camera error'}</p>
+            <button onClick={resetScanner}>Retry</button>
+          </div>
+        )}
+
+        {status === 'success' ? (
+          <div className="qr-scanner-success">
+            <FiCheckCircle className="success-icon" />
+            <p>QR Code Scanned</p>
+            {showRedirect && (
+              <div className="qr-redirect-notice">
+                <FiLink className="link-icon" />
+                <p>Redirecting to URL...</p>
+              </div>
+            )}
+          </div>
+        ) : status === 'loading' && (
+          <QrReader
+            delay={500}
+            facingMode={cameraFacingMode}
+            onError={handleError}
+            onScan={handleScan}
+            style={{ width: '100%' }}
+            key={cameraFacingMode}
+          />
+        )}
       </div>
 
-      {/* Camera Controls */}
       <div className="qr-scanner-controls">
-        <button onClick={toggleCamera}><FiRotateCw /> Switch Camera</button>
-        {status === 'success' && <button onClick={() => setStatus('loading')}>Scan Another</button>}
+        <button onClick={toggleCamera} aria-label="Switch camera">
+          <FiRotateCw /> Switch Camera
+        </button>
+        {status === 'success' && (
+          <button onClick={resetScanner}>Scan Another</button>
+        )}
       </div>
 
-      {/* Display Raw QR Code Content */}
       {scannedData && !showRedirect && (
         <div className="qr-scanner-result">
-          <h3>Raw QR Code Content</h3>
+          <h3>Scanned Content</h3>
           <p>{scannedData}</p>
+          {navigator.clipboard && (
+            <button 
+              onClick={() => navigator.clipboard.writeText(scannedData)}
+              className="copy-button"
+            >
+              Copy to Clipboard
+            </button>
+          )}
         </div>
       )}
     </div>
