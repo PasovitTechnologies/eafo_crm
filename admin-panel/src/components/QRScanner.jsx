@@ -4,47 +4,42 @@ import { FiCamera, FiCheckCircle, FiXCircle, FiLink, FiRotateCw } from 'react-ic
 import './QRScanner.css';
 
 export default function QRScanner() {
-  const [status, setStatus] = useState('loading'); // States: loading, error, success
+  const [status, setStatus] = useState('loading');
   const [scannedData, setScannedData] = useState(null);
   const [showRedirect, setShowRedirect] = useState(false);
-  const [cameraFacingMode, setCameraFacingMode] = useState('environment'); // Default to back camera
+  const [cameraFacingMode, setCameraFacingMode] = useState('environment');
   const [permissionDenied, setPermissionDenied] = useState(false);
 
-  // Callback when a QR is scanned successfully
   const handleScan = (data) => {
-    console.log('Scanned Data:', data); // Log the entire data object to the console
-  
-    if (data && data.text) { // Ensure there's text data in the object
-      setScannedData(data.text); // Store only the text part of the QR scan result
+    console.log('Scanned Data:', data);
+
+    if (data && data.text) {
+      setScannedData(data.text);
       setStatus('success');
       if (isValidUrl(data.text)) {
         setShowRedirect(true);
         setTimeout(() => {
-          window.location.href = data.text; // Redirect to the URL after 2 seconds
+          window.location.href = data.text;
         }, 2000);
       }
     }
   };
-  
 
-  // Callback when an error occurs during scanning
   const handleError = (err) => {
     console.error('QR Scan Error:', err);
     setStatus('error');
     setPermissionDenied(true);
   };
 
-  // Check if a string is a valid URL
   const isValidUrl = (string) => {
     try {
-      new URL(string); // Try creating a URL object
+      new URL(string);
       return true;
     } catch (_) {
       return false;
     }
   };
 
-  // Toggle between front and back camera
   const toggleCamera = () => {
     setCameraFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
   };
@@ -57,7 +52,6 @@ export default function QRScanner() {
       </div>
 
       <div className="qr-scanner-video-container">
-        {/* QR Scanner Video Overlay */}
         <div className="qr-scanner-overlay">
           {status === 'loading' && <p>Loading camera...</p>}
           {status === 'error' && (
@@ -81,29 +75,28 @@ export default function QRScanner() {
           )}
         </div>
 
-        {/* QR Scanner Component */}
+        {/* Updated Scanner Component with facingMode constraints */}
         <ReactQRScanner
-  delay={300}
-  facingMode="environment" // This tells the browser to request the rear camera
-  onScan={handleScan}
-  onError={handleError}
-  style={{ width: '100%', height: 'auto' }}
-  key={cameraFacingMode}
-/>
-
+          delay={300}
+          onScan={handleScan}
+          onError={handleError}
+          constraints={{
+            video: { facingMode: { exact: cameraFacingMode } }
+          }}
+          style={{ width: '100%', height: 'auto' }}
+          key={cameraFacingMode}
+        />
       </div>
 
-      {/* Camera Controls */}
       <div className="qr-scanner-controls">
         <button onClick={toggleCamera}><FiRotateCw /> Switch Camera</button>
         {status === 'success' && <button onClick={() => setStatus('loading')}>Scan Another</button>}
       </div>
 
-      {/* Display Raw QR Code Content */}
       {scannedData && !showRedirect && (
         <div className="qr-scanner-result">
           <h3>Raw QR Code Content</h3>
-          <p>{scannedData}</p> {/* Display just the text */}
+          <p>{scannedData}</p>
         </div>
       )}
     </div>
