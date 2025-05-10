@@ -7,7 +7,7 @@ export default function QRScanner() {
   const [status, setStatus] = useState('loading');
   const [scannedData, setScannedData] = useState(null);
   const [showRedirect, setShowRedirect] = useState(false);
-  const [cameraFacingMode, setCameraFacingMode] = useState('environment'); // Default to back camera
+  const [cameraFacingMode, setCameraFacingMode] = useState('environment');
   const [permissionDenied, setPermissionDenied] = useState(false);
 
   // Callback when a QR is scanned successfully
@@ -54,6 +54,7 @@ export default function QRScanner() {
       </div>
 
       <div className="qr-scanner-video-container">
+        {/* QR Scanner Video Overlay */}
         <div className="qr-scanner-overlay">
           {status === 'loading' && <p>Loading camera...</p>}
           {status === 'error' && (
@@ -77,7 +78,7 @@ export default function QRScanner() {
           )}
         </div>
 
-        {/* QR Scanner Component */}
+        {/* QR Scanner Component with increased resolution */}
         <ReactQRScanner
           delay={300} // Delay between scans
           facingMode={cameraFacingMode} // Camera facing mode (environment or user)
@@ -85,14 +86,22 @@ export default function QRScanner() {
           onError={handleError} // Callback for scan errors
           style={{ width: '100%', height: 'auto' }} // Fullscreen video for the scanner
           key={cameraFacingMode} // This forces a re-render when facingMode changes
+          // Increase the resolution for better clarity
+          videoConstraints={{
+            facingMode: cameraFacingMode,
+            width: { ideal: 1280 }, // Set the ideal width
+            height: { ideal: 720 }, // Set the ideal height
+          }}
         />
       </div>
 
+      {/* Camera Controls */}
       <div className="qr-scanner-controls">
         <button onClick={toggleCamera}><FiRotateCw /> Switch Camera</button>
         {status === 'success' && <button onClick={() => setStatus('loading')}>Scan Another</button>}
       </div>
 
+      {/* Display Raw QR Code Content */}
       {scannedData && !showRedirect && (
         <div className="qr-scanner-result">
           <h3>Raw QR Code Content</h3>
