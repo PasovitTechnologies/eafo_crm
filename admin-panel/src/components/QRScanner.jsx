@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import QrScanner from '@yudiel/react-qr-scanner'; // Default import
+import QRReader from 'react-qr-reader';
 import { FiCamera, FiCheckCircle, FiXCircle, FiLink, FiRotateCw } from 'react-icons/fi';
 import './QRScanner.css';
 
@@ -36,7 +36,7 @@ const QRScanner = () => {
   };
 
   const toggleCamera = () => {
-    setFacingMode(prev => prev === 'environment' ? 'user' : 'environment');
+    setFacingMode((prev) => (prev === 'environment' ? 'user' : 'environment'));
   };
 
   const resetScanner = () => {
@@ -70,16 +70,12 @@ const QRScanner = () => {
             )}
           </div>
         ) : (
-          <QrScanner
-            onDecode={handleScan}
-            onError={handleError}
-            constraints={{
-              facingMode: facingMode,
-              width: { ideal: 1280 },
-              height: { ideal: 720 },
-            }}
-            containerStyle={{ width: '100%', height: '100%' }}
-            videoStyle={{ width: '100%' }}
+          <QRReader
+            delay={300} // Delay between scans
+            facingMode={facingMode} // Camera facing mode (environment or user)
+            onScan={handleScan} // Callback when a QR is scanned
+            onError={handleError} // Callback for scan errors
+            style={{ width: '100%', height: '100%' }} // Fullscreen video for the scanner
           />
         )}
       </div>
