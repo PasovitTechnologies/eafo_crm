@@ -1,8 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import jsQR from 'jsqr';
-import {
-  FiCamera, FiCheckCircle, FiXCircle, FiLink, FiRotateCw,
-} from 'react-icons/fi';
+import { FiCamera, FiCheckCircle, FiXCircle, FiLink, FiRotateCw } from 'react-icons/fi';
 import './QRScanner.css';
 
 export default function QRScanner() {
@@ -14,7 +12,7 @@ export default function QRScanner() {
   const [scannedData, setScannedData] = useState(null);
   const [cameraFacingMode, setCameraFacingMode] = useState('environment');
   const [permissionDenied, setPermissionDenied] = useState(false);
-  const [fetchedResult, setFetchedResult] = useState(null);
+  const [showRedirect, setShowRedirect] = useState(false);
 
   const checkCameraPermission = async () => {
     try {
@@ -32,7 +30,7 @@ export default function QRScanner() {
 
   const isValidUrl = (string) => {
     try {
-      new URL(string);
+      new URL(string);  // Try creating a URL object
       return true;
     } catch (_) {
       return false;
@@ -42,8 +40,8 @@ export default function QRScanner() {
   const startCamera = async () => {
     setStatus('loading');
     setScannedData(null);
-    setFetchedResult(null);
     setPermissionDenied(false);
+    setShowRedirect(false);
 
     const hasPermission = await checkCameraPermission();
     if (!hasPermission) return;
@@ -81,18 +79,14 @@ export default function QRScanner() {
             setStatus('success');
             setScannedData(code.data);
 
-            try {
-              const targetUrl = isValidUrl(code.data)
-                ? code.data
-                : `${process.env.REACT_APP_API_BASE}/api/qr/${code.data}`;
+            // Check if the QR code is a URL
+            if (isValidUrl(code.data)) {
+              setShowRedirect(true);
 
-              const response = await fetch(targetUrl);
-              if (!response.ok) throw new Error('Fetch failed');
-              const result = await response.json();
-              setFetchedResult(result);
-            } catch (err) {
-              setFetchedResult({ error: 'Failed to fetch data from QR' });
-              console.error(err);
+              // Attempt to redirect after scanning the QR code
+              setTimeout(() => {
+                window.location.href = code.data; // Redirect to the URL
+              }, 2000);
             }
           }
         }
@@ -153,6 +147,12 @@ export default function QRScanner() {
             <div className="qr-scanner-success">
               <FiCheckCircle className="success-icon" />
               <p>QR Code Scanned</p>
+              {showRedirect && (
+                <div className="qr-redirect-notice">
+                  <FiLink className="link-icon" />
+                  <p>Redirecting to URL...</p>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -164,17 +164,10 @@ export default function QRScanner() {
         {status === 'success' && <button onClick={rescan}>Scan Another</button>}
       </div>
 
-      {scannedData && (
+      {scannedData && !showRedirect && (
         <div className="qr-scanner-result">
           <h3>Raw QR Code Content</h3>
           <p>{scannedData}</p>
-        </div>
-      )}
-
-      {fetchedResult && (
-        <div className="qr-fetched-result">
-          <h3>Fetched Data</h3>
-          <pre>{JSON.stringify(fetchedResult, null, 2)}</pre>
         </div>
       )}
     </div>
