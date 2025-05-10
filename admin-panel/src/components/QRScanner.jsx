@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { QrScanner } from '@yudiel/react-qr-scanner';
+import QrScanner from '@yudiel/react-qr-scanner'; // Default import
 import { FiCamera, FiCheckCircle, FiXCircle, FiLink, FiRotateCw } from 'react-icons/fi';
 import './QRScanner.css';
 
@@ -28,6 +28,11 @@ const QRScanner = () => {
         }, 2000);
       }
     }
+  };
+
+  const handleError = (err) => {
+    console.error(err);
+    setError(err?.message || 'Failed to access camera');
   };
 
   const toggleCamera = () => {
@@ -67,11 +72,11 @@ const QRScanner = () => {
         ) : (
           <QrScanner
             onDecode={handleScan}
-            onError={(err) => setError(err?.message || 'Failed to access camera')}
+            onError={handleError}
             constraints={{
               facingMode: facingMode,
               width: { ideal: 1280 },
-              height: { ideal: 720 }
+              height: { ideal: 720 },
             }}
             containerStyle={{ width: '100%', height: '100%' }}
             videoStyle={{ width: '100%' }}
