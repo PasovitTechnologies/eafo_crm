@@ -15,15 +15,15 @@ const users = [
   },
   {
     _id: '2',
-    email: 'user2@example.com',
+    email: 'test@gmail.com',
     role: 'user',
-    password: bcrypt.hashSync('password2', 10),
+    password: bcrypt.hashSync('Test@1234', 10),
   },
   {
     _id: '3',
-    email: 'user3@example.com',
+    email: 'user@example.com',
     role: 'user',
-    password: bcrypt.hashSync('password3', 10),
+    password: bcrypt.hashSync('User@1234', 10),
   },
 ];
 
@@ -51,7 +51,7 @@ router.post('/login', async (req, res) => {
       role: user.role,
     },
     JWT_SECRET,
-    { expiresIn: '2h' }
+    { expiresIn: '4h' }
   );
 
   // Respond with token
