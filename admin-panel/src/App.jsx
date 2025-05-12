@@ -185,15 +185,7 @@ const App = () => {
                   path="/notifications"
                   element={<Notification selectedLanguage={selectedLanguage} />}
                 />
-                <Route
-                  path="/qrscanner"
-                  element={<QRScanner selectedLanguage={selectedLanguage} />}
-                />
-
-                <Route
-                  path="/qrscanner/view/:userId/:courseId/:formId"
-                  element={<QRView selectedLanguage={selectedLanguage} />}
-                />
+               
 
 
                 {/* Webinar Routes */}
