@@ -1285,7 +1285,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
           try {
             console.log("🔳 Generating QR code...");
             
-            const qrUrl = `https://testadmin.eafo.info/qrscanner/view/${user._id}/${courseId}/${formId}`;
+            const qrUrl = `https://qr.eafo.info/qrscanner/view/${user._id}/${courseId}/${formId}`;
             
             const qrBuffer = await QRCode.toBuffer(qrUrl, {
               errorCorrectionLevel: 'H',
