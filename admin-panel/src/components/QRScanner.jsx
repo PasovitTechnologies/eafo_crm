@@ -11,7 +11,6 @@ export default function QRScanner() {
   const [permissionDenied, setPermissionDenied] = useState(false);
 
   const handleScan = (data) => {
-    console.log('Scanned Data:', data);
 
     if (data && data.text) {
       setScannedData(data.text);

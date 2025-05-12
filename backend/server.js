@@ -85,6 +85,9 @@ const enquiryRoutes = require("./routes/enquiryRoutes");
 const notificationRoutes = require("./routes/notificationsRoutes");
 const preCourseRoutes = require("./routes/preCourseRoutes");
 
+//qr app
+const qrLoginRoutes = require('./routes/qrLoginRoutes');
+
 
 // ✅ Base URL Configuration
 const baseUrl = process.env.BASE_URL || 'http://localhost:4000';
@@ -104,6 +107,10 @@ app.use("/api/whatsapp", whatsappRoutes);
 app.use("/api/enquiries", enquiryRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/precourse", preCourseRoutes);
+
+//qr app
+app.use('/api/qr', qrLoginRoutes);
+
 
 // ✅ Serve Static Files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
