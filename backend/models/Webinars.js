@@ -22,7 +22,7 @@ const WebinarSchema = new mongoose.Schema({
   participants: [
     {
       email: { type: String, required: true },
-      registeredAt: { type: Date, default: Date.now },
+      registeredAt: { type: Date, default: () => moment.tz("Europe/Moscow").toDate() },
       status: { type: String, default: "Not Registered" }, // Default to "Not Registered"
     },
   ],

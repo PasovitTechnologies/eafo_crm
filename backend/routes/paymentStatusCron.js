@@ -7,6 +7,8 @@ const alfUser = process.env.ALFABANK_USER;
 const alfPassword = process.env.ALFABANK_PASSWORD;
 const alfApiUrl = process.env.ALFABANK_API_URL;
 const { TelegramApi } = require("./TelegramApi");
+const moment = require("moment-timezone");
+
 
 console.log("✅ Payment Status Cron Initialized!");
 
@@ -18,7 +20,7 @@ console.log(`ALFABANK_API_URL: ${alfApiUrl}`);
 const checkPendingPayments = async () => {
   try {
     console.log("🕒 Running payment status checker...");
-    const now = new Date();
+    const now = moment().tz("Europe/Moscow").format("YYYY-MM-DD HH:mm:ss");;
     console.log("📅 Current date:", now);
 
     // Find all active courses
@@ -115,9 +117,9 @@ const checkPendingPayments = async () => {
 📄 <b>Инвойс:</b> ${payment.invoiceNumber || "N/A"}
 💳 <b>Сумма:</b> ${payment.amount} ${payment.currency}
 🏷️ <b>Тариф:</b> ${payment.package || "N/A"}
-⏱️ <b>Время:</b> ${new Date().toLocaleString("ru-RU")}
+⏱️ <b>Время:</b> ${new Date().toLocaleString("ru-RU", { timeZone: "Europe/Moscow" })}
 ━━━━━━━━━━━━
-#payment #${payment.currency}
+
                   `;
 
                   await telegram.sendMessage();

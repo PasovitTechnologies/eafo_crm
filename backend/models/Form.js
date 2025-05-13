@@ -63,6 +63,7 @@ const questionSchema = new mongoose.Schema(
         "multi-select",
         "content",
         "accept",
+        "name"
       ],
       required: true,
     },
@@ -86,6 +87,10 @@ const questionSchema = new mongoose.Schema(
     isUsedForInvoice: {
       type: Boolean,
       default: false,
+    },
+    multipleNames: {
+      type: Boolean,
+      default: false, // Default to single file upload
     },
     // NEW: Add these fields for file upload control
     multiple: {
@@ -118,28 +123,49 @@ const questionSchema = new mongoose.Schema(
 
 
 const submissionSchema = new mongoose.Schema({
-  email: String,
-  formId: { type: mongoose.Schema.Types.ObjectId, ref: 'Form', required: false },
-  responses: [{
-    questionId: { type: mongoose.Schema.Types.ObjectId, required: true },
-    answer: mongoose.Schema.Types.Mixed,
-    files: [  // <-- Changed from `file` to `files`
-      {
-        fileId: mongoose.Schema.Types.ObjectId,
-        fileName: String,
-        contentType: String,
-        size: Number,
-        uploadDate: Date,
-        preview: String // optional if needed
-      }
-    ],
-    isUsedForInvoice: Boolean
-  }]
-  ,
-  courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
-  isUsedForRegistration: Boolean,
-  isUsedForRussian: Boolean
-}, { timestamps: true });
+  email: { type: String, required: true },
+
+  formId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Form',
+    required: false,
+  },
+
+  responses: [
+    {
+      questionId: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+      },
+
+      answer: mongoose.Schema.Types.Mixed, // can store strings, arrays, objects (e.g. name blocks)
+
+      files: [
+        {
+          fileId: mongoose.Schema.Types.ObjectId,
+          fileName: String,
+          contentType: String,
+          size: Number,
+          uploadDate: Date,
+          preview: String, // optional thumbnail or base64 preview
+        },
+      ],
+
+      isUsedForInvoice: { type: Boolean, default: false },
+    },
+  ],
+
+  courseId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Course',
+  },
+
+  isUsedForRegistration: { type: Boolean, default: false },
+  isUsedForRussian: { type: Boolean, default: false },
+}, {
+  timestamps: true,
+});
+
 
 
 

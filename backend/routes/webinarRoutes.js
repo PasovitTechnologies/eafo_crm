@@ -6,6 +6,8 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const axios = require("axios");
 const { TelegramApi } = require('./TelegramApi');
+const moment = require("moment-timezone");
+
 
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
@@ -257,7 +259,7 @@ router.post("/:id/register", authenticateJWT, async (req, res) => {
     // ✅ Add participant to Webinar's participants list
     const newParticipant = {
       email,
-      registeredAt: new Date(),
+      registeredAt: { type: Date, default: () => moment.tz("Europe/Moscow").toDate() },
       status: "Registered",
     };
 
@@ -274,19 +276,7 @@ router.post("/:id/register", authenticateJWT, async (req, res) => {
     
     console.log("✅ Webinar registration email sent!");
 
-    // Now, send the message to the Telegram group
-    const telegram = new TelegramApi();
-    telegram.chat_id = '-4740453782';  // Replace with your group chat ID
-    telegram.text = `
-      📢 <b>New Webinar Registration</b>
-      👤 <b>Name:</b> ${user.personalDetails.firstName} ${user.personalDetails.lastName}
-      📧 <b>Email:</b> ${user.email}
-      📝 <b>Webinar:</b> ${webinar.title}
-      🕒 <b>Registered At:</b> ${new Date().toLocaleString()}
-    `;
-    await telegram.sendMessage();  // Send message to group
-
-    console.log("✅ Notification sent to Telegram group!");
+    
 
   } catch (error) {
     console.error("Error registering participant:", error);

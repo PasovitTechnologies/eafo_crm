@@ -374,6 +374,7 @@
     "addOption": "Add Option",
     "removeOption": "Remove",
     "allowMultipleFiles": "Allow multiple files",
+    "allowMultipleNames": "Allow to add multiple names",
     "required": "Required",
     "conditional": "Conditional",
     "usedForInvoice": "Used for Invoice",

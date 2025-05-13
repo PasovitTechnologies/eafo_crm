@@ -1,5 +1,7 @@
 import React from "react";
 import Multiselect from "multiselect-react-dropdown";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 import "./QuestionsPreviewModal.css";
 
 const RenderInputField = ({ question, handleMultiSelectChange }) => {
@@ -8,7 +10,6 @@ const RenderInputField = ({ question, handleMultiSelectChange }) => {
     case "email":
     case "number":
     case "date":
-    case "phone":
     case "country":
     case "category":
       return (
@@ -100,7 +101,66 @@ const RenderInputField = ({ question, handleMultiSelectChange }) => {
           </label>
         </div>
       );
-
+    
+      case "name":
+        const isRussian = question.isUsedForRussian;
+        return (
+          <div className="name-fields-wrapper">
+            <div className="name-entry responsive-name-entry">
+              {isRussian ? (
+                <>
+                  <div className="form-group">
+                    <label>Фамилия<span className="required-star"> *</span></label>
+                    <input type="text" className="question-input responsive-input" />
+                  </div>
+                  <div className="form-group">
+                    <label>Имя<span className="required-star"> *</span></label>
+                    <input type="text" className="question-input responsive-input" />
+                  </div>
+                  <div className="form-group">
+                    <label>Отчество</label>
+                    <input type="text" className="question-input responsive-input" />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="form-group">
+                    <label>First Name<span className="required-star"> *</span></label>
+                    <input type="text" className="question-input responsive-input" />
+                  </div>
+                  <div className="form-group">
+                    <label>Middle Name</label>
+                    <input type="text" className="question-input responsive-input" />
+                  </div>
+                  <div className="form-group">
+                    <label>Last Name<span className="required-star"> *</span></label>
+                    <input type="text" className="question-input responsive-input" />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        );
+      
+        case "phone":
+          return (
+            <PhoneInput
+              country={"ru"}
+              value={""} // No state binding in preview
+              onChange={() => {}} // No-op in preview
+              inputClass="custom-phone-input"
+              containerClass="custom-phone-container"
+              buttonClass="custom-flag-dropdown"
+              inputProps={{
+                name: `question-${question._id}`,
+                required: false,
+                disabled: true, // Since it's a preview
+              }}
+              disableDropdown={true}
+            />
+          );
+        
+    
     default:
       return <span className="unsupported-message">Unsupported question type</span>;
   }

@@ -3,6 +3,8 @@ const router = express.Router();
 const User = require("../models/User");
 const UserNotification = require("../models/UserNotificationSchema");
 const CommonNotification = require("../models/CommonNotification");
+const moment = require("moment-timezone");
+
 
 
 // Get notifications by email
@@ -103,7 +105,7 @@ router.post("/", async (req, res) => {
   const newNotification = {
     message,
     type,
-    createdAt: new Date(),
+    createdAt: moment.tz("Europe/Moscow").toDate(),
     isRead: false,
   };
 

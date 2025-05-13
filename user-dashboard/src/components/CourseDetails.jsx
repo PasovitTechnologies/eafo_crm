@@ -762,34 +762,44 @@ const CourseDetails = () => {
                                 </div>
 
                                 {/* ✅ Only show the answer if there are no files */}
-                                {!response.files?.length && !response.file && (
-                                  <div className="response-answer">
-                                    {typeof response.answer === "string" ||
-                                    typeof response.answer === "number" ? (
-                                      response.answer
-                                    ) : Array.isArray(response.answer) ? (
-                                      response.answer.join(", ")
-                                    ) : response.answer &&
-                                      typeof response.answer === "object" ? (
-                                      response.answer.name ? (
-                                        <span>
-                                          <strong>Uploaded File:</strong>{" "}
-                                          {response.answer.name}
-                                        </span>
-                                      ) : (
-                                        <pre>
-                                          {JSON.stringify(
-                                            response.answer,
-                                            null,
-                                            2
-                                          )}
-                                        </pre>
-                                      )
-                                    ) : (
-                                      <i>{t("submissionPopup.noAnswer")}</i>
-                                    )}
-                                  </div>
-                                )}
+                                {response.answer && (
+  <div className="response-answer">
+    {typeof response.answer === "string" || typeof response.answer === "number" ? (
+      response.answer
+    ) : Array.isArray(response.answer) ? (
+      response.answer.every(item => typeof item === "object" && item.firstName) ? (
+        <ul>
+          {response.answer.map((entry, i) => (
+            <li key={i}>
+              {entry.firstName}{" "}
+              {entry.middleName ? `${entry.middleName} ` : ""}
+              {entry.lastName}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        response.answer.join(", ")
+      )
+    ) : response.answer && typeof response.answer === "object" ? (
+      response.answer.name ? (
+        <span>
+          <strong>Uploaded File:</strong> {response.answer.name}
+        </span>
+      ) : response.answer.firstName ? (
+        <p>
+          {response.answer.firstName}{" "}
+          {response.answer.middleName ? `${response.answer.middleName} ` : ""}
+          {response.answer.lastName}
+        </p>
+      ) : (
+        <pre>{JSON.stringify(response.answer, null, 2)}</pre>
+      )
+    ) : (
+      <i>{t("submissionPopup.noAnswer")}</i>
+    )}
+  </div>
+)}
+
 
                                 {/* ✅ Render multiple uploaded files */}
                                 {Array.isArray(response.files) &&

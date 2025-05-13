@@ -198,19 +198,47 @@ const Forms = () => {
     // Validate required fields
     let newErrors = {};
     visibleQuestions.forEach((question) => {
-      if (question.isRequired) {
-        if (question.type === "file") {
-          if (!answers[question._id]?.file) {
-            newErrors[question._id] = "This field is required";
-          }
-        } else if (
-          !answers[question._id] ||
-          answers[question._id].length === 0
-        ) {
+      const answer = answers[question._id];
+    
+      if (!question.isRequired) return;
+    
+      if (question.type === "file") {
+        if (!answer || (Array.isArray(answer) && answer.length === 0)) {
           newErrors[question._id] = "This field is required";
         }
+      } else if (question.type === "name") {
+        if (question.multipleNames) {
+          if (!Array.isArray(answer) || answer.length === 0) {
+            newErrors[question._id] = "At least one full name is required";
+          } else {
+            const invalidEntry = answer.find(
+              (entry) =>
+                !entry.firstName?.trim() || !entry.lastName?.trim()
+            );
+            if (invalidEntry) {
+              newErrors[question._id] =
+                "Each name must include both first and last name";
+            }
+          }
+        } else {
+          if (
+            !answer ||
+            !answer.firstName?.trim() ||
+            !answer.lastName?.trim()
+          ) {
+            newErrors[question._id] = "First and Last Name are required";
+          }
+        }
+      } else if (
+        answer === undefined ||
+        answer === null ||
+        (typeof answer === "string" && answer.trim() === "") ||
+        (Array.isArray(answer) && answer.length === 0)
+      ) {
+        newErrors[question._id] = "This field is required";
       }
     });
+    
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -649,6 +677,159 @@ const Forms = () => {
             </label>
           </div>
         );
+
+
+        case "name":
+          const nameValues = answers[question._id] || [
+            { firstName: "", middleName: "", lastName: "" }
+          ];
+        
+          const updateNameEntry = (index, field, value) => {
+            const updated = [...nameValues];
+            updated[index][field] = value;
+            handleAnswerChange(question._id, updated);
+          };
+        
+          const addNameEntry = () => {
+            handleAnswerChange(question._id, [
+              ...nameValues,
+              { firstName: "", middleName: "", lastName: "" }
+            ]);
+          };
+        
+          const removeNameEntry = (index) => {
+            const updated = nameValues.filter((_, i) => i !== index);
+            handleAnswerChange(question._id, updated);
+          };
+        
+          return (
+            <div className="name-fields-wrapper">
+              {nameValues.map((entry, index) => (
+                <div key={index} className="name-entry">
+                {formDetails.isUsedForRussian ? (
+                  <>
+                    {/* Russian Order: Last Name → First Name → Middle Name */}
+                    <div className="form-group">
+                      <label>
+                        Фамилия<span className="required-star"> *</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={entry.lastName}
+                        onChange={(e) =>
+                          updateNameEntry(index, "lastName", e.target.value)
+                        }
+                        required
+                        className="form-input"
+                      />
+                    </div>
+              
+                    <div className="form-group">
+                      <label>
+                        Имя<span className="required-star"> *</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={entry.firstName}
+                        onChange={(e) =>
+                          updateNameEntry(index, "firstName", e.target.value)
+                        }
+                        required
+                        className="form-input"
+                      />
+                    </div>
+              
+                    <div className="form-group">
+                      <label>Отчество</label>
+                      <input
+                        type="text"
+                        value={entry.middleName}
+                        onChange={(e) =>
+                          updateNameEntry(index, "middleName", e.target.value)
+                        }
+                        className="form-input"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* English Order: First Name → Middle Name → Last Name */}
+                    <div className="form-group">
+                      <label>
+                        First Name<span className="required-star"> *</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={entry.firstName}
+                        onChange={(e) =>
+                          updateNameEntry(index, "firstName", e.target.value)
+                        }
+                        required
+                        className="form-input"
+                      />
+                    </div>
+              
+                    <div className="form-group">
+                      <label>Middle Name</label>
+                      <input
+                        type="text"
+                        value={entry.middleName}
+                        onChange={(e) =>
+                          updateNameEntry(index, "middleName", e.target.value)
+                        }
+                        className="form-input"
+                      />
+                    </div>
+              
+                    <div className="form-group">
+                      <label>
+                        Last Name<span className="required-star"> *</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={entry.lastName}
+                        onChange={(e) =>
+                          updateNameEntry(index, "lastName", e.target.value)
+                        }
+                        required
+                        className="form-input"
+                      />
+                    </div>
+                  </>
+                )}
+              
+                {question.multipleNames && nameValues.length > 1 && (
+                  <button
+                    type="button"
+                    className="remove-name-btn"
+                    onClick={() => removeNameEntry(index)}
+                  >
+                    {formDetails.isUsedForRussian ? "Удалить" : "Remove"}
+                  </button>
+                )}
+              </div>
+              
+              ))}
+        
+              {question.multipleNames && (
+                <button
+                  type="button"
+                  className="add-name-btn"
+                  onClick={addNameEntry}
+                >
+                  {formDetails.isUsedForRussian
+                    ? "Добавить еще имя"
+                    : "Add another name"}
+                </button>
+              )}
+        
+              {errors[question._id] && (
+                <span className="error-message">{errors[question._id]}</span>
+              )}
+            </div>
+          );
+        
+
 
       default:
         return <span>Unsupported question type: {question.type}</span>;

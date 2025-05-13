@@ -350,6 +350,8 @@
     "required": "Обязательно",
     "conditional": "Условный вопрос",
     "usedForInvoice": "Используется в счете",
+    "allowMultipleFiles": "Разрешить использование нескольких файлов",
+    "allowMultipleNames": "Позволяет добавлять несколько имен",
     "save": "Сохранить",
     "labelRequired": "Требуется название вопроса!",
     "optionsRequired": "Требуются варианты для типов Select, Radio, Checkbox и Multi-Select!",

@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const moment = require("moment-timezone");
+
 
 const fileSchema = new mongoose.Schema({
   fileId: mongoose.Schema.Types.ObjectId,
@@ -17,7 +19,10 @@ const documentSchema = new mongoose.Schema({
   certificateLink: String,
   referral: String,
   institutionDocument: fileSchema,
-  uploadedAt: { type: Date, default: Date.now }
+  uploadedAt: {
+    type: Date,
+    default: () => moment.tz("Europe/Moscow").toDate(),
+  },
 }, { _id: false });
 
 const userSchema = new mongoose.Schema(
@@ -60,16 +65,17 @@ const userSchema = new mongoose.Schema(
     webinars: [
       {
         webinarId: { type: mongoose.Schema.Types.ObjectId, ref: "Webinar" },
-        registeredAt: { type: Date, default: Date.now },
-      },
+        registeredAt: { type: Date, default: () => moment.tz("Europe/Moscow").toDate() },      },
     ],
 
     // Courses & Payments Section
     courses: [
       {
         courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course" },  // ✅ Reference to Course
-        submittedAt: { type: Date, default: Date.now },                     // ✅ Submission timestamp
-        
+        submittedAt: {
+          type: Date,
+          default: () => moment.tz("Europe/Moscow").toDate(), // ✅ Set to Moscow time
+        },        
         // 📝 Array of registered forms
         registeredForms: [
           {
@@ -106,15 +112,15 @@ const userSchema = new mongoose.Schema(
           formId: { type: mongoose.Schema.Types.ObjectId, required: true },
           courseId: { type: mongoose.Schema.Types.ObjectId, required: true },
           url: { type: String, required: true },
-          generatedAt: { type: Date, default: Date.now },
+          generatedAt: { type: Date, default: () => moment.tz("Europe/Moscow").toDate() },
           isActive: { type: Boolean, default: true }
         }],
 
         notes: [{
           paymentId: { type: mongoose.Schema.Types.ObjectId, required: true },
           text: { type: String, required: true },
-          createdAt: { type: Date, default: Date.now }
-        }]
+          createdAt: { type: Date, default: () => moment.tz("Europe/Moscow").toDate() }
+          }]
       
         
       }

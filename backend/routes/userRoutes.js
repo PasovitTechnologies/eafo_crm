@@ -11,6 +11,8 @@ const mongoose = require("mongoose");
 const { GridFSBucket } = require("mongodb");
 const crypto = require("crypto");
 const { message } = require("telegram/client");
+const moment = require("moment-timezone");
+
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
@@ -300,7 +302,7 @@ router.put(
         ...user.documents,
         certificateLink,
         referral,
-        uploadedAt: new Date(),
+        uploadedAt: moment.tz("Europe/Moscow").toDate(),
       };
 
       for (const field of fileFields) {
@@ -650,7 +652,7 @@ router.post('/:email/courses/:courseId/notes', authenticateJWT, async (req, res)
     const newNote = {
       paymentId,
       text,
-      createdAt: new Date()
+      createdAt: moment.tz("Europe/Moscow").toDate(), 
     };
 
     course.notes.push(newNote);

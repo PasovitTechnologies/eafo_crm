@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const moment = require("moment-timezone");
 
 const notificationSchema = new mongoose.Schema({
     message: {
@@ -9,7 +10,7 @@ const notificationSchema = new mongoose.Schema({
   relatedFormId: mongoose.Types.ObjectId,
   relatedCourseId: mongoose.Types.ObjectId,
   isRead: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: () => moment.tz("Europe/Moscow").toDate() }
 });
 
 const userNotificationSchema = new mongoose.Schema({

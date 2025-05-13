@@ -1094,10 +1094,25 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
 
                 ))
               ) : Array.isArray(res.answer) ? (
-                res.answer.join(", ")
+                res.answer.every(item => typeof item === "object" && item.firstName) ? (
+                  res.answer.map((entry, i) => (
+                    <p key={i}>
+                      {entry.lastName} {entry.firstName}{" "}
+                      {entry.middleName ? entry.middleName : ""}
+                    </p>
+                  ))
+                ) : (
+                  res.answer.join(", ")
+                )
+              ) : typeof res.answer === "object" && res.answer?.firstName ? (
+                <p>
+                  {res.answer.lastName} {res.answer.firstName}{" "}
+                  {res.answer.middleName ? res.answer.middleName : ""}
+                </p>
               ) : (
                 res.answer || <i>N/A</i>
               )}
+              
             </div>
           </li>
         );

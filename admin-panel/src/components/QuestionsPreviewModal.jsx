@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import Modal from "react-modal";
 import "./QuestionsPreviewModal.css";
 import { Multiselect } from "multiselect-react-dropdown";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 Modal.setAppElement("#root");
 
@@ -23,10 +25,11 @@ const QuestionsPreviewModal = ({ isOpen, questions, onClose }) => {
     const updatedVisibleQuestions = questions.filter((q) => {
       if (!q.isConditional) return true;
 
-      const applicableRules = questions.flatMap((mainQ) =>
-        mainQ.rules?.filter((rule) =>
-          rule.targetQuestionIds?.includes(q._id)
-        ) ?? []
+      const applicableRules = questions.flatMap(
+        (mainQ) =>
+          mainQ.rules?.filter((rule) =>
+            rule.targetQuestionIds?.includes(q._id)
+          ) ?? []
       );
 
       return applicableRules.some((rule) =>
@@ -43,7 +46,8 @@ const QuestionsPreviewModal = ({ isOpen, questions, onClose }) => {
   };
 
   const renderInputField = (question) => {
-    const value = answers[question._id] ?? (question.type === "accept" ? false : "");
+    const value =
+      answers[question._id] ?? (question.type === "accept" ? false : "");
 
     const commonWrapperStyles = {
       position: "relative",
@@ -58,7 +62,7 @@ const QuestionsPreviewModal = ({ isOpen, questions, onClose }) => {
       pointerEvents: "none",
       zIndex: 1,
       fontSize: "0.95rem",
-      marginTop: "10px"
+      marginTop: "10px",
     };
 
     const inputStyles = {
@@ -76,7 +80,6 @@ const QuestionsPreviewModal = ({ isOpen, questions, onClose }) => {
       case "text":
       case "email":
       case "number":
-      case "phone":
         return (
           <div style={commonWrapperStyles}>
             {!value && (
@@ -86,12 +89,29 @@ const QuestionsPreviewModal = ({ isOpen, questions, onClose }) => {
               />
             )}
             <input
-              type={question.type === "phone" ? "tel" : question.type}
+              type={question.type}
               value={value}
-              onChange={(e) =>
-                handleAnswerChange(question._id, e.target.value)
-              }
+              onChange={(e) => handleAnswerChange(question._id, e.target.value)}
               style={inputStyles}
+            />
+          </div>
+        );
+
+      case "phone":
+        return (
+          <div style={commonWrapperStyles}>
+            <PhoneInput
+              country={"ru"}
+              value={value}
+              onChange={(phone) => handleAnswerChange(question._id, phone)}
+              inputClass="custom-phone-input"
+              containerClass="custom-phone-container"
+              buttonClass="custom-flag-dropdown"
+              inputProps={{
+                name: `question-${question._id}`,
+                required: question.required,
+              }}
+              specialLabel=""
             />
           </div>
         );
@@ -107,9 +127,7 @@ const QuestionsPreviewModal = ({ isOpen, questions, onClose }) => {
             )}
             <textarea
               value={value}
-              onChange={(e) =>
-                handleAnswerChange(question._id, e.target.value)
-              }
+              onChange={(e) => handleAnswerChange(question._id, e.target.value)}
               style={{ ...inputStyles, height: "120px" }}
             />
           </div>
@@ -119,9 +137,7 @@ const QuestionsPreviewModal = ({ isOpen, questions, onClose }) => {
         return (
           <select
             value={value}
-            onChange={(e) =>
-              handleAnswerChange(question._id, e.target.value)
-            }
+            onChange={(e) => handleAnswerChange(question._id, e.target.value)}
           >
             <option value="">Select an option</option>
             {(question.options ?? []).map((opt, index) => (
@@ -200,9 +216,7 @@ const QuestionsPreviewModal = ({ isOpen, questions, onClose }) => {
           <input
             type="date"
             value={value}
-            onChange={(e) =>
-              handleAnswerChange(question._id, e.target.value)
-            }
+            onChange={(e) => handleAnswerChange(question._id, e.target.value)}
           />
         );
 
@@ -244,6 +258,126 @@ const QuestionsPreviewModal = ({ isOpen, questions, onClose }) => {
           </div>
         );
 
+      case "name":
+        const nameValues = value || [
+          { firstName: "", middleName: "", lastName: "" },
+        ];
+        const isRussian = question.isUsedForRussian;
+
+        const updateNameField = (index, field, val) => {
+          const updated = [...nameValues];
+          updated[index][field] = val;
+          handleAnswerChange(question._id, updated);
+        };
+
+        const addNameEntry = () => {
+          handleAnswerChange(question._id, [
+            ...nameValues,
+            { firstName: "", middleName: "", lastName: "" },
+          ]);
+        };
+
+        const removeNameEntry = (index) => {
+          const updated = nameValues.filter((_, i) => i !== index);
+          handleAnswerChange(question._id, updated);
+        };
+
+        return (
+          <div className="name-fields-wrapper">
+            {nameValues.map((entry, index) => (
+              <div
+                key={index}
+                className="name-entry-row"
+                style={{
+                  display: "flex",
+                  gap: "10px",
+                  flexWrap: "wrap",
+                  marginBottom: "10px",
+                }}
+              >
+                {isRussian ? (
+                  <>
+                    <div style={{ flex: "1" }}>
+                      <label>Фамилия *</label>
+                      <input
+                        type="text"
+                        value={entry.lastName}
+                        onChange={(e) =>
+                          updateNameField(index, "lastName", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div style={{ flex: "1" }}>
+                      <label>Имя *</label>
+                      <input
+                        type="text"
+                        value={entry.firstName}
+                        onChange={(e) =>
+                          updateNameField(index, "firstName", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div style={{ flex: "1" }}>
+                      <label>Отчество</label>
+                      <input
+                        type="text"
+                        value={entry.middleName}
+                        onChange={(e) =>
+                          updateNameField(index, "middleName", e.target.value)
+                        }
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ flex: "1" }}>
+                      <label>First Name *</label>
+                      <input
+                        type="text"
+                        value={entry.firstName}
+                        onChange={(e) =>
+                          updateNameField(index, "firstName", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div style={{ flex: "1" }}>
+                      <label>Middle Name</label>
+                      <input
+                        type="text"
+                        value={entry.middleName}
+                        onChange={(e) =>
+                          updateNameField(index, "middleName", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div style={{ flex: "1" }}>
+                      <label>Last Name *</label>
+                      <input
+                        type="text"
+                        value={entry.lastName}
+                        onChange={(e) =>
+                          updateNameField(index, "lastName", e.target.value)
+                        }
+                      />
+                    </div>
+                  </>
+                )}
+                {question.multipleNames && nameValues.length > 1 && (
+                  <button type="button" onClick={() => removeNameEntry(index)}>
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
+
+            {question.multipleNames && (
+              <button type="button" onClick={addNameEntry}>
+                Add Another Name
+              </button>
+            )}
+          </div>
+        );
+
       default:
         return <span>Unsupported question type: {question.type}</span>;
     }
@@ -264,9 +398,7 @@ const QuestionsPreviewModal = ({ isOpen, questions, onClose }) => {
             <div key={question._id} className="modal-question">
               {question.type !== "accept" && question.type !== "content" && (
                 <div style={{ marginBottom: "0.5rem" }}>
-                  <span
-                    dangerouslySetInnerHTML={{ __html: question.label }}
-                  />
+                  <span dangerouslySetInnerHTML={{ __html: question.label }} />
                 </div>
               )}
               <div className="question-input-wrapper">

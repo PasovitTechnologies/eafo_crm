@@ -5,8 +5,6 @@ import { useTranslation } from "react-i18next";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
 
-
-
 const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
   const [question, setQuestion] = useState(
     initialQuestion || {
@@ -18,13 +16,14 @@ const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
       options: [],
       isRequired: false,
       multiple: false,
+      multipleNames: false,
     }
   );
 
   const [isConditional, setIsConditional] = useState(false);
   const [isRequired, setIsRequired] = useState(false);
   const { t } = useTranslation();
-  
+
   useEffect(() => {
     setQuestion(
       initialQuestion || {
@@ -46,7 +45,7 @@ const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
       toast.error(t("QuestionModal.labelRequired"));
       return;
     }
-  
+
     if (
       ["select", "radio", "checkbox", "multi-select"].includes(question.type) &&
       question.options.length === 0
@@ -54,7 +53,7 @@ const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
       toast.error(t("QuestionModal.optionsRequired"));
       return;
     }
-  
+
     if (onSave) onSave(question);
   };
 
@@ -107,7 +106,7 @@ const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
       options: ["select", "radio", "checkbox", "multi-select"].includes(newType)
         ? prev.options
         : [],
-        ...(newType !== "file" && { multiple: false })
+      ...(newType !== "file" && newType !== "name" && { multiple: false }), // ✅ Allow 'multiple' only for file and name types
     }));
   };
 
@@ -124,7 +123,6 @@ const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
     }
     setQuestion({ ...question, options: [...question.options, ""] });
   };
-  
 
   const removeOption = (index) => {
     const updatedOptions = question.options.filter((_, i) => i !== index);
@@ -134,156 +132,177 @@ const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
   return (
     <div className="question-model-page">
       <div className={`question-modal-container ${isOpen ? "open" : ""}`}>
-      <div className="question-modal-content">
-        <button
-          className="question-model-close-btn"
-          onClick={onCancel}
-          aria-label="Close modal"
-        >
-          ✕
-        </button>
+        <div className="question-modal-content">
+          <button
+            className="question-model-close-btn"
+            onClick={onCancel}
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
 
-        <h3>{question._id ? t('QuestionModel.editQuestion') : t('QuestionModel.addQuestion')}</h3>
+          <h3>
+            {question._id
+              ? t("QuestionModel.editQuestion")
+              : t("QuestionModel.addQuestion")}
+          </h3>
 
-        <div className="question-model-inner-container">
-          <div className="label-editor">
-            <div className="toolbar">
-              <button onClick={() => applyFormatting("bold")}>
-                <b>B</b>
-              </button>
-              <button onClick={() => applyFormatting("italic")}>
-                <i>I</i>
-              </button>
-              <button onClick={() => applyFormatting("bullet")}>•</button>
-              <button onClick={() => applyFormatting("link")}>
-                🔗 Link
-              </button>{" "}
-              {/* ✅ New Link Button */}
+          <div className="question-model-inner-container">
+            <div className="label-editor">
+              <div className="toolbar">
+                <button onClick={() => applyFormatting("bold")}>
+                  <b>B</b>
+                </button>
+                <button onClick={() => applyFormatting("italic")}>
+                  <i>I</i>
+                </button>
+                <button onClick={() => applyFormatting("bullet")}>•</button>
+                <button onClick={() => applyFormatting("link")}>
+                  🔗 Link
+                </button>{" "}
+                {/* ✅ New Link Button */}
+              </div>
+
+              <div
+                className="label-preview"
+                dangerouslySetInnerHTML={{ __html: question.label }}
+              />
+
+              <textarea
+                id="labelTextarea"
+                placeholder={t("QuestionModel.labelPlaceholder")}
+                value={question.label}
+                onChange={(e) => handleChange("label", e.target.value)}
+              />
+
+              <textarea
+                id="description"
+                placeholder={t("QuestionModel.descriptionPlaceholder")}
+                value={question.description}
+                onChange={(e) => handleChange("description", e.target.value)}
+              />
             </div>
 
-            <div
-              className="label-preview"
-              dangerouslySetInnerHTML={{ __html: question.label }}
-            />
+            <select value={question.type} onChange={handleTypeChange}>
+              <option value="text">Text</option>
+              <option value="textarea">Text Area</option>
+              <option value="select">Select</option>
+              <option value="radio">Radio</option>
+              <option value="checkbox">Checkbox</option>
+              <option value="multi-select">Multi-Select</option>
+              <option value="file">File Upload</option>
+              <option value="date">Date</option>
+              <option value="email">Email</option>
+              <option value="phone">Phone</option>
+              <option value="number">Number</option>
+              <option value="content">Content</option>
+              <option value="accept">Accept</option>
+              <option value="name">Name</option>
+            </select>
 
-            <textarea
-              id="labelTextarea"
-              placeholder={t('QuestionModel.labelPlaceholder')}
-              value={question.label}
-              onChange={(e) => handleChange("label", e.target.value)}
-            />
+            {["select", "radio", "checkbox", "multi-select"].includes(
+              question.type
+            ) && (
+              <div>
+                <h4>{t("QuestionModel.options")}</h4>
+                {question.options.map((option, index) => (
+                  <div key={index} className="option-item">
+                    <input
+                      type="text"
+                      value={option}
+                      onChange={(e) =>
+                        handleOptionChange(index, e.target.value)
+                      }
+                      placeholder={`Option ${index + 1}`}
+                    />
+                    <button
+                      className="remove-option-btn"
+                      onClick={() => removeOption(index)}
+                    >
+                      {t("QuestionModel.removeOption")}
+                    </button>
+                  </div>
+                ))}
+                <button className="add-option-btn" onClick={addOption}>
+                  {t("QuestionModel.addOption")}
+                </button>
+              </div>
+            )}
 
-            <textarea
-              id="description"
-              placeholder={t('QuestionModel.descriptionPlaceholder')}
-              value={question.description}
-              onChange={(e) => handleChange("description", e.target.value)}
-            />
-          </div>
-
-          <select value={question.type} onChange={handleTypeChange}>
-            <option value="text">Text</option>
-            <option value="textarea">Text Area</option>
-            <option value="select">Select</option>
-            <option value="radio">Radio</option>
-            <option value="checkbox">Checkbox</option>
-            <option value="multi-select">Multi-Select</option>
-            <option value="file">File Upload</option>
-            <option value="date">Date</option>
-            <option value="email">Email</option>
-            <option value="phone">Phone</option>
-            <option value="number">Number</option>
-            <option value="content">Content</option>
-            <option value="accept">Accept</option>
-          </select>
-
-          {["select", "radio", "checkbox", "multi-select"].includes(
-            question.type
-          ) && (
-            <div>
-              <h4>{t('QuestionModel.options')}</h4>
-              {question.options.map((option, index) => (
-                <div key={index} className="option-item">
+            {question.type === "name" && (
+              <div className="name-type-settings">
+                <label className="toggle-row">
                   <input
-                    type="text"
-                    value={option}
-                    onChange={(e) => handleOptionChange(index, e.target.value)}
-                    placeholder={`Option ${index + 1}`}
+                    type="checkbox"
+                    checked={question.multipleNames}
+                    onChange={(e) =>
+                      handleChange("multipleNames", e.target.checked)
+                    }
                   />
-                  <button
-                    className="remove-option-btn"
-                    onClick={() => removeOption(index)}
-                  >
-                    {t('QuestionModel.removeOption')}
-                  </button>
-                </div>
-              ))}
-              <button className="add-option-btn" onClick={addOption}>
-              {t('QuestionModel.addOption')}
-              </button>
-            </div>
-          )}
+                  <span>{t("QuestionModel.allowMultipleNames")}</span>
+                </label>
+              </div>
+            )}
 
-{question.type === "file" && (
-            <div className="file-upload-settings">
-              <label className="toggle-row">
+            {question.type === "file" && (
+              <div className="file-upload-settings">
+                <label className="toggle-row">
+                  <input
+                    type="checkbox"
+                    checked={question.multiple}
+                    onChange={(e) => handleChange("multiple", e.target.checked)}
+                  />
+                  <span>{t("QuestionModel.allowMultipleFiles")}</span>
+                </label>
+              </div>
+            )}
+
+            <div className="conditional-checkbox">
+              <label>
                 <input
                   type="checkbox"
-                  checked={question.multiple}
-                  onChange={(e) => handleChange("multiple", e.target.checked)}
+                  checked={question.isRequired}
+                  onChange={(e) => handleChange("isRequired", e.target.checked)}
                 />
-                <span>{t('QuestionModel.allowMultipleFiles')}</span>
+                {t("QuestionModel.required")}
               </label>
             </div>
-          )}
 
-          <div className="conditional-checkbox">
-            <label>
-              <input
-                type="checkbox"
-                checked={question.isRequired}
-                onChange={(e) => handleChange("isRequired", e.target.checked)}
-              />
-              {t('QuestionModel.required')}
-            </label>
-          </div>
+            <div className="conditional-checkbox">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={question.isConditional}
+                  onChange={(e) =>
+                    handleChange("isConditional", e.target.checked)
+                  }
+                />
+                {t("QuestionModel.conditional")}
+              </label>
+            </div>
 
-          <div className="conditional-checkbox">
-            <label>
-              <input
-                type="checkbox"
-                checked={question.isConditional}
-                onChange={(e) =>
-                  handleChange("isConditional", e.target.checked)
-                }
-              />
-              {t('QuestionModel.conditional')}
-            </label>
-          </div>
+            <div className="conditional-checkbox">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={question.isUsedForInvoice}
+                  onChange={(e) =>
+                    handleChange("isUsedForInvoice", e.target.checked)
+                  }
+                />
+                {t("QuestionModel.usedForInvoice")}
+              </label>
+            </div>
 
-          <div className="conditional-checkbox">
-            <label>
-              <input
-                type="checkbox"
-                checked={question.isUsedForInvoice}
-                onChange={(e) =>
-                  handleChange("isUsedForInvoice", e.target.checked)
-                }
-              />
-              {t('QuestionModel.usedForInvoice')}
-            </label>
-          </div>
-
-          <div className="modal-actions">
-            <button className="save-btn" onClick={handleSave}>
-            {t('QuestionModel.save')}
-            </button>
+            <div className="modal-actions">
+              <button className="save-btn" onClick={handleSave}>
+                {t("QuestionModel.save")}
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    </div>
-    
   );
 };
 

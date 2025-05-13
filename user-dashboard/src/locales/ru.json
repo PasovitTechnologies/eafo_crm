@@ -11,6 +11,8 @@
   "notifications" : "Уведомления",
   "no_notifications" : "Нет новых уведомлений",
   "document": "Документ",
+  "no_upcoming_courses": "Никаких предстоящих курсов",
+
 
   "auth": {
     "welcome": "Здравствуйте, добро пожаловать!",

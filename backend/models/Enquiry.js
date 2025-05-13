@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const moment = require("moment-timezone");
 
 const enquirySchema = new mongoose.Schema({
   email: {
@@ -33,17 +34,17 @@ const enquirySchema = new mongoose.Schema({
   },
   createdAt: {
     type: Date,
-    default: Date.now,
+    default: () => moment.tz("Europe/Moscow").toDate(),
   },
   updatedAt: {
     type: Date,
-    default: Date.now,
+    default: () => moment.tz("Europe/Moscow").toDate(),
   }
 });
 
 // Automatically update 'updatedAt' field before saving
 enquirySchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
+  this.updatedAt = moment.tz("Europe/Moscow").toDate();
   next();
 });
 

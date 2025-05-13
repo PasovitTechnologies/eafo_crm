@@ -14,6 +14,8 @@ const { TelegramApi } = require('./TelegramApi');
 const { GridFSBucket } = require("mongodb");
 const UserNotification = require("../models/UserNotificationSchema");
 const QRCode = require('qrcode');
+const moment = require("moment-timezone");
+
 
 // ✅ Initialize GridFS bucket
 let gfs;
@@ -1146,7 +1148,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             fileName: fileData.name || uniqueFileName,
             contentType: fileData.type,
             size: fileData.size || fileBuffer.length,
-            uploadDate: new Date(),
+            uploadDate: moment.tz("Europe/Moscow").toDate(),
             });
       
           console.log(`✅ File stored: ${fileData.name}`);
@@ -1183,8 +1185,8 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
     const newSubmission = {
       email: email || "N/A",
       responses: processedSubmissions,
-      submittedAt: new Date()
-    };
+      submittedAt: moment.tz("Europe/Moscow").toDate()
+        };
 
     form.submissions.push(newSubmission);
     await form.save({ session });
@@ -1210,7 +1212,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             registeredForms: [],
             payments: [],
             qrCodes: [],
-            submittedAt: new Date()
+            submittedAt: moment.tz("Europe/Moscow").toDate()
           });
           console.log("📚 Added new course to user.courses[]");
 
@@ -1230,7 +1232,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             formDescription: description,
             isUsedForRegistration,
             isUsedForRussian,
-            submittedAt: new Date()
+            submittedAt: moment.tz("Europe/Moscow").toDate()
           });
           console.log("📝 Registered form added to user.courses[].registeredForms");
         } else {
@@ -1256,7 +1258,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             amount: linkedItemDetails.amount,
             currency: linkedItemDetails.currency,
             status: "Not created",
-            submittedAt: new Date()
+            submittedAt: moment.tz("Europe/Moscow").toDate()
           });
         
           console.log("💳 New payment added to userCourse.payments:", {
@@ -1283,7 +1285,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             amount: linkedItemDetails.amount,
             currency: linkedItemDetails.currency,
             status: "Not created",
-            submittedAt: new Date()
+            submittedAt: moment.tz("Europe/Moscow").toDate()
           });
         
           console.log("🏛️ New payment added to course.payments:", {
@@ -1320,7 +1322,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
                 courseId: courseId,
                 formId: formId,
                 purpose: 'registration_qr_code',
-                generatedAt: new Date()
+                generatedAt: moment.tz("Europe/Moscow").toDate()
               }
             });
 
@@ -1334,7 +1336,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
                 contentType: 'image/png',
                 size: qrBuffer.length,
                 url: qrUrl,
-                generatedAt: new Date()
+                generatedAt: moment.tz("Europe/Moscow").toDate()
               }));
               qrWriteStream.on('error', reject);
             });
@@ -1350,7 +1352,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
               formId: formId,
               courseId: courseId,
               url: qrUrl,
-              generatedAt: new Date(),
+              generatedAt: moment.tz("Europe/Moscow").toDate(),
               isActive: true
             });
 
@@ -1370,7 +1372,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
               ru: `Ваша заявка на форму "${formName}" получена`,
             },
             read: false,
-            createdAt: new Date()
+            createdAt: moment.tz("Europe/Moscow").toDate()
           };
 
           let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
@@ -1441,7 +1443,8 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             👤 <b>Имя:</b> ${user.personalDetails?.firstName || "Н/Д"} ${user.personalDetails?.lastName || ""}
             📧 <b>Электронная почта:</b> ${user.email}
             📦 <b>Пакет:</b> ${linkedItemDetails?.name || "Н/Д"}
-            🕒 <b>Дата регистрации:</b> ${new Date().toLocaleString()}
+            🕒 <b>Дата регистрации:</b> ${new Date().toLocaleString("ru-RU", { timeZone: "Europe/Moscow" })}
+
           `;
 
               await telegram.sendMessage();

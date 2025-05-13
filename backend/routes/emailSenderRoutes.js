@@ -6,6 +6,7 @@ const Course = require("../models/Course");
 const UserNotification = require("../models/UserNotificationSchema");
 const multer = require("multer");
 const mongoose = require("mongoose");
+const moment = require("moment-timezone");
 
 
 const router = express.Router();
@@ -106,7 +107,7 @@ router.post("/send", async (req, res) => {
     userPayment.paymentLink = paymentUrl;
     userPayment.status = "Pending",
     userPayment.orderId = orderId; // <-- Push orderId into paymentId field
-    userPayment.time = new Date();
+    userPayment.time = moment.tz("Europe/Moscow").toDate();
     userPayment.package = packageName;
     userPayment.amount = amount;
     userPayment.currency = currency;
@@ -116,7 +117,7 @@ router.post("/send", async (req, res) => {
     coursePayment.paymentLink = paymentUrl;
     coursePayment.orderId = orderId;
     coursePayment.status = "Pending",
-    coursePayment.time = new Date();
+    coursePayment.time = moment.tz("Europe/Moscow").toDate();
     coursePayment.package = packageName;
     coursePayment.amount = amount;
     coursePayment.currency = currency;
@@ -221,7 +222,7 @@ router.post("/send-email", async (req, res) => {
       orderId,
       transactionId,
       invoiceNumber: nextInvoiceNumber,
-      time: new Date(),
+      time: moment.tz("Europe/Moscow").toDate(),
       status: "Pending",
     };
 
