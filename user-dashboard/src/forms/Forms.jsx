@@ -353,7 +353,7 @@ case "number":
 case "phone":
   return (
     <PhoneInput
-  country={'us'}
+  country={'ru'}
   value={value}
   onChange={(phone) => handleAnswerChange(question._id, phone)}
   inputClass="custom-phone-input"
