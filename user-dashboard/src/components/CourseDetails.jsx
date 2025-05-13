@@ -815,20 +815,7 @@ const CourseDetails = () => {
                                         </p>
                                       </div>
 
-                                      {file.contentType.startsWith(
-                                        "image/"
-                                      ) && (
-                                        <div className="file-preview">
-                                          <img
-                                            src={`${baseUrl}/api/files/${file.fileId}/preview`}
-                                            alt={file.fileName}
-                                            style={{
-                                              maxWidth: "200px",
-                                              borderRadius: "8px",
-                                            }}
-                                          />
-                                        </div>
-                                      )}
+                                    
 
                                       <button
                                         className="download-btn"
