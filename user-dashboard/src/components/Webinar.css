@@ -88,7 +88,6 @@ body {
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  z-index: 1000;
 }
 
 .webinar-help-button:hover {
