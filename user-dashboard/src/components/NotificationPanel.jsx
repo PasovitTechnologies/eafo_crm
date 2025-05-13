@@ -85,14 +85,6 @@ const NotificationPanel = ({
         </div>
         <div className="header-actions">
           <button 
-            className="action-btn mark-all-read"
-            onClick={onMarkAllAsRead}
-            title={t("mark_all_read", "Mark all as read")}
-            disabled={unreadCount === 0}
-          >
-            <IoCheckmarkDone />
-          </button>
-          <button 
             className="notification-action-btn notification-close-btn"
             onClick={onClose}
             aria-label={t("close", "Close")}

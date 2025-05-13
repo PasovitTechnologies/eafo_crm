@@ -242,6 +242,43 @@ input[type="checkbox"] {
     cursor: pointer;
     font-weight: bold;
 }
+/* Container full width */
+.custom-phone-container {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: transparent;
+  position: relative; /* Add this */
+}
+
+/* Flag dropdown (country code selector) fixed width */
+.custom-flag-dropdown {
+  width: 60px !important;
+  border: none;
+  background: transparent;
+  position: absolute; /* Add this */
+  left: 0; /* Add this */
+  z-index: 1; /* Add this */
+}
+
+/* Input takes the remaining width */
+.custom-phone-input {
+  flex: 1 1 auto;
+  width: 100% !important;
+  border: none;
+  padding: 0.5rem 0.5rem 0.5rem 110px !important; /* Add left padding */
+  font-size: 1rem;
+  box-sizing: border-box; /* Add this */
+}
+
+/* Optional: Add some spacing and hover styles */
+.custom-phone-container:hover {
+  border-color: #999;
+}
+
+
 
 /* 🌟 Content Display */
 .content-display {
@@ -367,6 +404,15 @@ button.submit-btn:hover {
     button.submit-btn {
         width: 100%;
     }
+    .custom-phone-input {
+      padding: 0.5rem 0.5rem 0.5rem 70px !important; /* Add left padding */
+      
+    }
+    .form-questions-container {
+      gap: 0.5rem; /* Reduced space between questions */
+      margin-bottom: 0.7rem;
+      padding: 10px;
+  }
 }
 /* File Remove Button Styles */
 .file-preview-with-remove,

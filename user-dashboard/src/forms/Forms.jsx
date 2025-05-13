@@ -7,6 +7,8 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import "./Forms.css";
 import { useTranslation } from "react-i18next"; // 🌍 Import translation hook
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 
 const Forms = () => {
@@ -336,18 +338,36 @@ const Forms = () => {
 
     switch (question.type) {
       case "text":
-      case "email":
-      case "number":
-      case "phone":
-        return (
-          <input
-            type={question.type === "phone" ? "tel" : question.type}
-            value={value}
-            onChange={(e) => handleAnswerChange(question._id, e.target.value)}
-            required={question.required}
-            className="form-input"
-          />
-        );
+case "email":
+case "number":
+  return (
+    <input
+      type={question.type}
+      value={value}
+      onChange={(e) => handleAnswerChange(question._id, e.target.value)}
+      required={question.required}
+      className="form-input"
+    />
+  );
+
+case "phone":
+  return (
+    <PhoneInput
+  country={'us'}
+  value={value}
+  onChange={(phone) => handleAnswerChange(question._id, phone)}
+  inputClass="custom-phone-input"
+  containerClass="custom-phone-container"
+  buttonClass="custom-flag-dropdown"
+  inputProps={{
+    name: `question-${question._id}`,
+    required: question.required,
+  }}
+/>
+
+
+  );
+
 
       case "textarea":
         return (
