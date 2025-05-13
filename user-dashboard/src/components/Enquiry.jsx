@@ -35,7 +35,7 @@ const Enquiry = () => {
   const [editFilePreview, setEditFilePreview] = useState(null);
   const [viewMode, setViewMode] = useState(false);
   const [currentEnquiry, setCurrentEnquiry] = useState(null);
-    const [showHelpPopup, setShowHelpPopup] = useState(false);
+  const [showHelpPopup, setShowHelpPopup] = useState(false);
   
   const { t } = useTranslation();
 

@@ -170,9 +170,12 @@ const CourseDetails = () => {
     try {
       const token = localStorage.getItem("token");
       const email = localStorage.getItem("email");
-      if (!token || !email || !formId)
-        throw new Error("Missing required parameters");
 
+      if (!token || !email || !formId) {
+        throw new Error("Missing required parameters");
+      }
+
+      // Fetch form with questions
       const formResponse = await fetch(`${baseUrl}/api/form/${formId}`, {
         method: "GET",
         headers: {
@@ -181,11 +184,14 @@ const CourseDetails = () => {
         },
       });
 
-      if (!formResponse.ok) throw new Error("Failed to fetch form questions");
+      if (!formResponse.ok) {
+        throw new Error("Failed to fetch form questions");
+      }
 
       const formData = await formResponse.json();
       const formQuestions = formData.questions || [];
 
+      // Fetch submission for this user/form
       const submissionResponse = await fetch(
         `${baseUrl}/api/form/${formId}/submission`,
         {
@@ -197,17 +203,19 @@ const CourseDetails = () => {
         }
       );
 
-      if (!submissionResponse.ok)
+      if (!submissionResponse.ok) {
         throw new Error("Failed to fetch submission data");
+      }
 
       const submissionData = await submissionResponse.json();
 
-      // Ensure we have the createdAt date
+      // Ensure we have a submission date
       if (!submissionData.createdAt) {
         console.warn("No submission date found in response");
-        submissionData.createdAt = new Date().toISOString(); // Fallback to current date
+        submissionData.createdAt = new Date().toISOString(); // fallback
       }
 
+      // Map question labels and handle both single and multiple files
       const mappedResponses = submissionData.responses.map((response) => {
         const matchingQuestion = formQuestions.find(
           (q) => q._id === response.questionId
@@ -216,22 +224,36 @@ const CourseDetails = () => {
         return {
           questionId: response.questionId,
           label: matchingQuestion ? matchingQuestion.label : "Unknown Question",
-          answer: response.answer || "No answer provided",
+          answer: response.answer || null,
+
+          // Single legacy file support
           file: response.file
             ? {
                 fileId: response.file.fileId,
-                name: response.file.fileName,
+                fileName: response.file.fileName,
                 size: response.file.size,
                 contentType: response.file.contentType,
+                uploadDate: response.file.uploadDate || null,
               }
             : null,
+
+          // New multiple file support
+          files: Array.isArray(response.files)
+            ? response.files.map((file) => ({
+                fileId: file.fileId,
+                fileName: file.fileName,
+                size: file.size,
+                contentType: file.contentType,
+                uploadDate: file.uploadDate,
+              }))
+            : [],
         };
       });
 
       setSubmissionDetails({
-        ...submissionData, // This includes createdAt
+        ...submissionData,
         responses: mappedResponses,
-        submittedAt: submissionData.createdAt, // Explicitly set it
+        submittedAt: submissionData.createdAt,
       });
 
       setShowSubmissionPopup(true);
@@ -289,6 +311,39 @@ const CourseDetails = () => {
     }
   };
 
+  const viewFile = async (file) => {
+    const previewableTypes = ["application/pdf", "image/", "image/svg+xml"];
+
+    // ❌ If not previewable type
+    if (!previewableTypes.some((type) => file.contentType.startsWith(type))) {
+      toast.error("Preview is not supported for this file type.");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${baseUrl}/api/form/files/${file.fileId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch file");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      // Open previewable file in new tab
+      window.open(url, "_blank");
+
+      // Optional cleanup
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    } catch (error) {
+      console.error("Preview error:", error);
+      alert("Unable to preview this file.");
+    }
+  };
+
   // ✅ Open payment popup
   const openPaymentPopup = () => {
     setShowPaymentPopup(true);
@@ -328,7 +383,6 @@ const CourseDetails = () => {
       </div>
     );
   }
-  
 
   return (
     <motion.div
@@ -353,7 +407,6 @@ const CourseDetails = () => {
           </span>
         </div>
 
-        
         {error && <p className="error">{error}</p>}
 
         {course && (
@@ -678,6 +731,7 @@ const CourseDetails = () => {
                   onClick={(e) => e.stopPropagation()}
                 >
                   <h3>{t("submissionPopup.title")}</h3>
+
                   <div className="submission-content">
                     <div className="submission-meta">
                       <p>
@@ -693,6 +747,7 @@ const CourseDetails = () => {
                       <h4 style={{ marginBottom: "10px" }}>
                         {t("submissionPopup.responses")}
                       </h4>
+
                       {submissionDetails.responses?.length > 0 ? (
                         <ul className="responses-list">
                           {submissionDetails.responses.map(
@@ -706,14 +761,101 @@ const CourseDetails = () => {
                                   />
                                 </div>
 
-                                <div className="response-answer">
-                                  {response.answer ||
-                                    t("submissionPopup.noAnswer")}
-                                </div>
+                                {/* ✅ Only show the answer if there are no files */}
+                                {!response.files?.length && !response.file && (
+                                  <div className="response-answer">
+                                    {typeof response.answer === "string" ||
+                                    typeof response.answer === "number" ? (
+                                      response.answer
+                                    ) : Array.isArray(response.answer) ? (
+                                      response.answer.join(", ")
+                                    ) : response.answer &&
+                                      typeof response.answer === "object" ? (
+                                      response.answer.name ? (
+                                        <span>
+                                          <strong>Uploaded File:</strong>{" "}
+                                          {response.answer.name}
+                                        </span>
+                                      ) : (
+                                        <pre>
+                                          {JSON.stringify(
+                                            response.answer,
+                                            null,
+                                            2
+                                          )}
+                                        </pre>
+                                      )
+                                    ) : (
+                                      <i>{t("submissionPopup.noAnswer")}</i>
+                                    )}
+                                  </div>
+                                )}
 
-                                {response.file && (
+                                {/* ✅ Render multiple uploaded files */}
+                                {Array.isArray(response.files) &&
+                                  response.files.length > 0 &&
+                                  response.files.map((file, fileIndex) => (
+                                    <div
+                                      className="file-container"
+                                      key={fileIndex}
+                                    >
+                                      <div className="file-info">
+                                        <p>
+                                          <strong>File:</strong> {file.fileName}
+                                        </p>
+                                        <p>
+                                          <strong>Size:</strong>{" "}
+                                          {(file.size / 1024).toFixed(2)} KB
+                                        </p>
+                                        <p>
+                                          <strong>Uploaded on:</strong>{" "}
+                                          {new Date(
+                                            file.uploadDate
+                                          ).toLocaleString()}
+                                        </p>
+                                      </div>
+
+                                      {file.contentType.startsWith(
+                                        "image/"
+                                      ) && (
+                                        <div className="file-preview">
+                                          <img
+                                            src={`${baseUrl}/api/files/${file.fileId}/preview`}
+                                            alt={file.fileName}
+                                            style={{
+                                              maxWidth: "200px",
+                                              borderRadius: "8px",
+                                            }}
+                                          />
+                                        </div>
+                                      )}
+
+                                      <button
+                                        className="download-btn"
+                                        onClick={() => downloadFile(file)}
+                                      >
+                                        <i className="fas fa-download"></i>{" "}
+                                        Download
+                                      </button>
+                                      <button
+                                        className="view-btn download-btn"
+                                        onClick={() => viewFile(file)}
+                                      >
+                                        <i className="fas fa-download"></i> view
+                                      </button>
+                                    </div>
+                                  ))}
+
+                                {/* ✅ Fallback for single legacy-style file */}
+                                {!response.files?.length && response.file && (
                                   <div className="file-container">
                                     <div className="file-info">
+                                      <p>
+                                        <strong>
+                                          {t("submissionPopup.name")}
+                                        </strong>{" "}
+                                        {response.file.fileName}
+                                      </p>
                                       <p>
                                         <strong>
                                           {t("submissionPopup.size")}

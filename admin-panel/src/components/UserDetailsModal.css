@@ -251,6 +251,16 @@
   margin-top: 5px;
 }
 
+.file-response span {
+  display: inline-block;
+  max-width: 250px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+
 .file-response button {
   padding: 6px 12px;
   font-size: 14px;

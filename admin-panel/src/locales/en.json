@@ -373,6 +373,7 @@
     "optionPlaceholder": "Option",
     "addOption": "Add Option",
     "removeOption": "Remove",
+    "allowMultipleFiles": "Allow multiple files",
     "required": "Required",
     "conditional": "Conditional",
     "usedForInvoice": "Used for Invoice",

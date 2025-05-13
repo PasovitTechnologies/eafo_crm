@@ -1098,45 +1098,62 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
 
       if (submission.isFile && submission.fileData) {
         console.log(`📁 Processing file for question ${submission.questionId}`);
-
-        const { base64, contentType, fileName, size } = submission.fileData;
-
-        if (!base64 || !contentType) {
-          await session.abortTransaction();
-          return res.status(400).json({
-            message: `Missing base64 data or contentType for file in question ${submission.questionId}`
-          });
-        }
-
-        const fileBuffer = Buffer.from(base64, 'base64');
-        const uniqueFileName = `${Date.now()}-${Math.round(Math.random() * 1E9)}-${fileName}`;
-
-        const writeStream = gfs.openUploadStream(uniqueFileName, {
-          contentType: contentType || 'application/octet-stream',
-          metadata: {
-            questionId: submission.questionId,
-            formId: formId,
-            submittedBy: email || 'anonymous'
+      
+        // Handle both single file (object) and multiple files (array)
+        const filesToProcess = Array.isArray(submission.fileData) 
+          ? submission.fileData 
+          : [submission.fileData];
+      
+        const uploadedFiles = [];
+      
+        for (const fileData of filesToProcess) {
+          if (!fileData.preview || !fileData.type) {
+            await session.abortTransaction();
+            return res.status(400).json({
+              message: `Missing file data for question ${submission.questionId}`
+            });
           }
-        });
-
-        writeStream.write(fileBuffer);
-        writeStream.end();
-
-        await new Promise((resolve, reject) => {
-          writeStream.on('finish', resolve);
-          writeStream.on('error', reject);
-        });
-
-        response.file = {
-          fileId: writeStream.id,
-          fileName: fileName,
-          contentType: contentType,
-          size: size || fileBuffer.length,
-          uploadDate: new Date()
-        };
-
-        console.log(`✅ File stored: ${response.file.fileName}`);
+      
+          // Extract base64 data (remove data URI prefix if present)
+          const base64Data = fileData.preview.split(',')[1] || fileData.preview;
+          const fileBuffer = Buffer.from(base64Data, 'base64');
+      
+          // Generate unique filename
+          const uniqueFileName = `${Date.now()}-${fileData.name || 'file'}`;
+      
+          // Upload to GridFS
+          const writeStream = gfs.openUploadStream(uniqueFileName, {
+            contentType: fileData.type || 'application/octet-stream',
+            metadata: {
+              questionId: submission.questionId,
+              formId: formId,
+              submittedBy: email || 'anonymous',
+              originalName: fileData.name,
+              size: fileData.size
+            }
+          });
+      
+          writeStream.write(fileBuffer);
+          writeStream.end();
+      
+          await new Promise((resolve, reject) => {
+            writeStream.on('finish', resolve);
+            writeStream.on('error', reject);
+          });
+      
+          uploadedFiles.push({
+            fileId: writeStream.id,
+            fileName: fileData.name || uniqueFileName,
+            contentType: fileData.type,
+            size: fileData.size || fileBuffer.length,
+            uploadDate: new Date(),
+            });
+      
+          console.log(`✅ File stored: ${fileData.name}`);
+        }
+      
+        // Store all file references in the response
+        response.files = uploadedFiles;
       } else {
         if (!submission.answer) {
           await session.abortTransaction();
@@ -1152,6 +1169,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
 
     console.log("✅ All submissions processed.");
 
+    // Rest of your existing code remains the same...
     let linkedItemDetails = null;
     let invoiceFields = [];
 
@@ -1171,8 +1189,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
     form.submissions.push(newSubmission);
     await form.save({ session });
     console.log("✅ Submission saved!");
-
-    let updatedUser = null;
 
     if (email) {
       console.log("✅ Email provided, checking for existing user...");
@@ -1441,7 +1457,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
         updatedUser = user;
       }
     }
-
     await session.commitTransaction();
     console.log("✅ Transaction committed.");
 
@@ -1471,48 +1486,44 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
 
 
 
-router.get('/files/:fileId', async (req, res) => {
+router.get('/files/:fileId', authenticateJWT, async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ message: 'Authorization token required' });
+    const fileId = new mongoose.Types.ObjectId(req.params.fileId);
+
+    const file = await mongoose.connection.db
+      .collection('uploads.files')
+      .findOne({ _id: fileId });
+
+    if (!file) {
+      return res.status(404).json({ message: 'File not found' });
     }
 
-    // Verify token (optional, depending on your auth setup)
-    jwt.verify(token, JWT_SECRET, async (err, decoded) => {
-      if (err) {
-        return res.status(403).json({ message: 'Invalid or expired token' });
-      }
+    // Optionally check access via req.user here
 
-      const fileId = new mongoose.Types.ObjectId(req.params.fileId);
-      
-      // First check if file exists
-      const file = await mongoose.connection.db.collection('uploads.files').findOne({ _id: fileId });
-      if (!file) {
-        return res.status(404).json({ message: 'File not found' });
-      }
+    // Headers
+    res.set('Content-Type', file.contentType);
+    res.set('Content-Length', file.length);
+    const encodedFileName = encodeURIComponent(file.filename);
+    res.set('Content-Disposition', `attachment; filename*=UTF-8''${encodedFileName}`);
+    
+    // Create bucket and stream
+    const bucket = new GridFSBucket(mongoose.connection.db, {
+      bucketName: 'uploads',
+    });
 
-      // Verify user has access to this file (optional)
-      // You might want to check if the user submitted this file
-      // This depends on your application logic
+    const downloadStream = bucket.openDownloadStream(fileId);
+    downloadStream.pipe(res);
 
-      // Set proper headers
-      res.set('Content-Type', file.contentType);
-      res.set('Content-Length', file.length);
-      res.set('Content-Disposition', `attachment; filename="${file.filename}"`);
-
-      // Stream the file
-      const downloadStream = gfs.openDownloadStream(fileId);
-      downloadStream.pipe(res);
-      
-      downloadStream.on('error', (error) => {
-        console.error('Error streaming file:', error);
-        res.status(500).end();
-      });
+    downloadStream.on('error', (error) => {
+      console.error('Error streaming file:', error);
+      res.status(500).end();
     });
   } catch (error) {
     console.error('Error retrieving file:', error);
-    res.status(500).json({ message: 'Error retrieving file', error: error.message });
+    res.status(500).json({
+      message: 'Error retrieving file',
+      error: error.message,
+    });
   }
 });
 

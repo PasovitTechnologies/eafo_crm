@@ -15,6 +15,24 @@
       pointer-events: none;
     }
   
+    /* File Upload Settings (Simplified) */
+.file-upload-settings {
+  margin: 15px 0;
+  padding: 10px 0;
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.toggle-row input[type="checkbox"] {
+  margin: 0;
+  width: 16px;
+  height: 16px;
+}
     .question-modal-container.open {
       opacity: 1;
       pointer-events: auto;

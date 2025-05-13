@@ -7,9 +7,8 @@ import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import "./Forms.css";
 import { useTranslation } from "react-i18next"; // 🌍 Import translation hook
-import PhoneInput from 'react-phone-input-2';
-import 'react-phone-input-2/lib/style.css';
-
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 const Forms = () => {
   const navigate = useNavigate();
@@ -27,11 +26,11 @@ const Forms = () => {
     title: "",
     description: "",
     hasLogo: false,
-    isUsedForRussian:false
+    isUsedForRussian: false,
   });
-  
+
   const baseUrl = import.meta.env.VITE_BASE_URL;
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // ✅ Check if token is available in localStorage
@@ -47,7 +46,7 @@ const Forms = () => {
       setLoading(false);
       return;
     }
-  
+
     const token = localStorage.getItem("token");
     if (!token) {
       console.error("No token found");
@@ -55,7 +54,7 @@ const Forms = () => {
       setLoading(false);
       return;
     }
-  
+
     const fetchData = async () => {
       setLoading(true);
       try {
@@ -72,14 +71,14 @@ const Forms = () => {
             },
           }),
         ]);
-  
+
         if (!questionsRes.ok || !formRes.ok) {
           throw new Error("Failed to load form data.");
         }
-  
+
         const questionsData = await questionsRes.json();
         const formData = await formRes.json();
-  
+
         setQuestions(questionsData);
         setVisibleQuestions(questionsData.filter((q) => !q.isConditional));
         setAnswers({});
@@ -96,10 +95,9 @@ const Forms = () => {
         setLoading(false);
       }
     };
-  
+
     fetchData();
   }, [formId]);
-  
 
   useEffect(() => {
     if (!formId) {
@@ -228,19 +226,32 @@ const Forms = () => {
           const question = questions.find((q) => q._id === questionId);
           const answer = answers[questionId];
 
-          if (question.type === "file" && answer?.file) {
-            const base64Data = await fileToBase64(answer.file);
+          if (question.type === "file" && answer) {
+            const fileArray = Array.isArray(answer) ? answer : [answer];
+          
+            const fileDataArray = await Promise.all(
+              fileArray.map(async (fileEntry) => {
+                const base64Data = fileEntry.preview
+                  ? fileEntry.preview
+                  : await fileToBase64(fileEntry.file);
+          
+                return {
+                  preview: base64Data,
+                  type: fileEntry.type || fileEntry.file?.type || "application/octet-stream",
+                  name: fileEntry.name || fileEntry.file?.name || "uploaded_file",
+                  size: fileEntry.size || fileEntry.file?.size || 0,
+                };
+              })
+            );
+          
             return {
               questionId,
               isUsedForInvoice: question?.isUsedForInvoice || false,
               isFile: true,
-              fileData: {
-                base64: base64Data.split(",")[1],
-                contentType: answer.file.type,
-              },
-              fileName: answer.file.name,
+              fileData: question.multiple ? fileDataArray : fileDataArray[0], // 👈 handle multiple or single
             };
-          } else {
+          }
+           else {
             return {
               questionId,
               answer: answer,
@@ -338,36 +349,33 @@ const Forms = () => {
 
     switch (question.type) {
       case "text":
-case "email":
-case "number":
-  return (
-    <input
-      type={question.type}
-      value={value}
-      onChange={(e) => handleAnswerChange(question._id, e.target.value)}
-      required={question.required}
-      className="form-input"
-    />
-  );
+      case "email":
+      case "number":
+        return (
+          <input
+            type={question.type}
+            value={value}
+            onChange={(e) => handleAnswerChange(question._id, e.target.value)}
+            required={question.required}
+            className="form-input"
+          />
+        );
 
-case "phone":
-  return (
-    <PhoneInput
-  country={'ru'}
-  value={value}
-  onChange={(phone) => handleAnswerChange(question._id, phone)}
-  inputClass="custom-phone-input"
-  containerClass="custom-phone-container"
-  buttonClass="custom-flag-dropdown"
-  inputProps={{
-    name: `question-${question._id}`,
-    required: question.required,
-  }}
-/>
-
-
-  );
-
+      case "phone":
+        return (
+          <PhoneInput
+            country={"ru"}
+            value={value}
+            onChange={(phone) => handleAnswerChange(question._id, phone)}
+            inputClass="custom-phone-input"
+            containerClass="custom-phone-container"
+            buttonClass="custom-flag-dropdown"
+            inputProps={{
+              name: `question-${question._id}`,
+              required: question.required,
+            }}
+          />
+        );
 
       case "textarea":
         return (
@@ -480,102 +488,139 @@ case "phone":
           />
         );
 
-        case "file":
-            return (
-              <div className="file-upload-container">
-                {/* Info message about file size */}
-                <p className="file-info-message">
-                  {formDetails.isUsedForRussian 
-                    ? "Максимальный размер файла: 5MB" 
-                    : "Max file size: 5MB"}
-                </p>
-          
-                <input
-                  type="file"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (!file) return;
-          
-                    // Check file size (5MB limit)
-                    if (file.size > 5 * 1024 * 1024) {
-                        toast.error(
-                        formDetails.isUsedForRussian
-                          ? "Размер файла превышает 5MB" 
-                          : "File size exceeds 5MB limit"
-                      );
-                      e.target.value = ""; // Clear file input
-                      return;
-                    }
-          
-                    const fileName =
-                      file.name.length > 15
-                        ? file.name.substring(0, 10) + "..." + file.name.split('.').pop()
-                        : file.name;
-          
-                    if (file.type.startsWith("image/")) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        handleAnswerChange(question._id, {
-                          file,
-                          preview: event.target.result, // Store preview
-                          name: fileName,
-                          size: file.size,
-                          type: file.type,
-                        });
-                      };
-                      reader.readAsDataURL(file);
-                    } else {
-                      handleAnswerChange(question._id, {
-                        file,
-                        name: fileName,
-                        size: file.size,
-                        type: file.type,
+      case "file":
+          const isMultiple = question.multiple; // Determine if multiple files are allowed
+          const currentFiles = value || []; // Always treat value as an array for consistency
+        
+          return (
+            <div className="file-upload-container">
+              {/* Info message (dynamic based on single/multiple) */}
+              <p className="file-info-message">
+                {formDetails.isUsedForRussian
+                  ? `Максимальный размер файла: 5MB${isMultiple ? " (можно загрузить несколько файлов)" : ""}`
+                  : `Max file size: 5MB${isMultiple ? " (multiple files allowed)" : ""}`}
+              </p>
+        
+              {/* File input (conditionally allow multiple) */}
+              <input
+                type="file"
+                multiple={isMultiple} // Only allow multiple if specified
+                onChange={(e) => {
+                  const newFiles = Array.from(e.target.files || []);
+                  if (!newFiles.length) return;
+        
+                  // Validate file sizes
+                  const validFiles = newFiles.filter(file => file.size <= 5 * 1024 * 1024);
+                  const invalidFiles = newFiles.filter(file => file.size > 5 * 1024 * 1024);
+        
+                  if (invalidFiles.length) {
+                    toast.error(
+                      formDetails.isUsedForRussian
+                        ? `Некоторые файлы превышают 5MB (${invalidFiles.length})`
+                        : `Some files exceed 5MB limit (${invalidFiles.length})`
+                    );
+                  }
+        
+                  if (!validFiles.length) {
+                    e.target.value = ""; // Clear input if no valid files
+                    return;
+                  }
+        
+                  // Process files (previews, metadata)
+                  Promise.all(
+                    validFiles.map(file => {
+                      return new Promise(resolve => {
+                        const fileName =
+                          file.name.length > 15
+                            ? `${file.name.substring(0, 10)}...${file.name.split('.').pop()}`
+                            : file.name;
+                    
+                        if (file.type.startsWith("image/")) {
+                          const reader = new FileReader();
+                          reader.onload = (event) =>
+                            resolve({
+                              file,
+                              preview: event.target.result,
+                              name: file.name,            // ✅ full name to submit
+                              displayName: fileName,      // ✅ short name for display
+                              size: file.size,
+                              type: file.type
+                            });
+                          reader.readAsDataURL(file);
+                        } else {
+                          resolve({
+                            file,
+                            name: file.name,              // ✅ full name to submit
+                            displayName: fileName,        // ✅ short name for display
+                            size: file.size,
+                            type: file.type
+                          });
+                        }
                       });
-                    }
-                  }}
-                  required={question.required && !answers[question._id]}
-                  className="form-file"
-                  accept={question.acceptedFileTypes?.join(",") || "*"}
-                />
-          
-                {/* File details */}
-                {value?.file && (
-                  <div className="file-info-container">
-                    <div className="file-icon">{getFileIcon(value.type)}</div>
-                    <div className="file-details">
-                      <p className="file-name">{value.name}</p>
-                      <p className="file-type">{value.type}</p>
+                    })
+                    
+                  ).then(processedFiles => {
+                    // For single upload: Replace existing file
+                    // For multiple: Append new files
+                    const updatedFiles = isMultiple
+                      ? [...currentFiles, ...processedFiles]
+                      : processedFiles.slice(0, 1); // Only keep first file if not multiple
+        
+                    handleAnswerChange(question._id, updatedFiles.length ? updatedFiles : null);
+                  });
+                }}
+                required={question.required && !currentFiles.length}
+                className="form-file"
+                accept={question.acceptedFileTypes?.join(",") || "*"}
+              />
+        
+              {/* File list display */}
+              {currentFiles.length > 0 && (
+                <div className="file-list">
+                  {currentFiles.map((fileData, index) => (
+                    <div key={index} className="file-info-container">
+                      <div className="file-icon">{getFileIcon(fileData.type)}</div>
+                      <div className="file-details">
+                      <p className="file-name">{fileData.displayName || fileData.name}</p>
                       <p className="file-size">
-                        {(value.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
+                          {(fileData.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        className="remove-file-btn"
+                        onClick={() => {
+                          const filteredFiles = currentFiles.filter((_, i) => i !== index);
+                          handleAnswerChange(
+                            question._id, 
+                            filteredFiles.length ? filteredFiles : null
+                          );
+                        }}
+                      >
+                        {formDetails.isUsedForRussian ? "Удалить" : "Remove"}
+                      </button>
                     </div>
-                  
-                  </div>
+                  ))}
+                </div>
+              )}
+        
+              {/* Image previews */}
+              <div className="file-preview-container">
+                {currentFiles.map(
+                  (fileData, index) =>
+                    fileData.preview && (
+                      <img
+                        key={index}
+                        src={fileData.preview}
+                        alt={`Preview ${index + 1}`}
+                        className="preview-image"
+                      />
+                    )
                 )}
-          
-                {/* Show image preview at the bottom */}
-                {value?.preview && (
-                  <div className="file-preview-container">
-                    <img
-                      src={value.preview}
-                      alt="Preview"
-                      className="preview-image"
-                    />
-                  </div>
-                )}
-                  <button
-                      type="button"
-                      className="remove-file-btn"
-                      onClick={() => {
-                        handleAnswerChange(question._id, null);
-                        document.querySelector(`input[type="file"]`).value = "";
-                      }}
-                    >
-                      {formDetails.isUsedForRussian ? "Удалить" : "Remove"}
-                    </button>
               </div>
-            );
-          
+            </div>
+          );
+
       case "content":
         return (
           <div
@@ -610,161 +655,173 @@ case "phone":
     }
   };
 
-
-
-
   return (
     <div className="form-container">
       {submissionSuccess ? (
         <div className="success-animation-container">
-        <div className="success-content">
-          {/* Animated checkmark */}
-          <div className="success-animation">
-            <svg className="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-              <circle className="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
-              <path className="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
-            </svg>
-          </div>
-          
-          <h2 className="success-title">
-            {formDetails.isUsedForRussian 
-              ? "Форма успешно отправлена!" 
-              : "Form submitted successfully!"}
-          </h2>
-          
-          <div className="success-message">
-            <p>
-              {formDetails.isUsedForRussian
-                ? "Подтверждение и дальнейшие инструкции были отправлены на вашу электронную почту с адреса eafo@e-register.org."
-                : "Confirmation & further instructions have been sent to your email from eafo@e-register.org."}
-            </p>
-            <p>
-              {formDetails.isUsedForRussian
-                ? "Мы отправили детали на вашу электронную почту"
-                : "We've sent the details to your email"}
-            </p>
-          </div>
-          
-          <div className="form-reference">
-            <p>
-              {formDetails.isUsedForRussian
-                ? `Форма: ${formDetails.title}`
-                : `Form: ${formDetails.title}`}
-            </p>
-          </div>
-          
-          <button 
-            className="success-action-btn"
-            onClick={() => navigate(-1)}
-          >
-            {formDetails.isUsedForRussian 
-              ? "Вернуться к формам" 
-              : "Back to forms"}
-          </button>
-          
-          <div className="email-note">
-            <p>
-              {formDetails.isUsedForRussian
-                ? "Не получили письмо? Проверьте папку спам"
-                : "Didn't receive email? Check spam folder"}
-            </p>
-          </div>
-        </div>
-      </div>
-      ) : 
-                <>
-                <div className="form-header">
-        <div className="logo-container">
-          {formDetails.hasLogo && (
-            <div className="form-logo-container">
-              <img
-                src={`${baseUrl}/api/form/${formId}/image`}
-                alt="Form Logo"
-                className="form-logo"
-                onError={(e) => {
-                  e.target.style.display = "none"; // Hide if image fails to load
-                }}
-              />
+          <div className="success-content">
+            {/* Animated checkmark */}
+            <div className="success-animation">
+              <svg
+                className="checkmark"
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 52 52"
+              >
+                <circle
+                  className="checkmark-circle"
+                  cx="26"
+                  cy="26"
+                  r="25"
+                  fill="none"
+                />
+                <path
+                  className="checkmark-check"
+                  fill="none"
+                  d="M14.1 27.2l7.1 7.2 16.7-16.8"
+                />
+              </svg>
             </div>
-          )}
-        </div>
 
-        <div className="form-title-description">
-          <h1 className="form-title">{formDetails.title}</h1>
-          {formDetails.description && (
-            <p className="form-description">{formDetails.description}</p>
-          )}
-        </div>
-      </div>
+            <h2 className="success-title">
+              {formDetails.isUsedForRussian
+                ? "Форма успешно отправлена!"
+                : "Form submitted successfully!"}
+            </h2>
 
-      <form onSubmit={handleSubmit}>
-        <div className="form-questions-container">
-          {visibleQuestions.map((question) => (
-            <div key={question._id} className="form-question">
-  {question.type !== "accept" && (
-    <label className="form-label">
-      <span
-        dangerouslySetInnerHTML={{ __html: question.label }}
-      ></span>
-      {question.isRequired && (
-        <span className="required-star"> *</span>
+            <div className="success-message">
+              <p>
+                {formDetails.isUsedForRussian
+                  ? "Подтверждение и дальнейшие инструкции были отправлены на вашу электронную почту с адреса eafo@e-register.org."
+                  : "Confirmation & further instructions have been sent to your email from eafo@e-register.org."}
+              </p>
+              <p>
+                {formDetails.isUsedForRussian
+                  ? "Мы отправили детали на вашу электронную почту"
+                  : "We've sent the details to your email"}
+              </p>
+            </div>
+
+            <div className="form-reference">
+              <p>
+                {formDetails.isUsedForRussian
+                  ? `Форма: ${formDetails.title}`
+                  : `Form: ${formDetails.title}`}
+              </p>
+            </div>
+
+            <button className="success-action-btn" onClick={() => navigate(-1)}>
+              {formDetails.isUsedForRussian
+                ? "Вернуться к формам"
+                : "Back to forms"}
+            </button>
+
+            <div className="email-note">
+              <p>
+                {formDetails.isUsedForRussian
+                  ? "Не получили письмо? Проверьте папку спам"
+                  : "Didn't receive email? Check spam folder"}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="form-header">
+            <div className="logo-container">
+              {formDetails.hasLogo && (
+                <div className="form-logo-container">
+                  <img
+                    src={`${baseUrl}/api/form/${formId}/image`}
+                    alt="Form Logo"
+                    className="form-logo"
+                    onError={(e) => {
+                      e.target.style.display = "none"; // Hide if image fails to load
+                    }}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="form-title-description">
+              <h1 className="form-title">{formDetails.title}</h1>
+              {formDetails.description && (
+                <p className="form-description">{formDetails.description}</p>
+              )}
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit}>
+            <div className="form-questions-container">
+              {visibleQuestions.map((question) => (
+                <div key={question._id} className="form-question">
+                  {question.type !== "accept" && (
+                    <label className="form-label">
+                      <span
+                        dangerouslySetInnerHTML={{ __html: question.label }}
+                      ></span>
+                      {question.isRequired && (
+                        <span className="required-star"> *</span>
+                      )}
+                    </label>
+                  )}
+
+                  <div className="question-input-wrapper">
+                    {renderInputField(question)}
+                    {question.description && (
+                      <div className="question-description">
+                        <small>{question.description}</small>
+                      </div>
+                    )}
+                    {errors[question._id] && (
+                      <span className="error-message">
+                        {errors[question._id]}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {visibleQuestions.length === 0 && (
+                <div className="no-questions-message">
+                  No questions available based on the rules.
+                </div>
+              )}
+            </div>
+
+            <div className="form-controls">
+              <button
+                type="submit"
+                className="submit-btn"
+                disabled={isSubmitting} // Changed from loading to isSubmitting
+              >
+                {isSubmitting ? ( // Changed from loading to isSubmitting
+                  <>
+                    <span className="spinner"></span>
+                    {formDetails.isUsedForRussian
+                      ? "Отправка..."
+                      : "Submitting..."}
+                  </>
+                ) : formDetails.isUsedForRussian ? (
+                  "Отправить"
+                ) : (
+                  "Submit"
+                )}
+              </button>
+            </div>
+          </form>
+          <ToastContainer
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+        </>
       )}
-    </label>
-  )}
-
-  <div className="question-input-wrapper">
-    {renderInputField(question)}
-    {question.description && (
-      <div className="question-description">
-        <small>{question.description}</small>
-      </div>
-    )}
-    {errors[question._id] && (
-      <span className="error-message">{errors[question._id]}</span>
-    )}
-  </div>
-</div>
-
-          ))}
-
-          {visibleQuestions.length === 0 && (
-            <div className="no-questions-message">
-              No questions available based on the rules.
-            </div>
-          )}
-        </div>
-
-        <div className="form-controls">
-        <button 
-  type="submit" 
-  className="submit-btn" 
-  disabled={isSubmitting} // Changed from loading to isSubmitting
->
-  {isSubmitting ? ( // Changed from loading to isSubmitting
-    <>
-      <span className="spinner"></span>
-      {formDetails.isUsedForRussian ? "Отправка..." : "Submitting..."}
-    </>
-  ) : (
-    formDetails.isUsedForRussian ? "Отправить" : "Submit"
-  )}
-</button>
-        </div>
-      </form>
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
-                
-                </>}
-      
     </div>
   );
 };

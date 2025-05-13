@@ -17,6 +17,7 @@ const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
       isUsedForInvoice: false,
       options: [],
       isRequired: false,
+      multiple: false,
     }
   );
 
@@ -106,6 +107,7 @@ const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
       options: ["select", "radio", "checkbox", "multi-select"].includes(newType)
         ? prev.options
         : [],
+        ...(newType !== "file" && { multiple: false })
     }));
   };
 
@@ -219,6 +221,19 @@ const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
               <button className="add-option-btn" onClick={addOption}>
               {t('QuestionModel.addOption')}
               </button>
+            </div>
+          )}
+
+{question.type === "file" && (
+            <div className="file-upload-settings">
+              <label className="toggle-row">
+                <input
+                  type="checkbox"
+                  checked={question.multiple}
+                  onChange={(e) => handleChange("multiple", e.target.checked)}
+                />
+                <span>{t('QuestionModel.allowMultipleFiles')}</span>
+              </label>
             </div>
           )}
 

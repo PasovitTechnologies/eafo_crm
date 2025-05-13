@@ -87,7 +87,30 @@ const questionSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-
+    // NEW: Add these fields for file upload control
+    multiple: {
+      type: Boolean,
+      default: false, // Default to single file upload
+    },
+    maxFiles: {
+      type: Number,
+      min: 1,
+    },
+    maxFileSize: { // In MB
+      type: Number,
+      default: 5, // 5MB default
+    },
+    acceptedFileTypes: {
+      type: [String],
+      default: ["*"], // All types allowed by default
+      validate: {
+        validator: function(types) {
+          // Ensure array contains either "*" or specific types
+          return types.includes("*") || types.every(t => typeof t === "string");
+        },
+        message: "File types must be an array of strings or ['*']"
+      }
+    },
     rules: [ruleSchema],
   },
   { timestamps: true }
@@ -100,15 +123,19 @@ const submissionSchema = new mongoose.Schema({
   responses: [{
     questionId: { type: mongoose.Schema.Types.ObjectId, required: true },
     answer: mongoose.Schema.Types.Mixed,
-    file: {
-      fileId: mongoose.Schema.Types.ObjectId,  // Reference to GridFS file
-      fileName: String,
-      contentType: String,
-      size: Number,
-      uploadDate: Date
-    },
+    files: [  // <-- Changed from `file` to `files`
+      {
+        fileId: mongoose.Schema.Types.ObjectId,
+        fileName: String,
+        contentType: String,
+        size: Number,
+        uploadDate: Date,
+        preview: String // optional if needed
+      }
+    ],
     isUsedForInvoice: Boolean
-  }],
+  }]
+  ,
   courseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Course' },
   isUsedForRegistration: Boolean,
   isUsedForRussian: Boolean
