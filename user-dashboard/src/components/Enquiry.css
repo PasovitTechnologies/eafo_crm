@@ -1,7 +1,7 @@
 /* 🌟 Global Styling - Modern Refresh */
 :root {
-  --primary: #4361ee;
-  --primary-hover: #3a56d4;
+  --primary: #033672;
+  --primary-hover: #062c58;
   --secondary: #3f37c9;
   --accent: #4895ef;
   --success: #17b019;
@@ -103,36 +103,37 @@
 }
 
 .back-icon-button {
-  background: #033672;
-  border: none;
-  color: #ffffff;
-  padding: 5px 8px;
-  border-radius: 10px;
-  font-size: 1.2rem;
-  cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  transition: transform 0.2s ease, color 0.2s ease;
-  margin-top: -3px;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
 .back-icon-button:hover {
-  color: #e6e6e6;
-  transform: translateX(-3px);
-  background-color: #041b34;
+  background-color: #f5f5f5;
 }
 .enquiry-help-button {
-  padding: 10px 15px;
-  background-color: #4285f4;
-  color: white;
+  display: flex;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 6px;
   border: none;
-  border-radius: 4px;
+  background-color: #ebf5ff;
+  color: #1e70eb;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
+  transition: background-color 0.2s;
+  gap: 10px;
 }
 
 .enquiry-help-button:hover {
-  background-color: #3367d6;
+  background-color: #d4e8ff;
 }
 
 .enquiry-head-container{
@@ -233,6 +234,7 @@
   background-position: right 0.75rem center;
   background-size: 1rem;
   border: 1px solid rgba(0, 0, 0, 0.1);
+  margin-right: 15px;
 }
 
 .raise-btn {

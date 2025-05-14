@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaArrowLeft } from "react-icons/fa";
+import { ArrowLeft, HelpCircle } from 'lucide-react';
 import CourseHelp from "./HelpComponents/CourseHelp";
 import EnquiryHelp from "./HelpComponents/EnquiryHelp";
 
@@ -402,7 +403,7 @@ const Enquiry = () => {
           </div>
 
           <button className="enquiry-help-button" onClick={toggleHelpPopup}>
-          {t("enquiry.help")}
+          <HelpCircle className="help-icon" />{t("enquiry.help")}
         </button>
 
         </div>
@@ -420,6 +421,7 @@ const Enquiry = () => {
                   className="enquiry-search-bar"
                 />
               </div>
+              <div>
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
@@ -433,6 +435,7 @@ const Enquiry = () => {
               <button className="raise-btn" onClick={openEnquiryPopup}>
                 {t("enquiry.raise_enquiry")}
               </button>
+              </div>
             </div>
 
             <div className="enquiry-list">

@@ -274,12 +274,12 @@
   }
   
   .download-btn {
-    background-color: #3182ce;
+    background-color: #033672;
     color: white;
   }
   
   .download-btn:hover {
-    background-color: #2c5282;
+    background-color: #062445;
   }
   
   .replace-btn {
@@ -417,7 +417,7 @@
   }
   
   .submit-btn {
-    background-color: #3182ce;
+    background-color: #033672;
     color: white;
     border: none;
     border-radius: 6px;
@@ -432,7 +432,7 @@
   }
   
   .submit-btn:hover {
-    background-color: #2c5282;
+    background-color: #042346;
   }
   
   .submit-btn:disabled {

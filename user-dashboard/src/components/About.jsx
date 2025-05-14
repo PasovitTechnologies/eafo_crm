@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import "./About.css";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { ArrowLeft} from 'lucide-react';
 
 const companies = [
   {
@@ -128,9 +129,21 @@ const About = () => {
     return () => observer.disconnect();
   }, []);
 
+  const handleGoBack = () => {
+    navigate("/dashboard", { replace: true });
+  };
+
   return (
     <div className="about-container">
       <div className="aboutus-navigation">
+         <button
+                    type="button"
+                    className="back-button"
+                    aria-label={t("forgetPasswordPage.backToLogin")}
+                    onClick={handleGoBack}
+                  >
+                    <ArrowLeft className="back-icon" />
+                  </button>
       <div className="about-breadcrumb">
           <span onClick={() => navigate("/dashboard")}>{t("courses.dashboard")}</span> /{" "}
           <span>{i18n.language === "ru" ? "О нас" : "About us"}</span>

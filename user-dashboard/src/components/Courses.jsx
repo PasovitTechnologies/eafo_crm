@@ -6,6 +6,8 @@ import "./Courses.css";
 import { motion } from "framer-motion";
 import Loading from "./Loading";
 import CourseHelp from "./HelpComponents/CourseHelp";
+import { ArrowLeft, Search, ChevronDown, HelpCircle } from 'lucide-react';
+
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -22,7 +24,8 @@ const Courses = () => {
   const [registeredCourses, setRegisteredCourses] = useState(new Set());
   const currentLanguage = i18n.language;
   const [showHelpPopup, setShowHelpPopup] = useState(false);
-
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  
   useEffect(() => {
     // ✅ Check if token is available in localStorage
     const token = localStorage.getItem("token");
@@ -249,51 +252,86 @@ const Courses = () => {
     >
       <div className="courses-page">
         {showHelpPopup && <CourseHelp onClose={toggleHelpPopup} />}
-
-        <div className="breadcrumb courses-head-container">
-          <div style={{ display: "flex", gap: "20px" }}>
-            <button
-              type="button"
-              className="back-icon-button"
-              aria-label={t("forgetPasswordPage.backToLogin")}
-              onClick={handleGoBack}
-            >
-              <FaArrowLeft />
-            </button>
-            <div>
-              <span onClick={() => navigate("/dashboard")}>
-                {t("courses.dashboard")}
-              </span>{" "}
-              / <span>{t("courses.courses")}</span>
-            </div>
-          </div>
-
-          <button className="course-help-button" onClick={toggleHelpPopup}>
-            {t("courses.help")}
+        <div className="webinar-header-container">
+      {/* Breadcrumb and Help */}
+      <div className="webinar-header-top">
+        <div className="breadcrumb-container">
+          <button
+            type="button"
+            className="back-button"
+            aria-label={t("forgetPasswordPage.backToLogin")}
+            onClick={handleGoBack}
+          >
+            <ArrowLeft className="back-icon" />
           </button>
-        </div>
-
-        {/* 🔎 Search and Filter Section */}
-        <div className="course-search-filter-container">
-          <div className="course-search-input-wrapper">
-            <span className="course-search-icon">🔍</span>
-            <input
-              type="text"
-              placeholder={t("courses.search_placeholder")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          <div className="course-custom-dropdown">
-            <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-              <option value="All">{t("courses.all")}</option>
-              <option value="Upcoming">{t("courses.upcoming")}</option>
-              <option value="Past">{t("courses.past")}</option>
-              <option value="Registered">{t("courses.registered")}</option>
-            </select>
+          
+          <div className="breadcrumb-path">
+            <span 
+              onClick={() => navigate("/dashboard")}
+              className="breadcrumb-link"
+            >
+              {t("webinar.breadcrumb_dashboard")}
+            </span>
+            <span className="breadcrumb-separator">/</span>
+            <span className="breadcrumb-current">
+              {t("courses.courses")}
+            </span>
           </div>
         </div>
+        
+        <button 
+          className="help-button"
+          onClick={toggleHelpPopup}
+        >
+          <HelpCircle className="help-icon" />
+          {t("courses.help")}
+        </button>
+      </div>
+      
+      {/* Search and Filter */}
+      <div className="search-filter-wrapper">
+        <div className="search-container">
+          <div className="search-icon-wrapper">
+            <Search className="search-icon" />
+          </div>
+          <input
+            type="text"
+            className="search-input"
+            placeholder={t("courses.search_placeholder")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        
+        <div className="filter-container">
+          <div 
+            className="filter-selector"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          >
+            <span>{t(`webinar.${filter.toLowerCase()}`) || filter}</span>
+            <ChevronDown className="dropdown-icon" />
+          </div>
+          
+          {isDropdownOpen && (
+            <div className="filter-dropdown">
+              {['All', 'Upcoming', 'Past', 'Registered'].map((option) => (
+                <div 
+                  key={option} 
+                  className="dropdown-option"
+                  onClick={() => {
+                    setFilter(option);
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  {t(`courses.${option.toLowerCase()}`)}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+ 
 
         <div className="courses-list">
           {loading && (

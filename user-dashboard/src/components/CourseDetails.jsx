@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import "./CourseDetails.css";
 import { useTranslation } from "react-i18next";
 import { FaTimes } from "react-icons/fa";
+import { ArrowLeft} from 'lucide-react';
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -359,6 +360,10 @@ const CourseDetails = () => {
     window.open(link, "_blank");
   };
 
+  const handleGoBack = () => {
+    navigate("/dashboard", { replace: true });
+  };
+
   console.log(submissionDetails);
 
   if (loading) {
@@ -392,7 +397,16 @@ const CourseDetails = () => {
       transition={{ duration: 0.8 }}
     >
       <div className="course-details-page">
+
         <div className="breadcrumb">
+          <button
+                      type="button"
+                      className="back-button"
+                      aria-label={t("forgetPasswordPage.backToLogin")}
+                      onClick={handleGoBack}
+                    >
+                      <ArrowLeft className="back-icon" />
+                    </button>
           <span onClick={() => navigate("/dashboard")}>
             {t("course_details.breadcrumb_dashboard")}
           </span>{" "}
@@ -520,20 +534,15 @@ const CourseDetails = () => {
                       );
 
                       return (
-                        <li key={form.formId} className="form-item">
-                          <div className="form-content-wrapper">
+                        <li key={form.formId} className="form-list-item">
+                          <div className="form-list-content-wrapper">
                             {/* Form name on the left */}
                             <div className="form-info">
-                              <strong>{form.formName}</strong>
-                              {form.formDescription && (
-                                <p className="form-description">
-                                  {form.formDescription}
-                                </p>
-                              )}
+                              <strong className="form-name">{form.formName}</strong>
                             </div>
 
                             {/* Action buttons on the right */}
-                            <div className="form-actions">
+                            <div className="form-actions-buttons">
                               {isRegistered && form.isUsedForRegistration ? (
                                 <div className="registered-form-container">
                                   {/* Registered status button spanning full width */}
@@ -547,18 +556,17 @@ const CourseDetails = () => {
                                   {/* Action buttons below - each taking half width */}
                                   <div className="registered-actions-row">
                                     <button
-                                      className="action-btn details-btn"
+                                      className="user-view-details"
                                       onClick={() =>
                                         fetchSubmissionDetails(form.formId)
                                       }
                                     >
-                                      <i className="fas fa-eye"></i>
                                       <span>
                                         {t("course_details.view_details")}
                                       </span>
                                     </button>
                                     <button
-                                      className="payment-btn"
+                                      className="payment-amount-btn"
                                       onClick={openPaymentPopup}
                                     >
                                       <i className="fas fa-credit-card"></i>
@@ -763,43 +771,59 @@ const CourseDetails = () => {
 
                                 {/* ✅ Only show the answer if there are no files */}
                                 {response.answer && (
-  <div className="response-answer">
-    {typeof response.answer === "string" || typeof response.answer === "number" ? (
-      response.answer
-    ) : Array.isArray(response.answer) ? (
-      response.answer.every(item => typeof item === "object" && item.firstName) ? (
-        <ul>
-          {response.answer.map((entry, i) => (
-            <li key={i}>
-              {entry.firstName}{" "}
-              {entry.middleName ? `${entry.middleName} ` : ""}
-              {entry.lastName}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        response.answer.join(", ")
-      )
-    ) : response.answer && typeof response.answer === "object" ? (
-      response.answer.name ? (
-        <span>
-          <strong>Uploaded File:</strong> {response.answer.name}
-        </span>
-      ) : response.answer.firstName ? (
-        <p>
-          {response.answer.firstName}{" "}
-          {response.answer.middleName ? `${response.answer.middleName} ` : ""}
-          {response.answer.lastName}
-        </p>
-      ) : (
-        <pre>{JSON.stringify(response.answer, null, 2)}</pre>
-      )
-    ) : (
-      <i>{t("submissionPopup.noAnswer")}</i>
-    )}
-  </div>
-)}
-
+                                  <div className="response-answer">
+                                    {typeof response.answer === "string" ||
+                                    typeof response.answer === "number" ? (
+                                      response.answer
+                                    ) : Array.isArray(response.answer) ? (
+                                      response.answer.every(
+                                        (item) =>
+                                          typeof item === "object" &&
+                                          item.firstName
+                                      ) ? (
+                                        <ul>
+                                          {response.answer.map((entry, i) => (
+                                            <li key={i}>
+                                              {entry.firstName}{" "}
+                                              {entry.middleName
+                                                ? `${entry.middleName} `
+                                                : ""}
+                                              {entry.lastName}
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      ) : (
+                                        response.answer.join(", ")
+                                      )
+                                    ) : response.answer &&
+                                      typeof response.answer === "object" ? (
+                                      response.answer.name ? (
+                                        <span>
+                                          <strong>Uploaded File:</strong>{" "}
+                                          {response.answer.name}
+                                        </span>
+                                      ) : response.answer.firstName ? (
+                                        <p>
+                                          {response.answer.firstName}{" "}
+                                          {response.answer.middleName
+                                            ? `${response.answer.middleName} `
+                                            : ""}
+                                          {response.answer.lastName}
+                                        </p>
+                                      ) : (
+                                        <pre>
+                                          {JSON.stringify(
+                                            response.answer,
+                                            null,
+                                            2
+                                          )}
+                                        </pre>
+                                      )
+                                    ) : (
+                                      <i>{t("submissionPopup.noAnswer")}</i>
+                                    )}
+                                  </div>
+                                )}
 
                                 {/* ✅ Render multiple uploaded files */}
                                 {Array.isArray(response.files) &&
@@ -824,8 +848,6 @@ const CourseDetails = () => {
                                           ).toLocaleString()}
                                         </p>
                                       </div>
-
-                                    
 
                                       <button
                                         className="download-btn"
@@ -889,10 +911,10 @@ const CourseDetails = () => {
                   </div>
 
                   <button
-                    className="close-btn"
+                    className="close-icon-btn"
                     onClick={() => setShowSubmissionPopup(false)}
                   >
-                    {t("submissionPopup.close")}
+                    <FaTimes className="close-icon" />
                   </button>
                 </div>
               </div>

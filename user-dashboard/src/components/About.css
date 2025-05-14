@@ -17,6 +17,9 @@
 .aboutus-navigation{
   max-width: 1200px;
   margin-left: auto;
+  display: flex;
+  gap: 15px;
+  align-items: center;
 }
 
 .about-breadcrumb span {
