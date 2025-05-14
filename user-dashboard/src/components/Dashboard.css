@@ -1,11 +1,13 @@
 /* 🌟 Dashboard Container */
-/* 🌟 Dashboard Container */
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=PT+Sans+Narrow:wght@400;700&display=swap');
+
 .dashboard{
   display: flex;
   flex-direction: column;
   height: 100vh; 
   overflow: hidden;
   -webkit-overflow-scrolling: touch;
+  font-family: "Inter Tight", sans-serif;
 
 }
 .dashboard-content {
@@ -20,7 +22,6 @@
   align-items: center;
   background: #033672; /* Base deep blue */
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
   min-height: calc(100vh - 80px);
   -webkit-overflow-scrolling: touch;
 
@@ -443,7 +444,13 @@
   height: 150px;
   z-index: 0;
 }
-
+.webinar-icon {
+  position: absolute;
+  bottom: 0px;
+  height: auto;
+  z-index: -1;
+  
+}
 .course-slider {
   position: relative;
 }

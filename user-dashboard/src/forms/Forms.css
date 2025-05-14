@@ -1,4 +1,6 @@
 /* 🏠 Form Container */
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=PT+Sans+Narrow:wght@400;700&display=swap');
+
 .form-container {
     max-width: 800px;
     margin: 2rem auto;
@@ -6,6 +8,8 @@
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    font-family: "Inter Tight", sans-serif;
+
 }
 
 /* Form Header Styles */

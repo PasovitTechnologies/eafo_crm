@@ -1,9 +1,11 @@
 /* Base Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=PT+Sans+Narrow:wght@400;700&display=swap');
+
 .document-upload-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 2rem;
-    font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+    font-family: "Inter Tight", sans-serif;
     color: #2d3748;
   }
 

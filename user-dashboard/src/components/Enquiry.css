@@ -1,4 +1,6 @@
 /* 🌟 Global Styling - Modern Refresh */
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=PT+Sans+Narrow:wght@400;700&display=swap');
+
 :root {
   --primary: #033672;
   --primary-hover: #062c58;
@@ -25,7 +27,7 @@
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
   color: var(--dark);
   padding: 2rem;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Inter Tight", sans-serif;
   line-height: 1.6;
 }
 .enquiry-loading-skeletons {
