@@ -13,6 +13,7 @@ import {
   MdSend,
   MdNotificationsActive
 } from "react-icons/md";
+import { BiSolidOffer } from "react-icons/bi";
 import { useTranslation } from "react-i18next";
 import "./Sidebar.css";
 

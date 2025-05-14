@@ -112,12 +112,6 @@ const App = () => {
               }
             />
             <Route
-              path="/scroll"
-              element={
-                <PrivateRoute element={<><AutoRedirect /><ScrollingComponent /></>} />
-              }
-            />
-            <Route
               path="/dashboard/webinars"
               element={
                 <PrivateRoute element={<><AutoRedirect /><Webinar /></>} />
