@@ -17,7 +17,6 @@ const RegisterPage = lazy(() => import("./components/RegisterPage"));
 const AuthForm = lazy(() => import("./components/AuthForm"));
 const WebinarPage = lazy(() => import("./components/WebinarPage"));
 const ForgetPasswordPage = lazy(() => import("./components/ForgetPasswordPage"));
-const ScrollingComponent = lazy(() => import("./components/ScrollingComponent"));
 const Forms = lazy(() => import("./forms/Forms"));
 const Profile = lazy(() => import("./components/Profile"));
 const Navbar = lazy(() => import("./components/Navbar"));
