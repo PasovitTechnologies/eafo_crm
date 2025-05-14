@@ -12,7 +12,6 @@ import "./i18n";
 import Document from "./components/Document";
 
 // ✅ Lazy-loaded components
-const MainPage = lazy(() => import("./components/MainPage"));
 const Dashboard = lazy(() => import("./components/Dashboard"));
 const RegisterPage = lazy(() => import("./components/RegisterPage"));
 const AuthForm = lazy(() => import("./components/AuthForm"));
