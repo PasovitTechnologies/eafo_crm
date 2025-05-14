@@ -1,13 +1,13 @@
 const express = require("express");
 const Course = require("../models/Course");
-const mongoose = require("mongoose"); // ✅ Add this line!
+const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
 
-// ✅ JWT Authentication Middleware
+// JWT Authentication Middleware
 const authenticateJWT = (req, res, next) => {
   const token = req.header("Authorization")?.split(" ")[1];
 
@@ -24,7 +24,7 @@ const authenticateJWT = (req, res, next) => {
   });
 };
 
-// ✅ Get all courses
+// Get all courses
 router.get("/", authenticateJWT, async (req, res) => {
   try {
     const courses = await Course.find();
@@ -52,7 +52,7 @@ router.get("/:courseId/getName", authenticateJWT, async (req, res) => {
 
 
 
-// ✅ Add a new course
+// Add a new course
 router.post("/", authenticateJWT, async (req, res) => {
   try {
     const {
@@ -61,7 +61,6 @@ router.post("/", authenticateJWT, async (req, res) => {
       invoiceNumber
     } = req.body;
 
-    console.log("Incoming Request Data:", req.body); // Debugging log
 
     // Ensure required fields are present
     if (!name || !date || !invoiceNumber) {
@@ -105,7 +104,7 @@ router.post("/", authenticateJWT, async (req, res) => {
   }
 });
 
-// ✅ Delete a course
+// Delete a course
 router.delete("/:courseId", authenticateJWT, async (req, res) => {
   try {
     const deletedCourse = await Course.findByIdAndDelete(req.params.courseId);
@@ -122,11 +121,11 @@ router.put("/:courseId", authenticateJWT, async (req, res) => {
   try {
     const courseId = req.params.courseId;
 
-    // 🔥 Fetch the current course data
+    //Fetch the current course data
     const existingCourse = await Course.findById(courseId);
     if (!existingCourse) return res.status(404).json({ message: "Course not found" });
 
-    // 🛑 Check if the name is changing
+    //  Check if the name is changing
     const newName = req.body.name;
     let newSlug = existingCourse.slug;
 
@@ -159,7 +158,7 @@ router.put("/:courseId", authenticateJWT, async (req, res) => {
 });
 
 
-// ✅ Add an item to a course
+// Add an item to a course
 router.post("/:courseId/items", authenticateJWT, async (req, res) => {
   const { name, amount, currency } = req.body;
 
@@ -184,7 +183,7 @@ router.post("/:courseId/items", authenticateJWT, async (req, res) => {
   }
 });
 
-// ✅ Get all items for a course
+// Get all items for a course
 router.get("/:courseId/items", authenticateJWT, async (req, res) => {
   try {
     const course = await Course.findById(req.params.courseId);
@@ -196,7 +195,7 @@ router.get("/:courseId/items", authenticateJWT, async (req, res) => {
   }
 });
 
-// ✅ Edit an item in a course
+// Edit an item in a course
 router.put("/:courseId/items/:itemId", authenticateJWT, async (req, res) => {
   try {
     const { name, amount, currency } = req.body;
@@ -220,7 +219,7 @@ router.put("/:courseId/items/:itemId", authenticateJWT, async (req, res) => {
   }
 });
 
-// ✅ Delete an item from a course
+//  Delete an item from a course
 router.delete("/:courseId/items/:itemId", authenticateJWT,async (req, res) => {
   try {
     const course = await Course.findById(req.params.courseId);

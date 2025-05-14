@@ -28,7 +28,7 @@ router.get("/", async (req, res) => {
 
     res.json(userNotification.notifications || []);
   } catch (error) {
-    console.error("❌ Error fetching notifications:", error);
+    console.error("Error fetching notifications:", error);
     res.status(500).json({ message: "Server error while fetching notifications." });
   }
 });
@@ -58,7 +58,7 @@ router.patch("/:notificationId/read", async (req, res) => {
     }
 
     if (personalNotification) {
-      // ✅ Personal notification logic
+      // Personal notification logic
       if (personalNotification.isRead) {
         return res.status(200).json({ message: "Notification already marked as read." });
       }
@@ -69,7 +69,7 @@ router.patch("/:notificationId/read", async (req, res) => {
       return res.json({ message: "Notification marked as read." });
     }
 
-    // 🔍 If not personal, maybe it's a common notification
+    // f not personal, maybe it's a common notification
     const commonNotification = await CommonNotification.findById(notificationId);
     if (!commonNotification) {
       return res.status(404).json({ message: "Notification not found" });
@@ -86,7 +86,7 @@ router.patch("/:notificationId/read", async (req, res) => {
     return res.json({ message: "Common notification marked as read." });
 
   } catch (error) {
-    console.error("❌ Error marking notification as read:", error);
+    console.error("Error marking notification as read:", error);
     res.status(500).json({ message: "Server error." });
   }
 });
@@ -111,7 +111,7 @@ router.post("/", async (req, res) => {
 
   try {
     if (users.length > 0) {
-      // 🎯 User-specific notifications
+      //  User-specific notifications
       for (const userId of users) {
         let record = await UserNotification.findOne({ userId });
 
@@ -126,7 +126,7 @@ router.post("/", async (req, res) => {
         }
       }
     } else {
-      // 📣 Store a single common notification
+      // Store a single common notification
       await CommonNotification.create({
         message,
         type: "common", // explicitly mark

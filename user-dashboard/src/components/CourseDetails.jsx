@@ -5,6 +5,7 @@ import "./CourseDetails.css";
 import { useTranslation } from "react-i18next";
 import { FaTimes } from "react-icons/fa";
 import { ArrowLeft} from 'lucide-react';
+import { toast } from "react-toastify";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -133,7 +134,7 @@ const CourseDetails = () => {
         setCourse(courseData);
         setFilteredForms(filteredForms);
       } catch (error) {
-        console.error("🚨 Error fetching data:", error);
+        console.error("Error fetching data:", error);
         setError(error.message);
       } finally {
         setLoading(false);
@@ -269,7 +270,6 @@ const CourseDetails = () => {
     try {
       if (!file.fileId) {
         console.error("No file ID available for download");
-        alert("File download link is not available");
         return;
       }
 
@@ -308,14 +308,12 @@ const CourseDetails = () => {
       document.body.removeChild(a);
     } catch (error) {
       console.error("Error downloading file:", error);
-      alert(`Failed to download file: ${error.message}`);
     }
   };
 
   const viewFile = async (file) => {
     const previewableTypes = ["application/pdf", "image/", "image/svg+xml"];
 
-    // ❌ If not previewable type
     if (!previewableTypes.some((type) => file.contentType.startsWith(type))) {
       toast.error("Preview is not supported for this file type.");
       return;
@@ -341,7 +339,7 @@ const CourseDetails = () => {
       setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch (error) {
       console.error("Preview error:", error);
-      alert("Unable to preview this file.");
+      toast.error("Unable to preview this file.");
     }
   };
 

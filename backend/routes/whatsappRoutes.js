@@ -13,13 +13,12 @@ const WAPPI_BASE_URL = "https://wappi.pro";
 const API_TOKEN = process.env.WAPPI_API_TOKEN;
 const PROFILE_ID = process.env.WAPPI_PROFILE_ID;
 
-// 🟢 Fetch All WhatsApp Chats (No Limits)
+// Fetch All WhatsApp Chats (No Limits)
 router.get("/chats", async (req, res) => {
   try {
-    console.log("📩 Fetching all WhatsApp chats...");
 
     if (!API_TOKEN || !PROFILE_ID) {
-      console.error("❌ Missing API token or profile ID");
+      console.error("Missing API token or profile ID");
       return res.status(500).json({ error: "Missing API credentials" });
     }
 
@@ -29,18 +28,17 @@ router.get("/chats", async (req, res) => {
     });
 
     if (response.status !== 200) {
-      console.error("❌ Failed to fetch chats:", response.data);
+      console.error("Failed to fetch chats:", response.data);
       return res.status(response.status).json(response.data);
     }
 
-    console.log("✅ Chats fetched:", response.data);
     res.json(response.data);
 
   } catch (error) {
-    console.error("❌ Error fetching chats:", error.message);
+    console.error("Error fetching chats:", error.message);
     
     if (error.response) {
-      console.warn("⚠️ API Response:", error.response.data);
+      console.warn("API Response:", error.response.data);
       res.status(error.response.status).json(error.response.data);
     } else {
       res.status(500).json({ error: "Internal Server Error" });
@@ -49,7 +47,7 @@ router.get("/chats", async (req, res) => {
 });
 
 
-// 🟢 Fetch WhatsApp Chats with Optional Filter
+// Fetch WhatsApp Chats with Optional Filter
 router.get("/chats/filter", async (req, res) => {
   const { client_name } = req.query;
 
@@ -75,7 +73,7 @@ router.get("/chats/filter", async (req, res) => {
   }
 });
 
-// 🟢 Send WhatsApp Message
+// Send WhatsApp Message
 // routes/whatsapp.js
 router.post("/send", async (req, res) => {
   const { to, message } = req.body;
@@ -101,7 +99,6 @@ router.post("/send", async (req, res) => {
       }
     );
 
-    console.log("WhatsApp API response:", response.data);
 
     // Be more flexible with success detection
     if (response.status === 200 && response.data) {
@@ -140,13 +137,12 @@ router.post("/send", async (req, res) => {
 
 
 router.post("/send-wp", async (req, res) => {
-  console.log("📥 Incoming WhatsApp Request Body:", req.body);
 
   const requiredFields = ["to", "message", "courseId", "orderId", "transactionId", "paymentUrl", "email"];
   const missingFields = requiredFields.filter(field => !req.body[field]);
 
   if (missingFields.length > 0) {
-    console.log("🚨 Missing Fields:", missingFields);
+    console.log("Missing Fields:", missingFields);
     return res.status(400).json({
       success: false,
       error: `Missing required fields: ${missingFields.join(", ")}`
@@ -159,7 +155,6 @@ router.post("/send-wp", async (req, res) => {
   session.startTransaction();
 
   try {
-    console.log("📨 Sending WhatsApp Message to:", to);
 
     const response = await axios.post(
       `${WAPPI_BASE_URL}/api/sync/message/send`,
@@ -171,45 +166,40 @@ router.post("/send-wp", async (req, res) => {
       }
     );
 
-    console.log("✅ WhatsApp API Response:", response.data);
 
     if (response.data?.status !== "done") {
       throw new Error("Failed to send WhatsApp message");
     }
 
-    // 🔥 Fetch course
+    // Fetch course
     const course = await Course.findById(courseId).session(session);
     if (!course) throw new Error("Course not found");
 
-    console.log(`📌 Course found: ${course.name}`);
 
-    // 🔥 Find the User by Email
+    // Find the User by Email
     const user = await User.findOne({ email }).session(session);
     if (!user) {
-      console.log(`🚫 No user found for email: ${email}`);
+      console.log(`No user found for email: ${email}`);
       await session.abortTransaction();
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    console.log(`📌 User found: ${user.email}`);
 
-    // 🔥 Find User Course
+    // Find User Course
     const userCourse = user.courses.find(c => c.courseId?.toString() === courseId?.toString());
     if (!userCourse) throw new Error("User not enrolled in the course");
 
-    // 🔥 Find Payment inside User
+    // Find Payment inside User
     const userPayment = userCourse.payments.find(p => p.transactionId === transactionId);
     if (!userPayment) throw new Error("Transaction ID not found in user payments");
 
-    console.log("✅ Found user payment to update.");
 
-    // 🔥 Find Payment inside Course
+    // Find Payment inside Course
     const coursePayment = course.payments.find(p => p.transactionId === transactionId);
     if (!coursePayment) throw new Error("Transaction ID not found in course payments");
 
-    console.log("✅ Found course payment to update.");
 
-    // 🔥 Generate new Invoice Number
+// Generate new Invoice Number
     let currentInvoiceNumber = course.currentInvoiceNumber || "INV/EAFO-000-00001";
     const match = currentInvoiceNumber.match(/(\d{5})$/);
     let nextInvoiceNumber = match
@@ -218,7 +208,7 @@ router.post("/send-wp", async (req, res) => {
 
     course.currentInvoiceNumber = nextInvoiceNumber;
 
-    // 🔥 Update user payment
+    // Update user payment
     userPayment.invoiceNumber = nextInvoiceNumber;
     userPayment.paymentLink = paymentUrl;
     userPayment.orderId = orderId;
@@ -229,7 +219,7 @@ router.post("/send-wp", async (req, res) => {
     userPayment.amount = amount;
     userPayment.currency = currency;
 
-    // 🔥 Update course payment
+    // Update course payment
     coursePayment.invoiceNumber = nextInvoiceNumber;
     coursePayment.paymentLink = paymentUrl;
     coursePayment.orderId = orderId;
@@ -240,13 +230,12 @@ router.post("/send-wp", async (req, res) => {
     coursePayment.amount = amount;
     coursePayment.currency = currency;
 
-    // 💾 Save user and course
+    // Save user and course
     await user.save({ session });
     await course.save({ session });
 
-    console.log("💾 User and Course updated successfully.");
 
-    // 🔔 Create Notification
+    // Create Notification
     const notification = {
       type: "payment_created",
       courseId: courseId,
@@ -270,10 +259,8 @@ router.post("/send-wp", async (req, res) => {
         userId: user._id,
         notifications: [notification]
       });
-      console.log("📬 Created new UserNotification document");
     } else {
       userNotification.notifications.push(notification);
-      console.log("📬 Appended notification to existing UserNotification");
     }
 
     await userNotification.save({ session });
@@ -283,13 +270,13 @@ router.post("/send-wp", async (req, res) => {
     return res.json({
       success: true,
       status: "sent",
-      message: "✅ WhatsApp message sent and payment updated successfully",
+      message: "WhatsApp message sent and payment updated successfully",
       invoiceNumber: nextInvoiceNumber
     });
 
   } catch (error) {
     await session.abortTransaction();
-    console.error("❌ Error sending WhatsApp message:", error.message, error.response?.data);
+    console.error("Error sending WhatsApp message:", error.message, error.response?.data);
     return res.status(500).json({
       success: false,
       error: error.response?.data?.message || error.message
@@ -305,7 +292,7 @@ router.post("/resend-whatsapp", async (req, res) => {
   if (!phone || !invoiceNumber) {
     return res.status(400).json({
       success: false,
-      message: "❌ Missing phone or invoice number",
+      message: "Missing phone or invoice number",
     });
   }
 
@@ -318,7 +305,7 @@ router.post("/resend-whatsapp", async (req, res) => {
     if (!course) {
       return res.status(404).json({
         success: false,
-        message: "❌ Invoice not found in any course",
+        message: "Invoice not found in any course",
       });
     }
 
@@ -329,12 +316,12 @@ router.post("/resend-whatsapp", async (req, res) => {
     if (!payment) {
       return res.status(404).json({
         success: false,
-        message: "❌ Payment not found",
+        message: "Payment not found",
       });
     }
 
     // Compose WhatsApp message
-    const message = `*Payment Invoice* 📩
+    const message = `*Payment Invoice*
 
 💼 *Package:* ${payment.package}
 💰 *Amount:* ${payment.amount} ${payment.currency}
@@ -358,15 +345,14 @@ router.post("/resend-whatsapp", async (req, res) => {
       throw new Error("Failed to send WhatsApp message");
     }
 
-    console.log("✅ WhatsApp resent:", response.data);
 
     return res.status(200).json({
       success: true,
-      message: "✅ WhatsApp message resent",
+      message: "WhatsApp message resent",
       invoiceNumber,
     });
   } catch (error) {
-    console.error("❌ Resend WhatsApp error:", error.message);
+    console.error("Resend WhatsApp error:", error.message);
     return res.status(500).json({
       success: false,
       message: error.response?.data?.message || error.message,
@@ -380,7 +366,7 @@ router.post("/resend-whatsapp", async (req, res) => {
 
 
 
-// 🟢 Fetch All Messages of a Chat
+// Fetch All Messages of a Chat
 router.get("/chat/messages", async (req, res) => {
   const { chat_id } = req.query;
 
@@ -415,7 +401,7 @@ router.get("/chat/messages", async (req, res) => {
   }
 });
 
-// 🟢 Fetch Media Data by Media ID
+// Fetch Media Data by Media ID
 router.get("/media", async (req, res) => {
   const { message_id } = req.query;
 
@@ -461,21 +447,19 @@ router.get("/media", async (req, res) => {
 router.post("/document/send", async (req, res) => {
   const { to, file_name, file_data, file_type } = req.body;
 
-  console.log("🟡 Initial Payload Received:", req.body);
 
-  // ✅ Validate Input
+  // Validate Input
   if (!to || !file_name || !file_data || !file_type) {
-    console.error("❌ Validation Failed: Missing required fields");
+    console.error("Validation Failed: Missing required fields");
     return res.status(400).json({
       error: "'to', 'file_name', 'file_data', and 'file_type' are required",
     });
   }
 
-  // ✅ Format the Recipient Phone Number
+  // Format the Recipient Phone Number
   const formattedRecipient = to.replace("@c.us", "");
-  console.log("📨 Formatted 'to' Field:", formattedRecipient);
 
-  // ✅ Prepare Payload
+  // Prepare Payload
   let apiUrl;
   const payload = {
     recipient: formattedRecipient,
@@ -483,12 +467,9 @@ router.post("/document/send", async (req, res) => {
     b64_file: file_data,
   };
 
-  console.log(
-    "📄 Base64 File Size (KB):",
-    (Buffer.byteLength(payload.b64_file, "base64") / 1024).toFixed(2)
-  );
+ 
 
-  // ✅ Determine the Correct API Endpoint
+  // Determine the Correct API Endpoint
   switch (file_type) {
     case "document":
       apiUrl = `${WAPPI_BASE_URL}/api/sync/message/document/send`;
@@ -500,34 +481,32 @@ router.post("/document/send", async (req, res) => {
       apiUrl = `${WAPPI_BASE_URL}/api/sync/message/video/send`;
       break;
     default:
-      console.error("❌ Unsupported File Type:", file_type);
+      console.error("Unsupported File Type:", file_type);
       return res.status(400).json({ error: "Unsupported file type" });
   }
 
-  console.log(`📦 Sending ${file_type.toUpperCase()} to Wappi API:`, payload);
 
   try {
-    // ✅ Send POST Request to Wappi API
+    // Send POST Request to Wappi API
     const response = await axios.post(apiUrl, payload, {
       headers: { Authorization: API_TOKEN },
       params: { profile_id: PROFILE_ID },
     });
 
-    console.log("✅ File Sent Successfully:", response.data);
     return res.json(response.data);
   } catch (error) {
-    console.error("❌ Error Sending File:", error.message);
+    console.error("Error Sending File:", error.message);
 
     if (error.response) {
-      console.warn("⚠️ Response Data:", error.response.data);
+      console.warn("Response Data:", error.response.data);
       return res.status(error.response.status).json(error.response.data);
     } else if (error.request) {
-      console.warn("⚠️ No Response Received:", error.request);
+      console.warn("No Response Received:", error.request);
       return res
         .status(502)
         .json({ error: "Bad Gateway: No response from Wappi API" });
     } else {
-      console.warn("⚠️ Request Setup Error:", error.message);
+      console.warn("Request Setup Error:", error.message);
       return res
         .status(500)
         .json({ error: "Server error: Request setup failed" });

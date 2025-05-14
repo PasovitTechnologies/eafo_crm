@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-10-16",
 });
 
-// ✅ Create Payment Link
+// Create Payment Link
 router.post("/create-payment-link", async (req, res) => {
     try {
       console.log("📩 Incoming Payment Request:", req.body);
@@ -27,7 +27,7 @@ router.post("/create-payment-link", async (req, res) => {
         payment_method_types: ["card"],
         customer_email: email,
         billing_address_collection: "required",
-        client_reference_id: email, // ✅ Track user by email
+        client_reference_id: email, // Track user by email
         line_items: [
           {
             price_data: {
@@ -44,19 +44,16 @@ router.post("/create-payment-link", async (req, res) => {
         cancel_url: `${clientUrl}/payment/fail`,
       });
   
-      // ✅ Log full session object for debugging
-      console.log("🧾 Full Session Object:");
-      console.dir(session, { depth: null });
   
       res.json({ success: true, paymentUrl: session.url, orderId: session.id });
     } catch (error) {
-      console.error("❌ Payment Link Error:", error.message);
+      console.error("Payment Link Error:", error.message);
       res.status(500).json({ success: false, message: "Error creating payment link" });
     }
   });
   
 
-// ✅ Webhook to Track Payment Status
+// Webhook to Track Payment Status
 router.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
   const sig = req.headers["stripe-signature"];
   let event;
@@ -68,20 +65,17 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
       process.env.STRIPE_WEBHOOK_SECRET
     );
   } catch (err) {
-    console.error("❌ Webhook Signature Verification Failed:", err.message);
+    console.error("Webhook Signature Verification Failed:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
-    console.log("✅ Payment Successful for Order:", session.id);
-    console.log("🎯 Session Details:", session);
 
     try {
-      // ✅ Update payment status using email (from client_reference_id)
+      // Update payment status using email (from client_reference_id)
       await updatePaymentStatus(session.client_reference_id, "Paid");
 
-      console.log(`🔄 Updated payment status for ${session.client_reference_id} to 'Paid'`);
       return res.json({
         success: true,
         status: "Paid",
@@ -89,14 +83,13 @@ router.post("/webhook", express.raw({ type: "application/json" }), async (req, r
         orderId: session.id,
       });
     } catch (dbError) {
-      console.error("❌ Database Update Error:", dbError.message);
+      console.error("Database Update Error:", dbError.message);
       return res.status(500).json({
         success: false,
         message: "Error updating payment status.",
       });
     }
   } else {
-    console.log(`ℹ️ Received unknown event type: ${event.type}`);
     return res.status(400).json({
       success: false,
       message: `Unhandled event type: ${event.type}`,

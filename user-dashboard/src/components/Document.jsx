@@ -303,7 +303,7 @@ const Document = () => {
                     }`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="action-btn view-btn"
+                    className="document-action-btn document-view-btn"
                   >
                     {t("documentUpload.actions.view")}
                   </a>
@@ -312,13 +312,13 @@ const Document = () => {
                       uploadedFiles[field].fileId
                     }`}
                     download={uploadedFiles[field].fileName}
-                    className="action-btn download-btn"
+                    className="document-action-btn document-download-btn"
                   >
                     {t("documentUpload.actions.download")}
                   </a>
                   <button
                     type="button"
-                    className="action-btn replace-btn"
+                    className="document-action-btn document-replace-btn"
                     onClick={() =>
                       document.getElementById(`${field}-input`).click()
                     }
@@ -335,7 +335,7 @@ const Document = () => {
                 <div className="file-actions">
                   <button
                     type="button"
-                    className="action-btn replace-btn"
+                    className="document-action-btn document-replace-btn"
                     onClick={() =>
                       document.getElementById(`${field}-input`).click()
                     }
@@ -344,7 +344,7 @@ const Document = () => {
                   </button>
                   <button
                     type="button"
-                    className="action-btn remove-btn"
+                    className="document-action-btn document-remove-btn"
                     onClick={() => handleRemoveFile(field)}
                   >
                     {t("documentUpload.actions.remove")}

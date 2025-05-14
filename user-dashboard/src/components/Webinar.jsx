@@ -137,10 +137,10 @@ const Webinar = () => {
       if (!response.ok) throw new Error("Failed to register");
   
       setRegisteredWebinars((prev) => new Set([...prev, webinarId]));
-      toast.success("Registered successfully!");  // Show success toast
+      toast.success("Registered successfully!");
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error("Registration failed. Please try again.");  // Show error toast
+      toast.error("Registration failed. Please try again.");
     }
   };
 

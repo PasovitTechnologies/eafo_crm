@@ -10,37 +10,26 @@ const { TelegramApi } = require("./TelegramApi");
 const moment = require("moment-timezone");
 
 
-console.log("✅ Payment Status Cron Initialized!");
 
-// Debug logging (remove in production)
-console.log("🚨 Debugging API keys:");
-console.log(`ALFABANK_USER: ${alfUser}`);
-console.log(`ALFABANK_API_URL: ${alfApiUrl}`);
+
+
 
 const checkPendingPayments = async () => {
   try {
-    console.log("🕒 Running payment status checker...");
     const now = moment().tz("Europe/Moscow").format("YYYY-MM-DD HH:mm:ss");;
-    console.log("📅 Current date:", now);
 
     // Find all active courses
     const activeCourses = await Course.find({ endDate: { $gt: now } });
-    console.log(`📚 Found ${activeCourses.length} active courses to check`);
 
     for (const course of activeCourses) {
-      console.log(`🔍 Checking payments for course: ${course._id}`);
 
       if (!course.payments || course.payments.length === 0) {
-        console.log("⚠️ No payments found for this course.");
         continue;
       }
 
       for (const payment of course.payments) {
         // Skip processed payments
         if (payment.status === "Paid" || payment.status === "Expired") {
-          console.log(
-            `🟢 Payment ${payment._id} already processed with status: ${payment.status}`
-          );
           continue;
         }
 
@@ -51,24 +40,15 @@ const checkPendingPayments = async () => {
         if (diffInDays > 3) {
           payment.status = "Expired";
           payment.expiredAt = new Date();
-          console.log(`⏳ Payment for order ${payment.orderId} expired.`);
           await course.save();
           continue;
         }
 
         if (payment.status === "Pending") {
-          console.log(
-            `🔎 Found pending payment _id: ${payment._id}, orderId: ${
-              payment.orderId || "MISSING"
-            }`
-          );
-
           // Only check AlfaBank API for RUB payments with orderId
           if (payment.currency === "RUB" && payment.orderId) {
             try {
-              console.log(
-                `📝 Checking AlfaBank status for order: ${payment.orderId}`
-              );
+             
 
               const formData = new URLSearchParams();
               formData.append("userName", alfUser);
@@ -85,15 +65,12 @@ const checkPendingPayments = async () => {
                 }
               );
 
-              console.log("🔍 AlfaBank Response:", response.data);
 
               if (response.data.OrderStatus === 2) {
                 // Payment successful
                 payment.status = "Paid";
                 payment.paidAt = new Date();
-                console.log(
-                  `✅ Payment for order ${payment.orderId} marked as PAID.`
-                );
+              
 
                 // Send Telegram notification
                 try {
@@ -123,31 +100,28 @@ const checkPendingPayments = async () => {
                   `;
 
                   await telegram.sendMessage();
-                  console.log("✅ Telegram notification sent!");
                 } catch (telegramError) {
-                  console.error("🚨 Telegram error:", telegramError.message);
+                  console.error("Telegram error:", telegramError.message);
                 }
               } else {
                 console.log(
-                  `ℹ️ Payment still pending (Status: ${response.data.OrderStatus})`
+                  `ℹPayment still pending (Status: ${response.data.OrderStatus})`
                 );
               }
             } catch (paymentError) {
-              console.error(`🚨 AlfaBank API error:`, paymentError.message);
+              console.error(`AlfaBank API error:`, paymentError.message);
             }
           } else if (!payment.orderId) {
-            console.warn(`⚠️ Skipping - missing orderId`);
+            console.warn(`Skipping - missing orderId`);
           }
         }
       }
 
       if (course.isModified()) {
         await course.save();
-        console.log(`💾 Saved updates for course ${course._id}`);
       }
     }
 
-    console.log("✅ Payment check completed");
   } catch (err) {
     console.error("🚨 CRITICAL ERROR:", err.message);
   }

@@ -11,7 +11,7 @@ const path = require('path');
 dotenv.config();
 const app = express();
 
-// ✅ CORS Configuration
+// CORS Configuration
 const corsOptions = {
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -22,20 +22,20 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: "1gb" }));
 app.use(express.urlencoded({ limit: "1gb", extended: true }));
 
-// ✅ MongoDB Connection Function
+// MongoDB Connection Function
 const connectMongoDB = async () => {
   try {
-    // ⚠️ Removed deprecated options
+    // Removed deprecated options
     await mongoose.connect(process.env.MONGO_URI);
-    console.log('✅ MongoDB connected');
+    console.log('MongoDB connected');
 
     const conn = mongoose.connection;
 
-    // ✅ Setup GridFS for file uploads
+    // Setup GridFS for file uploads
     let gfs, gridFSBucket;
 
     conn.once('open', () => {
-      console.log('✅ GridFS initializing...');
+      console.log('GridFS initializing...');
 
       try {
         // Initialize GridFS
@@ -46,10 +46,9 @@ const connectMongoDB = async () => {
           bucketName: 'uploads'
         });
 
-        console.log('✅ GridFS connected successfully!');
-        console.log(`📁 GridFS Bucket: ${gridFSBucket.bucketName}`);
+        
 
-        // ✅ Attach GridFSBucket to each request
+        // Attach GridFSBucket to each request
         app.use((req, res, next) => {
           req.gridFSBucket = gridFSBucket;
           req.gfs = gfs;
@@ -57,20 +56,20 @@ const connectMongoDB = async () => {
         });
 
       } catch (error) {
-        console.error('❌ Error initializing GridFS:', error);
+        console.error('Error initializing GridFS:', error);
       }
     });
 
   } catch (error) {
-    console.error('❌ MongoDB connection failed:', error);
+    console.error('MongoDB connection failed:', error);
     process.exit(1);  // Stop the server if DB connection fails
   }
 };
 
-// ✅ Connect to MongoDB
+// Connect to MongoDB
 connectMongoDB();
 
-// ✅ Import Routes
+// Import Routes
 const formRoutes = require('./routes/formRoutes');
 const courseRoutes = require("./routes/courseRoutes");
 const couponRoutes = require('./routes/couponRoutes');
@@ -89,10 +88,10 @@ const preCourseRoutes = require("./routes/preCourseRoutes");
 const qrLoginRoutes = require('./routes/qrLoginRoutes');
 
 
-// ✅ Base URL Configuration
+// Base URL Configuration
 const baseUrl = process.env.BASE_URL || 'http://localhost:4000';
 
-// ✅ Use Routes
+// Use Routes
 app.use(`/api/invoices`, formRoutes);
 app.use(`/api/form`, formRoutes);
 app.use(`/api/courses`, courseRoutes);
@@ -112,20 +111,20 @@ app.use("/api/precourse", preCourseRoutes);
 app.use('/api/qr', qrLoginRoutes);
 
 
-// ✅ Serve Static Files
+// Serve Static Files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// ✅ Root Route
+// Root Route
 app.get('/', (req, res) => {
   res.send('Server is running!');
 });
 
-// ✅ Global Error Handler
+// Global Error Handler
 app.use((err, req, res, next) => {
-  console.error('❌ Error:', err.stack);
+  console.error('Error:', err.stack);
   res.status(500).send('Something went wrong!');
 });
 
-// ✅ Start Server
+//Start Server
 const PORT = process.env.PORT || 4000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

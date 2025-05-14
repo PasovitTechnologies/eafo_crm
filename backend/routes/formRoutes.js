@@ -17,7 +17,7 @@ const QRCode = require('qrcode');
 const moment = require("moment-timezone");
 
 
-// ✅ Initialize GridFS bucket
+// Initialize GridFS bucket
 let gfs;
 mongoose.connection.once('open', () => {
   gfs = new GridFSBucket(mongoose.connection.db, {
@@ -26,7 +26,7 @@ mongoose.connection.once('open', () => {
 });
 
 
-// ✅ JWT Authentication Middleware
+// JWT Authentication Middleware
 const authenticateJWT = (req, res, next) => {
   const token = req.header("Authorization")?.split(" ")[1];
 
@@ -66,15 +66,13 @@ const sendEmailRusender = async (recipient, mail) => {
             }
         });
 
-        console.log(`✅ Email sent to ${recipient.email}:`, response.data);
         return { email: recipient.email, status: "Success", data: response.data };
     } catch (error) {
-        console.error(`❌ Failed to send email to ${recipient.email}:`, error.response?.data || error.message);
         return { email: recipient.email, status: "Failed", error: error.message };
     }
 };
 
-// ✅ Function to choose email template with Registration Type & Category
+// Function to choose email template with Registration Type & Category
 const getEmailTemplate = (lang, user, courseName, package) => {
   if (lang === "ru") {
       return {
@@ -466,7 +464,7 @@ router.get('/:id/image', async (req, res) => {
 
 
 
-// 🟢 Create a New Form or Duplicate an Existing Form
+//  Create a New Form or Duplicate an Existing Form
 router.post("/", authenticateJWT, async (req, res) => {
   const { formName, duplicateFrom } = req.body;
 
@@ -484,7 +482,6 @@ router.post("/", authenticateJWT, async (req, res) => {
         return res.status(404).json({ message: "Original form not found." });
       }
 
-      console.log("🚀 Original Form:", originalForm);
 
       const clonedQuestions = [];
       const idMapping = {}; // Stores old question ID -> new question ID mapping
@@ -504,7 +501,6 @@ router.post("/", authenticateJWT, async (req, res) => {
         // Save the cloned question
         const savedQuestion = await newQuestion.save();
         if (!savedQuestion) {
-          console.error("❌ Failed to save question:", newQuestion);
           return res.status(500).json({ message: "Failed to clone some questions." });
         }
 
@@ -534,25 +530,22 @@ router.post("/", authenticateJWT, async (req, res) => {
       newForm.questions = clonedQuestions;
     }
 
-    console.log("📄 New Form to Save:", newForm);
     await newForm.save();
 
     res.status(201).json({ form: newForm });
   } catch (error) {
-    console.error("🚨 Error creating form:", error);
     res.status(500).json({ message: "An error occurred while creating the form." });
   }
 });
 
 
 
-// 🟢 Get All Forms (Only Name & ID)
+//  Get All Forms (Only Name & ID)
 router.get("/", authenticateJWT,async (req, res) => {
   try {
     const forms = await Form.find(); // Fetch all forms
     res.json({ forms }); // Return as { forms: [...] }
   } catch (error) {
-    console.error("Error fetching forms:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -566,7 +559,6 @@ router.get("/:id", authenticateJWT,async (req, res) => {
 
     res.json(form);
   } catch (error) {
-    console.error("Error fetching form:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -577,83 +569,65 @@ router.get("/:id", authenticateJWT,async (req, res) => {
 router.put("/:id", authenticateJWT, async (req, res) => {
   try {
     const updateData = {};
-    console.log("👉 Initial updateData:", updateData);
 
-    // ✅ Log the incoming request body
-    console.log("📥 Request Body:", req.body);
 
-    // ✅ Update text fields only if provided
+    //Update text fields only if provided
     if (req.body.formName) {
       updateData.formName = req.body.formName;
-      console.log("📝 Updated formName:", req.body.formName);
     }
     if (req.body.description) {
       updateData.description = req.body.description;
-      console.log("📝 Updated description:", req.body.description);
     }
     if (req.body.title) {
       updateData.title = req.body.title;
-      console.log("📝 Updated title:", req.body.title);
     }
 
-    // ✅ Handle course assignment/removal
+    // Handle course assignment/removal
     if (req.body.courseId === "") {
       updateData.courseId = null; // Remove course assignment
-      console.log("🚫 Removed course assignment.");
     } else if (req.body.courseId) {
       updateData.courseId = req.body.courseId;
-      console.log("🔗 Assigned new course ID:", req.body.courseId);
     }
 
-    // ✅ Handle boolean fields explicitly
+    // Handle boolean fields explicitly
     if (typeof req.body.isUsedForRussian !== "undefined") {
       updateData.isUsedForRussian = req.body.isUsedForRussian;
-      console.log("🔘 isUsedForRussian:", req.body.isUsedForRussian);
     }
     if (typeof req.body.isUsedForRegistration !== "undefined") {
       updateData.isUsedForRegistration = req.body.isUsedForRegistration;
-      console.log("🔘 isUsedForRegistration:", req.body.isUsedForRegistration);
     }
 
-    // 📝 Log the final `updateData` before updating the form
-    console.log("🚀 Final updateData:", updateData);
 
-    // 📝 Update the form in the database
+    // Update the form in the database
     const updatedForm = await Form.findByIdAndUpdate(
       req.params.id,
       { $set: updateData },
       { new: true }
     );
 
-    // ✅ Log the updated form
-    console.log("✅ Updated Form:", updatedForm);
 
     if (!updatedForm) {
-      console.log("❌ Form not found");
+      console.log("Form not found");
       return res.status(404).json({ message: "Form not found" });
     }
 
-    // 🛑 Remove form from any previous course
+    // Remove form from any previous course
     const removeResult = await Course.updateMany(
       { "forms.formId": updatedForm._id },
       { $pull: { forms: { formId: updatedForm._id } } }
     );
-    console.log("🛑 Removed form from previous courses:", removeResult);
 
-    // ✅ Link form to new course if provided
+    // Link form to new course if provided
     if (req.body.courseId) {
       const course = await Course.findById(req.body.courseId);
       if (!course) {
-        console.log("❌ Course not found with ID:", req.body.courseId);
         return res.status(404).json({ message: "Course not found" });
       }
 
-      console.log("📚 Found Course:", course);
 
       const existingFormIndex = course.forms.findIndex(
         (f) => f.formId.toString() === updatedForm._id.toString()
       );
-      console.log("🔎 Existing Form Index:", existingFormIndex);
 
       const formData = {
         formId: updatedForm._id,
@@ -663,25 +637,20 @@ router.put("/:id", authenticateJWT, async (req, res) => {
       };
 
       if (existingFormIndex === -1) {
-        // 🛠️ Push the form with booleans to the course
         course.forms.push(formData);
-        console.log("➕ Added form to course with booleans.");
       } else {
         // ✅ Update existing form data, including booleans
         course.forms[existingFormIndex] = formData;
-        console.log("🔧 Updated existing form in course with booleans.");
       }
 
       await course.save();
-      console.log("✅ Course saved successfully with boolean fields.");
     }
 
     // ✅ Return updated form
     res.json({ form: updatedForm });
-    console.log("🚀 Response Sent Successfully.");
 
   } catch (error) {
-    console.error("❗ Error updating form:", error);
+    console.error("Error updating form:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -691,7 +660,7 @@ router.put("/:id", authenticateJWT, async (req, res) => {
 
 
 
-// 🟢 Delete a Form (and its Questions)
+// Delete a Form (and its Questions)
 router.delete("/:id", authenticateJWT, async (req, res) => {
   const { id } = req.params;
 
@@ -737,7 +706,7 @@ router.post("/:id/upload", authenticateJWT,upload.single("image"), async (req, r
     const form = await Form.findById(req.params.id);
     if (!form) return res.status(404).json({ message: "Form not found" });
 
-    // ✅ Save Image Path in Form
+    // Save Image Path in Form
     const fileExt = path.extname(req.file.originalname);
     form.image = `/uploads/${form._id}_logo${fileExt}`;
     await form.save();
@@ -921,13 +890,9 @@ router.put("/:formId/questions", authenticateJWT, async (req, res) => {
   const { formId } = req.params;
   const { questions } = req.body;
 
-  console.log("📋 Form ID:", formId);
-  console.log("🆕 Received Questions:", questions);
-
   try {
     // Validate input
     if (!Array.isArray(questions)) {
-      console.warn("⚠️ Invalid request: questions should be an array");
       return res.status(400).json({ error: "Invalid request: questions should be an array" });
     }
 
@@ -937,7 +902,6 @@ router.put("/:formId/questions", authenticateJWT, async (req, res) => {
       _id: q._id ? new mongoose.Types.ObjectId(q._id) : new mongoose.Types.ObjectId(),
     }));
 
-    console.log("🆔 Processed Questions:", updatedQuestions);
 
     // Find and update the form
     const updatedForm = await Form.findByIdAndUpdate(
@@ -947,15 +911,13 @@ router.put("/:formId/questions", authenticateJWT, async (req, res) => {
     );
 
     if (!updatedForm) {
-      console.warn("⚠️ Form not found");
       return res.status(404).json({ error: "Form not found" });
     }
 
-    console.log("✅ Questions updated successfully");
     return res.status(200).json({ message: "Questions updated successfully", questions: updatedForm.questions });
 
   } catch (error) {
-    console.error("🚨 Error updating questions:", error);
+    console.error("Error updating questions:", error);
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });
@@ -970,7 +932,6 @@ const findLinkedItems = async (invoiceFields, courseId, session) => {
     const course = await Course.findById(courseId).session(session);
     if (!course?.rules?.length || !course?.items?.length) return null;
 
-    console.log(`🔎 Matching invoice fields against ${course.rules.length} course rules...`);
 
     for (const rule of course.rules) {
       const { conditions = [], linkedItems = [] } = rule;
@@ -1012,16 +973,15 @@ const findLinkedItems = async (invoiceFields, courseId, session) => {
         const linkedItemId = linkedItems[0]?.toString();
         const item = course.items.find(i => i._id.toString() === linkedItemId);
         if (item) {
-          console.log("🎯 Rule matched! Linked item details:", item);
           return item;
         } else {
-          console.warn("⚠️ Linked item ID found, but item not present in course.items");
+          console.warn("Linked item ID found, but item not present in course.items");
         }
       }
     }
 
   } catch (error) {
-    console.error("❌ Error in findLinkedItems:", error);
+    console.error("Error in findLinkedItems:", error);
     throw error;
   }
 
@@ -1047,10 +1007,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
   session.startTransaction();
 
   try {
-    console.log("🔥 Incoming request to submit form:");
-    console.log("📌 Request params:", req.params);
-    console.log("📌 Request body:", JSON.stringify(req.body, null, 2));
-
+    
     const { formId } = req.params;
     const { submissions, email } = req.body;
 
@@ -1070,17 +1027,14 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
       return res.status(404).json({ message: "Form not found" });
     }
 
-    console.log("✅ Form found:", form.formName);
 
     const { isUsedForRegistration, isUsedForRussian, formName, description, courseId } = form;
 
     if (!courseId) {
       await session.abortTransaction();
-      console.log("⚠️ No courseId found in form.");
       return res.status(404).json({ message: "No course associated with this form." });
     }
 
-    console.log("✅ Form linked to courseId:", courseId);
 
     const processedSubmissions = [];
 
@@ -1099,7 +1053,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
       };
 
       if (submission.isFile && submission.fileData) {
-        console.log(`📁 Processing file for question ${submission.questionId}`);
       
         // Handle both single file (object) and multiple files (array)
         const filesToProcess = Array.isArray(submission.fileData) 
@@ -1151,7 +1104,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             uploadDate: moment.tz("Europe/Moscow").toDate(),
             });
       
-          console.log(`✅ File stored: ${fileData.name}`);
         }
       
         // Store all file references in the response
@@ -1169,7 +1121,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
       processedSubmissions.push(response);
     }
 
-    console.log("✅ All submissions processed.");
 
     // Rest of your existing code remains the same...
     let linkedItemDetails = null;
@@ -1177,7 +1128,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
 
     if (isUsedForRegistration) {
       invoiceFields = extractInvoiceFields(processedSubmissions);
-      console.log("🧾 Extracted invoice fields:", invoiceFields);
 
       linkedItemDetails = await findLinkedItems(invoiceFields, courseId, session);
     }
@@ -1190,17 +1140,15 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
 
     form.submissions.push(newSubmission);
     await form.save({ session });
-    console.log("✅ Submission saved!");
 
     if (email) {
-      console.log("✅ Email provided, checking for existing user...");
 
       const user = await User.findOne({ email }).session(session);
 
       if (!user) {
-        console.log("🚫 User not found. Skipping user creation as requested.");
+        console.log("User not found.");
       } else {
-        console.log("✅ User found, updating user data...");
+        console.log("User found, updating user data...");
 
         let userCourse = user.courses.find(
           (course) => course.courseId.toString() === courseId.toString()
@@ -1214,7 +1162,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             qrCodes: [],
             submittedAt: moment.tz("Europe/Moscow").toDate()
           });
-          console.log("📚 Added new course to user.courses[]");
 
           userCourse = user.courses.find(
             (course) => course.courseId.toString() === courseId.toString()
@@ -1234,15 +1181,13 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             isUsedForRussian,
             submittedAt: moment.tz("Europe/Moscow").toDate()
           });
-          console.log("📝 Registered form added to user.courses[].registeredForms");
         } else {
-          console.log("🚫 Form already exists in registeredForms, skipping...");
+          console.log("Form already exists in registeredForms, skipping...");
         }
 
         if (linkedItemDetails) {
           if (!Array.isArray(userCourse.payments)) {
             userCourse.payments = [];
-            console.log("🆕 userCourse.payments array initialized.");
           }
           
           const generateOrderId = () => {
@@ -1250,7 +1195,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
           };
           
           const transactionId = generateOrderId();
-          console.log(`🆔 Generated Order ID: ${transactionId}`);
         
           userCourse.payments.push({
             transactionId,
@@ -1261,21 +1205,14 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             submittedAt: moment.tz("Europe/Moscow").toDate()
           });
         
-          console.log("💳 New payment added to userCourse.payments:", {
-            transactionId,
-            package: linkedItemDetails.name,
-            amount: linkedItemDetails.amount,
-            currency: linkedItemDetails.currency
-          });
+         
         
           await user.save({ session });
-          console.log("✅ User saved successfully with new payment.");
         
           const course = await Course.findById(courseId).session(session);
         
           if (!course.payments) {
             course.payments = [];
-            console.log("🆕 course.payments array initialized.");
           }
         
           course.payments.push({
@@ -1288,20 +1225,11 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
             submittedAt: moment.tz("Europe/Moscow").toDate()
           });
         
-          console.log("🏛️ New payment added to course.payments:", {
-            email,
-            transactionId,
-            package: linkedItemDetails.name,
-            amount: linkedItemDetails.amount,
-            currency: linkedItemDetails.currency
-          });
-        
+         
           await course.save({ session });
-          console.log("✅ Course saved successfully with new payment.");
 
           // Generate and store QR code
           try {
-            console.log("🔳 Generating QR code...");
             
             const qrUrl = `https://qr.eafo.info/qrscanner/view/${user._id}/${courseId}/${formId}`;
             
@@ -1341,7 +1269,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
               qrWriteStream.on('error', reject);
             });
 
-            console.log("✅ QR code generated and stored:", qrFile.fileId);
 
             if (!userCourse.qrCodes) {
               userCourse.qrCodes = [];
@@ -1356,9 +1283,8 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
               isActive: true
             });
 
-            console.log("📝 QR code reference added to user.courses[].qrCodes");
           } catch (qrError) {
-            console.error("⚠️ QR code generation failed (non-critical):", qrError.message);
+            console.error("QR code generation failed (non-critical):", qrError.message);
           }
 
           // Notification
@@ -1382,14 +1308,11 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
               userId: user._id,
               notifications: [notification]
             });
-            console.log("📬 Created new UserNotification doc for user.");
           } else {
             userNotification.notifications.push(notification);
-            console.log("📬 Appended new notification to existing UserNotification.");
           }
 
           await userNotification.save({ session });
-          console.log("🔔 Notification saved for user:", user.email);
 
           // Registration-specific logic
           if (isUsedForRegistration && linkedItemDetails) {
@@ -1434,7 +1357,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
                 { email: user.email, firstName: user.firstName },
                 emailTemplate
               );
-              console.log("✅ Registration email sent using template:", emailTemplate.subject);
 
               const telegram = new TelegramApi();
               telegram.chat_id = '-4614501397';
@@ -1448,10 +1370,9 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
           `;
 
               await telegram.sendMessage();
-              console.log("✅ Notification sent to Telegram group!");
 
             } catch (error) {
-              console.error("⚠️ Failed to send email or Telegram message (non-critical):", error.message);
+              console.error("Failed to send email or Telegram message (non-critical):", error.message);
             }
           }
         }
@@ -1461,7 +1382,6 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
       }
     }
     await session.commitTransaction();
-    console.log("✅ Transaction committed.");
 
     const responsePayload = {
       message: "Form submitted successfully!",
@@ -1477,7 +1397,7 @@ router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
 
   } catch (error) {
     await session.abortTransaction();
-    console.error("❌ Error submitting form:", error);
+    console.error("Error submitting form:", error);
     res.status(500).json({ message: "Internal server error", error: error.message });
   } finally {
     session.endSession();

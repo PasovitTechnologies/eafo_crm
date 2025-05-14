@@ -18,7 +18,7 @@ const adminCredentials = [{ email: "admin@example.com", password: "admin123" }];
 
 const RUSENDER_API = "https://api.beta.rusender.ru/api/v1/external-mails/send";
 
-// ✅ Helper function to send emails using Rusender
+// Helper function to send emails using Rusender
 const sendEmailRusender = async (recipient, mail) => {
   const emailData = {
     mail: {
@@ -38,16 +38,15 @@ const sendEmailRusender = async (recipient, mail) => {
       }
     });
 
-    console.log(`✅ Email sent to ${recipient.email}:`, response.data);
     return { email: recipient.email, status: "Success", data: response.data };
   } catch (error) {
-    console.error(`❌ Failed to send email to ${recipient.email}:`, error.response?.data || error.message);
+    console.error(`Failed to send email to ${recipient.email}:`, error.response?.data || error.message);
     return { email: recipient.email, status: "Failed", error: error.message };
   }
 };
 
 
-// ✅ Function to select email template
+// Function to select email template
 const getWebinarEmailTemplate = (lang, user, webinar) => {
   const date = new Date(webinar.date);
 
@@ -240,7 +239,7 @@ router.post("/:id/register", authenticateJWT, async (req, res) => {
     const webinar = await Webinar.findById(webinarId);
     if (!webinar) return res.status(404).json({ message: "Webinar not found" });
 
-    // ✅ Find User and Check if Already Registered
+    // Find User and Check if Already Registered
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -249,14 +248,14 @@ router.post("/:id/register", authenticateJWT, async (req, res) => {
       return res.status(400).json({ message: "User already registered for this webinar" });
     }
 
-    // ✅ Add webinar to User's webinars list
+    // Add webinar to User's webinars list
     user.webinars.push({ webinarId, registeredAt: moment.tz("Europe/Moscow").toDate() });
     await user.save();
 
-    // ✅ Ensure `participants` array exists in Webinar model
+    // Ensure `participants` array exists in Webinar model
     if (!webinar.participants) webinar.participants = [];
 
-    // ✅ Add participant to Webinar's participants list
+    // Add participant to Webinar's participants list
     const newParticipant = {
       email,
       registeredAt: moment.tz("Europe/Moscow").toDate(),
@@ -274,7 +273,6 @@ router.post("/:id/register", authenticateJWT, async (req, res) => {
     const emailTemplate = getWebinarEmailTemplate(lang, user, webinar);
     await sendEmailRusender({ email: user.email, firstName: user.personalDetails?.firstName || "User" }, emailTemplate);
     
-    console.log("✅ Webinar registration email sent!");
 
     
 
@@ -298,11 +296,11 @@ router.post("/:id/cancel", authenticateJWT, async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // ✅ Remove user from the webinar's `participants` list
+    // Remove user from the webinar's `participants` list
     webinar.participants = webinar.participants.filter((p) => p.email !== email);
     await webinar.save();
 
-    // ✅ Remove webinar from the user's `webinars` list
+    // Remove webinar from the user's `webinars` list
     user.webinars = user.webinars.filter((w) => !w.webinarId.equals(webinarId));
     await user.save();
 
@@ -323,7 +321,7 @@ router.get("/:id/status", authenticateJWT, async (req, res) => {
     const webinar = await Webinar.findById(webinarId);
     if (!webinar) return res.status(404).json({ message: "Webinar not found" });
 
-    // ✅ Check if the user is in the participants list
+    // Check if the user is in the participants list
     const isRegistered = webinar.participants.some((p) => p.email === email);
 
     res.status(200).json({ registered: isRegistered });

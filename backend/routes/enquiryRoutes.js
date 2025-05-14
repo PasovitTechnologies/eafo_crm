@@ -8,14 +8,14 @@ const dotenv = require("dotenv");
 dotenv.config();
 const router = express.Router();
 
-// ✅ Configure Multer for in-memory storage
+// Configure Multer for in-memory storage
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 
 
 
-// ✅ JWT Authentication Middleware
+// JWT Authentication Middleware
 const authenticate = (req, res, next) => {
   const token = req.header("Authorization")?.split(" ")[1];
 
@@ -30,7 +30,7 @@ const authenticate = (req, res, next) => {
   }
 };
 
-// ✅ Create Enquiry with Embedded File
+// Create Enquiry with Embedded File
 router.post("/", authenticate, upload.single("file"), async (req, res) => {
   const { email, subject, message, status } = req.body;
 
@@ -63,8 +63,7 @@ router.post("/", authenticate, upload.single("file"), async (req, res) => {
     // Return a success response
     res.status(201).json({ message: "Enquiry created successfully.", newEnquiry });
   } catch (error) {
-    // Log the error for debugging
-    console.error("🚨 Error creating enquiry:", error);
+   
 
     // Send a more detailed error response for debugging
     if (error.name === 'ValidationError') {
@@ -76,7 +75,7 @@ router.post("/", authenticate, upload.single("file"), async (req, res) => {
   }
 });
 
-// ✅ Get Enquiries by Email
+// Get Enquiries by Email
 router.get("/:email", authenticate, async (req, res) => {
   const { email } = req.params;
 
@@ -85,23 +84,21 @@ router.get("/:email", authenticate, async (req, res) => {
 
     res.status(200).json(enquiries);
   } catch (error) {
-    console.error("🚨 Error fetching enquiries:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// ✅ Get All Enquiries (For Admin or General Listing)
+// Get All Enquiries (For Admin or General Listing)
 router.get("/", authenticate, async (req, res) => {
   try {
     const enquiries = await Enquiry.find().sort({ createdAt: -1 }); // Sorting by most recent first
     res.status(200).json(enquiries);
   } catch (error) {
-    console.error("🚨 Error fetching enquiries:", error);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// ✅ Download File from Enquiry
+// Download File from Enquiry
 router.get("/file/:id", authenticate, async (req, res) => {
   const { id } = req.params;
 
@@ -116,7 +113,6 @@ router.get("/file/:id", authenticate, async (req, res) => {
     res.set("Content-Disposition", `attachment; filename="${enquiry.file.filename}"`);
     res.send(enquiry.file.data);
   } catch (error) {
-    console.error("🚨 Error downloading file:", error);
     res.status(500).json({ message: "Failed to download file" });
   }
 });
@@ -153,7 +149,6 @@ router.get("/file/:id", authenticate, async (req, res) => {
   
       res.status(200).json({ message: "Enquiry updated successfully.", enquiry: updatedEnquiry });
     } catch (error) {
-      console.error("🚨 Error updating enquiry:", error);
       res.status(500).json({ message: "Server error" });
     }
   });
@@ -162,7 +157,7 @@ router.get("/file/:id", authenticate, async (req, res) => {
 
   // routes/enquiries.js
 
-// ✅ Submit Rating for Solved Enquiry
+// Submit Rating for Solved Enquiry
 router.post("/:id/rating", authenticate, async (req, res) => {
     const { id } = req.params;
     const { rating } = req.body; // Rating from the request body
@@ -196,7 +191,6 @@ router.post("/:id/rating", authenticate, async (req, res) => {
   
       res.status(200).json({ message: "Rating submitted successfully!", enquiry });
     } catch (error) {
-      console.error("🚨 Error submitting rating:", error);
       res.status(500).json({ message: "Server error" });
     }
   });

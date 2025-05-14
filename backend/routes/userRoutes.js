@@ -27,14 +27,14 @@ mongoose.connection.once('open', () => {
   });
 });
 
-// 🛑 Store Admin Credentials Securely (Passwords are Hashed)
+// Store Admin Credentials Securely (Passwords are Hashed)
 const adminCredentials = [
   { email: "admin@eafo.info", passwordHash: bcrypt.hashSync("Sasikumar@2003", 10) },
   { email: "project@eafo.ru", passwordHash: bcrypt.hashSync("your_admin_password_2", 10) },
   { email: "tech.admin@eafo.info", passwordHash: bcrypt.hashSync("your_admin_password_3", 10) },
 ];
 
-// ✅ Check if the User is an Admin
+// Check if the User is an Admin
 const isAdminLogin = (email, password) => {
   const admin = adminCredentials.find((admin) => admin.email === email);
   return admin && bcrypt.compareSync(password, admin.passwordHash);
@@ -47,7 +47,7 @@ const isAdminEmail = (email) => {
 
 
 
-// ✅ JWT Authentication Middleware
+// JWT Authentication Middleware
 const authenticateJWT = (req, res, next) => {
   const token = req.header("Authorization")?.split(" ")[1];
 
@@ -67,7 +67,7 @@ const authenticateJWT = (req, res, next) => {
 
 const RUSENDER_API = "https://api.beta.rusender.ru/api/v1/external-mails/send";
 
-// ✅ Helper function to send emails using Rusender
+// Helper function to send emails using Rusender
 const sendEmailRusender = async (recipient, mail) => {
     const emailData = {
         mail: {
@@ -95,7 +95,7 @@ const sendEmailRusender = async (recipient, mail) => {
     }
 };
 
-// ✅ Function to choose email template based on language
+// Function to choose email template based on language
 const getEmailTemplate = (lang, user) => {
     if (lang === "ru") {
         return {
@@ -146,7 +146,7 @@ const getEmailTemplate = (lang, user) => {
     }
 };
 
-// ✅ User Registration
+// User Registration
 router.post("/", async (req, res) => {
     try {
         const { email, password, role, personalDetails, professionalDetails, dashboardLang } = req.body;
@@ -266,12 +266,7 @@ router.put(
                 return reject(new Error("Uploaded file not found in fs.files"));
               }
 
-              console.log("✅ Uploaded:", {
-                field: fieldName,
-                fileId: uploadedFile._id,
-                fileName: uploadedFile.filename,
-                size: uploadedFile.length,
-              });
+            
 
               resolve({
                 fileId: uploadedFile._id,
@@ -313,9 +308,8 @@ router.put(
           if (previousFileId) {
             try {
               await gfs.delete(new mongoose.Types.ObjectId(previousFileId));
-              console.log(`🗑️ Deleted old ${field} file from GridFS`);
             } catch (delErr) {
-              console.warn(`⚠️ Could not delete old ${field}:`, delErr.message);
+              console.warn(`Could not delete old ${field}:`, delErr.message);
             }
           }
 
@@ -331,7 +325,7 @@ router.put(
         documents: updatedDocs,
       });
     } catch (err) {
-      console.error("❌ Upload error:", err);
+      console.error("Upload error:", err);
       res.status(500).json({
         message: "Failed to upload documents",
         error: err.message,
@@ -368,11 +362,11 @@ router.get("/file/:fileId", async (req, res) => {
     downloadStream.pipe(res);
 
     downloadStream.on("error", (err) => {
-      console.error("❌ Stream error:", err);
+      console.error("Stream error:", err);
       res.status(500).end();
     });
   } catch (err) {
-    console.error("❌ Retrieval error:", err);
+    console.error("Retrieval error:", err);
     res.status(500).json({ message: "Error retrieving file", error: err.message });
   }
 });
@@ -418,7 +412,7 @@ router.post("/validate", async (req, res) => {
   }
 });
 
-// ✅ Reset Password Route
+// Reset Password Route
 router.put("/update-password", async (req, res) => {
   const { email, newPassword } = req.body;
 
@@ -450,8 +444,7 @@ router.put("/update-password", async (req, res) => {
 
 
 
-// ✅ User & Admin Login
-// ✅ User & Admin Login
+
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -462,13 +455,13 @@ router.post("/login", async (req, res) => {
 
     const normalizedEmail = email.toLowerCase();
 
-    // 🔹 First, check if the user is an admin
+    // First, check if the user is an admin
     if (isAdminLogin(normalizedEmail, password)) {
       const token = jwt.sign({ email: normalizedEmail, role: "admin" }, JWT_SECRET, { expiresIn: "2h" });
       return res.json({ token, email: normalizedEmail, role: "admin" });
     }
 
-    // 🔹 If not an admin, check the database for a regular user
+    // If not an admin, check the database for a regular user
     const user = await User.findOne({ email: normalizedEmail });
     if (!user) {
       return res.status(404).json({ message: "User not found!" });
@@ -535,7 +528,7 @@ router.get('/image/:email', async (req, res) => {
 
 
 
-// ✅ Get User Profile (Protected)
+// Get User Profile (Protected)
 router.get("/", authenticateJWT, async (req, res) => {
   try {
     if (!isAdminEmail(req.user.email)) {
@@ -550,7 +543,7 @@ router.get("/", authenticateJWT, async (req, res) => {
 });
 
 
-// ✅ Fetch a Specific User (Admin OR User themselves)
+// Fetch a Specific User (Admin OR User themselves)
 router.get("/:email", authenticateJWT, async (req, res) => {
   const { email } = req.params;
   const normalizedEmail = email.toLowerCase();
@@ -576,7 +569,7 @@ router.get("/:email", authenticateJWT, async (req, res) => {
   }
 });
 
-// ✅ Update User Profile (Only the user themselves)
+// Update User Profile (Only the user themselves)
 router.put("/update/:email", authenticateJWT, async (req, res) => {
   const { email } = req.params;
   const normalizedEmail = email.toLowerCase();
@@ -585,7 +578,7 @@ router.put("/update/:email", authenticateJWT, async (req, res) => {
   console.log("Decoded JWT User:", req.user); // Debugging log
 
   try {
-    // 🛑 Prevent unauthorized updates (Only user can update their own profile)
+    // Prevent unauthorized updates (Only user can update their own profile)
     if (req.user.email !== normalizedEmail) {
       return res.status(403).json({
         message: "Access denied. You can only update your own profile.",
@@ -596,7 +589,7 @@ router.put("/update/:email", authenticateJWT, async (req, res) => {
       return res.status(400).json({ message: "No changes detected" });
     }
 
-    // ✅ Update only the changed fields using `$set`
+    //  Update only the changed fields using `$set`
     const updatedUser = await User.findOneAndUpdate(
       { email: normalizedEmail },
       { $set: updateData },

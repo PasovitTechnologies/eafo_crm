@@ -248,7 +248,7 @@
   }
   
   /* Action Buttons */
-  .action-btn {
+  .document-action-btn {
     padding: 0.5rem 1rem;
     border-radius: 6px;
     font-size: 0.75rem;
@@ -261,44 +261,44 @@
     gap: 0.25rem;
   }
   
-  .action-btn svg {
+  .document-action-btn svg {
     width: 14px;
     height: 14px;
   }
   
-  .view-btn {
+  .document-view-btn {
     background-color: #38a169;
     color: white;
   }
   
-  .view-btn:hover {
+  .document-view-btn:hover {
     background-color: #2f855a;
   }
   
-  .download-btn {
+  .document-download-btn {
     background-color: #033672;
     color: white;
   }
   
-  .download-btn:hover {
+  .document-download-btn:hover {
     background-color: #062445;
   }
   
-  .replace-btn {
+  .document-replace-btn {
     background-color: #e2e8f0;
     color: #4a5568;
   }
   
-  .replace-btn:hover {
+  .document-replace-btn:hover {
     background-color: #cbd5e0;
   }
   
-  .remove-btn {
+  .document-remove-btn {
     background-color: #e53e3e;
     color: white;
   }
   
-  .remove-btn:hover {
+  .document-remove-btn:hover {
     background-color: #c53030;
   }
   

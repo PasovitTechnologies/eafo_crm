@@ -30,17 +30,15 @@ const Courses = () => {
     // ✅ Check if token is available in localStorage
     const token = localStorage.getItem("token");
     if (!token) {
-      navigate("/"); // Redirect to / if token is missing
+      navigate("/");
     }
   }, [navigate]);
 
   useEffect(() => {
-    console.log("🔥 Initializing Courses...");
     fetchCourses();
   }, []);
 
   useEffect(() => {
-    console.log("🔎 Applying filters...");
     applyFilters();
   }, [searchQuery, filter, courses, registeredCourses]);
 
@@ -49,7 +47,7 @@ const Courses = () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      console.error("❌ Unauthorized access. No token found.");
+      console.error("Unauthorized access. No token found.");
       setError("Unauthorized access. Please log in.");
       setLoading(false);
       return;
@@ -69,7 +67,6 @@ const Courses = () => {
       }
 
       const data = await response.json();
-      console.log("✅ Fetched courses:", data);
 
       const processedCourses = data.map((course) => {
         const courseDate = course.date ? new Date(course.date) : null;
@@ -102,7 +99,7 @@ const Courses = () => {
       // Fetch registration status
       await fetchUserRegistrationStatus(processedCourses);
     } catch (err) {
-      console.error("🚨 Error fetching courses:", err);
+      console.error("Error fetching courses:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -114,12 +111,11 @@ const Courses = () => {
     const token = localStorage.getItem("token");
 
     if (!userEmail || !token) {
-      console.warn("⚠️ Missing email or token.");
+      console.warn("Missing email or token.");
       return;
     }
 
     try {
-      console.log(`🔍 Fetching registration status for: ${userEmail}`);
 
       const response = await fetch(`${baseUrl}/api/user/${userEmail}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -130,7 +126,6 @@ const Courses = () => {
       }
 
       const userData = await response.json();
-      console.log("✅ Fetched user data:", userData);
 
       const registeredSet = new Set();
 
@@ -152,10 +147,9 @@ const Courses = () => {
         }
       });
 
-      console.log("✅ Final registered courses:", registeredSet);
       setRegisteredCourses(registeredSet);
     } catch (error) {
-      console.error("🚨 Error fetching registration status:", error);
+      console.error("Error fetching registration status:", error);
     }
   };
 
@@ -182,13 +176,12 @@ const Courses = () => {
   };
 
   const handleRegister = async (courseId, slug) => {
-    console.log(`🚀 Registering for course: ${courseId}, Slug: ${slug}`);
 
     const token = localStorage.getItem("token");
     const userEmail = localStorage.getItem("email");
 
     if (!token || !userEmail) {
-      alert("⚠️ Please log in to register.");
+      alert("Please log in to register.");
       return;
     }
 
@@ -202,7 +195,6 @@ const Courses = () => {
       }
 
       const course = await response.json();
-      console.log("✅ Fetched course details:", course);
 
       const language = localStorage.getItem("language") || "en";
 
@@ -213,21 +205,19 @@ const Courses = () => {
       );
 
       if (!form) {
-        console.warn("⚠️ No registration form available.");
+        console.warn("No registration form available.");
         alert("No registration form available.");
         return;
       }
 
       const formId = form.formId;
 
-      console.log(`🔗 Navigating to form: ${formId}`);
 
       navigate(`/dashboard/courses/${slug}/forms/${formId}`, {
         state: { formId: formId },
       });
     } catch (error) {
-      console.error("🚨 Error registering:", error);
-      alert("Failed to register. Please try again.");
+      console.error("Error registering:", error);
     }
   };
 

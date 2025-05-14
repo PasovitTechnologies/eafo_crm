@@ -82,7 +82,6 @@ const sendEmailRusender = async (recipient, mail) => {
   };
 
   try {
-    console.log("📤 Sending email to:", recipient.email);
     const response = await axios.post(RUSENDER_API, emailData, {
       headers: {
         "Content-Type": "application/json",
@@ -90,10 +89,8 @@ const sendEmailRusender = async (recipient, mail) => {
       }
     });
 
-    console.log(`✅ Email sent to ${recipient.email}:`, response.data);
     return { email: recipient.email, status: "Success", data: response.data };
   } catch (error) {
-    console.error(`❌ Failed to send email to ${recipient.email}:`, error.response?.data || error.message);
     return { 
       email: recipient.email, 
       status: "Failed", 
