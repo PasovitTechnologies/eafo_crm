@@ -3,10 +3,16 @@ import { useNavigate } from "react-router-dom";
 import "./Webinar.css";
 import { motion } from "framer-motion";
 import { FaArrowLeft } from "react-icons/fa";
+import { ArrowLeft, Search, ChevronDown, HelpCircle } from 'lucide-react';
 import Loading from "./Loading";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';  // Import the CSS file
-
+import { 
+  FiAlertCircle, 
+  FiCheckCircle, 
+  FiPlayCircle, 
+  FiCalendar 
+} from 'react-icons/fi';
 import { useTranslation } from "react-i18next";
 import CourseHelp from "./HelpComponents/CourseHelp";
 import WebinarHelp from "./HelpComponents/WebinarHelp";
@@ -26,7 +32,7 @@ const Webinar = () => {
   const [registrationLoading, setRegistrationLoading] = useState(true); // For registration status loading
   const currentLanguage = i18n.language;
   const [showHelpPopup, setShowHelpPopup] = useState(false);
-  
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -179,129 +185,197 @@ const Webinar = () => {
       <div className="webinar-page">
               {showHelpPopup && <WebinarHelp onClose={toggleHelpPopup} />}
         
-        <div className="breadcrumb webinar-head-container">
-       <div style={{display:"flex", gap:"20px"}}>
+              <div className="webinar-header-container">
+      {/* Breadcrumb and Help */}
+      <div className="webinar-header-top">
+        <div className="breadcrumb-container">
           <button
-          type="button"
-          className="back-icon-button"
-          aria-label={t("forgetPasswordPage.backToLogin")}
-          onClick={handleGoBack}
+            type="button"
+            className="back-button"
+            aria-label={t("forgetPasswordPage.backToLogin")}
+            onClick={handleGoBack}
           >
-                        <FaArrowLeft />
-                      </button>
-          <span onClick={() => navigate("/dashboard")}>
-            {t("webinar.breadcrumb_dashboard")}
-          </span>{" "}
-          / <span>{t("webinar.breadcrumb_webinars")}</span>
-
+            <ArrowLeft className="back-icon" />
+          </button>
+          
+          <div className="breadcrumb-path">
+            <span 
+              onClick={() => navigate("/dashboard")}
+              className="breadcrumb-link"
+            >
+              {t("webinar.breadcrumb_dashboard")}
+            </span>
+            <span className="breadcrumb-separator">/</span>
+            <span className="breadcrumb-current">
+              {t("webinar.breadcrumb_webinars")}
+            </span>
           </div>
-
-          <button className="webinar-help-button" onClick={toggleHelpPopup}>
+        </div>
+        
+        <button 
+          className="help-button"
+          onClick={toggleHelpPopup}
+        >
+          <HelpCircle className="help-icon" />
           {t("webinar.help")}
         </button>
-        </div>
-
-        <div className="search-filter-container">
-          <div className="search-input-wrapper">
-            <span className="search-icon">🔍</span>
-            <input
-              type="text"
-              placeholder={t("webinar.search")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+      </div>
+      
+      {/* Search and Filter */}
+      <div className="search-filter-wrapper">
+        <div className="search-container">
+          <div className="search-icon-wrapper">
+            <Search className="search-icon" />
           </div>
-
-          <div className="custom-dropdown">
-            <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-              <option value="All">{t("webinar.all")}</option>
-              <option value="Upcoming">{t("webinar.upcoming")}</option>
-              <option value="Past">{t("webinar.past")}</option>
-              <option value="Registered">{t("webinar.registered")}</option>
-            </select>
-          </div>
+          <input
+            type="text"
+            className="search-input"
+            placeholder={t("webinar.search")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
-
-        <div className="webinar-list">
-          {loading && <Loading />}
-          {registrationLoading && <Loading />}
-          {error && <p className="error">{error}</p>}
-          {!loading && !registrationLoading && filteredWebinars.length === 0 && (
-            <div className="no-webinars-container">
-              <img
-                src="https://static.wixstatic.com/shapes/df6cc5_b4ccbd2144e64fdfa1af9c569c821680.svg"
-                alt="No webinars"
-                className="no-webinars-image"
-              />
-              <p className="no-webinars-text">{t("webinar.no_webinars")}</p>
+        
+        <div className="filter-container">
+          <div 
+            className="filter-selector"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          >
+            <span>{t(`webinar.${filter.toLowerCase()}`) || filter}</span>
+            <ChevronDown className="dropdown-icon" />
+          </div>
+          
+          {isDropdownOpen && (
+            <div className="filter-dropdown">
+              {['All', 'Upcoming', 'Past', 'Registered'].map((option) => (
+                <div 
+                  key={option} 
+                  className="dropdown-option"
+                  onClick={() => {
+                    setFilter(option);
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  {t(`webinar.${option.toLowerCase()}`)}
+                </div>
+              ))}
             </div>
           )}
-
-          {!loading && !registrationLoading &&
-            filteredWebinars.map((webinar) => {
-              const isRegistered = registeredWebinars.has(webinar._id);
-
-              return (
-                <div
-                  className="webinar-card"
-                  key={webinar._id}
-                  onClick={() =>
-                    navigate(`/dashboard/webinars/${formatSlug(webinar.title)}`, {
-                      state: { webinarId: webinar._id },
-                    })
-                  }
-                >
-                  <img
-                    src={
-                      currentLanguage === "ru"
-                        ? webinar.bannerRussianURL
-                        : webinar.bannerUrl
-                    }
-                    alt={webinar.title}
-                    className="webinar-image"
-                  />
-
-                  <div className="webinar-info">
-                    <h3>
-                      {currentLanguage === "ru"
-                        ? webinar.titleRussian
-                        : webinar.title}
-                    </h3>
-                    <p>
-                      <strong>{t("webinar.date")}:</strong> {webinar.formattedDate}
-                    </p>
-                    <p>
-                      <strong>{t("webinar.time")}:</strong> {webinar.time}
-                    </p>
-                  </div>
-
-                  <div className="webinar-actions">
-                    {isRegistered ? (
-                      <button
-                        className="watch-btn"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(
-                            `/dashboard/webinars/${formatSlug(webinar.title)}/watch-webinar`,
-                            { state: { webinarId: webinar._id } }
-                          );
-                        }}
-                      >
-                        {t("webinar.watch_webinar")}
-                      </button>
-                    ) : (
-                      <button
-                        className="register-btn"
-                        onClick={(e) => handleRegister(webinar._id, e)}
-                      >
-                        {t("webinar.register_now")}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
         </div>
+      </div>
+    </div>
+
+    <div className="webinar-list-container">
+  {/* Loading States */}
+  {(loading || registrationLoading) && (
+    <div className="loading-overlay">
+      <Loading />
+    </div>
+  )}
+
+  {/* Error State */}
+  {error && (
+    <div className="error-card">
+      <FiAlertCircle className="error-icon" />
+      <p className="error-message">{error}</p>
+    </div>
+  )}
+
+  {/* Empty State */}
+  {!loading && !registrationLoading && filteredWebinars.length === 0 && (
+    <div className="empty-state">
+      <img
+        src="https://static.wixstatic.com/shapes/df6cc5_b4ccbd2144e64fdfa1af9c569c821680.svg"
+        alt="No webinars"
+        className="empty-illustration"
+      />
+      <h3 className="empty-title">{t("webinar.no_webinars")}</h3>
+      <p className="empty-subtitle">Check back later for upcoming events</p>
+    </div>
+  )}
+
+  {/* Webinar Grid */}
+  {!loading && !registrationLoading && filteredWebinars.length > 0 && (
+    <div className="webinar-grid">
+      {filteredWebinars.map((webinar) => {
+        const isRegistered = registeredWebinars.has(webinar._id);
+        
+        return (
+          <div 
+            className={`webinar-card ${isRegistered ? 'registered' : ''}`}
+            key={webinar._id}
+            onClick={() => navigate(`/dashboard/webinars/${formatSlug(webinar.title)}`, {
+              state: { webinarId: webinar._id },
+            })}
+          >
+            {/* Card Badge */}
+            {isRegistered && (
+              <div className="card-badge">
+                <FiCheckCircle /> {currentLanguage === "ru"
+                    ? "Зарегистрированный"
+                    : "Registered"
+                }
+              </div>
+            )}
+
+            {/* Webinar Image */}
+            <div className="card-media">
+              <img
+                src={
+                  currentLanguage === "ru"
+                    ? webinar.bannerRussianURL
+                    : webinar.bannerUrl
+                }
+                alt={webinar.title}
+                className="card-image"
+              />
+              <div className="card-overlay"></div>
+            </div>
+
+            {/* Card Content */}
+            <div className="card-content">
+              <div className="card-header">
+                <span className="card-date">
+                  {webinar.formattedDate} • {webinar.time}
+                </span>
+                <h3 className="card-title">
+                  {currentLanguage === "ru"
+                    ? webinar.titleRussian
+                    : webinar.title}
+                </h3>
+              </div>
+
+              {/* Card Actions */}
+              <div className="card-actions">
+                {isRegistered ? (
+                  <button
+                    className="action-button primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(
+                        `/dashboard/webinars/${formatSlug(webinar.title)}/watch-webinar`,
+                        { state: { webinarId: webinar._id } }
+                      );
+                    }}
+                  >
+                    <FiPlayCircle /> {t("webinar.watch_webinar")}
+                  </button>
+                ) : (
+                  <button
+                    className="action-button secondary"
+                    onClick={(e) => handleRegister(webinar._id, e)}
+                  >
+                    <FiCalendar /> {t("webinar.register_now")}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  )}
+</div>
       </div>
     </motion.div>
   );

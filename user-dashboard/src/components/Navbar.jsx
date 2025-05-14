@@ -25,22 +25,22 @@ const LanguageDropdown = () => {
   const currentLang = languages.find((l) => l.code === i18n.language);
 
   return (
-    <div className="custom-dropdown" onClick={() => setOpen(!open)}>
-      <div className="selected">
-  <Flag code={currentLang?.country || "US"} className="flag-icon" />
+    <div className="language-custom-dropdown" onClick={() => setOpen(!open)}>
+      <div className="language-selected">
+  <Flag code={currentLang?.country || "US"} className="language-flag-icon" />
   <span>{currentLang?.label}</span>
-  <FaChevronDown className="dropdown-arrow" />
+  <FaChevronDown className="language-dropdown-arrow" />
 </div>
 
       {open && (
-        <div className="dropdown-options">
+        <div className="language-dropdown-options">
           {languages.map((lang) => (
             <div
               key={lang.code}
-              className="dropdown-option"
+              className="language-dropdown-option"
               onClick={() => handleChange(lang.code)}
             >
-              <Flag code={lang.country} className="flag-icon" />
+              <Flag code={lang.country} className="language-flag-icon" />
               <span>{lang.label}</span>
             </div>
           ))}

@@ -250,7 +250,7 @@ router.post("/:id/register", authenticateJWT, async (req, res) => {
     }
 
     // ✅ Add webinar to User's webinars list
-    user.webinars.push({ webinarId, registeredAt: new Date() });
+    user.webinars.push({ webinarId, registeredAt: moment.tz("Europe/Moscow").toDate() });
     await user.save();
 
     // ✅ Ensure `participants` array exists in Webinar model
@@ -259,7 +259,7 @@ router.post("/:id/register", authenticateJWT, async (req, res) => {
     // ✅ Add participant to Webinar's participants list
     const newParticipant = {
       email,
-      registeredAt: { type: Date, default: () => moment.tz("Europe/Moscow").toDate() },
+      registeredAt: moment.tz("Europe/Moscow").toDate(),
       status: "Registered",
     };
 

@@ -3,8 +3,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./WebinarDetails.css";
 import Loading from "./Loading";
 import { motion } from "framer-motion";
+import { ArrowLeft} from 'lucide-react';
 import { useTranslation } from "react-i18next";  // ✅ Import translation hook
-
+import { 
+  FiPlayCircle, 
+  FiCalendar 
+} from 'react-icons/fi';
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const WebinarDetails = () => {
@@ -171,6 +175,10 @@ const WebinarDetails = () => {
       </div>
     );
   }
+
+  const handleGoBack = () => {
+    navigate("/dashboard/webinars", { replace: true });
+  };
   
 
   return (
@@ -182,6 +190,14 @@ const WebinarDetails = () => {
     >
       <div className="webinar-details-page">
         <div className="breadcrumb">
+          <button
+                      type="button"
+                      className="back-button"
+                      aria-label={t("forgetPasswordPage.backToLogin")}
+                      onClick={handleGoBack}
+                    >
+                      <ArrowLeft className="back-icon" />
+                    </button>
           <span onClick={() => navigate("/dashboard")}>{t("webinarDetails.breadcrumb_dashboard")}</span> /
           <span onClick={() => navigate("/dashboard/webinars")}>
             {" "}{t("webinarDetails.breadcrumb_webinars")}{" "}
@@ -242,12 +258,12 @@ const WebinarDetails = () => {
                         );
                       }}
                     >
-                      {t("webinarDetails.watch_webinar")}
+                      <FiPlayCircle className="icon-btn"/>{t("webinarDetails.watch_webinar")}
                     </button>
                   </>
                 ) : (
                   <button
-                    className="register-btn"
+                    className="webinar-register-btn"
                     onClick={handleRegister}
                     disabled={registering}
                   >
@@ -291,9 +307,9 @@ const WebinarDetails = () => {
                           {new Date(w.date).toLocaleDateString("en-GB")} | {w.time}
                         </p>
                         {registeredWebinars.has(w._id) ? (
-                          <button className="watch-btn"> {t("webinarDetails.watch_webinar")}</button>
+                          <button className="watch-btn"> <FiPlayCircle />{t("webinarDetails.watch_webinar")}</button>
                         ) : (
-                          <button className="register-btn">{t("webinarDetails.register_now")}</button>
+                          <button className="webinar-register-btn"><FiCalendar />{t("webinarDetails.register_now")}</button>
                         )}
                       </div>
                     </div>

@@ -85,7 +85,7 @@
 }
 
 /* Flag dropdown - responsive */
-.flag-dropdown {
+.language-flag-dropdown {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -98,18 +98,18 @@
   min-width: 100px;
 }
 
-.flag-dropdown:hover {
+.language-flag-dropdown:hover {
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
 
-.flag-icon {
+.language-flag-icon {
   width: 24px;
   height: 16px;
   border-radius: 3px;
   object-fit: cover;
 }
 
-.custom-dropdown {
+.language-custom-dropdown {
   position: relative;
   background: #fff;
   border: 1px solid #ddd;
@@ -120,13 +120,13 @@
   user-select: none;
 }
 
-.custom-dropdown .selected {
+.language-custom-dropdown .language-selected {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.dropdown-options {
+.language-dropdown-options {
   position: absolute;
   top: 110%;
   left: 0;
@@ -138,7 +138,7 @@
   z-index: 1000;
 }
 
-.dropdown-option {
+.language-dropdown-option {
   padding: 8px 10px;
   display: flex;
   align-items: center;
@@ -146,11 +146,11 @@
   transition: background 0.2s;
 }
 
-.dropdown-option:hover {
+.language-dropdown-option:hover {
   background-color: #f5f5f5;
 }
 
-.custom-dropdown .flag-icon {
+.language-custom-dropdown .language-flag-icon {
   width: 24px;
   height: 16px;
   border-radius: 2px;
