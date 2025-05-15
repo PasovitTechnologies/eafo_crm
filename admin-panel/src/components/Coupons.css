@@ -1,6 +1,7 @@
 .coupons-container {
   padding: 20px;
   position: relative;
+  margin-top: 50px;
 }
 
 .coupons-header {
@@ -44,11 +45,13 @@
   align-items: center;
 }
 
-.modal {
+.coupon-modal-content {
   background-color: white;
-  padding: 20px;
+  padding: 30px 40px;
   border-radius: 8px;
-  width: 300px;
+  width: 800px;
+  max-height: 95%;
+  overflow-y: auto;
 }
 
 .coupon-input {

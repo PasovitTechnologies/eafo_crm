@@ -1,35 +1,24 @@
+// models/Coupon.js
 const mongoose = require('mongoose');
 
-// Define the schema for coupons
-const couponSchema = new mongoose.Schema(
-  {
-    couponCode: {
-      type: String,
-      required: true,
-      unique: true, // Ensure each coupon code is unique
-    },
-    totalLimit: {
-      type: Number,
-      required: true,
-      min: 1, // The total limit must be greater than or equal to 1
-    },
-    usageLimit: {
-      type: Number,
-      default: 0, // Initially starts at 0
-    },
-    startDate: {
-      type: Date,
-      required: true,
-    },
-    endDate: {
-      type: Date,
-      required: true,
-    },
+const couponUserStatusSchema = new mongoose.Schema({
+  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  status: {
+    type: String,
+    enum: ['not_used', 'used', 'paid'],
+    default: 'not_used',
   },
-  { timestamps: true }
-);
+  liked: { type: Boolean, default: false },
+}, { _id: false });
 
-// Create a Coupon model based on the schema
-const Coupon = mongoose.model('Coupon', couponSchema);
+const couponSchema = new mongoose.Schema({
+  code: { type: String, required: true },
+  type: { type: String, enum: ['common', 'user'], required: true },
+  percentage: { type: Number, required: true },
+  users: [couponUserStatusSchema],
+  totalLimit: { type: Number, default: null },
+  currentLimit: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
+}, { _id: true });
 
-module.exports = Coupon;
+module.exports = { couponSchema };

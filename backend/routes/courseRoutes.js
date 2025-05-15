@@ -2,6 +2,11 @@ const express = require("express");
 const Course = require("../models/Course");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
+const moment = require("moment-timezone");
+const UserNotification = require("../models/UserNotificationSchema");
+const CommonNotification = require("../models/CommonNotification");
+const CourseCoupons = require('../models/CourseCoupons'); // adjust the path as needed
+
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
@@ -346,6 +351,143 @@ router.delete("/:courseId/rules/:ruleId", authenticateJWT, async (req, res) => {
   }
 });
 
+
+
+router.post('/:courseId/coupons', async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const couponData = req.body;
+
+    console.log('Incoming coupon data:', couponData);
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    // Handle CourseCoupons (coupons array in a separate collection)
+    let courseCoupons = await CourseCoupons.findOne({ courseId });
+
+    if (courseCoupons) {
+      const exists = courseCoupons.coupons.some(c => c.code === couponData.code);
+      if (exists) {
+        return res.status(400).json({ message: 'Coupon code already exists for this course' });
+      }
+
+      courseCoupons.coupons.push(couponData);
+      await courseCoupons.save();
+    } else {
+      courseCoupons = await CourseCoupons.create({
+        courseId,
+        coupons: [couponData]
+      });
+    }
+
+    // ✅ Handle optional notifications
+    if (couponData.notification) {
+      const { message, type = "info", users = [], isHtml = false } = couponData.notification;
+
+      if (!message?.en || !message?.ru) {
+        return res.status(400).json({ message: "Notification message (en and ru) is required" });
+      }
+
+      const newNotification = {
+        message,
+        type,
+        isHtml,
+        createdAt: moment.tz("Europe/Moscow").toDate(),
+        isRead: false,
+      };
+
+      if (users.length > 0) {
+        // User-specific notifications
+        for (const userId of users) {
+          let record = await UserNotification.findOne({ userId });
+
+          if (record) {
+            record.notifications.push(newNotification);
+            await record.save();
+          } else {
+            await UserNotification.create({
+              userId,
+              notifications: [newNotification],
+            });
+          }
+        }
+      } else {
+        // Common notification
+        await CommonNotification.create({
+          message,
+          type: "common",
+          isHtml,
+          createdAt: moment.tz("Europe/Moscow").toDate(),
+        });
+      }
+    }
+
+    return res.status(201).json({
+      message: "Coupon (and notification if any) added successfully",
+      courseCoupons,
+    });
+
+  } catch (err) {
+    console.error('Error adding coupon:', err);
+    res.status(400).json({ message: err.message });
+  }
+});
+
+
+// Get all coupons for a course
+router.get('/:courseId/coupons', async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    res.json(course.coupons);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Update a coupon in a course
+router.put('/:courseId/coupons/:couponId', async (req, res) => {
+  try {
+    const { courseId, couponId } = req.params;
+    const updateData = req.body;
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    const coupon = course.coupons.id(couponId);
+    if (!coupon) return res.status(404).json({ message: 'Coupon not found' });
+
+    Object.assign(coupon, updateData);
+    await course.save();
+
+    res.json(coupon);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// Delete a coupon from a course
+router.delete('/:courseId/coupons/:couponId', async (req, res) => {
+  try {
+    const { courseId, couponId } = req.params;
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found' });
+
+    const coupon = course.coupons.id(couponId);
+    if (!coupon) return res.status(404).json({ message: 'Coupon not found' });
+
+    coupon.remove();
+    await course.save();
+
+    res.json({ message: 'Coupon deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 
 

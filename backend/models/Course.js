@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { couponSchema } = require('./Coupons');
 
 // Item Schema (For Nested Items)
 const itemSchema = new mongoose.Schema({
@@ -72,8 +73,8 @@ const courseSchema = new mongoose.Schema(
       },
     ],
     payments: [paymentSchema],
-    rules: [ruleSchema],
-  },
+    rules: [ruleSchema]
+    },
   { timestamps: true }
 );
 
