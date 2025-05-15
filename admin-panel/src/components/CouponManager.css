@@ -1,0 +1,311 @@
+/* ✅ Wrapper Layout */
+.coupon-manager-page {
+    background-color: #fff;
+    scroll-behavior: smooth;
+  }
+  
+  .coupon-manager-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #f4f6f8;
+    padding: 20px;
+    padding-left: 100px;
+    margin-top: 60px;
+    box-sizing: border-box;
+  }
+  
+  /* 🔎 Search & Filter Container */
+  .search-filter-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    position: relative;
+    margin-bottom: 20px;
+  }
+  
+  /* 🔍 Search Input & Icon */
+  .search-input-wrapper {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 30px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+  }
+  
+  .coupon-search-input {
+    width: 100%;
+    outline: none;
+    border: none;
+    font-size: 16px;
+    color: #333;
+    background: transparent;
+    margin: auto;
+  }
+  
+  .coupon-search-icon {
+    color: #555;
+    font-size: 18px;
+    margin-right: 10px;
+  }
+  
+  /* 🛠️ Filter Icon */
+  .filter-icon-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+    transition: 0.3s;
+    position: relative;
+  }
+  
+  .coupon-filter-icon {
+    font-size: 24px;
+    color: #555;
+    transition: 0.3s;
+  }
+  
+  .filter-icon-wrapper:hover .coupon-filter-icon {
+    color: #007bff;
+  }
+  
+  /* 🌟 Filter Bubble */
+  .coupon-filter-bubble {
+    position: absolute;
+    top: 60px;
+    right: 0;
+    background: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 10px;
+    z-index: 10;
+    width: 150px;
+  }
+  
+  .filter-option {
+    display: block;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+    text-align: left;
+    transition: 0.3s;
+    width: 100%;
+    border-radius: 5px;
+    background-color: #fff;
+    font-weight: 700;
+  }
+  
+  .filter-option:hover,
+  .filter-option.active {
+    background: #007bff;
+    color: #ffffff;
+  }
+  
+  .filter-divider {
+    height: 1px;
+    background: #ddd;
+    margin: 5px 0;
+  }
+  
+  /* 📃 Course List */
+  .coupon-list-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* 📋 Course Card */
+  .coupon-manager-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  
+  .coupon-manager-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    background-color: #f9fbff;
+  }
+  
+  /* 📌 Header */
+  .coupon-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  
+  .coupon-card-header h3 {
+    margin: 0;
+    font-size: 20px;
+    color: #222;
+    font-weight: 600;
+    word-break: break-word;
+  }
+  
+  /* 🏷️ Badge */
+  .coupon-badge {
+    background-color: #eef3fc;
+    color: #3366cc;
+    font-weight: bolder;
+    font-size: 20px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  
+  /* 📅 Body Section */
+  .coupon-card-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #555;
+    flex-wrap: wrap;
+    margin-top: 10px;
+    gap: 10px;
+  }
+  
+  .coupon-date {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+  }
+  
+  /* 🔘 Button */
+  .coupon-view-button {
+    background: #3366cc;
+    color: #ffffff;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    border-radius: 8px;
+    transition: 0.3s ease;
+  }
+  
+  .coupon-view-button:hover {
+    background: #1f4bb6;
+  }
+  
+  /* 📱 Responsive */
+  @media (max-width: 1024px) {
+    .coupon-manager-wrapper {
+      padding-left: 30px;
+    }
+  
+    .search-filter-container {
+      flex-direction: row;
+      gap: 15px;
+      align-items: flex-start;
+    }
+  
+    .search-input-wrapper {
+      max-width: 100%;
+    }
+  
+    .coupon-search-input {
+      font-size: 14px;
+    }
+  
+    .filter-icon-wrapper {
+      width: 40px;
+      height: 40px;
+    }
+  
+    .coupon-filter-bubble {
+      width: 120px;
+    }
+  
+    .coupon-details-row {
+      padding: 15px;
+      font-size: 16px;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .coupon-card-body {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+  
+    .coupon-card-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+  
+    .coupon-view-button {
+      width: 100%;
+    }
+  }
+  
+  /* 📱 Small Screens */
+  @media (max-width: 600px) {
+    .coupon-manager-wrapper {
+      padding-left: 20px;
+    }
+  
+    .search-input-wrapper {
+      max-width: 100%;
+      padding: 12px 15px;
+    }
+  
+    .coupon-search-input {
+      font-size: 14px;
+    }
+  
+    .filter-icon-wrapper {
+      width: 36px;
+      height: 36px;
+    }
+  
+    .coupon-filter-bubble {
+      width: 120px;
+    }
+  
+    .coupon-details-row {
+      padding: 12px;
+      font-size: 14px;
+    }
+  
+    .loading,
+    .error,
+    .no-courses {
+      font-size: 14px;
+    }
+  }
+  
+  /* ✅ Loading and Error Styles */
+  .loading,
+  .error,
+  .no-courses {
+    font-size: 18px;
+    color: #555;
+    text-align: center;
+    margin-top: 20px;
+  }
+  

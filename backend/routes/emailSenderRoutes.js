@@ -36,6 +36,7 @@ const sendEmailRusender = async (recipient, mail) => {
       });
 
       return { email: recipient.email, status: "Success", data: response.data };
+      console.log('✅ Success:', res.data);
   } catch (error) {
 
       return { 
@@ -43,8 +44,149 @@ const sendEmailRusender = async (recipient, mail) => {
           status: "Failed", 
           error: error.response?.data || error.message 
       };
+      console.error('❌ Error:', err.response?.data || err.message);
   }
 };
+
+
+const russianEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, amount, currency, courseName) => `
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Счет от EAFO</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 0;">
+  <div style="max-width: 600px; margin: 40px auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
+    
+    <h2 style="color: #003366; margin-bottom: 20px;">
+      Счет за участие в ${courseName} EAFO – ${invoiceNumber}
+    </h2>
+    
+    <p style="margin-bottom: 20px;">
+      <strong>${fullName},</strong>
+    </p>
+    
+    <p style="margin-bottom: 20px;">
+      Благодарим Вас за регистрацию на <strong>${courseName}</strong>.
+    </p>
+
+    <p style="margin-bottom: 20px;">
+      Вы можете получить доступ к деталям платежа, нажав на ссылку ниже. Завершите процесс регистрации, произведя оплату.
+    </p>
+
+    <p style="margin-bottom: 10px;"><strong>Номер счета:</strong> ${invoiceNumber}<br />
+    <strong>Пакет:</strong> ${packageName}<br />
+    <strong>Сумма:</strong> ${amount} ${currency}</p>
+
+    <p style="margin-top: 30px; margin-bottom: 10px;">
+      <strong>Ссылка для оплаты для российских участников:</strong>
+    </p>
+    
+    <p style="margin-bottom: 20px;">
+      <a href=${paymentUrl} style="color: #007bff; text-decoration: none;">
+        Заплатить сейчас
+      </a>
+    </p>
+
+    <p style="margin-bottom: 20px; color: #d9534f;">
+      *Участник должен оплатить сумму, указанную в счете, в течение 3 дней.
+    </p>
+
+    <p style="margin-bottom: 20px;">
+      После совершения платежа отправьте подтверждение банковского перевода и свое полное имя на адрес: 
+      <a href="mailto:travel@eafo.info">travel@eafo.info</a>
+    </p>
+
+    <p style="margin-bottom: 40px;">
+      Если у вас есть какие-либо вопросы, свяжитесь с командой EAFO по адресу: 
+      <a href="mailto:info@eafo.info">info@eafo.info</a>
+    </p>
+
+    <p style="margin-bottom: 0;">
+      С наилучшими пожеланиями,<br/>
+      <strong>Команда EAFO</strong>
+    </p>
+
+    <hr style="margin-top: 40px; border: none; border-top: 1px solid #eee;" />
+    <p style="font-size: 12px; color: #999;">
+      © ${new Date().getFullYear()} EAFO. Все права защищены.
+    </p>
+  </div>
+</body>
+</html>
+`;
+
+
+const englishEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, amount, currency, courseName) => `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Invoice from EAFO</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 0;">
+  <div style="max-width: 600px; margin: 40px auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
+    
+    <h2 style="color: #003366; margin-bottom: 20px;">
+      Invoice for the ${courseName} - ${invoiceNumber} from EAFO
+    </h2>
+    
+    <p style="margin-bottom: 20px;">
+      <strong>${fullName},</strong>
+    </p>
+    
+    <p style="margin-bottom: 20px;">
+      Thank you for submitting your registration form for the <strong>${courseName}</strong>.
+    </p>
+
+    <p style="margin-bottom: 20px;">
+      You can access your invoice with payment details by clicking on the link below. Complete the registration process by making payment.
+    </p>
+
+    <p style="margin-bottom: 10px;"><strong>Invoice Number:</strong> ${invoiceNumber}<br />
+    <strong>Package:</strong> ${packageName}<br />
+    <strong>Amount:</strong> ${amount} ${currency}</p>
+
+    <p style="margin-top: 30px; margin-bottom: 10px;">
+      <strong>Payment link for participants from countries other than Russia:</strong>
+    </p>
+    
+    <p style="margin-bottom: 20px;">
+      <a href=${paymentUrl} style="color: #007bff; text-decoration: none;">
+        Pay Now
+      </a>
+    </p>
+
+    <p style="margin-bottom: 20px; color: #d9534f;">
+      *Participant must pay the amount mentioned in the invoice within 3 days.
+    </p>
+
+    <p style="margin-bottom: 20px;">
+      After you make the payment, please send the bank transfer confirmation and your full name to: 
+      <a href="mailto:travel@eafo.info">travel@eafo.info</a>
+    </p>
+
+    <p style="margin-bottom: 40px;">
+      If you have any questions, contact our team at: 
+      <a href="mailto:info@eafo.info">info@eafo.info</a>
+    </p>
+
+    <p style="margin-bottom: 0;">
+      Best regards,<br/>
+      <strong>Team EAFO</strong>
+    </p>
+
+    <hr style="margin-top: 40px; border: none; border-top: 1px solid #eee;" />
+    <p style="font-size: 12px; color: #999;">
+      © ${new Date().getFullYear()} EAFO. All rights reserved.
+    </p>
+  </div>
+</body>
+</html>
+`;
+
+
 
 
 // Endpoint to send emails and save payments
@@ -117,22 +259,27 @@ router.post("/send", async (req, res) => {
     await user.save({ session });
     await course.save({ session });
 
+    const payment = userPayment;
+
 
     // Prepare and Send Email
     const { title, firstName, middleName, lastName } = user.personalDetails || {};
 
+
     const isRussian = currency === "RUB";
+    const courseName = isRussian ? course.nameRussian : course.name;
+
     const fullName = isRussian
       ? `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()
       : `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
 
-    const emailSubject = isRussian
-      ? `Счет за 45-й курс онкопатологии EAFO - ${nextInvoiceNumber} от EAFO`
-      : `Invoice for the 45th EAFO OncoPathology Course - ${nextInvoiceNumber} from EAFO`;
-
-    const emailBody = isRussian
-      ? `<p>Здравствуйте, ${fullName}. Ваш счет: <a href="${paymentUrl}">Оплатить</a></p>`
-      : `<p>Hello, ${fullName}. Your invoice: <a href="${paymentUrl}">Pay Now</a></p>`;
+      const emailSubject = isRussian
+      ? `Счет за курс ${courseName} - ${nextInvoiceNumber} от EAFO`
+      : `Invoice for the course ${courseName} - ${nextInvoiceNumber} from EAFO`;
+    
+      const emailBody = isRussian
+  ? russianEmailTemplate(fullName, nextInvoiceNumber, payment.paymentLink, payment.package, payment.amount, payment.currency, courseName)
+  : englishEmailTemplate(fullName, nextInvoiceNumber, payment.paymentLink, payment.package, payment.amount, payment.currency, courseName);
 
     const mail = { subject: emailSubject, html: emailBody };
 
@@ -216,21 +363,26 @@ router.post("/send-email", async (req, res) => {
     await user.save({ session });
     await course.save({ session });
 
+    const payment = userPayment;
+
     // Prepare and Send Email
     const { title, firstName, middleName, lastName } = user.personalDetails || {};
     const isRussian = currency === "RUB";
+
+    const courseName = isRussian ? course.nameRussian : course.name;
+
 
     const fullName = isRussian
       ? `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()
       : `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
 
-    const emailSubject = isRussian
-      ? `Счет за 45-й курс онкопатологии EAFO - ${nextInvoiceNumber} от EAFO`
-      : `Invoice for the 45th EAFO OncoPathology Course - ${nextInvoiceNumber} from EAFO`;
-
-    const emailBody = isRussian
-      ? `<p>Здравствуйте, ${fullName}.<br/>Ваш счет: <a href="${paymentUrl}">Оплатить</a></p>`
-      : `<p>Hello, ${fullName}.<br/>Your invoice: <a href="${paymentUrl}">Pay Now</a></p>`;
+      const emailSubject = isRussian
+      ? `Счет за курс ${courseName} - ${nextInvoiceNumber} от EAFO`
+      : `Invoice for the course ${courseName} - ${nextInvoiceNumber} from EAFO`;
+    
+      const emailBody = isRussian
+  ? russianEmailTemplate(fullName, nextInvoiceNumber, payment.paymentLink, payment.package, payment.amount, payment.currency, courseName)
+  : englishEmailTemplate(fullName, nextInvoiceNumber, payment.paymentLink, payment.package, payment.amount, payment.currency, courseName);
 
     const mail = { subject: emailSubject, html: emailBody };
     const emailResult = await sendEmailRusender({ email, name: fullName }, mail);
@@ -294,28 +446,34 @@ router.post("/resend", async (req, res) => {
       ? `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()
       : `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
 
+    const courseName = isRussian ? course.nameRussian : course.name;
+
+    // ✅ Console log for course name
+    console.log(`[Resend Email] Course Name: ${courseName}`);
+
     const emailSubject = isRussian
-      ? `Счет за 45-й курс онкопатологии EAFO - ${invoiceNumber} от EAFO`
-      : `Invoice for the 45th EAFO OncoPathology Course - ${invoiceNumber} from EAFO`;
+      ? `Счет за курс ${courseName} - ${invoiceNumber} от EAFO`
+      : `Invoice for the course ${courseName} - ${invoiceNumber} from EAFO`;
 
     const emailBody = isRussian
-      ? `<p>Здравствуйте, ${fullName}.<br/>Ваш счет: <a href="${payment.paymentLink}">Оплатить</a></p>`
-      : `<p>Hello, ${fullName}.<br/>Your invoice: <a href="${payment.paymentLink}">Pay Now</a></p>`;
+      ? russianEmailTemplate(fullName, invoiceNumber, payment.paymentLink, payment.package, payment.amount, payment.currency, courseName)
+      : englishEmailTemplate(fullName, invoiceNumber, payment.paymentLink, payment.package, payment.amount, payment.currency, courseName);
 
     const mail = { subject: emailSubject, html: emailBody };
     const emailResult = await sendEmailRusender({ email, name: fullName }, mail);
-
 
     return res.status(200).json({
       success: true,
       message: "Invoice email resent",
       emailResult,
     });
+
   } catch (error) {
     console.error("Resend email error:", error.message);
     return res.status(500).json({ success: false, message: error.message });
   }
 });
+
 
 
 

@@ -36,7 +36,9 @@
     "userbase": "База данных",
     "telegram": "Телеграмма",
     "preCourse": "Пре-Регистрация",
-    "notifications": "Уведомления"
+    "notifications": "Уведомления",
+    "coupon": "Купоны"
+
 
   },
   "login": {

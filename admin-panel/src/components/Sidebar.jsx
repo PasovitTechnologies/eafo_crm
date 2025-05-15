@@ -60,6 +60,8 @@ const Sidebar = ({ selectedOS, isSidebarOpen, setIsSidebarOpen }) => {
       { to: "/userbase", icon: <MdPeople />, label: t("sidebar.userbase") },
       { to: "/preregister", icon: <MdPeople />, label: t("sidebar.preCourse") },
       { to: "/notifications", icon: <MdNotificationsActive />, label: t("sidebar.notifications") },
+      { to: "/coupon", icon: <BiSolidOffer />, label: t("sidebar.coupon") },
+
 
 
 

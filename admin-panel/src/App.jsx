@@ -35,6 +35,8 @@ import PreCourseUsers from "./components/PreCourseUsers";
 import Notification from "./components/Notification";
 import QRScanner from "./components/QRScanner";
 import QRView from "./components/QRView";
+import CouponManager from "./components/CouponManager";
+import Coupons from "./components/Coupons";
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -184,6 +186,14 @@ const App = () => {
                 <Route
                   path="/notifications"
                   element={<Notification selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/coupon"
+                  element={<CouponManager selectedLanguage={selectedLanguage} />}
+                />
+                <Route
+                  path="/coupon/:courseId"
+                  element={<Coupons selectedLanguage={selectedLanguage} />}
                 />
                
 
