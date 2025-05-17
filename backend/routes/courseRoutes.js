@@ -6,6 +6,8 @@ const moment = require("moment-timezone");
 const UserNotification = require("../models/UserNotificationSchema");
 const CommonNotification = require("../models/CommonNotification");
 const CourseCoupons = require('../models/CourseCoupons'); // adjust the path as needed
+const User = require("../models/User"); // Import the User schema
+const { body, validationResult } = require('express-validator');
 
 
 const router = express.Router();
@@ -486,6 +488,181 @@ router.delete('/:courseId/coupons/:couponId', async (req, res) => {
     res.json({ message: 'Coupon deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+
+
+
+router.post('/fetch/filter-courses', async (req, res) => {
+  try {
+    const { courseName, packageName, paymentStatus } = req.body;
+
+    if (!courseName || !packageName) {
+      return res.status(400).json({ message: 'courseName and packageName are required' });
+    }
+
+    const currentDate = new Date();
+
+    // Find the active course by name and check endDate
+    const course = await Course.findOne({ name: courseName, endDate: { $gt: currentDate } }).select('_id endDate');
+
+    if (!course) {
+      return res.status(404).json({ message: 'Active course not found' });
+    }
+
+    // Build payments filter for Mongoose query
+    const paymentFilter = { package: packageName };
+    if (paymentStatus === 'paid') {
+      paymentFilter.status = 'Paid';
+    }
+
+    // Query users who have this course and matching payments
+    const users = await User.find({
+      courses: {
+        $elemMatch: {
+          courseId: course._id,
+          payments: { $elemMatch: paymentFilter },
+        },
+      },
+    }).select('email personalDetails.firstName personalDetails.lastName -_id');
+
+    // Format response users
+    const formattedUsers = users.map(user => ({
+      email: user.email,
+      firstName: user.personalDetails?.firstName,
+      lastName: user.personalDetails?.lastName,
+    }));
+
+    // Remove duplicates by email (if any)
+    const uniqueUsers = Array.from(new Map(formattedUsers.map(u => [u.email, u])).values());
+
+    res.status(200).json({
+      message: 'Users retrieved successfully',
+      users: uniqueUsers,
+    });
+  } catch (error) {
+    console.error('Error filtering users:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+
+router.post('/coupons/validate', [
+  body('code').notEmpty().withMessage('Promo code is required'),
+  body('email').isEmail().withMessage('Valid email is required'),
+  body('slug').notEmpty().withMessage('Course slug is required')
+], async (req, res) => {
+  try {
+    // Validate request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { code, email, slug } = req.body;
+    const normalizedCode = code.toUpperCase().trim();
+
+    // 1. Get User
+    const user = await User.findOne({ email }).select('_id');
+    if (!user) {
+      return res.status(404).json({ valid: false, message: 'User not found' });
+    }
+
+    // 2. Get Course
+    const course = await Course.findOne({ slug }).select('_id');
+    if (!course) {
+      return res.status(404).json({ valid: false, message: 'Course not found' });
+    }
+
+    // 3. Find Course Coupons
+    const courseCoupons = await CourseCoupons.findOne({ courseId: course._id });
+    if (!courseCoupons?.coupons?.length) {
+      return res.json({ valid: false, message: 'No coupons available for this course' });
+    }
+
+    // 4. Coupon Validation
+    let matchedCoupon = null;
+    let couponType = null;
+
+    // First check common coupons (no user restriction)
+    const commonCoupon = courseCoupons.coupons.find(c => 
+      c.type === 'common' && c.code.toUpperCase() === normalizedCode
+    );
+
+    if (commonCoupon) {
+      matchedCoupon = commonCoupon;
+      couponType = 'common';
+    } else {
+      // Check user-specific coupons
+      const userCoupon = courseCoupons.coupons.find(c => {
+        return (
+          c.type === 'user' && 
+          c.code.toUpperCase() === normalizedCode &&
+          c.users.some(u => u.user.equals(user._id) && u.status === 'not_used')
+        );
+      });
+
+      if (userCoupon) {
+        matchedCoupon = userCoupon;
+        couponType = 'user';
+      }
+    }
+
+    if (!matchedCoupon) {
+      return res.json({ 
+        valid: false, 
+        message: 'Invalid coupon code or not available for this user'
+      });
+    }
+
+    // 5. Check usage limits
+    if (matchedCoupon.totalLimit !== null && 
+        matchedCoupon.currentLimit >= matchedCoupon.totalLimit) {
+      return res.json({ valid: false, message: 'Coupon usage limit reached' });
+    }
+
+    // Prepare complete coupon data (excluding sensitive fields)
+    const couponData = {
+      _id: matchedCoupon._id,
+      code: matchedCoupon.code,
+      type: matchedCoupon.type,
+      percentage: matchedCoupon.percentage,
+      totalLimit: matchedCoupon.totalLimit,
+      currentLimit: matchedCoupon.currentLimit,
+      createdAt: matchedCoupon.createdAt,
+      discount: {
+        amount: matchedCoupon.percentage,
+        type: 'percentage'
+      },
+      validity: matchedCoupon.expiryDate ? {
+        expiryDate: matchedCoupon.expiryDate,
+        isExpired: new Date(matchedCoupon.expiryDate) < new Date()
+      } : null,
+      usageInfo: {
+        remainingUses: matchedCoupon.totalLimit !== null 
+          ? matchedCoupon.totalLimit - matchedCoupon.currentLimit 
+          : 'unlimited',
+        canBeUsed: matchedCoupon.users.find(u => u.user.equals(user._id))?.status === 'not_used'
+      }
+    };
+
+    // Success response with complete data
+    res.json({
+      success: true,
+      valid: true,
+      coupon: couponData,
+      userSpecific: couponType === 'user',
+      message: 'Coupon validated successfully'
+    });
+
+  } catch (error) {
+    console.error('Coupon validation error:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 

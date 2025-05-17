@@ -156,17 +156,21 @@ const CourseDetails = () => {
   // ✅ Navigate to form page with formId in state
   const handleFormNavigation = (form) => {
     if (form) {
-      // ✅ Store the registration language when navigating to the form
+      // Store the registration language when navigating to the form
       if (form.isUsedForRegistration) {
         const registeredLang = form.isUsedForRussian ? "ru" : "en";
         localStorage.setItem("registeredLanguage", registeredLang);
       }
-
+  
       navigate(`/dashboard/courses/${slug}/forms/${form.formName}`, {
-        state: { formId: form.formId },
+        state: { 
+          formId: form.formId,
+          courseSlug: slug,   // pass course.slug here
+        },
       });
     }
   };
+  
 
   const fetchSubmissionDetails = async (formId) => {
     try {

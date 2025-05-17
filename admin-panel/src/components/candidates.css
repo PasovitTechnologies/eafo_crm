@@ -1,0 +1,75 @@
+.candidate-list {
+    background: var(--white);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-top: 80px;
+  }
+  
+  .candidate-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .candidate-list-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+  
+  .candidate-list p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+  }
+  
+  .candidate-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .candidate-table thead {
+    background-color: #F9FAFB;
+  }
+  
+  .candidate-table th {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-align: left;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .candidate-table td {
+    font-size: 14px;
+    color: var(--text-primary);
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .candidate-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .candidate-table button {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+  
+  @media (max-width: 768px) {
+    .candidate-table th,
+    .candidate-table td {
+      padding: 12px 16px;
+      font-size: 13px;
+    }
+  
+    .candidate-list-header {
+      padding: 12px 16px;
+    }
+  }

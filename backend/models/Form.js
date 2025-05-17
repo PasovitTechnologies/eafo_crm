@@ -63,7 +63,8 @@ const questionSchema = new mongoose.Schema(
         "multi-select",
         "content",
         "accept",
-        "name"
+        "name",
+        "promocode"
       ],
       required: true,
     },

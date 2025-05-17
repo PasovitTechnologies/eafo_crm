@@ -769,6 +769,50 @@ router.get("/getqrDetails/:userId", authenticateJWT, async (req, res) => {
 });
 
 
+router.get('/fetch/all-users', authenticateJWT, async (req, res) => {
+  try {
+    // Fetch users with only email, firstName, and lastName fields
+    const users = await User.find(
+      {},
+      {
+        email: 1,
+        'personalDetails.firstName': 1,
+        'personalDetails.lastName': 1,
+      }
+    ).lean();
+
+    console.log('Raw users from MongoDB:', users.length);
+
+    const formattedUsers = users
+      .filter(user => user.email && typeof user.email === 'string' && user.email.trim() !== '')
+      .map(user => ({
+        email: user.email.trim(),
+        firstName: user.personalDetails?.firstName || 'Unknown',
+        lastName: user.personalDetails?.lastName || '',
+      }));
+
+    console.log('Formatted users after filtering:', formattedUsers.length);
+
+    // Deduplicate users by email (case-insensitive)
+    const uniqueUsers = Array.from(
+      new Map(formattedUsers.map(user => [user.email.toLowerCase(), user])).values()
+    );
+
+    console.log('Unique users after deduplication:', uniqueUsers.length);
+
+    if (uniqueUsers.length !== 60) {
+      console.warn(`Unexpected user count: ${uniqueUsers.length}. Expected 60.`);
+    }
+
+    res.json(uniqueUsers);
+  } catch (error) {
+    console.error('Error fetching all users:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+
+
 
 
 

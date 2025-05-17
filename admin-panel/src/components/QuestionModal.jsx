@@ -198,6 +198,8 @@ const QuestionModal = ({ initialQuestion, onSave, onCancel, isOpen }) => {
               <option value="content">Content</option>
               <option value="accept">Accept</option>
               <option value="name">Name</option>
+              <option value="promocode">Promo code</option>
+
             </select>
 
             {["select", "radio", "checkbox", "multi-select"].includes(

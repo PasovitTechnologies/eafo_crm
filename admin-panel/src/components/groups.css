@@ -1,0 +1,101 @@
+.group-list {
+    background: var(--white);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-top: 60px;
+    margin-left: 80px;
+  }
+  
+  .group-list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .group-list-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+  
+  .group-list p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 20px;
+    margin: 0;
+  }
+  
+  .group-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .group-table thead {
+    background-color: #F9FAFB;
+  }
+  
+  .group-table th {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    text-align: left;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .group-table td {
+    font-size: 14px;
+    color: var(--text-primary);
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  .group-table tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .group-table a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .group-table a:hover {
+    text-decoration: underline;
+  }
+  
+  .group-table tr {
+    transition: background-color 0.2s;
+    cursor: pointer;
+  }
+  
+  .group-table tr:hover {
+    background-color: #F9FAFB;
+  }
+  
+  .group-list button {
+    padding: 8px 16px;
+  }
+  
+  @media (max-width: 768px) {
+    .group-list {
+      background: var(--white);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      margin-top: 60px;
+      margin-left: 0px;
+    }
+    .group-table th,
+    .group-table td {
+      padding: 12px 16px;
+      font-size: 13px;
+    }
+  
+    .group-list-header {
+      padding: 12px 16px;
+    }
+  }

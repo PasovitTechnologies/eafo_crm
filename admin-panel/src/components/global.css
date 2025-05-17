@@ -1,0 +1,423 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1F2937;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  background-color: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  padding: 8px 12px;
+  width: 200px;
+}
+
+.search-bar::before {
+  content: '🔍';
+  margin-right: 8px;
+  font-size: 14px;
+}
+
+.search-bar input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: #1F2937;
+  width: 100%;
+}
+
+.search-bar input::placeholder {
+  color: #6B7280;
+}
+
+button {
+  padding: 8px 16px;
+  background-color: #033672; /* Navy blue as requested */
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+button:hover {
+  background-color: #022a5b; /* Darker navy */
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(3, 54, 114, 0.3);
+}
+
+button:disabled {
+  background-color: #6B7280;
+  cursor: not-allowed;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 20px;
+  font-size: 14px;
+  color: #6B7280;
+}
+
+.error {
+  color: #DC2626;
+}
+
+/* Modal styles (used for Create Group, Candidate Details, and Add Candidate) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Darkened background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #FFFFFF;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
+  width: 100%;
+  max-width: 600px; /* Increased from 500px to 600px for more space */
+  position: relative;
+  padding: 24px;
+  animation: slideIn 0.3s ease-out;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #6B7280;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.modal-close:hover {
+  color: #1F2937;
+}
+
+/* Candidate Details Popup */
+.candidate-details h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1F2937;
+  margin-bottom: 20px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6B7280;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #1F2937;
+  text-align: right;
+  max-width: 60%;
+  word-wrap: break-word;
+}
+
+/* Add Candidate Modal */
+.add-candidate-form h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1F2937;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1F2937;
+  margin-bottom: 8px;
+}
+
+.form-group select,
+.form-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #1F2937;
+}
+
+.form-group select:focus,
+.form-group input:focus {
+  outline: none;
+  border-color: #033672;
+  box-shadow: 0 0 0 2px rgba(3, 54, 114, 0.1);
+}
+
+/* Specific styles for AddCandidateModal form actions to avoid conflict */
+.add-candidate-form .form-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.add-candidate-form .form-actions button {
+  padding: 8px 16px;
+  width: 100%;
+  background: #007bff;
+  color: #fff;
+  text-align: center; /* Center-align the Submit text */
+}
+
+.add-candidate-form .form-actions button:hover {
+  background: #0056b3;
+}
+
+.add-candidate-form .form-actions button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* User List */
+.user-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  padding: 10px;
+  background: #f9f9f9;
+  width: 100%; /* Ensure it takes full width of the modal */
+  box-sizing: border-box;
+}
+
+.user-option {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  width: 100%; /* Ensure it takes full width */
+}
+
+.user-option:last-child {
+  border-bottom: none;
+}
+
+/* Custom Checkbox */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  width: 100%;
+}
+
+.checkbox-label input {
+  display: none;
+}
+
+.checkbox-custom {
+  width: 20px; /* Ensure the size is applied */
+  height: 20px;
+  border: 2px solid #033672; /* Use primary color */
+  border-radius: 19px;
+  margin: 10px; /* Remove margin to align properly */
+  transition: background 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+.checkbox-label input:checked + .checkbox-custom {
+  background: #033672; /* Use primary color */
+  border-color: #033672;
+}
+
+.checkbox-label input:checked + .checkbox-custom::after {
+  content: '✔';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 14px; /* Larger checkmark for better fit */
+}
+
+.checkbox-label:hover .checkbox-custom {
+  border-color: #022a5b; /* Darker shade on hover */
+}
+
+.user-info {
+  font-size: 14px;
+  color: #1F2937;
+  word-break: break-word;
+  flex: 1; /* Ensure text takes remaining space */
+}
+
+.user-option:hover .user-info {
+  color: #033672;
+}
+
+/* No Users Message */
+.no-users {
+  text-align: center;
+  color: #6B7280;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* Select All Button */
+.select-all-btn {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-bottom: 10px;
+}
+
+.select-all-btn:hover {
+  background: #218838;
+}
+
+/* Loading Spinner */
+.loading {
+  text-align: center;
+  font-size: 14px;
+  color: #033672;
+  margin: 20px 0;
+  position: relative;
+}
+
+.loading::before {
+  content: '';
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #033672;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Error Message */
+.error {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Processing Container */
+.processing-container {
+  text-align: center;
+}
+
+.processing-container p {
+  font-size: 14px;
+  color: #1F2937;
+  margin: 10px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 500px) {
+  .modal {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .add-candidate-form h2 {
+    font-size: 1.2rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-group select,
+  .form-group input {
+    font-size: 0.9rem;
+  }
+
+  .add-candidate-form .form-actions button {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+
+  .user-info {
+    font-size: 13px;
+  }
+
+  .checkbox-custom {
+    width: 18px;
+    height: 18px;
+  }
+
+  .checkbox-label input:checked + .checkbox-custom::after {
+    font-size: 12px;
+  }
+}
+
+/* Define CSS variables */
+:root {
+  --primary: #033672;
+  --white: #FFFFFF;
+  --secondary-bg: #F5F6FA;
+  --border: #E5E7EB;
+  --text-primary: #1F2937;
+  --text-secondary: #6B7280;
+}

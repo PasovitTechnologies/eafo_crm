@@ -14,6 +14,7 @@ import {
   MdNotificationsActive
 } from "react-icons/md";
 import { BiSolidOffer } from "react-icons/bi";
+import { IoBookSharp } from "react-icons/io5";
 import { useTranslation } from "react-i18next";
 import "./Sidebar.css";
 
@@ -61,6 +62,8 @@ const Sidebar = ({ selectedOS, isSidebarOpen, setIsSidebarOpen }) => {
       { to: "/preregister", icon: <MdPeople />, label: t("sidebar.preCourse") },
       { to: "/notifications", icon: <MdNotificationsActive />, label: t("sidebar.notifications") },
       { to: "/coupon", icon: <BiSolidOffer />, label: t("sidebar.coupon") },
+      { to: "/exams", icon: <IoBookSharp /> , label: t("sidebar.exam") },
+
 
 
 

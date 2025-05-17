@@ -1,0 +1,403 @@
+/* Modal Overlay */
+.add-candidate-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  /* Modal Container */
+  .add-candidate-modal {
+    background: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    width: 90%;
+    max-width: 600px;
+    position: relative;
+    padding: 24px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+  }
+  
+  /* Close Button */
+  .add-candidate-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 4px;
+  }
+  
+  .add-candidate-modal-close:hover {
+    color: #1f2937;
+  }
+  
+  /* Modal Heading */
+  .add-candidate-modal-form h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  /* Form Group */
+  .add-candidate-modal-form-group {
+    margin-bottom: 20px;
+  }
+  
+  .add-candidate-modal-form-group label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1f2937;
+    margin-bottom: 8px;
+  }
+  
+  .add-candidate-modal-form-group select,
+  .add-candidate-modal-form-group input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #1f2937;
+    box-sizing: border-box;
+  }
+  
+  .add-candidate-modal-form-group select:focus,
+  .add-candidate-modal-form-group input:focus {
+    outline: none;
+    border-color: #033672;
+    box-shadow: 0 0 0 2px rgba(3, 54, 114, 0.1);
+  }
+  
+  /* User List */
+  .add-candidate-user-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 10px;
+    background: #f9f9f9;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .add-candidate-user-option {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    width: 100%;
+  }
+  
+  .add-candidate-user-option:last-child {
+    border-bottom: none;
+  }
+  
+  /* Custom Checkbox */
+  .add-candidate-checkbox-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    width: 100%;
+    gap: 12px;
+  }
+  
+  .add-candidate-checkbox-label input {
+    display: none;
+  }
+  
+  .add-candidate-checkbox-custom {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #033672;
+    border-radius: 4px;
+    position: relative;
+    flex-shrink: 0;
+    transition: background 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+  }
+  
+  .add-candidate-checkbox-label input:checked + .add-candidate-checkbox-custom {
+    background: #033672;
+    border-color: #033672;
+  }
+  
+  .add-candidate-checkbox-label input:checked + .add-candidate-checkbox-custom::after {
+    content: '✔';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #fff;
+    font-size: 16px;
+  }
+  
+  .add-candidate-checkbox-label:hover .add-candidate-checkbox-custom {
+    border-color: #022a5b;
+  }
+  
+  .add-candidate-user-info {
+    font-size: 14px;
+    color: #1f2937;
+    word-break: break-word;
+    flex: 1;
+  }
+  
+  .add-candidate-user-option:hover .add-candidate-user-info {
+    color: #033672;
+  }
+  
+  /* No Users Message */
+  .add-candidate-no-users {
+    text-align: center;
+    color: #6b7280;
+    font-style: italic;
+    font-size: 14px;
+  }
+  
+  /* Select All Button */
+  .add-candidate-select-all-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    margin-bottom: 10px;
+  }
+  
+  .add-candidate-select-all-btn:hover {
+    background: #218838;
+  }
+  
+  /* Form Actions */
+  .add-candidate-form-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .add-candidate-form-actions button {
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    display: flex; /* Use flex to center text */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    line-height: 1; /* Prevent line-height from affecting vertical centering */
+  }
+  
+  .add-candidate-form-actions button:hover {
+    background: #0056b3;
+  }
+  
+  .add-candidate-form-actions button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+  }
+  
+  /* Loading Spinner */
+  .add-candidate-loading {
+    text-align: center;
+    font-size: 14px;
+    color: #033672;
+    margin: 20px 0;
+    position: relative;
+  }
+  
+  .add-candidate-loading::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #033672;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  
+  /* Remove the previous .package-toggle-container and .toggle-buttons styles */
+.user-filter-toggle {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.toggle-container {
+  position: relative;
+  display: inline-flex;
+  width: 200px;
+  height: 36px;
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.toggle-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: #666;
+  transition: color 0.3s;
+  z-index: 1;
+}
+
+.toggle-default {
+  border-right: 1px solid #ccc;
+}
+
+.toggle-paid {
+  border-left: 1px solid #ccc;
+}
+
+.toggle-container.default .toggle-default,
+.toggle-container.paid .toggle-paid {
+  color: #fff;
+}
+
+.toggle-container.default .toggle-paid,
+.toggle-container.paid .toggle-default {
+  color: #333;
+}
+
+.toggle-indicator {
+  position: absolute;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  background: #007bff;
+  transition: left 0.3s ease;
+}
+
+.toggle-container.default .toggle-indicator {
+  left: 0;
+}
+
+.toggle-container.paid .toggle-indicator {
+  left: 50%;
+}
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Error Message */
+  .add-candidate-error {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 14px;
+  }
+  
+  /* Processing Container */
+  .add-candidate-processing-container {
+    text-align: center;
+  }
+  
+  .add-candidate-processing-container p {
+    font-size: 14px;
+    color: #1f2937;
+    margin: 10px 0;
+  }
+  
+  .package-search-container {
+    position: relative;
+  }
+  
+  .package-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  
+  .package-dropdown-item {
+    padding: 8px 12px;
+    cursor: pointer;
+  }
+  
+  .package-dropdown-item:hover {
+    background: #f0f0f0;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 500px) {
+    .add-candidate-modal {
+      width: 90%;
+      padding: 15px;
+    }
+  
+    .add-candidate-modal-form h2 {
+      font-size: 1.2rem;
+    }
+  
+    .add-candidate-modal-form-group label {
+      font-size: 0.9rem;
+    }
+  
+    .add-candidate-modal-form-group select,
+    .add-candidate-modal-form-group input {
+      font-size: 0.9rem;
+    }
+  
+    .add-candidate-form-actions button {
+      font-size: 0.9rem;
+      padding: 8px;
+    }
+  
+    .add-candidate-user-info {
+      font-size: 13px;
+    }
+  
+    .add-candidate-checkbox-custom {
+      width: 20px;
+      height: 20px;
+    }
+  
+    .add-candidate-checkbox-label input:checked + .add-candidate-checkbox-custom::after {
+      font-size: 14px;
+    }
+  }

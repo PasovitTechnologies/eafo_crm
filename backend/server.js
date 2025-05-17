@@ -83,6 +83,9 @@ const whatsappRoutes = require("./routes/whatsappRoutes");
 const enquiryRoutes = require("./routes/enquiryRoutes");
 const notificationRoutes = require("./routes/notificationsRoutes");
 const preCourseRoutes = require("./routes/preCourseRoutes");
+const groups = require('./routes/groups');
+const candidates = require('./routes/candidates');
+
 
 //qr app
 const qrLoginRoutes = require('./routes/qrLoginRoutes');
@@ -106,6 +109,8 @@ app.use("/api/whatsapp", whatsappRoutes);
 app.use("/api/enquiries", enquiryRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/precourse", preCourseRoutes);
+app.use('/api/groups', groups);
+app.use('/api/candidates', candidates);
 
 //qr app
 app.use('/api/qr', qrLoginRoutes);

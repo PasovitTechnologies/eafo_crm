@@ -10,10 +10,12 @@ import { useTranslation } from "react-i18next"; // 🌍 Import translation hook
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
+
+
 const Forms = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { formId } = location.state || {}; // Retrieve formId from state
+  const { formId, courseSlug: slug } = location.state || {};
   const [questions, setQuestions] = useState([]);
   const [visibleQuestions, setVisibleQuestions] = useState([]);
   const [answers, setAnswers] = useState({});
@@ -22,12 +24,16 @@ const Forms = () => {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
+  const [promoCodeStatus, setPromoCodeStatus] = useState({});
+  const [validatingPromoCodes, setValidatingPromoCodes] = useState({});
+  const [discountInfo, setDiscountInfo] = useState(null);
   const [formDetails, setFormDetails] = useState({
     title: "",
     description: "",
     hasLogo: false,
     isUsedForRussian: false,
   });
+  console.log(slug)
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const { t } = useTranslation();
@@ -201,6 +207,7 @@ const Forms = () => {
       const answer = answers[question._id];
     
       if (!question.isRequired) return;
+      
     
       if (question.type === "file") {
         if (!answer || (Array.isArray(answer) && answer.length === 0)) {
@@ -369,6 +376,84 @@ const Forms = () => {
       return <span>🗜️</span>;
 
     return <span>📄</span>;
+  };
+
+
+  const validatePromoCode = async (questionId, code) => {
+    if (!code) {
+      setPromoCodeStatus(prev => ({ ...prev, [questionId]: null }));
+      return;
+    }
+  
+    setValidatingPromoCodes(prev => ({ ...prev, [questionId]: true }));
+  
+    try {
+      const userEmail = localStorage.getItem("email");
+      const courseSlug = slug; // ensure slug is defined
+  
+      const response = await fetch(`${baseUrl}/api/courses/coupons/validate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code, email: userEmail, slug: courseSlug }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+  
+      const data = await response.json();
+      console.log("Promo code validation response:", data); // <--- log entire response
+  
+      setPromoCodeStatus(prev => ({ ...prev, [questionId]: data.valid }));
+  
+      if (!data.valid) {
+        toast.error(
+          formDetails.isUsedForRussian
+            ? "Недействительный промокод"
+            : "Invalid promo code"
+        );
+      } else {
+        toast.success(
+          formDetails.isUsedForRussian
+            ? "Промокод применен успешно!"
+            : "Promo code applied successfully!"
+        );
+  
+        // Correctly access discount inside coupon object
+        if (data.coupon && data.coupon.discount) {
+          setDiscountInfo(prev => ({
+            ...prev,
+            [questionId]: {
+              amount: data.coupon.discount.amount,
+              type: data.coupon.discount.type,
+            },
+          }));
+        }
+      }
+    } catch (error) {
+      console.error("Promo code validation error:", error);
+      setPromoCodeStatus(prev => ({ ...prev, [questionId]: false }));
+      toast.error(
+        formDetails.isUsedForRussian
+          ? "Ошибка проверки промокода"
+          : "Error validating promo code"
+      );
+    } finally {
+      setValidatingPromoCodes(prev => ({ ...prev, [questionId]: false }));
+    }
+  };
+  
+
+  
+  const handlePromoCodeChange = (questionId, value) => {
+    handleAnswerChange(questionId, value);
+    // Debounce validation
+    const debounceTimer = setTimeout(() => {
+      validatePromoCode(questionId, value);
+    }, 1000);
+    return () => clearTimeout(debounceTimer);
   };
 
   const renderInputField = (question) => {
@@ -677,7 +762,8 @@ const Forms = () => {
             </label>
           </div>
         );
-
+      
+      
 
         case "name":
           const nameValues = answers[question._id] || [
@@ -829,7 +915,46 @@ const Forms = () => {
             </div>
           );
         
-
+          case "promocode":
+            return (
+              <div className="promo-code-container">
+                <div className="promo-code-input-wrapper">
+                  <input
+                    type="text"
+                    value={value}
+                    onChange={(e) => handlePromoCodeChange(question._id, e.target.value)}
+                    required={question.required}
+                    className="form-input"
+                    placeholder={formDetails.isUsedForRussian 
+                      ? "Введите промокод" 
+                      : "Enter promo code"}
+                  />
+                  
+                  {/* Discount percentage badge - only shows when valid */}
+                  {promoCodeStatus[question._id] === true && discountInfo?.[question._id] && (
+                    <div className="discount-badge">
+                      {discountInfo[question._id].amount}% OFF
+                    </div>
+                  )}
+                </div>
+                
+                {validatingPromoCodes[question._id] && (
+                  <div className="promo-code-status validating">
+                    {formDetails.isUsedForRussian 
+                      ? "Проверка..." 
+                      : "Validating..."}
+                  </div>
+                )}
+                
+                {promoCodeStatus[question._id] === false && (
+                  <div className="promo-code-status invalid">
+                    ✗ {formDetails.isUsedForRussian 
+                      ? "Недействительный промокод" 
+                      : "Invalid promo code"}
+                  </div>
+                )}
+              </div>
+            );
 
       default:
         return <span>Unsupported question type: {question.type}</span>;

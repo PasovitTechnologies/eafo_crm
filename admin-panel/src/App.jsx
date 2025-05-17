@@ -37,6 +37,9 @@ import QRScanner from "./components/QRScanner";
 import QRView from "./components/QRView";
 import CouponManager from "./components/CouponManager";
 import Coupons from "./components/Coupons";
+import GroupsPage from "./components/GroupsPage";
+import CreateGroupPage from "./components/CreateGroupPage";
+import CandidatesPage from "./components/CandidatesPage";
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -195,6 +198,11 @@ const App = () => {
                   path="/coupon/:courseId"
                   element={<Coupons selectedLanguage={selectedLanguage} />}
                 />
+                <Route path="/exams" element={<GroupsPage selectedLanguage={selectedLanguage}/>} />
+
+                <Route path="/exams/create-group" element={<CreateGroupPage selectedLanguage={selectedLanguage}/>} />
+
+                <Route path="/exams/candidates/:groupid" element={<CandidatesPage selectedLanguage={selectedLanguage}/>} />
                
 
 
