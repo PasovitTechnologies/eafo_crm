@@ -43,7 +43,7 @@
   color: #6B7280;
 }
 
-button {
+.exam-button {
   padding: 8px 16px;
   background-color: #033672; /* Navy blue as requested */
   color: #FFFFFF;
@@ -58,16 +58,16 @@ button {
   gap: 6px;
 }
 
-button:hover {
+.exam-button:hover {
   background-color: #022a5b; /* Darker navy */
 }
 
-button:focus {
+.exam-button:focus {
   outline: none;
   box-shadow: 0 0 0 3px rgba(3, 54, 114, 0.3);
 }
 
-button:disabled {
+.exam-button:disabled {
   background-color: #6B7280;
   cursor: not-allowed;
 }
