@@ -245,7 +245,7 @@
   border-bottom: none;
 }
 
-/* Custom Checkbox */
+/* Custom Checkbox 
 .checkbox-label {
   display: flex;
   align-items: center;
@@ -258,17 +258,16 @@
 }
 
 .checkbox-custom {
-  width: 20px; /* Ensure the size is applied */
+  width: 20px;
   height: 20px;
-  border: 2px solid #033672; /* Use primary color */
+  border: 2px solid #033672; 
   border-radius: 19px;
-  margin: 10px; /* Remove margin to align properly */
+  margin: 10px; 
   transition: background 0.2s ease, border-color 0.2s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-}
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
 .checkbox-label input:checked + .checkbox-custom {
-  background: #033672; /* Use primary color */
+  background: #033672; 
   border-color: #033672;
 }
 
@@ -279,13 +278,13 @@
   left: 50%;
   transform: translate(-50%, -50%);
   color: #fff;
-  font-size: 14px; /* Larger checkmark for better fit */
+  font-size: 14px;
 }
 
 .checkbox-label:hover .checkbox-custom {
-  border-color: #022a5b; /* Darker shade on hover */
+  border-color: #022a5b; 
 }
-
+*/
 .user-info {
   font-size: 14px;
   color: #1F2937;
