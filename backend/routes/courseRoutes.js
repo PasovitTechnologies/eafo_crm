@@ -623,6 +623,7 @@ router.post('/coupons/validate', [
     }
 
     // Prepare complete coupon data (excluding sensitive fields)
+   
     const couponData = {
       _id: matchedCoupon._id,
       code: matchedCoupon.code,
@@ -630,21 +631,6 @@ router.post('/coupons/validate', [
       percentage: matchedCoupon.percentage,
       totalLimit: matchedCoupon.totalLimit,
       currentLimit: matchedCoupon.currentLimit,
-      createdAt: matchedCoupon.createdAt,
-      discount: {
-        amount: matchedCoupon.percentage,
-        type: 'percentage'
-      },
-      validity: matchedCoupon.expiryDate ? {
-        expiryDate: matchedCoupon.expiryDate,
-        isExpired: new Date(matchedCoupon.expiryDate) < new Date()
-      } : null,
-      usageInfo: {
-        remainingUses: matchedCoupon.totalLimit !== null 
-          ? matchedCoupon.totalLimit - matchedCoupon.currentLimit 
-          : 'unlimited',
-        canBeUsed: matchedCoupon.users.find(u => u.user.equals(user._id))?.status === 'not_used'
-      }
     };
 
     // Success response with complete data
@@ -652,7 +638,6 @@ router.post('/coupons/validate', [
       success: true,
       valid: true,
       coupon: couponData,
-      userSpecific: couponType === 'user',
       message: 'Coupon validated successfully'
     });
 

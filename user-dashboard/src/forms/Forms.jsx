@@ -189,10 +189,9 @@ const Forms = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Show submitting state
+  
     setIsSubmitting(true);
-    // Authentication and validation
+  
     const email = localStorage.getItem("email");
     const token = localStorage.getItem("token");
     if (!email || !token) {
@@ -200,15 +199,14 @@ const Forms = () => {
       setIsSubmitting(false);
       return;
     }
-
+  
     // Validate required fields
     let newErrors = {};
     visibleQuestions.forEach((question) => {
       const answer = answers[question._id];
-    
+  
       if (!question.isRequired) return;
-      
-    
+  
       if (question.type === "file") {
         if (!answer || (Array.isArray(answer) && answer.length === 0)) {
           newErrors[question._id] = "This field is required";
@@ -219,8 +217,7 @@ const Forms = () => {
             newErrors[question._id] = "At least one full name is required";
           } else {
             const invalidEntry = answer.find(
-              (entry) =>
-                !entry.firstName?.trim() || !entry.lastName?.trim()
+              (entry) => !entry.firstName?.trim() || !entry.lastName?.trim()
             );
             if (invalidEntry) {
               newErrors[question._id] =
@@ -245,31 +242,30 @@ const Forms = () => {
         newErrors[question._id] = "This field is required";
       }
     });
-    
-
+  
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       toast.error("Please fill in all required fields.");
       setIsSubmitting(false);
       return;
     }
-
+  
     try {
-      // Prepare submissions with base64 data for files
       const submissions = await Promise.all(
         Object.keys(answers).map(async (questionId) => {
           const question = questions.find((q) => q._id === questionId);
           const answer = answers[questionId];
-
+  
+          // Handle file uploads
           if (question.type === "file" && answer) {
             const fileArray = Array.isArray(answer) ? answer : [answer];
-          
+  
             const fileDataArray = await Promise.all(
               fileArray.map(async (fileEntry) => {
                 const base64Data = fileEntry.preview
                   ? fileEntry.preview
                   : await fileToBase64(fileEntry.file);
-          
+  
                 return {
                   preview: base64Data,
                   type: fileEntry.type || fileEntry.file?.type || "application/octet-stream",
@@ -278,31 +274,33 @@ const Forms = () => {
                 };
               })
             );
-          
+  
             return {
               questionId,
               isUsedForInvoice: question?.isUsedForInvoice || false,
               isFile: true,
-              fileData: question.multiple ? fileDataArray : fileDataArray[0], // 👈 handle multiple or single
+              fileData: question.multiple ? fileDataArray : fileDataArray[0],
             };
           }
-           else {
-            return {
-              questionId,
-              answer: answer,
-              isUsedForInvoice: question?.isUsedForInvoice || false,
-              isFile: false,
-            };
-          }
+  
+         
+  
+          // Default answer for other questions
+          return {
+            questionId,
+            answer: answer,
+            isUsedForInvoice: question?.isUsedForInvoice || false,
+            isFile: false,
+          };
         })
       );
-
+  
       const submissionData = {
         formId,
         email,
         submissions,
       };
-
+  
       const response = await fetch(
         `${baseUrl}/api/form/${formId}/submissions`,
         {
@@ -314,12 +312,12 @@ const Forms = () => {
           body: JSON.stringify(submissionData),
         }
       );
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Submission failed");
       }
-
+  
       const result = await response.json();
       toast.success("Form submitted successfully!");
       setAnswers({});
@@ -328,14 +326,13 @@ const Forms = () => {
       return result;
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error(
-        error.message || "An error occurred while submitting the form."
-      );
+      toast.error(error.message || "An error occurred while submitting the form.");
       throw error;
     } finally {
       setIsSubmitting(false);
     }
   };
+  
 
   // Helper function to convert file to base64
   const fileToBase64 = (file) => {
@@ -389,57 +386,67 @@ const Forms = () => {
   
     try {
       const userEmail = localStorage.getItem("email");
-      const courseSlug = slug; // ensure slug is defined
+      const courseSlug = slug; // Ensure 'slug' is in scope
   
       const response = await fetch(`${baseUrl}/api/courses/coupons/validate`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({ code, email: userEmail, slug: courseSlug }),
       });
   
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error('Network response was not ok');
       }
   
       const data = await response.json();
-      console.log("Promo code validation response:", data); // <--- log entire response
+  
+      // ✅ Log the full response
+      console.log("Full response from promo validation:", data);
+  
+      // ✅ Optional: Log just the coupon part
+      if (data.valid && data.coupon) {
+        console.log("Validated Coupon:", {
+          code: data.coupon.code,
+          percentage: data.coupon.percentage,
+          type: data.coupon.type,
+          totalLimit: data.coupon.totalLimit,
+          currentLimit: data.coupon.currentLimit,
+          id: data.coupon._id,
+        });
+      }
   
       setPromoCodeStatus(prev => ({ ...prev, [questionId]: data.valid }));
   
       if (!data.valid) {
-        toast.error(
-          formDetails.isUsedForRussian
-            ? "Недействительный промокод"
-            : "Invalid promo code"
-        );
+        toast.error(formDetails.isUsedForRussian
+          ? "Недействительный промокод"
+          : "Invalid promo code");
       } else {
-        toast.success(
-          formDetails.isUsedForRussian
-            ? "Промокод применен успешно!"
-            : "Promo code applied successfully!"
-        );
+        toast.success(formDetails.isUsedForRussian
+          ? "Промокод применен успешно!"
+          : "Promo code applied successfully!");
   
-        // Correctly access discount inside coupon object
-        if (data.coupon && data.coupon.discount) {
-          setDiscountInfo(prev => ({
-            ...prev,
-            [questionId]: {
-              amount: data.coupon.discount.amount,
-              type: data.coupon.discount.type,
-            },
-          }));
-        }
+        setDiscountInfo(prev => ({
+          ...prev,
+          [questionId]: {
+            amount: data.coupon.percentage,
+            type: data.coupon.type,
+            code: data.coupon.code,
+            id: data.coupon._id,
+            totalLimit: data.coupon.totalLimit,
+            currentLimit: data.coupon.currentLimit,
+          }
+        }));
       }
+  
     } catch (error) {
-      console.error("Promo code validation error:", error);
+      console.error('Promo code validation error:', error);
       setPromoCodeStatus(prev => ({ ...prev, [questionId]: false }));
-      toast.error(
-        formDetails.isUsedForRussian
-          ? "Ошибка проверки промокода"
-          : "Error validating promo code"
-      );
+      toast.error(formDetails.isUsedForRussian
+        ? "Ошибка проверки промокода"
+        : "Error validating promo code");
     } finally {
       setValidatingPromoCodes(prev => ({ ...prev, [questionId]: false }));
     }

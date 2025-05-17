@@ -15,6 +15,10 @@ const { GridFSBucket } = require("mongodb");
 const UserNotification = require("../models/UserNotificationSchema");
 const QRCode = require('qrcode');
 const moment = require("moment-timezone");
+const Queue = require('bull'); // ✔️ No destructuring
+const formSubmissionQueue = new Queue('form-submissions', {
+  redis: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
+});
 
 
 // Initialize GridFS bucket
@@ -1002,407 +1006,511 @@ const extractInvoiceFields = (processedSubmissions) => {
 
 
 
-router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
 
+
+router.post("/:formId/submissions", authenticateJWT, async (req, res) => {
   try {
-    
+    // 1. Input Validation (fast fail)
     const { formId } = req.params;
     const { submissions, email } = req.body;
 
     if (!formId || !mongoose.Types.ObjectId.isValid(formId)) {
-      await session.abortTransaction();
       return res.status(400).json({ message: "Invalid or missing form ID" });
     }
 
     if (!Array.isArray(submissions) || submissions.length === 0) {
-      await session.abortTransaction();
       return res.status(400).json({ message: "Submissions cannot be empty" });
     }
 
-    const form = await Form.findById(formId).session(session);
-    if (!form) {
-      await session.abortTransaction();
-      return res.status(404).json({ message: "Form not found" });
+    // 2. Process critical path in transaction
+    const session = await mongoose.startSession();
+    let criticalResult;
+    
+    try {
+      await session.withTransaction(async () => {
+        criticalResult = await processCriticalSubmission(req, session);
+      });
+    } finally {
+      session.endSession();
     }
 
-
-    const { isUsedForRegistration, isUsedForRussian, formName, description, courseId } = form;
-
-    if (!courseId) {
-      await session.abortTransaction();
-      return res.status(404).json({ message: "No course associated with this form." });
-    }
-
-
-    const processedSubmissions = [];
-
-    for (const submission of submissions) {
-      if (!submission.questionId) {
-        await session.abortTransaction();
-        return res.status(400).json({
-          message: "Each submission must include a questionId."
-        });
-      }
-
-      const response = {
-        formId: formId,
-        questionId: submission.questionId,
-        isUsedForInvoice: submission.isUsedForInvoice || false
-      };
-
-      if (submission.isFile && submission.fileData) {
-      
-        // Handle both single file (object) and multiple files (array)
-        const filesToProcess = Array.isArray(submission.fileData) 
-          ? submission.fileData 
-          : [submission.fileData];
-      
-        const uploadedFiles = [];
-      
-        for (const fileData of filesToProcess) {
-          if (!fileData.preview || !fileData.type) {
-            await session.abortTransaction();
-            return res.status(400).json({
-              message: `Missing file data for question ${submission.questionId}`
-            });
-          }
-      
-          // Extract base64 data (remove data URI prefix if present)
-          const base64Data = fileData.preview.split(',')[1] || fileData.preview;
-          const fileBuffer = Buffer.from(base64Data, 'base64');
-      
-          // Generate unique filename
-          const uniqueFileName = `${Date.now()}-${fileData.name || 'file'}`;
-      
-          // Upload to GridFS
-          const writeStream = gfs.openUploadStream(uniqueFileName, {
-            contentType: fileData.type || 'application/octet-stream',
-            metadata: {
-              questionId: submission.questionId,
-              formId: formId,
-              submittedBy: email || 'anonymous',
-              originalName: fileData.name,
-              size: fileData.size
-            }
-          });
-      
-          writeStream.write(fileBuffer);
-          writeStream.end();
-      
-          await new Promise((resolve, reject) => {
-            writeStream.on('finish', resolve);
-            writeStream.on('error', reject);
-          });
-      
-          uploadedFiles.push({
-            fileId: writeStream.id,
-            fileName: fileData.name || uniqueFileName,
-            contentType: fileData.type,
-            size: fileData.size || fileBuffer.length,
-            uploadDate: moment.tz("Europe/Moscow").toDate(),
-            });
-      
-        }
-      
-        // Store all file references in the response
-        response.files = uploadedFiles;
-      } else {
-        if (!submission.answer) {
-          await session.abortTransaction();
-          return res.status(400).json({
-            message: `Missing answer for question ${submission.questionId}`
-          });
-        }
-        response.answer = submission.answer;
-      }
-
-      processedSubmissions.push(response);
-    }
-
-
-    // Rest of your existing code remains the same...
-    let linkedItemDetails = null;
-    let invoiceFields = [];
-
-    if (isUsedForRegistration) {
-      invoiceFields = extractInvoiceFields(processedSubmissions);
-
-      linkedItemDetails = await findLinkedItems(invoiceFields, courseId, session);
-    }
-
-    const newSubmission = {
-      email: email || "N/A",
-      responses: processedSubmissions,
-      submittedAt: moment.tz("Europe/Moscow").toDate()
-        };
-
-    form.submissions.push(newSubmission);
-    await form.save({ session });
-
-    if (email) {
-
-      const user = await User.findOne({ email }).session(session);
-
-      if (!user) {
-        console.log("User not found.");
-      } else {
-        console.log("User found, updating user data...");
-
-        let userCourse = user.courses.find(
-          (course) => course.courseId.toString() === courseId.toString()
-        );
-
-        if (!userCourse) {
-          user.courses.push({
-            courseId,
-            registeredForms: [],
-            payments: [],
-            qrCodes: [],
-            submittedAt: moment.tz("Europe/Moscow").toDate()
-          });
-
-          userCourse = user.courses.find(
-            (course) => course.courseId.toString() === courseId.toString()
-          );
-        }
-
-        const existingForm = userCourse.registeredForms.find(
-          (form) => form.formId.toString() === formId.toString()
-        );
-
-        if (!existingForm) {
-          userCourse.registeredForms.push({
-            formId,
-            formName,
-            formDescription: description,
-            isUsedForRegistration,
-            isUsedForRussian,
-            submittedAt: moment.tz("Europe/Moscow").toDate()
-          });
-        } else {
-          console.log("Form already exists in registeredForms, skipping...");
-        }
-
-        if (linkedItemDetails) {
-          if (!Array.isArray(userCourse.payments)) {
-            userCourse.payments = [];
-          }
-          
-          const generateOrderId = () => {
-            return Math.floor(100000 + Math.random() * 900000).toString();
-          };
-          
-          const transactionId = generateOrderId();
-        
-          userCourse.payments.push({
-            transactionId,
-            package: linkedItemDetails.name,
-            amount: linkedItemDetails.amount,
-            currency: linkedItemDetails.currency,
-            status: "Not created",
-            submittedAt: moment.tz("Europe/Moscow").toDate()
-          });
-        
-         
-        
-          await user.save({ session });
-        
-          const course = await Course.findById(courseId).session(session);
-        
-          if (!course.payments) {
-            course.payments = [];
-          }
-        
-          course.payments.push({
-            email: email,
-            transactionId,
-            package: linkedItemDetails.name,
-            amount: linkedItemDetails.amount,
-            currency: linkedItemDetails.currency,
-            status: "Not created",
-            submittedAt: moment.tz("Europe/Moscow").toDate()
-          });
-        
-         
-          await course.save({ session });
-
-          // Generate and store QR code
-          try {
-            
-            const qrUrl = `https://qr.eafo.info/qrscanner/view/${user._id}/${courseId}/${formId}`;
-            
-            const qrBuffer = await QRCode.toBuffer(qrUrl, {
-              errorCorrectionLevel: 'H',
-              type: 'image/png',
-              quality: 0.9,
-              margin: 1,
-              width: 300
-            });
-
-            const qrFileName = `qr-${user._id}-${courseId}-${formId}-${Date.now()}.png`;
-            
-            const qrWriteStream = gfs.openUploadStream(qrFileName, {
-              contentType: 'image/png',
-              metadata: {
-                userId: user._id,
-                courseId: courseId,
-                formId: formId,
-                purpose: 'registration_qr_code',
-                generatedAt: moment.tz("Europe/Moscow").toDate()
-              }
-            });
-
-            qrWriteStream.write(qrBuffer);
-            qrWriteStream.end();
-
-            const qrFile = await new Promise((resolve, reject) => {
-              qrWriteStream.on('finish', () => resolve({
-                fileId: qrWriteStream.id,
-                fileName: qrFileName,
-                contentType: 'image/png',
-                size: qrBuffer.length,
-                url: qrUrl,
-                generatedAt: moment.tz("Europe/Moscow").toDate()
-              }));
-              qrWriteStream.on('error', reject);
-            });
-
-
-            if (!userCourse.qrCodes) {
-              userCourse.qrCodes = [];
-            }
-
-            userCourse.qrCodes.push({
-              qrFileId: qrFile.fileId,
-              formId: formId,
-              courseId: courseId,
-              url: qrUrl,
-              generatedAt: moment.tz("Europe/Moscow").toDate(),
-              isActive: true
-            });
-
-          } catch (qrError) {
-            console.error("QR code generation failed (non-critical):", qrError.message);
-          }
-
-          // Notification
-          const notification = {
-            type: "form_submission",
-            formId: formId,
-            formName: formName,
-            courseId: courseId,
-            message: {
-              en: `Your submission for "${formName}" was received`,
-              ru: `Ваша заявка на форму "${formName}" получена`,
-            },
-            read: false,
-            createdAt: moment.tz("Europe/Moscow").toDate()
-          };
-
-          let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
-
-          if (!userNotification) {
-            userNotification = new UserNotification({
-              userId: user._id,
-              notifications: [notification]
-            });
-          } else {
-            userNotification.notifications.push(notification);
-          }
-
-          await userNotification.save({ session });
-
-          // Registration-specific logic
-          if (isUsedForRegistration && linkedItemDetails) {
-            try {
-              const lang = isUsedForRussian ? "ru" : "en";
-
-              const invoiceAnswerRaw = invoiceFields.find(
-                f => typeof f.answer === 'string'
-              )?.answer?.trim();
-
-              const isCompetitiveParticipation =
-                invoiceAnswerRaw === "Competitive participation" ||
-                invoiceAnswerRaw === "Конкурсное участие";
-
-              const isSubsidizedParticipation =
-                invoiceAnswerRaw === "Subsidized Non-competitive participation" ||
-                invoiceAnswerRaw === "Льготное Внеконкурсное участие";
-                const isSponsoredParticipation =
-                invoiceAnswerRaw === "Sponsored Non-competitive participation" ||
-                invoiceAnswerRaw === "Спонсируемое внеконкурса участие Внеконкурсное";
-
-              const isNonCompetitiveParticipation =
-                invoiceAnswerRaw === "Non-competitive participation in thematic modules" ||
-                invoiceAnswerRaw === "Внеконкурсное участие в тематических модулях";
-
-              let emailTemplate;
-
-              if (isCompetitiveParticipation) {
-                emailTemplate = getCompetitiveEmailTemplate(lang, user);
-              } else if (isSubsidizedParticipation) {
-                emailTemplate = getSubsidizedParticipationEmailTemplate(lang, user);
-              } else if (isNonCompetitiveParticipation) {
-                emailTemplate = getNonCompetitiveParticipationEmailTemplate(lang, user);
-              } else {
-                emailTemplate = getSponsoredParticipationEmailTemplate(
-                  lang,
-                  user
-                );
-              }
-
-              await sendEmailRusender(
-                { email: user.email, firstName: user.firstName },
-                emailTemplate
-              );
-
-              const telegram = new TelegramApi();
-              telegram.chat_id = '-4614501397';
-              telegram.text = `
-            📢 <b>Новая заявка</b>
-            👤 <b>Имя:</b> ${user.personalDetails?.firstName || "Н/Д"} ${user.personalDetails?.lastName || ""}
-            📧 <b>Электронная почта:</b> ${user.email}
-            📦 <b>Пакет:</b> ${linkedItemDetails?.name || "Н/Д"}
-            🕒 <b>Дата регистрации:</b> ${new Date().toLocaleString("ru-RU", { timeZone: "Europe/Moscow" })}
-
-          `;
-
-              await telegram.sendMessage();
-
-            } catch (error) {
-              console.error("Failed to send email or Telegram message (non-critical):", error.message);
-            }
-          }
-        }
-        
-        await user.save({ session });
-        updatedUser = user;
-      }
-    }
-    await session.commitTransaction();
-
-    const responsePayload = {
+    // 3. Prepare immediate response
+    const response = {
       message: "Form submitted successfully!",
-      submission: newSubmission,
-      user: updatedUser || null,
-      ...(isUsedForRegistration && { linkedItemDetails }),
-      ...(updatedUser?.courses?.[0]?.qrCodes?.[0] && { 
-        qrCodeUrl: updatedUser.courses[0].qrCodes[0].url 
-      })
+      submission: criticalResult.submission,
+      user: criticalResult.user || null,
+      ...(criticalResult.linkedItemDetails && { linkedItemDetails: criticalResult.linkedItemDetails })
     };
 
-    res.status(201).json(responsePayload);
+    res.status(201).json(response);
+
+    // 4. Queue background tasks
+    // 4. Run background tasks asynchronously (don't block response)
+if (email && criticalResult.user) {
+  (async () => {
+    try {
+      await processBackgroundTasks({
+        email,
+        formId,
+        userId: criticalResult.user._id,
+        courseId: criticalResult.courseId,
+        isUsedForRegistration: criticalResult.isUsedForRegistration,
+        linkedItemDetails: criticalResult.linkedItemDetails,
+        submission: criticalResult.submission
+      });
+    } catch (err) {
+      console.error('Error in background task:', err);
+    }
+  })();
+}
+
 
   } catch (error) {
-    await session.abortTransaction();
     console.error("Error submitting form:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
-  } finally {
-    session.endSession();
+    res.status(500).json({ 
+      message: "Internal server error", 
+      error: error.message 
+    });
   }
 });
+async function processBackgroundTasks({
+  email,
+  formId,
+  userId,
+  courseId,
+  isUsedForRegistration,
+  linkedItemDetails,
+  submission
+}) {
+  const [user, form] = await Promise.all([
+    User.findById(userId),
+    Form.findById(formId)
+  ]);
+
+  if (!user || !form) return;
+
+  await processFileUploads(submission, formId, email);
+
+  if (isUsedForRegistration) {
+    await generateAndStoreQRCode(user, form, courseId);
+    await sendRegistrationEmail(user, form, linkedItemDetails, submission);
+await sendTelegramNotification(user, form, linkedItemDetails);
+
+  }
+
+  await createUserNotification(userId, form);
+}
+
+
+// Critical path operations (must succeed for submission to be valid)
+async function processCriticalSubmission(req, session) {
+  const { formId } = req.params;
+  const { submissions, email } = req.body;
+  const result = {};
+
+  // Get form with only essential fields
+  const form = await Form.findById(formId)
+    .select('isUsedForRegistration isUsedForRussian formName description courseId')
+    .session(session);
+  
+  if (!form) throw new Error("Form not found");
+  if (!form.courseId) throw new Error("No course associated with this form");
+
+  result.courseId = form.courseId;
+  result.isUsedForRegistration = form.isUsedForRegistration;
+
+  // Process submissions (without files first)
+  const processedSubmissions = await Promise.all(submissions.map(async (submission) => {
+    if (!submission.questionId) {
+      throw new Error(`Missing questionId in submission`);
+    }
+
+    const response = {
+      formId: formId,
+      questionId: submission.questionId,
+      isUsedForInvoice: submission.isUsedForInvoice || false
+    };
+
+    if (submission.isFile && submission.fileData) {
+      // Just store file metadata - actual processing will happen in background
+      response.files = Array.isArray(submission.fileData) 
+        ? submission.fileData.map(f => ({ pending: true, name: f.name }))
+        : [{ pending: true, name: submission.fileData.name }];
+    } else {
+      if (!submission.answer) {
+        throw new Error(`Missing answer for question ${submission.questionId}`);
+      }
+      response.answer = submission.answer;
+    }
+
+    return response;
+  }));
+
+  // Handle registration-specific logic
+  if (form.isUsedForRegistration) {
+    const invoiceFields = extractInvoiceFields(processedSubmissions);
+    result.linkedItemDetails = await findLinkedItems(invoiceFields, form.courseId, session);
+  }
+
+  // Create new submission
+  const newSubmission = {
+    email: email || "N/A",
+    responses: processedSubmissions,
+    submittedAt: moment.tz("Europe/Moscow").toDate()
+  };
+
+  // Update form
+  await Form.updateOne(
+    { _id: formId },
+    { $push: { submissions: newSubmission } },
+    { session }
+  );
+
+  // Update user if email provided
+  if (email) {
+    const user = await User.findOneAndUpdate(
+      { email },
+      {
+        $setOnInsert: { 
+          email,
+          createdAt: new Date() 
+        },
+        $addToSet: { 
+          courses: {
+            courseId: form.courseId,
+            registeredForms: {
+              formId,
+              formName: form.formName,
+              formDescription: form.description,
+              isUsedForRegistration: form.isUsedForRegistration,
+              isUsedForRussian: form.isUsedForRussian,
+              submittedAt: moment.tz("Europe/Moscow").toDate()
+            },
+            submittedAt: moment.tz("Europe/Moscow").toDate()
+          }
+        }
+      },
+      { 
+        upsert: true,
+        new: true,
+        session 
+      }
+    );
+
+    result.user = user;
+
+    if (result.linkedItemDetails) {
+      const transactionId = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      await User.updateOne(
+        { 
+          _id: user._id,
+          "courses.courseId": form.courseId 
+        },
+        {
+          $push: {
+            "courses.$.payments": {
+              transactionId,
+              package: result.linkedItemDetails.name,
+              amount: result.linkedItemDetails.amount,
+              currency: result.linkedItemDetails.currency,
+              status: "Not created",
+              submittedAt: moment.tz("Europe/Moscow").toDate()
+            }
+          }
+        },
+        { session }
+      );
+
+      await Course.updateOne(
+        { _id: form.courseId },
+        {
+          $push: {
+            payments: {
+              email,
+              transactionId,
+              package: result.linkedItemDetails.name,
+              amount: result.linkedItemDetails.amount,
+              currency: result.linkedItemDetails.currency,
+              status: "Not created",
+              submittedAt: moment.tz("Europe/Moscow").toDate()
+            }
+          }
+        },
+        { session }
+      );
+    }
+  }
+
+  result.submission = newSubmission;
+  return result;
+}
+
+// Background job processor
+formSubmissionQueue.process(async (job) => {
+  const { 
+    email, 
+    formId, 
+    userId, 
+    courseId,
+    isUsedForRegistration,
+    linkedItemDetails,
+    submission
+  } = job.data;
+
+  try {
+    // 1. Process file uploads if any
+    await processFileUploads(submission, formId, email);
+    
+    // 2. Get updated user and form data
+    const [user, form] = await Promise.all([
+      User.findById(userId),
+      Form.findById(formId)
+    ]);
+
+    if (!user || !form) return;
+
+    // 3. QR Code Generation
+    if (isUsedForRegistration) {
+      await generateAndStoreQRCode(user, form, courseId);
+    }
+
+    // 4. Notifications
+    await createUserNotification(userId, form);
+
+    // 5. Registration Email
+    if (isUsedForRegistration) {
+      await sendRegistrationEmail(user, form, linkedItemDetails);
+    }
+
+    // 6. Telegram Notification
+    if (isUsedForRegistration) {
+      await sendTelegramNotification(user, form, linkedItemDetails);
+    }
+  } catch (error) {
+    console.error('Error processing background tasks:', error);
+    throw error;
+  }
+});
+
+// Helper functions for background tasks
+async function processFileUploads(submission, formId, email) {
+  const fileUpdates = [];
+  
+  for (const response of submission.responses) {
+    if (response.files && response.files.some(f => f.pending)) {
+      const filesToProcess = await getOriginalFileData(response.questionId, formId);
+      const processedFiles = await Promise.all(
+        filesToProcess.map(fileData => uploadFileToGridFS(fileData, formId, response.questionId, email))
+      );
+      fileUpdates.push({
+        formId,
+        'submissions._id': submission._id,
+        'submissions.responses.questionId': response.questionId,
+        $set: {
+          'submissions.$.responses.$[res].files': processedFiles
+        }
+      });
+    }
+  }
+
+  if (fileUpdates.length > 0) {
+    await Promise.all(fileUpdates.map(update => 
+      Form.updateOne(
+        { _id: update.formId, 'submissions._id': update['submissions._id'] },
+        update.$set,
+        { arrayFilters: [{ 'res.questionId': update['submissions.responses.questionId'] }] }
+      )
+    ));
+  }
+}
+
+async function uploadFileToGridFS(fileData, formId, questionId, email) {
+  const base64Data = fileData.preview.split(',')[1] || fileData.preview;
+  const fileBuffer = Buffer.from(base64Data, 'base64');
+  const uniqueFileName = `${Date.now()}-${fileData.name || 'file'}`;
+
+  const writeStream = gfs.openUploadStream(uniqueFileName, {
+    contentType: fileData.type || 'application/octet-stream',
+    metadata: {
+      questionId,
+      formId,
+      submittedBy: email || 'anonymous',
+      originalName: fileData.name,
+      size: fileData.size
+    }
+  });
+
+  writeStream.write(fileBuffer);
+  writeStream.end();
+
+  await new Promise((resolve, reject) => {
+    writeStream.on('finish', resolve);
+    writeStream.on('error', reject);
+  });
+
+  return {
+    fileId: writeStream.id,
+    fileName: fileData.name || uniqueFileName,
+    contentType: fileData.type,
+    size: fileData.size || fileBuffer.length,
+    uploadDate: moment.tz("Europe/Moscow").toDate(),
+  };
+}
+
+async function generateAndStoreQRCode(user, form, courseId) {
+  const qrUrl = `https://qr.eafo.info/qrscanner/view/${user._id}/${courseId}/${form._id}`;
+  const qrBuffer = await QRCode.toBuffer(qrUrl, {
+    errorCorrectionLevel: 'H',
+    type: 'image/png',
+    quality: 0.9,
+    margin: 1,
+    width: 300
+  });
+
+  const qrFileName = `qr-${user._id}-${courseId}-${form._id}-${Date.now()}.png`;
+  const qrWriteStream = gfs.openUploadStream(qrFileName, {
+    contentType: 'image/png',
+    metadata: {
+      userId: user._id,
+      courseId,
+      formId: form._id,
+      purpose: 'registration_qr_code',
+      generatedAt: moment.tz("Europe/Moscow").toDate()
+    }
+  });
+
+  qrWriteStream.write(qrBuffer);
+  qrWriteStream.end();
+
+  const qrFile = await new Promise((resolve, reject) => {
+    qrWriteStream.on('finish', () => resolve({
+      fileId: qrWriteStream.id,
+      fileName: qrFileName,
+      contentType: 'image/png',
+      size: qrBuffer.length,
+      url: qrUrl,
+      generatedAt: moment.tz("Europe/Moscow").toDate()
+    }));
+    qrWriteStream.on('error', reject);
+  });
+
+  await User.updateOne(
+    { 
+      _id: user._id,
+      "courses.courseId": courseId 
+    },
+    {
+      $push: {
+        "courses.$.qrCodes": {
+          qrFileId: qrFile.fileId,
+          formId: form._id,
+          courseId,
+          url: qrUrl,
+          generatedAt: moment.tz("Europe/Moscow").toDate(),
+          isActive: true
+        }
+      }
+    }
+  );
+}
+
+async function createUserNotification(userId, form) {
+  const notification = {
+    type: "form_submission",
+    formId: form._id,
+    formName: form.formName,
+    courseId: form.courseId,
+    message: {
+      en: `Your submission for "${form.formName}" was received`,
+      ru: `Ваша заявка на форму "${form.formName}" получена`,
+    },
+    read: false,
+    createdAt: moment.tz("Europe/Moscow").toDate()
+  };
+
+  await UserNotification.findOneAndUpdate(
+    { userId },
+    { $push: { notifications: notification } },
+    { upsert: true, new: true }
+  );
+}
+
+
+async function sendTelegramNotification(user, form, linkedItemDetails) {
+  try {
+    const telegram = new TelegramApi();
+    telegram.chat_id = '-4614501397';
+
+    const firstName = user.personalDetails?.firstName || "Н/Д";
+    const lastName = user.personalDetails?.lastName || "";
+    const email = user.email || "Н/Д";
+    const packageName = linkedItemDetails?.name || "Н/Д";
+    const submittedAt = new Date().toLocaleString("ru-RU", { timeZone: "Europe/Moscow" });
+
+    telegram.text = `
+<b>📢 Новая заявка</b>
+👤 <b>Имя:</b> ${firstName} ${lastName}
+📧 <b>Почта:</b> ${email}
+📦 <b>Пакет:</b> ${packageName}
+🕒 <b>Дата:</b> ${submittedAt}
+    `.trim();
+
+    await telegram.sendMessage();
+    console.log(`✅ Telegram notification sent for user ${email}`);
+  } catch (err) {
+    console.error(`❌ Failed to send Telegram notification:`, err.message);
+  }
+}
+
+
+
+async function sendRegistrationEmail(user, form, linkedItemDetails, submission) {
+  if (!submission || !submission.responses) {
+    console.error(`Missing submission data for user ${user.email}`);
+    return;
+  }
+
+  const invoiceAnswerRaw = submission.responses
+    .find(r => r.isUsedForInvoice)?.answer?.trim();
+
+  if (!invoiceAnswerRaw) {
+    console.warn(`No invoice-related answer found for user ${user.email}. Defaulting to sponsored email.`);
+  }
+
+  const isCompetitive = ["Competitive participation", "Конкурсное участие"].includes(invoiceAnswerRaw);
+  const isSubsidized = ["Subsidized Non-competitive participation", "Льготное Внеконкурсное участие"].includes(invoiceAnswerRaw);
+  const isNonCompetitive = ["Non-competitive participation in thematic modules", "Внеконкурсное участие в тематических модулях"].includes(invoiceAnswerRaw);
+
+  const lang = form.isUsedForRussian ? "ru" : "en";
+  let emailTemplate;
+
+  if (isCompetitive) {
+    emailTemplate = getCompetitiveEmailTemplate(lang, user);
+  } else if (isSubsidized) {
+    emailTemplate = getSubsidizedParticipationEmailTemplate(lang, user);
+  } else if (isNonCompetitive) {
+    emailTemplate = getNonCompetitiveParticipationEmailTemplate(lang, user);
+  } else {
+    emailTemplate = getSponsoredParticipationEmailTemplate(lang, user);
+  }
+
+  if (!emailTemplate) {
+    console.error(`No email template found for user ${user.email}. Invoice answer: "${invoiceAnswerRaw}"`);
+    return;
+  }
+
+  try {
+    await sendEmailRusender(
+      { email: user.email, firstName: user.firstName },
+      emailTemplate
+    );
+    console.log(`✅ Registration email sent to ${user.email}`);
+  } catch (err) {
+    console.error(`❌ Failed to send registration email to ${user.email}:`, err.message);
+  }
+}
+
 
 
 
