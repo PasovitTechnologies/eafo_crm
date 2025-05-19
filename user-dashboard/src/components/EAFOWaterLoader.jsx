@@ -3,8 +3,8 @@ import './EAFOWaterLoader.css';
 
 const icons = [
   { name: 'Courses', icon: '🎓' },
+  { name: 'Webinars', icon: '🩺' },
   { name: 'Forms', icon: '📝' },
-  { name: 'Webinars', icon: '📺' },
   { name: 'Payments', icon: '💳' },
 ];
 
