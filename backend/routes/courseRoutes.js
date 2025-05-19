@@ -638,6 +638,7 @@ router.post('/coupons/validate', [
       success: true,
       valid: true,
       coupon: couponData,
+      userSpecific: couponType === 'user',
       message: 'Coupon validated successfully'
     });
 
