@@ -17,7 +17,15 @@ import { useCallback } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountCode, discountPercentage}) => {
+const InvoiceModal = ({
+  submission,
+  isOpen,
+  onClose,
+  formId,
+  courseId,
+  discountCode,
+  discountPercentage,
+}) => {
   const [items, setItems] = useState([]);
   const [selectedMethod, setSelectedMethod] = useState("");
   const [paymentUrl, setPaymentUrl] = useState("");
@@ -37,9 +45,9 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
   const [whatsappStatus, setWhatsappStatus] = useState(null);
   const { t } = useTranslation(); // Translation hook
   const baseUrl = import.meta.env.VITE_BASE_URL;
-  const percentage = discountPercentage
+  const percentage = discountPercentage;
 
-  console.log(percentage)
+  console.log(percentage);
 
   const paymentMethods = [
     {
@@ -67,7 +75,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
                 name: submission.package,
                 amount: parseFloat(submission.amount) || 0,
                 currency,
-                percentage: submission.discountPercentage
+                percentage: submission.discountPercentage,
               },
             ]
           : [{ name: "", amount: 0, currency }]
@@ -143,24 +151,23 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
       console.log("⚠️ Missing payment or invoice number");
       return "unknown";
     }
-  
+
     const coursePayment = coursePayments.find(
       (cp) => cp.invoiceNumber === payment.invoiceNumber
     );
-  
+
     const status = coursePayment?.status || payment.status || "unknown";
     const normalizedStatus = status.toLowerCase();
-  
+
     console.log(
       `🧾 Checking status for invoice ${payment.invoiceNumber}:`,
       status,
       "→ normalized:",
       normalizedStatus
     );
-  
+
     return normalizedStatus;
   };
-  
 
   const addNewItem = () => {
     setItems([
@@ -179,14 +186,10 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
     (sum, item) => sum + (Number(item.amount) || 0),
     0
   );
-  
+
   const totalAmount = discountPercentage
     ? rawTotal - (rawTotal * discountPercentage) / 100
     : rawTotal;
-
-  
-  
-
 
   const handlePayment = async () => {
     if (!submission.email || items.length === 0 || totalAmount <= 0) {
@@ -207,7 +210,6 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
     const orderNumber = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
 
     const orderDetails = {
-
       amount: totalAmount,
       currency: selectedMethod === "stripe" ? "INR" : "RUB",
       email: submission.email,
@@ -282,11 +284,11 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
       transactionId: submission.transactionId,
       email: submission.email,
       package: packageName,
-      amount:rawTotal.toFixed(2),
+      amount: rawTotal.toFixed(2),
       currency,
       payableAmount: amount,
       discountPercentage: discountPercentage || 0,
-      code:discountCode
+      code: discountCode,
     };
 
     try {
@@ -379,12 +381,11 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
           paymentUrl,
           transactionId: submission.transactionId,
           package: packageName,
-          amount:rawTotal.toFixed(2),
+          amount: rawTotal.toFixed(2),
           currency,
-          payableAmount:amount,
+          payableAmount: amount,
           discountPercentage: discountPercentage || 0,
-          code:discountCode
-
+          code: discountCode,
         },
         {
           headers: {
@@ -422,13 +423,15 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
 
   const handleViewAkt = (payment) => {
     console.log("🧾 handleViewAkt clicked", payment); // ✅ Debug log
-  
+
     if (getRealPaymentStatus(payment) === "paid" && userData) {
       console.log("✅ Valid paid payment, opening AKT modal");
-  
+
       const aktDetails = {
         full_name: `${userData.personalDetails.title} ${userData.personalDetails.firstName} ${userData.personalDetails.lastName}`,
-        date_of_birth: new Date(userData.personalDetails.dob).toLocaleDateString(),
+        date_of_birth: new Date(
+          userData.personalDetails.dob
+        ).toLocaleDateString(),
         email: userData.email,
         phone_no: userData.personalDetails.phone || "N/A",
         agreement_number: `${payment.invoiceNumber}`,
@@ -437,7 +440,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
         total_amount: `${payment.amount} ${payment.currency}`,
         userData,
       };
-  
+
       setAktData(aktDetails);
       setIsAktOpen(true);
     } else {
@@ -447,7 +450,6 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
       });
     }
   };
-  
 
   const handleCloseAkt = () => {
     setIsAktOpen(false);
@@ -522,7 +524,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
       toast.error("Recipient email missing");
       return;
     }
-  
+
     try {
       setEmailSending(true);
       const response = await axios.post(
@@ -537,7 +539,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
           },
         }
       );
-  
+
       if (response.data.success) {
         toast.success("Email resent successfully");
         fetchPaymentHistory(); // refresh list
@@ -552,11 +554,9 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
   };
 
   requestAnimationFrame(() => {
-    const modal = document.querySelector('.invoice-modal');
+    const modal = document.querySelector(".invoice-modal");
     modal?.scrollTo(0, modal.scrollHeight);
   });
-  
-  
 
   const handleResendWhatsApp = async (payment) => {
     const phone = userData?.personalDetails?.phone;
@@ -564,12 +564,12 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
       toast.error("No phone number available");
       return;
     }
-  
+
     if (!payment?.invoiceNumber) {
       toast.error("Invoice number missing");
       return;
     }
-  
+
     try {
       setWhatsappLoading(true);
       const response = await axios.post(
@@ -584,7 +584,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
           },
         }
       );
-  
+
       if (response.data.success) {
         toast.success("WhatsApp message resent");
         fetchPaymentHistory();
@@ -597,7 +597,6 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
       setWhatsappLoading(false);
     }
   };
-  
 
   return (
     <>
@@ -647,7 +646,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
                 }
                 placeholder="Amount"
               />
-              
+
               <span className="currency-type">{currency}</span>
               <button
                 className="invoice-dlt-btn"
@@ -663,30 +662,30 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
         </div>
 
         <div className="invoice-total-amt">
-  {discountPercentage ? (
-    <>
-      <p>
-        <strong>Original Total:</strong>{" "}
-        <span style={{ textDecoration: "line-through", color: "gray" }}>
-          {rawTotal.toFixed(2)} {currency}
-        </span>
-      </p>
-      <p>
-        <strong>Discount ({discountPercentage}%):</strong>{" "}
-        {(rawTotal - totalAmount).toFixed(2)} {currency}
-      </p>
-      <p>
-        <strong>Total after Discount:</strong> {totalAmount.toFixed(2)} {currency}
-      </p>
-    </>
-  ) : (
-    <p>
-      <strong>Total:</strong> {totalAmount.toFixed(2)} {currency}
-    </p>
-  )}
-</div>
-
-
+          {discountPercentage ? (
+            <>
+              <p>
+                <strong>Original Total:</strong>{" "}
+                <span style={{ textDecoration: "line-through", color: "gray" }}>
+                  {rawTotal.toFixed(2)} {currency}
+                </span>
+              </p>
+              <p>
+                <strong>Discount ({discountPercentage}%):</strong>{" "}
+                {(rawTotal - totalAmount).toFixed(2)} {currency}{" "}
+                <span>({discountCode})</span>
+              </p>
+              <p>
+                <strong>Total after Discount:</strong> {totalAmount.toFixed(2)}{" "}
+                {currency}
+              </p>
+            </>
+          ) : (
+            <p>
+              <strong>Total:</strong> {totalAmount.toFixed(2)} {currency}
+            </p>
+          )}
+        </div>
 
         <button onClick={handlePayment} disabled={loading || totalAmount <= 0}>
           {loading
@@ -747,9 +746,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
           ) : paymentHistory.length > 0 ? (
             <ul className="payment-info-list">
               {paymentHistory.map((payment, index) => (
-                
                 <li key={index} className="payment-info-item">
-                  
                   <div>
                     <p>
                       <strong>{t("InvoiceModal.invoiceNumber")}:</strong>{" "}
@@ -792,67 +789,58 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountC
                       </button>
                     </div>
                     <div className="buttons-container">
+                      <div className="payment-actions">
+                        {/* AKT Button - Only if paid */}
+                        <button
+                          onClick={() => handleViewAkt(payment)}
+                          disabled={getRealPaymentStatus(payment) !== "paid"}
+                          className={
+                            getRealPaymentStatus(payment) === "paid"
+                              ? "btn-paid"
+                              : "btn-disabled"
+                          }
+                        >
+                          {t("InvoiceModal.akt")}
+                        </button>
 
-                    <div className="payment-actions">
-                    {/* AKT Button - Only if paid */}
-                    <button
-  onClick={() => handleViewAkt(payment)}
-  disabled={getRealPaymentStatus(payment) !== "paid"}
-  className={
-    getRealPaymentStatus(payment) === "paid"
-      ? "btn-paid"
-      : "btn-disabled"
-  }
->
-  {t("InvoiceModal.akt")}
-</button>
+                        {/* Contract Button - Always enabled */}
+                        <button
+                          onClick={() => handleViewContract(payment)}
+                          className="btn-paid"
+                        >
+                          {t("InvoiceModal.contract")}
+                        </button>
+                      </div>
 
+                      {payment.paymentLink && (
+                        <div className="resend-actions">
+                          <button
+                            onClick={() => handleResendEmail(payment)}
+                            className="email-resend-btn resend-btn"
+                            title="Resend via Email"
+                            disabled={emailSending}
+                          >
+                            <FaEnvelope size={18} />
+                            {emailSending && (
+                              <span className="resend-loading">Sending...</span>
+                            )}
+                          </button>
 
-                    {/* Contract Button - Always enabled */}
-                    <button
-                      onClick={() => handleViewContract(payment)}
-                      className="btn-paid"
-                    >
-                      {t("InvoiceModal.contract")}
-                    </button>
+                          <button
+                            onClick={() => handleResendWhatsApp(payment)}
+                            className="whatsapp-resend-btn resend-btn"
+                            title="Resend via WhatsApp"
+                            disabled={whatsappLoading}
+                          >
+                            <FaWhatsapp size={18} />
+                            {whatsappLoading && (
+                              <span className="resend-loading">Sending...</span>
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-
-
-                    {payment.paymentLink && (
-  <div className="resend-actions">
-    <button
-      onClick={() => handleResendEmail(payment)}
-      className="email-resend-btn resend-btn"
-      title="Resend via Email"
-      disabled={emailSending}
-    >
-      <FaEnvelope size={18} />
-      {emailSending && (
-        <span className="resend-loading">Sending...</span>
-      )}
-    </button>
-
-    <button
-      onClick={() => handleResendWhatsApp(payment)}
-      className="whatsapp-resend-btn resend-btn"
-      title="Resend via WhatsApp"
-      disabled={whatsappLoading}
-    >
-      <FaWhatsapp size={18} />
-      {whatsappLoading && (
-        <span className="resend-loading">Sending...</span>
-      )}
-    </button>
-  </div>
-)}
-
-                  </div>
-
-                  </div>
-
-                  
-                  
-
                 </li>
               ))}
             </ul>

@@ -66,8 +66,6 @@ const Sidebar = ({ selectedOS, isSidebarOpen, setIsSidebarOpen }) => {
 
 
 
-
-
     ];
 
     setNavItems(selectedOS === "Webinar" ? webinarNav : crmNav);

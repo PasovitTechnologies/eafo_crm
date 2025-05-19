@@ -1,8 +1,11 @@
 /* ================================
    Modal Overlay
 ================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=PT+Sans+Narrow:wght@400;700&display=swap');
+
 body.modal-open {
   overflow: hidden;
+
 }
 
 .invoice-modal-overlay {
@@ -18,6 +21,7 @@ body.modal-open {
   z-index: 999;
   padding: 16px;
   box-sizing: border-box;
+
 }
 
 .invoice-modal-overlay.open {
@@ -46,6 +50,8 @@ body.modal-open {
   z-index: 1000;
   box-sizing: border-box;
   padding-bottom: 100px;
+  font-family: "Inter Tight", sans-serif;
+
 
 }
 
