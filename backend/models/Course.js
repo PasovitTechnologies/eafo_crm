@@ -34,7 +34,13 @@ const paymentSchema = new mongoose.Schema({
   amount: { type: Number, required: true },
   currency: { type: String, required: true },
   paymentLink: { type: String, required: false },
-  orderId: { type: String, required: false },   
+  orderId: { type: String, required: false },
+  discountCode: { type: String, required: false },           
+  discountPercentage: { type: String, required: false },
+  discountStatus: { type: String, required: false },
+  payableAmount: { type: String, required: false },
+ 
+  
 
   status: {
     type: String,

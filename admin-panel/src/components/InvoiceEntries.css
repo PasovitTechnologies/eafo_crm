@@ -217,6 +217,49 @@
   background-color: #f8f9fa;
 }
 
+
+/* Offered Amount Animation Styles */
+.offered-amount-container {
+  position: relative;
+  height: 24px;
+  overflow: hidden;
+  min-width: 80px; /* Ensure enough space for content */
+}
+
+.percent-badge, .final-amount {
+  position: absolute;
+  width: 100%;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+}
+
+.percent-badge {
+  color: #ff6b6b;
+  font-weight: bold;
+  background: rgba(255, 107, 107, 0.095);
+  border-radius: 4px;
+  padding: 2px 0;
+}
+
+.final-amount {
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+.percent-badge.visible, .final-amount.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.percent-badge.hidden {
+  transform: translateY(-100%);
+  opacity: 0;
+}
+
+.final-amount.hidden {
+  transform: translateY(100%);
+  opacity: 0;
+}
 /* 🌟 Status Indicator */
 .status-indicator {
   display: inline-flex;

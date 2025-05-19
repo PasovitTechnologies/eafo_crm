@@ -17,7 +17,7 @@ import { useCallback } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
+const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId, discountCode, discountPercentage}) => {
   const [items, setItems] = useState([]);
   const [selectedMethod, setSelectedMethod] = useState("");
   const [paymentUrl, setPaymentUrl] = useState("");
@@ -37,6 +37,9 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
   const [whatsappStatus, setWhatsappStatus] = useState(null);
   const { t } = useTranslation(); // Translation hook
   const baseUrl = import.meta.env.VITE_BASE_URL;
+  const percentage = discountPercentage
+
+  console.log(percentage)
 
   const paymentMethods = [
     {
@@ -64,6 +67,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
                 name: submission.package,
                 amount: parseFloat(submission.amount) || 0,
                 currency,
+                percentage: submission.discountPercentage
               },
             ]
           : [{ name: "", amount: 0, currency }]
@@ -169,11 +173,20 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     setItems(items.filter((_, i) => i !== index));
   };
 
-  const totalAmount = items.reduce(
+  const currency = items[0]?.currency || "INR";
+
+  const rawTotal = items.reduce(
     (sum, item) => sum + (Number(item.amount) || 0),
     0
   );
-  const currency = items[0]?.currency || "INR";
+  
+  const totalAmount = discountPercentage
+    ? rawTotal - (rawTotal * discountPercentage) / 100
+    : rawTotal;
+
+  
+  
+
 
   const handlePayment = async () => {
     if (!submission.email || items.length === 0 || totalAmount <= 0) {
@@ -194,6 +207,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
     const orderNumber = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
 
     const orderDetails = {
+
       amount: totalAmount,
       currency: selectedMethod === "stripe" ? "INR" : "RUB",
       email: submission.email,
@@ -268,8 +282,11 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
       transactionId: submission.transactionId,
       email: submission.email,
       package: packageName,
-      amount,
+      amount:rawTotal.toFixed(2),
       currency,
+      payableAmount: amount,
+      discountPercentage: discountPercentage || 0,
+      code:discountCode
     };
 
     try {
@@ -362,8 +379,12 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
           paymentUrl,
           transactionId: submission.transactionId,
           package: packageName,
-          amount,
+          amount:rawTotal.toFixed(2),
           currency,
+          payableAmount:amount,
+          discountPercentage: discountPercentage || 0,
+          code:discountCode
+
         },
         {
           headers: {
@@ -626,6 +647,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
                 }
                 placeholder="Amount"
               />
+              
               <span className="currency-type">{currency}</span>
               <button
                 className="invoice-dlt-btn"
@@ -640,9 +662,31 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
           </button>
         </div>
 
-        <h3 className="invoice-total-amt">
-          {t("InvoiceModal.addItem")}: {totalAmount.toFixed(2)} {currency}
-        </h3>
+        <div className="invoice-total-amt">
+  {discountPercentage ? (
+    <>
+      <p>
+        <strong>Original Total:</strong>{" "}
+        <span style={{ textDecoration: "line-through", color: "gray" }}>
+          {rawTotal.toFixed(2)} {currency}
+        </span>
+      </p>
+      <p>
+        <strong>Discount ({discountPercentage}%):</strong>{" "}
+        {(rawTotal - totalAmount).toFixed(2)} {currency}
+      </p>
+      <p>
+        <strong>Total after Discount:</strong> {totalAmount.toFixed(2)} {currency}
+      </p>
+    </>
+  ) : (
+    <p>
+      <strong>Total:</strong> {totalAmount.toFixed(2)} {currency}
+    </p>
+  )}
+</div>
+
+
 
         <button onClick={handlePayment} disabled={loading || totalAmount <= 0}>
           {loading
@@ -717,7 +761,7 @@ const InvoiceModal = ({ submission, isOpen, onClose, formId, courseId }) => {
                     </p>
                     <p>
                       <strong>{t("InvoiceModal.amount")}:</strong>{" "}
-                      {payment.amount} {payment.currency}
+                      {payment.payableAmount} {payment.currency}
                     </p>
                     <p>
                       <strong>{t("InvoiceModal.status")}:</strong>{" "}

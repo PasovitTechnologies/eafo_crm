@@ -191,7 +191,7 @@ const englishEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, 
 
 // Endpoint to send emails and save payments
 router.post("/send", async (req, res) => {
-  const { email, courseId, transactionId, orderId, paymentUrl, currency, package: packageName,amount } = req.body;
+  const { email, courseId, transactionId, orderId, paymentUrl, currency, package: packageName, amount, payableAmount, discountPercentage, code } = req.body;
 
   if (!email || !courseId || !transactionId || !orderId || !paymentUrl) {
     return res.status(400).json({ success: false, message: "Missing required data." });
@@ -243,6 +243,10 @@ router.post("/send", async (req, res) => {
     userPayment.package = packageName;
     userPayment.amount = amount;
     userPayment.currency = currency;
+    userPayment.payableAmount = payableAmount;
+    userPayment.discountPercentage = discountPercentage;
+    userPayment.discountCode = code;
+
 
     // Update Course Payment
     coursePayment.invoiceNumber = nextInvoiceNumber;
@@ -253,6 +257,9 @@ router.post("/send", async (req, res) => {
     coursePayment.package = packageName;
     coursePayment.amount = amount;
     coursePayment.currency = currency;
+    coursePayment.payableAmount = payableAmount;
+    coursePayment.discountPercentage = discountPercentage;
+    coursePayment.discountCode = code;
 
 
     // Save changes
@@ -306,7 +313,7 @@ router.post("/send", async (req, res) => {
 
 
 router.post("/send-email", async (req, res) => {
-  const { email, courseId, transactionId, orderId, paymentUrl, currency, package: packageName } = req.body;
+  const { email, courseId, transactionId, orderId, paymentUrl, currency, package: packageName, originalAmount, discountPercentage, code } = req.body;
 
   if (!email || !courseId || !transactionId || !orderId || !paymentUrl) {
     return res.status(400).json({ success: false, message: "❌ Missing required data." });
@@ -350,6 +357,7 @@ router.post("/send-email", async (req, res) => {
       invoiceNumber: nextInvoiceNumber,
       time: moment.tz("Europe/Moscow").toDate(),
       status: "Pending",
+
     };
 
     userCourse.payments.push(newPayment);
@@ -456,8 +464,8 @@ router.post("/resend", async (req, res) => {
       : `Invoice for the course ${courseName} - ${invoiceNumber} from EAFO`;
 
     const emailBody = isRussian
-      ? russianEmailTemplate(fullName, invoiceNumber, payment.paymentLink, payment.package, payment.amount, payment.currency, courseName)
-      : englishEmailTemplate(fullName, invoiceNumber, payment.paymentLink, payment.package, payment.amount, payment.currency, courseName);
+      ? russianEmailTemplate(fullName, invoiceNumber, payment.paymentLink, payment.package, payment.payableAmount, payment.currency, courseName)
+      : englishEmailTemplate(fullName, invoiceNumber, payment.paymentLink, payment.package, payment.payableAmount, payment.currency, courseName);
 
     const mail = { subject: emailSubject, html: emailBody };
     const emailResult = await sendEmailRusender({ email, name: fullName }, mail);
@@ -475,16 +483,7 @@ router.post("/resend", async (req, res) => {
 });
 
 
-
-
-
-
-
-
-  
-  
-  
-  
+ 
 
 // Route for email sending with attachment
 router.post("/email-send", upload.single("attachment"), async (req, res) => {

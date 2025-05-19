@@ -299,6 +299,7 @@ const Forms = () => {
         formId,
         email,
         submissions,
+        discountInfo,
       };
   
       const response = await fetch(

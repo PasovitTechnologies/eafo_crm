@@ -149,7 +149,7 @@ router.post("/send-wp", async (req, res) => {
     });
   }
 
-  const { to, message, courseId, orderId, transactionId, paymentUrl, email, package: packageName, amount, currency } = req.body;
+  const { to, message, courseId, orderId, transactionId, paymentUrl, email, package: packageName, amount, currency, payableAmount, discountPercentage, code } = req.body;
 
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -218,6 +218,9 @@ router.post("/send-wp", async (req, res) => {
     userPayment.package = packageName;
     userPayment.amount = amount;
     userPayment.currency = currency;
+    userPayment.payableAmount = payableAmount;
+    userPayment.discountPercentage = discountPercentage;
+    userPayment.discountCode = code;
 
     // Update course payment
     coursePayment.invoiceNumber = nextInvoiceNumber;
@@ -229,6 +232,9 @@ router.post("/send-wp", async (req, res) => {
     coursePayment.package = packageName;
     coursePayment.amount = amount;
     coursePayment.currency = currency;
+    coursePayment.payableAmount = payableAmount;
+    coursePayment.discountPercentage = discountPercentage;
+    coursePayment.discountCode = code;
 
     // Save user and course
     await user.save({ session });

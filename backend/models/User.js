@@ -103,7 +103,12 @@ const userSchema = new mongoose.Schema(
             paymentId: { type: String, required: false },         // Unique ID from payment gateway
             paymentLink: { type: String, required: false },       // URL to payment link
             time: { type: Date },                                 // Will push manually later
-            status: { type: String, default: "Not created" }      // Default payment status
+            status: { type: String, default: "Not created" },    
+            discountCode: { type: String, required: false },            
+            discountPercentage: { type: String, required: false },
+            discountStatus: { type: String, required: false },
+            payableAmount: { type: String, required: false },
+
           }
         ],
 
