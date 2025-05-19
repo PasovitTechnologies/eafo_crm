@@ -387,7 +387,7 @@ const Forms = () => {
   
     try {
       const userEmail = localStorage.getItem("email");
-      const courseSlug = slug; // Ensure 'slug' is in scope
+      const courseSlug = slug;
   
       const response = await fetch(`${baseUrl}/api/courses/coupons/validate`, {
         method: 'POST',
@@ -403,32 +403,10 @@ const Forms = () => {
   
       const data = await response.json();
   
-      // ✅ Log the full response
-      console.log("Full response from promo validation:", data);
-  
-      // ✅ Optional: Log just the coupon part
-      if (data.valid && data.coupon) {
-        console.log("Validated Coupon:", {
-          code: data.coupon.code,
-          percentage: data.coupon.percentage,
-          type: data.coupon.type,
-          totalLimit: data.coupon.totalLimit,
-          currentLimit: data.coupon.currentLimit,
-          id: data.coupon._id,
-        });
-      }
   
       setPromoCodeStatus(prev => ({ ...prev, [questionId]: data.valid }));
   
-      if (!data.valid) {
-        toast.error(formDetails.isUsedForRussian
-          ? "Недействительный промокод"
-          : "Invalid promo code");
-      } else {
-        toast.success(formDetails.isUsedForRussian
-          ? "Промокод применен успешно!"
-          : "Promo code applied successfully!");
-  
+      if (data.valid) {
         setDiscountInfo(prev => ({
           ...prev,
           [questionId]: {
@@ -445,9 +423,6 @@ const Forms = () => {
     } catch (error) {
       console.error('Promo code validation error:', error);
       setPromoCodeStatus(prev => ({ ...prev, [questionId]: false }));
-      toast.error(formDetails.isUsedForRussian
-        ? "Ошибка проверки промокода"
-        : "Error validating promo code");
     } finally {
       setValidatingPromoCodes(prev => ({ ...prev, [questionId]: false }));
     }
