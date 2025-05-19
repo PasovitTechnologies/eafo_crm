@@ -296,6 +296,8 @@ const RegisterPage = ({ onSwitchToLogin }) => {
   );
 
 
+  
+
 
 
 

@@ -7,7 +7,6 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { jwtDecode } from "jwt-decode";
 import { useTranslation } from "react-i18next";
 import "./AuthForm.css";
-import EAFOWaterLoader from "./EAFOWaterLoader";
 
 const LoginPage = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
   const { t } = useTranslation();
@@ -133,6 +132,8 @@ const LoginPage = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
 
   const isFormValid = email && password;
 
+  
+
   return (
     <div
       className="auth-container"
@@ -141,14 +142,15 @@ const LoginPage = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
         padding: "16px",
         borderRadius: "8px",
         minWidth: "22rem",
-        width:"100%"
+        width: "100%",
       }}
     >
-<ToastContainer 
-  className="toast-container" 
-  style={{ color: "#fff" }}
-  autoClose={3000}
-/>      <form
+      <ToastContainer
+        className="toast-container"
+        style={{ color: "#fff" }}
+        autoClose={3000}
+      />{" "}
+      <form
         onSubmit={handleSubmit}
         className="login-form"
         style={{ zIndex: 20 }}
@@ -191,7 +193,10 @@ const LoginPage = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
         </div>
 
         {/* Forgot Password Link */}
-        <div className="forgot-password-link" style={{ textAlign: "right", marginBottom: "1rem" }}>
+        <div
+          className="forgot-password-link"
+          style={{ textAlign: "right", marginBottom: "1rem" }}
+        >
           <button
             type="button"
             className="text-button"
