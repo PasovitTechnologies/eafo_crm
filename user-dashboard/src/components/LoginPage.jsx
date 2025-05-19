@@ -7,6 +7,7 @@ import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { jwtDecode } from "jwt-decode";
 import { useTranslation } from "react-i18next";
 import "./AuthForm.css";
+import EAFOWaterLoader from "./EAFOWaterLoader";
 
 const LoginPage = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
   const { t } = useTranslation();
@@ -215,7 +216,7 @@ const LoginPage = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
           disabled={loading || !isFormValid}
           aria-busy={loading}
         >
-          {loading ? t("loginPage.loading") : t("loginPage.loginButton")}
+          {t("loginPage.loginButton")}
         </button>
       </form>
     </div>
