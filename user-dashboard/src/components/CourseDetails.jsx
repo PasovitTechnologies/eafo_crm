@@ -677,7 +677,7 @@ const CourseDetails = () => {
                                 <p>
                                   {t("course_details.amount")}:{" "}
                                   <span className="payment-amount">
-                                    {payment.amount} {payment.currency}
+                                    {payment.payableAmount} {payment.currency}
                                   </span>
                                 </p>
                                 <p>

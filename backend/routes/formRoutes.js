@@ -1248,7 +1248,7 @@ async function processCriticalSubmission(req, session, discountInfo) {
 
     result.user = user;
 
-    // --- Coupon handling ---
+    // --- Enhanced Coupon handling ---
     if (discountInfo && result.linkedItemDetails) {
       const courseCouponEntry = await CourseCoupons.findOne({
         courseId: form.courseId,
@@ -1279,13 +1279,19 @@ async function processCriticalSubmission(req, session, discountInfo) {
             continue;
           }
 
+          // Check coupon expiration
+          if (matchedCoupon.expiresAt && new Date(matchedCoupon.expiresAt) < new Date()) {
+            console.log(`Coupon ${matchedCoupon.code} has expired`);
+            continue;
+          }
+
+          // Common coupon handling
           if (matchedCoupon.type === "common") {
             if (matchedCoupon.currentLimit >= matchedCoupon.totalLimit) {
               console.log(`Coupon ${matchedCoupon.code} limit reached`);
               continue;
             }
 
-            // Check if user already exists in users array
             const existingUser = matchedCoupon.users?.find(
               (u) =>
                 (u.user?.toString?.() || u?.toString?.()) ===
@@ -1297,32 +1303,86 @@ async function processCriticalSubmission(req, session, discountInfo) {
                 { courseId: form.courseId, "coupons._id": matchedCoupon._id },
                 {
                   $addToSet: {
-                    "coupons.$.users": { user: user._id, status: "used" },
+                    "coupons.$.users": { 
+                      user: user._id, 
+                      status: "used",
+                      usedAt: new Date() 
+                    },
                   },
                   $inc: { "coupons.$.currentLimit": 1 },
                 },
                 { session }
               );
+            } else if (existingUser.status === "used") {
               console.log(
-                `Added user ${user._id} with 'used' status to coupon ${matchedCoupon.code}`
+                `User ${user._id} already used coupon ${matchedCoupon.code}`
               );
-            } else {
-              console.log(
-                `User ${user._id} already exists in coupon ${matchedCoupon.code} users list`
-              );
+              continue;
             }
 
             result.appliedCoupon = {
               code: matchedCoupon.code,
               percentage: matchedCoupon.percentage,
+              type: matchedCoupon.type
             };
 
-            console.log(
-              `Applied coupon ${matchedCoupon.code} for user ${user._id}`
-            );
-          }
+          // User-specific coupon handling
+          } else if (matchedCoupon.type === "user") {
+            if (!matchedCoupon.users || matchedCoupon.users.length === 0) {
+              console.log(`No users defined for user coupon ${matchedCoupon.code}`);
+              continue;
+            }
 
-          // If needed: Add user coupon type handling here
+            const userCouponData = matchedCoupon.users.find(u => 
+              (u.user?.toString?.() || u?.toString?.()) === user._id.toString()
+            );
+
+            if (!userCouponData) {
+              console.log(`User ${user._id} not allowed to use coupon ${matchedCoupon.code}`);
+              continue;
+            }
+
+            if (userCouponData.status === "used") {
+              console.log(`User ${user._id} has already used coupon ${matchedCoupon.code}`);
+              continue;
+            }
+
+            // Check if coupon has usage limits
+            if (matchedCoupon.usageLimit && userCouponData.usageCount >= matchedCoupon.usageLimit) {
+              console.log(`User ${user._id} has reached usage limit for coupon ${matchedCoupon.code}`);
+              continue;
+            }
+
+            // Update coupon status and usage count
+            const updateObj = {
+              $set: { 
+                "coupons.$.users.$[elem].status": "used",
+                "coupons.$.users.$[elem].usedAt": new Date()
+              }
+            };
+
+            if (matchedCoupon.usageLimit) {
+              updateObj.$inc = { "coupons.$.users.$[elem].usageCount": 1 };
+            }
+
+            await CourseCoupons.updateOne(
+              { 
+                courseId: form.courseId, 
+                "coupons._id": matchedCoupon._id
+              },
+              updateObj,
+              { 
+                session,
+                arrayFilters: [{ "elem.user": user._id }]
+              }
+            );
+
+            result.appliedCoupon = {
+              code: matchedCoupon.code,
+              percentage: matchedCoupon.percentage,
+              type: matchedCoupon.type
+            };
+          }
         }
       }
     }
@@ -1332,23 +1392,35 @@ async function processCriticalSubmission(req, session, discountInfo) {
         100000 + Math.random() * 900000
       ).toString();
 
+      const paymentData = {
+        transactionId,
+        package: result.linkedItemDetails.name,
+        amount: result.linkedItemDetails.amount,
+        currency: result.linkedItemDetails.currency,
+        status: "Not created",
+        submittedAt: moment.tz("Europe/Moscow").toDate(),
+      };
+
+      if (result.appliedCoupon) {
+        paymentData.discountCode = result.appliedCoupon.code;
+        paymentData.discountPercentage = result.appliedCoupon.percentage;
+        paymentData.discountType = result.appliedCoupon.type;
+        paymentData.discountStatus = "used";
+        
+        // Apply discount to amount if needed
+        if (result.appliedCoupon.percentage) {
+          paymentData.originalAmount = paymentData.amount;
+          paymentData.amount = Math.round(
+            paymentData.amount * (1 - result.appliedCoupon.percentage / 100)
+          );
+        }
+      }
+
       await User.updateOne(
         { _id: user._id, "courses.courseId": form.courseId },
         {
           $push: {
-            "courses.$.payments": {
-              transactionId,
-              package: result.linkedItemDetails.name,
-              amount: result.linkedItemDetails.amount,
-              currency: result.linkedItemDetails.currency,
-              status: "Not created",
-              submittedAt: moment.tz("Europe/Moscow").toDate(),
-              ...(result.appliedCoupon && {
-                discountCode: result.appliedCoupon.code,
-                discountPercentage: result.appliedCoupon.percentage,
-                discountStatus:"used"
-              }),
-            },
+            "courses.$.payments": paymentData
           },
         },
         { session }
@@ -1359,19 +1431,10 @@ async function processCriticalSubmission(req, session, discountInfo) {
         {
           $push: {
             payments: {
+              ...paymentData,
               email,
-              transactionId,
-              package: result.linkedItemDetails.name,
-              amount: result.linkedItemDetails.amount,
-              currency: result.linkedItemDetails.currency,
-              status: "Not created",
-              submittedAt: moment.tz("Europe/Moscow").toDate(),
-              ...(result.appliedCoupon && {
-                discountCode: result.appliedCoupon.code,
-                discountPercentage: result.appliedCoupon.percentage,
-                discountStatus:"used"
-              }),
-            },
+              userId: user._id
+            }
           },
         },
         { session }
