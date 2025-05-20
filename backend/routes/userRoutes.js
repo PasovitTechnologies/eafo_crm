@@ -243,8 +243,9 @@ router.put(
         const file = req.files?.[fieldName]?.[0];
         if (!file) return null;
 
-        const fileName = `${Date.now()}-${crypto.randomBytes(6).toString("hex")}-${file.originalname}`;
-
+        const originalName = Buffer.from(file.originalname, "latin1").toString("utf8");
+        const fileName = `${originalName}`;
+        
         return new Promise((resolve, reject) => {
           const writeStream = gfs.openUploadStream(fileName, {
             contentType: file.mimetype,
