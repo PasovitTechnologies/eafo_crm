@@ -20,4 +20,9 @@ export const getCandidates = async (groupid) => {
   return response.data;
 };
 
+export const getAllCandidates = async () => {
+  const response = await api.get('/api/candidates/all');
+  return response.data;
+};
+
 export default api;

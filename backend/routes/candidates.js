@@ -1,9 +1,10 @@
 const express = require('express');
 const axios = require('axios');
 const Candidate = require('../models/Candidate');
+
 const router = express.Router();
 
-// Helper function to get access token
+// Helper: Generate Access Token
 async function getAccessToken(apiNameId, apiKey) {
   try {
     const response = await axios.post(
@@ -25,22 +26,74 @@ async function getAccessToken(apiNameId, apiKey) {
   }
 }
 
-// Helper function to generate a strong 8-character password
+// Helper: Strong 8-char Password
 function generateStrongPassword() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
-  let password = '';
-  for (let i = 0; i < 8; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+  const digits = '0123456789';
+  const special = '!@#$%^&*';
+  const all = uppercase + lowercase + digits + special;
+
+  let password = [
+    uppercase[Math.floor(Math.random() * uppercase.length)],
+    lowercase[Math.floor(Math.random() * lowercase.length)],
+    digits[Math.floor(Math.random() * digits.length)],
+    special[Math.floor(Math.random() * special.length)],
+  ];
+
+  for (let i = 4; i < 8; i++) {
+    password.push(all[Math.floor(Math.random() * all.length)]);
   }
-  // Ensure at least one of each required type
-  if (!/[A-Z]/.test(password)) password = password.slice(0, -1) + 'A';
-  if (!/[a-z]/.test(password)) password = password.slice(0, -1) + 'a';
-  if (!/[0-9]/.test(password)) password = password.slice(0, -1) + '1';
-  if (!/[!@#$%^&*]/.test(password)) password = password.slice(0, -1) + '@';
-  return password;
+
+  return password.sort(() => 0.5 - Math.random()).join('');
 }
 
-// Get Candidate List
+// Helper: Check candidate existence
+async function checkCandidateExists(email) {
+  const token = await getAccessToken(7, process.env.API_KEY_GET_CANDIDATE_LIST);
+  let page = 1;
+  let allCandidates = [];
+
+  while (true) {
+    const url = `https://apiv2.speedexam.net/api/Employee/Get%20Candidate%20List?Page_no=${page}&Page_size=100`;
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const candidates = JSON.parse(response.data.result || '[]');
+    if (candidates.length === 0) break;
+    allCandidates.push(...candidates);
+    page += 1;
+  }
+
+  const found = allCandidates.find(c => c.email.toLowerCase() === email.toLowerCase());
+  return found ? { exists: true, candidateId: found.candidateid } : { exists: false };
+}
+
+// Helper: Add candidate to group
+async function addCandidateToGroup(candidateId, groupId, token) {
+  const url = 'https://apiv2.speedexam.net/api/Employee/Add-Remove-Candidate-Groups';
+  const payload = {
+    candidateId: parseInt(candidateId),
+    groupIDs: [parseInt(groupId)],
+    candidateUserName: null,
+    action: 1,
+  };
+
+  const response = await axios.post(url, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  return response.data;
+}
+
+// GET: Candidates by group
 router.get('/', async (req, res, next) => {
   try {
     const { groupid } = req.query;
@@ -49,6 +102,7 @@ router.get('/', async (req, res, next) => {
       err.status = 400;
       throw err;
     }
+
     const token = await getAccessToken(7, process.env.API_KEY_GET_CANDIDATE_LIST);
     const url = `https://apiv2.speedexam.net/api/Employee/Get%20Candidate%20List?Groupid=${parseInt(groupid)}&Page_no=1&Page_size=100`;
     const response = await axios.get(url, {
@@ -57,6 +111,7 @@ router.get('/', async (req, res, next) => {
         'Content-Type': 'application/json',
       },
     });
+
     const candidates = JSON.parse(response.data.result || '[]');
     res.json(candidates);
   } catch (error) {
@@ -64,119 +119,134 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-function generateStrongPassword() {
-  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-  const digits = '0123456789';
-  const special = '!@#$%^&*';
-  const allChars = uppercase + lowercase + digits + special;
+// GET: All candidates system-wide
+router.get('/all', async (req, res, next) => {
+  try {
+    const token = await getAccessToken(7, process.env.API_KEY_GET_CANDIDATE_LIST);
+    let page = 1;
+    let allCandidates = [];
 
-  let password = '';
+    while (true) {
+      const url = `https://apiv2.speedexam.net/api/Employee/Get%20Candidate%20List?Page_no=${page}&Page_size=100`;
+      const response = await axios.get(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
 
-  // Ensure at least one character of each required type
-  password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
-  password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
-  password += digits.charAt(Math.floor(Math.random() * digits.length));
-  password += special.charAt(Math.floor(Math.random() * special.length));
+      const candidates = JSON.parse(response.data.result || '[]');
+      if (candidates.length === 0) break;
+      allCandidates.push(...candidates);
+      page += 1;
+    }
 
-  // Fill remaining length with random chars
-  for (let i = 4; i < 8; i++) {
-    password += allChars.charAt(Math.floor(Math.random() * allChars.length));
+    res.json(allCandidates);
+  } catch (error) {
+    next(error);
   }
+});
 
-  // Shuffle the password characters to avoid predictable pattern
-  password = password.split('').sort(() => 0.5 - Math.random()).join('');
-
-  return password;
-}
-
-
-
-// Bulk Create Candidates
-// Bulk Create Candidates
+// POST: Bulk create candidates
 router.post('/bulk', async (req, res, next) => {
   try {
     const { candidates } = req.body;
 
-    if (!candidates || !Array.isArray(candidates) || candidates.length === 0) {
+    if (!Array.isArray(candidates) || candidates.length === 0) {
       const err = new Error('Candidates array is required');
       err.status = 400;
       throw err;
     }
 
-    const failed = [];
-    const createdCandidates = [];
     const token = await getAccessToken(6, process.env.API_KEY_CREATE_CANDIDATE);
+    const groupToken = await getAccessToken(15, process.env.API_KEY_ADD_REMOVE_CANDIDATE_GROUPS);
+
+    const created = [];
+    const failed = [];
 
     for (const candidate of candidates) {
       const { groupid, firstName, lastName, email } = candidate;
 
-      const password = generateStrongPassword();
-      const username = email;
-
       try {
-        const speedExamUrl = 'https://apiv2.speedexam.net/api/Employee/Create%20a%20New%20Candidate';
-        const speedExamPayload = {
-          firstName,
-          lastName,
-          email,
-          userName: username,
-          password,
-          groupsequenceId: parseInt(groupid),
-          isActive: "True",
-        };
+        const { exists, candidateId } = await checkCandidateExists(email);
 
-        const speedExamResponse = await axios.post(speedExamUrl, speedExamPayload, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        if (exists) {
+          await addCandidateToGroup(candidateId, groupid, groupToken);
 
-        const speedExamResult = JSON.parse(speedExamResponse.data.result || '{}');
+          const updated = await Candidate.findOneAndUpdate(
+            { email: email.toLowerCase() },
+            {
+              $set: {
+                firstName,
+                lastName,
+                candidateId,
+                username: email,
+                updatedAt: new Date(),
+              },
+              $addToSet: { groups: parseInt(groupid) },
+              $setOnInsert: { createdAt: new Date() },
+            },
+            { upsert: true, new: true }
+          );
 
-        if (speedExamResult.Statuscode !== 200) {
-          console.error(`SpeedExam API error for ${email}:`, speedExamResult);
-          failed.push(email);
-          continue;
+          created.push(updated.toObject());
+        } else {
+          const password = generateStrongPassword();
+          const payload = {
+            firstName,
+            lastName,
+            email,
+            userName: email,
+            password,
+            groupsequenceId: parseInt(groupid),
+            isActive: "True"
+          };
+
+          const response = await axios.post(
+            'https://apiv2.speedexam.net/api/Employee/Create%20a%20New%20Candidate',
+            payload,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+
+          const result = JSON.parse(response.data.result || '{}');
+          if (result.Statuscode !== 200) {
+            failed.push(email);
+            continue;
+          }
+
+          const candidateData = new Candidate({
+            email: email.toLowerCase(),
+            candidateId: result.Result,
+            firstName,
+            lastName,
+            username: email,
+            password,
+            groups: [parseInt(groupid)],
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+
+          await candidateData.save();
+          created.push(candidateData.toObject());
         }
-
-        const candidateId = speedExamResult.Result;
-
-        const candidateDoc = new Candidate({
-          groupid: parseInt(groupid),
-          candidateId: candidateId || null,
-          firstName,
-          lastName,
-          username,
-          password,
-          createdAt: new Date(),
-        });
-
-        try {
-          await candidateDoc.save();
-          createdCandidates.push(candidateDoc.toObject());
-        } catch (mongoErr) {
-          console.error(`MongoDB save error for ${email}:`, mongoErr);
-          failed.push(email);
-        }
-
       } catch (err) {
-        console.error(`Error creating candidate ${email}:`, err);
         failed.push(email);
       }
     }
 
     res.status(201).json({
       message: 'Candidates processed',
-      created: createdCandidates,
+      created,
       failed,
     });
-
   } catch (error) {
     next(error);
   }
 });
-
 
 module.exports = router;

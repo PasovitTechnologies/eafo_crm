@@ -551,7 +551,7 @@ function AddCandidateModal({ onClose, groupid }) {
 
                   <div className="add-candidate-modal-form-group">
                     <p>Total users selected: {selectedUsers.length}</p>
-                    <button className="add-candidate-select-all-btn" onClick={() => {
+                    <button className="add-candidate-select-all-btn exam-button" onClick={() => {
                       if (selectedUsers.length === filteredUsers.length) {
                         setSelectedUsers([]);
                       } else {
@@ -590,6 +590,7 @@ function AddCandidateModal({ onClose, groupid }) {
 
               <div className="add-candidate-form-actions">
                 <button
+                 className='exam-button'
                   onClick={handleSubmit}
                   disabled={
                     loading ||

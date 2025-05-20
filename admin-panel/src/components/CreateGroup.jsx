@@ -46,7 +46,7 @@ function CreateGroup({ onGroupCreated, closeModal }) {
           ></textarea>
         </div>
         {error && <div className="error">{error}</div>}
-        <button type="submit" disabled={loading}>
+        <button className='exam-button' type="submit" disabled={loading}>
           {loading ? 'Creating...' : 'Create Group'}
         </button>
       </form>

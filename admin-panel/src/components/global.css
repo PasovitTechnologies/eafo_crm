@@ -105,7 +105,6 @@
   max-width: 600px; /* Increased from 500px to 600px for more space */
   position: relative;
   padding: 24px;
-  animation: slideIn 0.3s ease-out;
   max-height: 90vh;
   overflow-y: auto;
 }

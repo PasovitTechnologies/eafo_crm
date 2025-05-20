@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getGroups } from '../api';
+import { getGroups, getAllCandidates } from '../api';
 import CreateGroup from './CreateGroup';
 
 function GroupList() {
@@ -8,21 +8,67 @@ function GroupList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [candidateMap, setCandidateMap] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchGroups = async () => {
+    const fetchGroupsAndCandidates = async () => {
       try {
-        const data = await getGroups();
-        console.log('Fetched groups:', data);
-        setGroups(data);
+        // Fetch groups
+        const groupData = await getGroups();
+        console.log('Fetched groups:', groupData);
+        setGroups(groupData);
+
+        // Fetch all candidates
+        const candidates = await getAllCandidates();
+        console.log('Fetched all candidates:', candidates);
+
+        // Create a lookup for group names to group IDs
+        const groupNameToId = {};
+        groupData.forEach(group => {
+          groupNameToId[group.group] = String(group.groupid);
+        });
+        console.log('Group name to ID mapping:', groupNameToId);
+
+        // Build group-to-candidate mapping
+        const map = {};
+        candidates.forEach(candidate => {
+          const groupName = candidate.group;
+          const primaryGroupId = groupNameToId[groupName] || null;
+          console.log(`Candidate ${candidate.email}: groupName=${groupName}, inferred primaryGroupId=${primaryGroupId}`);
+
+          const additionalGroupIds = candidate.additiongroupsIds
+            ? candidate.additiongroupsIds.split(',').map(id => id.trim())
+            : [];
+          console.log(`Candidate ${candidate.email}: additionalGroupIds=`, additionalGroupIds);
+
+          if (primaryGroupId) {
+            if (!map[primaryGroupId]) map[primaryGroupId] = [];
+            map[primaryGroupId].push(candidate);
+            console.log(`Added ${candidate.email} to group ${primaryGroupId}`);
+          } else {
+            console.log(`No primary group ID found for candidate ${candidate.email}, groupName=${groupName}`);
+          }
+
+          additionalGroupIds.forEach(groupId => {
+            if (groupId) {
+              if (!map[groupId]) map[groupId] = [];
+              map[groupId].push(candidate);
+              console.log(`Added ${candidate.email} to additional group ${groupId}`);
+            }
+          });
+        });
+
+        console.log('Final group-to-candidate map:', map);
+        setCandidateMap(map);
         setLoading(false);
       } catch (err) {
-        setError('Failed to fetch groups');
+        console.error('Error fetching groups or candidates:', err);
+        setError('Failed to fetch groups or candidates');
         setLoading(false);
       }
     };
-    fetchGroups();
+    fetchGroupsAndCandidates();
   }, []);
 
   const handleGroupCreated = () => {
@@ -39,8 +85,12 @@ function GroupList() {
   };
 
   const handleRowClick = (groupid) => {
-    navigate(`/exams/candidates/${groupid}`);
+    navigate(`/exams/candidates/${groupid}`, {
+      state: { candidateMap },
+      replace: true, // ✅ replaces current history entry
+    });
   };
+  
 
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
@@ -49,7 +99,7 @@ function GroupList() {
     <div className="group-list">
       <div className="group-list-header">
         <h2>Groups</h2>
-        <button onClick={() => setIsModalOpen(true)}>Create New Group</button>
+        <button className='exam-button' onClick={() => setIsModalOpen(true)}>Create New Group</button>
       </div>
       {groups.length === 0 ? (
         <p>No groups found</p>
@@ -59,7 +109,6 @@ function GroupList() {
             <tr>
               <th>Name</th>
               <th>Description</th>
-              <th>Candidates</th>
             </tr>
           </thead>
           <tbody>
@@ -74,7 +123,6 @@ function GroupList() {
               >
                 <td>{group.group}</td>
                 <td>{group.description}</td>
-                <td>{group.totalcandidates}</td>
               </tr>
             ))}
           </tbody>
