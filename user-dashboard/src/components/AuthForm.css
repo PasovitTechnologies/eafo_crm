@@ -72,8 +72,7 @@
     transform: translateX(100%);
   }
   
-  .form-box.login {
-  }
+ 
   
   .form-box.register,
   .form-box.forget-password {
@@ -1008,5 +1007,9 @@ input:not(.has-placeholder) + .date-placeholder {
   
   .form-box {
     padding: 15px;
+  }
+  .date-picker-container{
+    flex-direction: column;
+    gap: 20px;
   }
 }

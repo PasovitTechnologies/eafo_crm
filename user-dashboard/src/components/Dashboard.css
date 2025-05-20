@@ -590,8 +590,7 @@
   grid-row: span 1;
 }
 
-.payments:hover {
-}
+
 
 /* 🌟 About */
 .about {
@@ -625,9 +624,6 @@
   width: 200px;
   padding-bottom: 10px;
   transform: scaleX(-1);
-}
-.dashboard-item.contact{
-  
 }
 
 

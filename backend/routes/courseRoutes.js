@@ -441,14 +441,23 @@ router.post('/:courseId/coupons', async (req, res) => {
 router.get('/:courseId/coupons', async (req, res) => {
   try {
     const { courseId } = req.params;
-    const course = await Course.findById(courseId);
-    if (!course) return res.status(404).json({ message: 'Course not found' });
+    console.log('Looking for coupons for courseId:', courseId);
 
-    res.json(course.coupons);
+    const courseCoupon = await CourseCoupons.findOne({ courseId: courseId });
+
+    if (!courseCoupon) {
+      console.log('No coupons found for this course');
+      return res.status(404).json({ message: 'Coupons not found for this course' });
+    }
+
+    console.log('Found coupons:', courseCoupon.coupons);
+    res.json({ coupons: courseCoupon.coupons });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error('Server error:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 // Update a coupon in a course
 router.put('/:courseId/coupons/:couponId', async (req, res) => {
