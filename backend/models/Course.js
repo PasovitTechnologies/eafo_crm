@@ -57,18 +57,19 @@ const courseSchema = new mongoose.Schema(
     nameRussian: { type: String, required: true, trim: true, index: true },
     description: { type: String, default: "", trim: true },
     descriptionRussian: { type: String, default: "", trim: true },
-
     slug: { type: String, required: true, unique: true },
-
     date: { type: Date, required: true },
     endDate: { type: Date, required: true },
     bannerUrl: { type: String, required: true, trim: true },
     bannerUrlRussian: { type: String, required: true, trim: true },
     websiteLink: { type: String, required: true, trim: true },
     invoiceNumber: { type: String, required: true, trim: true },
-
     currentInvoiceNumber: { type: String, required: false, trim: true },
-   
+    status: {
+      type: String,
+      enum: ["Active", "Not Active"],
+      default: "Active",
+    },
     items: [itemSchema],
     forms: [
       {

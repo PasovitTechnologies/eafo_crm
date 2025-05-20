@@ -3,6 +3,8 @@
   position: relative;
   margin-top: 50px;
   margin-left: 80px;
+  min-height: 100vh;
+  background-color: #fff;
 }
 
 .coupons-header {
@@ -74,6 +76,8 @@
   width: 100%;
   margin-bottom: 10px;
   box-sizing: border-box;
+  background-color: #fff;
+  color: #000;
 }
 
 .modal-actions {

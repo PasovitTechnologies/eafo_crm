@@ -68,30 +68,31 @@ const Courses = () => {
 
       const data = await response.json();
 
-      const processedCourses = data.map((course) => {
-        const courseDate = course.date ? new Date(course.date) : null;
-        const courseEndDate = course.endDate ? new Date(course.endDate) : null;
+      const processedCourses = data
+  .filter(course => course.status === "Active") // 🔥 Only keep active courses
+  .map((course) => {
+    const courseDate = course.date ? new Date(course.date) : null;
+    const courseEndDate = course.endDate ? new Date(course.endDate) : null;
 
-        return {
-          ...course,
-          fullDate: courseDate,
-          fullEndDate: courseEndDate,
-          formattedDate: courseDate
-            ? courseDate.toLocaleDateString("en-GB")
-            : "N/A",
-          formattedEndDate: courseEndDate
-            ? courseEndDate.toLocaleDateString("en-GB")
-            : "N/A",
-          dateRange:
-            courseDate && courseEndDate
-              ? `${courseDate.toLocaleDateString(
-                  "en-GB"
-                )} - ${courseEndDate.toLocaleDateString("en-GB")}`
-              : courseDate
-              ? courseDate.toLocaleDateString("en-GB")
-              : "N/A",
-        };
-      });
+    return {
+      ...course,
+      fullDate: courseDate,
+      fullEndDate: courseEndDate,
+      formattedDate: courseDate
+        ? courseDate.toLocaleDateString("en-GB")
+        : "N/A",
+      formattedEndDate: courseEndDate
+        ? courseEndDate.toLocaleDateString("en-GB")
+        : "N/A",
+      dateRange:
+        courseDate && courseEndDate
+          ? `${courseDate.toLocaleDateString("en-GB")} - ${courseEndDate.toLocaleDateString("en-GB")}`
+          : courseDate
+          ? courseDate.toLocaleDateString("en-GB")
+          : "N/A",
+    };
+  });
+
 
       setCourses(processedCourses);
       setFilteredCourses(processedCourses);

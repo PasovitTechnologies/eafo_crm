@@ -15,22 +15,60 @@ function CandidateList() {
   useEffect(() => {
     const fetchCandidates = async () => {
       try {
-        console.log('Processing candidates for groupid=', groupid, 'at:', new Date().toISOString());
-        console.log('Location state:', location.state);
-        const candidateMap = location.state?.candidateMap || {};
-        console.log('Candidate map:', candidateMap);
-        const groupCandidates = candidateMap[groupid] || [];
-        console.log('Candidates for group', groupid, ':', groupCandidates);
+        setLoading(true);
+        let groupCandidates = [];
+  
+        // Use passed candidateMap if available
+        if (location.state?.candidateMap) {
+          console.log('Using candidateMap from location.state');
+          const candidateMap = location.state.candidateMap;
+          groupCandidates = candidateMap[groupid] || [];
+        } else {
+          console.log('Rebuilding candidate map because location.state is empty');
+  
+          const allCandidates = await getAllCandidates();
+          const groupData = await getGroups();
+  
+          const groupNameToId = {};
+          groupData.forEach(group => {
+            groupNameToId[group.group] = String(group.groupid);
+          });
+  
+          const map = {};
+          allCandidates.forEach(candidate => {
+            const primaryGroupId = groupNameToId[candidate.group] || null;
+            const additionalGroupIds = candidate.additiongroupsIds
+              ? candidate.additiongroupsIds.split(',').map(id => id.trim())
+              : [];
+  
+            if (primaryGroupId) {
+              if (!map[primaryGroupId]) map[primaryGroupId] = [];
+              map[primaryGroupId].push(candidate);
+            }
+  
+            additionalGroupIds.forEach(groupId => {
+              if (groupId) {
+                if (!map[groupId]) map[groupId] = [];
+                map[groupId].push(candidate);
+              }
+            });
+          });
+  
+          groupCandidates = map[groupid] || [];
+        }
+  
         setCandidates(groupCandidates);
         setLoading(false);
       } catch (err) {
-        console.error('Error processing candidates:', err);
+        console.error('Error fetching candidates:', err);
         setError('Failed to fetch candidates');
         setLoading(false);
       }
     };
+  
     fetchCandidates();
   }, [groupid, location.state]);
+  
 
   const handleAddCandidateClose = async () => {
     setIsAddModalOpen(false);
@@ -97,7 +135,7 @@ function CandidateList() {
   return (
     <div className="candidate-list">
       <div className="candidate-list-header">
-        <Link to="/">
+        <Link to="/exams">
           <button className='exam-button'>Back to Groups</button>
         </Link>
         <button className='exam-button' onClick={() => setIsAddModalOpen(true)}>Add Candidate</button>

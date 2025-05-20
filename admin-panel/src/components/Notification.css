@@ -1,5 +1,6 @@
 .notification-system {
   font-family: Arial, sans-serif;
+  min-height: 100vh;
 }
 /* Container setup */
 .notifications-container {
@@ -164,16 +165,20 @@
 .radio-group {
   display: flex;
   gap: 12px;
+  
 }
 
 .radio-option {
   flex: 1;
   position: relative;
+  
+
 }
 
 .radio-option input {
   position: absolute;
   opacity: 0;
+
 }
 
 .radio-label {
@@ -186,6 +191,7 @@
   transition: all 0.2s;
   font-size: 0.9rem;
   gap: 8px;
+  
 }
 
 .radio-option input:checked + .radio-label,
@@ -203,6 +209,7 @@
 .radio-option input:checked + .radio-label svg,
 .radio-option.active .radio-label svg {
   opacity: 1;
+  
 }
 
 .radio-label .check-icon {
@@ -369,7 +376,7 @@
 .empty-circle {
   width: 18px;
   height: 18px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid #565252;
   border-radius: 50%;
 }
 
@@ -494,6 +501,7 @@
   align-items: center;
   gap: 6px;
   transition: all 0.2s;
+  color: #000;
 }
 
 .language-tab.active {
