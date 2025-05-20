@@ -298,7 +298,7 @@
 .users-grid {
   max-height: 200px;
   overflow-y: auto;
-  scrollbar-color: white transparent;
+  scrollbar-color: rgb(178, 177, 177) transparent;
   scrollbar-width: thin;
 }
 
