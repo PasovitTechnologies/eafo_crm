@@ -69,7 +69,7 @@
   width: 800px;
   max-height: 95%;
   overflow-y: auto;
-  scrollbar-color: white transparent;
+  scrollbar-color: rgb(178, 177, 177) transparent;
   scrollbar-width: thin;
 }
 
