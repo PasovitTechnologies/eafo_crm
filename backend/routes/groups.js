@@ -21,11 +21,18 @@ async function getAccessToken(apiNameId, apiKey) {
     );
     return response.data['token'];
   } catch (error) {
+    console.error('Access token request failed:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
+
     const err = new Error('Failed to generate access token');
     err.status = 401;
     throw err;
   }
 }
+
 
 // Get Group List
 router.get('/', async (req, res, next) => {
