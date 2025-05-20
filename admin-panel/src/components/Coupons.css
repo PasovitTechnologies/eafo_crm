@@ -130,6 +130,9 @@
 .bulk-actions-dropdown select option{
   color:#000
 }
+.filter-tabs{
+  color: #000;
+}
 
 @media (max-width: 768px) {
   .coupons-container {
