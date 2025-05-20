@@ -46,7 +46,7 @@
     "react-select-country-list": "^2.2.3",
     "react-switch": "^7.1.0",
     "react-toastify": "^11.0.5",
-    "recharts": "^2.15.1",
+    "recharts": "^2.15.3",
     "sonner": "^2.0.3",
     "sweetalert2": "^11.17.2",
     "xlsx": "^0.18.5"
