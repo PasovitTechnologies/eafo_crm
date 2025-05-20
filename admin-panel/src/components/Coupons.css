@@ -127,6 +127,9 @@
 .coupon-list h3{
   margin-bottom: 20px;
 }
+.bulk-actions-dropdown select option{
+  color:#000
+}
 
 @media (max-width: 768px) {
   .coupons-container {
