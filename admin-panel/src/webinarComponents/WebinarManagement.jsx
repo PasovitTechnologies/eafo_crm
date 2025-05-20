@@ -170,7 +170,7 @@ const WebinarManagement = ({ selectedLanguage = "en" }) => {
     : [];
 
   const handleGoBack = () => {
-    navigate("/", { replace: true });
+    navigate("/webinar-dashboard", { replace: true });
   };
 
   return (

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./WebinarParticipants.css";
 import { FaSearch } from "react-icons/fa";
+import { FiSearch, FiArrowLeft } from "react-icons/fi";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTranslation } from "react-i18next";
@@ -98,15 +99,25 @@ const WebinarParticipants = () => {
     link.click();
   };
 
+  const handleGoBack = () => {
+    navigate("/webinar-dashboard", { replace: true });
+  };
+
   return (
     <div className="webinar-participants-page">
       <div className="participants-page-container">
       <div className="participants-header">
-        <h1>
+      <div className="go-back">
+            <FiArrowLeft className="go-back-icon" onClick={handleGoBack} />
+          </div>
+          <div>
+          <h1>
           {currentLanguage === "ru"
             ? t("webinarParticipants.title", { webinarTitle: webinarTitleRussian || webinarTitle })
             : t("webinarParticipants.title", { webinarTitle })}
         </h1>
+          </div>
+        
       </div>
 
       <div className="webinar-search-container">

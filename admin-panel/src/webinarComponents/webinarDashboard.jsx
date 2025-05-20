@@ -64,9 +64,6 @@ const WebinarDashboard = ({ selectedLanguage }) => {
       {/* Navbar */}
       <div className="webinar-dashboard-header">
         <div className="webinar-dashboard-left-header">
-          <div className="go-back">
-            <FiArrowLeft className="go-back-icon" onClick={handleGoBack} />
-          </div>
           <div>
           <h2>{t("WebinarDashboard.title")}</h2>
           </div>

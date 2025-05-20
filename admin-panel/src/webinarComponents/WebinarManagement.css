@@ -1,10 +1,8 @@
 /* General Styles */
 .webinar-management-container-page {
   background: white;
-  margin: 60px auto 0 auto;
   min-height: 100vh;
   overflow-y: hidden;
-  font-family: "Roboto", sans-serif;
   color: #333;
   margin-left: 60px;
 }
@@ -21,6 +19,8 @@
   top: 0;
   z-index: 10;
   padding: 15px 30px;
+  padding-top: 80px;
+
 }
 .webinar-management-header h2{
   margin-bottom: auto;
