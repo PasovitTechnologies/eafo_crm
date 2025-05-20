@@ -63,11 +63,14 @@ const WebinarDashboard = ({ selectedLanguage }) => {
     <div className="webinar-dashboard-container">
       {/* Navbar */}
       <div className="webinar-dashboard-header">
-        <div className="webinar-dashboard-right-header">
+        <div className="webinar-dashboard-left-header">
           <div className="go-back">
             <FiArrowLeft className="go-back-icon" onClick={handleGoBack} />
           </div>
+          <div>
           <h2>{t("WebinarDashboard.title")}</h2>
+          </div>
+          
         </div>
         <div className="webinar-search-container">
           <div className="webinar-search-bar-wrapper">
@@ -113,11 +116,13 @@ const WebinarDashboard = ({ selectedLanguage }) => {
                   </div>
 
                   <div className="webinar-info">
+                    <div>
                     <h2 className="webinar-title">
                       {currentLanguage === "ru"
                         ? webinar.titleRussian
                         : webinar.title}
                     </h2>
+                    </div>
                     <div className="webinar-time">
                       <p>
                         <strong>{t("WebinarDashboard.date")}</strong>{" "}

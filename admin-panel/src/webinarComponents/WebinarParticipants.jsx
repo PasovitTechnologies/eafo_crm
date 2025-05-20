@@ -109,12 +109,12 @@ const WebinarParticipants = () => {
         </h1>
       </div>
 
-      <div className="search-export-container">
-        <div className="search-bar-wrapper">
-          <FaSearch className="search-icon" />
+      <div className="webinar-search-container">
+        <div className="webinar-search-bar-wrapper">
+          <FaSearch className="webinar-search-icon" />
           <input
             type="text"
-            className="search-bar"
+            className="webinar-search-bar"
             placeholder={t("webinarParticipants.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}

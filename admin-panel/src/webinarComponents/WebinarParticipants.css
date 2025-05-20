@@ -2,6 +2,7 @@
 .webinar-participants-page {
   background-color: #fff;
   min-height: 100vh;
+  margin-left: 80px;
 }
 
 .participants-page-container {
@@ -9,7 +10,6 @@
   padding: 20px 16px;
   color: #333;
   margin: 60px auto 0 auto;
-  max-width: 1200px;
   width: 100%;
 }
 
@@ -21,7 +21,9 @@
   border-bottom: 2px solid #ccc;
   padding-bottom: 10px;
 }
-
+.webinar-search-container{
+  display: flex;
+}
 /* Search and Export Container */
 .search-export-container {
   display: flex;
@@ -196,13 +198,18 @@
 }
 
 @media (max-width: 768px) {
+
+  .webinar-participants-page {
+    margin-left: 0px;
+  }
+  .participants-header h1 {
+    font-size: 1.2rem;
+    text-align: left;
+  }
   .search-export-container {
     flex-direction: row;
     align-items: stretch;
   }
-
-  
-
   .export-btn-wrapper {
     justify-content: center;
   }

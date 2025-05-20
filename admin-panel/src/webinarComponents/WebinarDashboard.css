@@ -1,8 +1,7 @@
 /* Container Styling */
 .webinar-dashboard-container {
-    margin: 60px auto 0 auto;
     font-family: "Roboto", sans-serif;
-    width: 100%;
+    margin-top: 60px;
     margin-left: 60px;
     background-color: #fff;
 }
@@ -14,45 +13,52 @@
     justify-content: space-between;
     align-items: center;
     background: #ffffff;
-    padding: 15px 20px;
     box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
     z-index: 10;
+    padding: 10px 0px;
+    
 }
-
-/* Right side of header */
-.webinar-dashboard-right-header {
+.webinar-dashboard-left-header {
     display: flex;
-    flex: 1;
+    flex-direction: row;
     align-items: center;
-    flex-wrap: wrap;
     gap: 20px;
+    margin-left: 30px;
+}
+.webinar-dashboard-left-header h2{
+    margin-bottom: auto;
 }
 
 /* Search Bar */
 .webinar-search-bar-wrapper {
     display: flex;
+    gap: 16px;
+    width: 100%;
     align-items: center;
-    background: #f5f5f5;
-    border-radius: 5px;
-    padding: 10px;
-    flex: 1;
-    min-width: 200px;
+
 }
 
 .webinar-search-icon {
-    font-size: 20px;
-    color: #555;
-    margin-right: 10px;
+  width: 18px;
+  height: 18px;
+  color: #9e9e9e;
+  position: absolute;
+  margin-left: 10px;
 }
 
 .webinar-search-bar {
-    width: 100%;
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 16px;
+  width: 100%;
+  padding: 12px 16px 12px 40px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background-color: #f9f9f9;
+  font-size: 14px;
+  color: #212121;
+  transition: all 0.2s;
+  margin-right: 30px;
+
 }
 
 /* Webinar List */
@@ -70,7 +76,7 @@
     flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
+    padding: 10px 15px;
     border-radius: 10px;
     transition: transform 0.3s;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -95,7 +101,7 @@
 
 .webinar-image img {
     width: 100%;
-    max-width: 200px;
+    max-width: 150px;
     height: auto;
     object-fit: cover;
     border-radius: 8px;
@@ -107,9 +113,10 @@
 }
 
 .webinar-title {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     color: #033672;
     margin: 0 0 8px;
+    text-align: left;
 }
 
 .webinar-time p {

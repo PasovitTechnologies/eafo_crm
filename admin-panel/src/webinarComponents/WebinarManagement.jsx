@@ -182,9 +182,9 @@ const WebinarManagement = ({ selectedLanguage = "en" }) => {
           </div>
           <h2>{t("webinarManagement.title")}</h2>
         </div>
-        <div className="webinar-management-right-header">
-          <div className="search-bar-wrapper">
-            <FaSearch className="search-icon" />
+        <div className="webinar-search-container">
+          <div className="webinar-search-bar-wrapper">
+            <FaSearch className="webinar-search-icon" />
             <input
               type="text"
               placeholder={t("webinarManagement.searchPlaceholder")}
