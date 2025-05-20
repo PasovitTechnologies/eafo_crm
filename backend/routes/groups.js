@@ -9,32 +9,53 @@ const router = express.Router();
 // Helper function to get access token
 async function getAccessToken(apiNameId, apiKey) {
   try {
-    console.log('Sending token request with payload:');
-    console.log('customerId:', `"${process.env.CUSTOMER_ID}"`);
-    console.log('apiNameId:', apiNameId);
-    console.log('apiKey:', `"${apiKey}"`);
+    validateCredentials();
+    
+    console.log('Attempting to get access token with:');
+    console.log('Customer ID:', process.env.CUSTOMER_ID);
+    console.log('API Name ID:', apiNameId);
+    
+    const payload = {
+      customerId: process.env.CUSTOMER_ID.trim(),
+      apiNameId: Number(apiNameId),
+      apiKey: apiKey.trim()
+    };
 
     const response = await axios.post(
       'https://apiv2.speedexam.net/api/Token/Get-Access-Token',
+      payload,
       {
-        customerId: process.env.CUSTOMER_ID,
-        apiNameId,
-        apiKey,
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        timeout: 8000
       }
     );
-    return response.data['token'];
-  } catch (error) {
-    console.error('Access token request failed:', {
-      message: error.message,
-      response: error.response?.data,
-      status: error.response?.status,
-    });
 
-    const err = new Error('Failed to generate access token');
-    err.status = 401;
+    if (!response.data?.token) {
+      throw new Error('Token not found in response');
+    }
+
+    return response.data.token;
+  } catch (error) {
+    const errorDetails = {
+      timestamp: new Date().toISOString(),
+      error: error.message,
+      responseStatus: error.response?.status,
+      responseData: error.response?.data,
+      requestPayload: {
+        customerId: process.env.CUSTOMER_ID,
+        apiNameId,
+        apiKey: '***masked***'
+      }
+    };
+    
+    console.error('Access token request failed:', JSON.stringify(errorDetails, null, 2));
+    
+    const err = new Error(`Authentication failed: ${error.message}`);
+    err.status = error.response?.status || 500;
+    err.details = errorDetails;
     throw err;
   }
 }
