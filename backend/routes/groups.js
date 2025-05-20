@@ -17,7 +17,7 @@ async function getAccessToken(apiNameId, apiKey) {
     const response = await axios.post(
       'https://apiv2.speedexam.net/api/Token/Get-Access-Token',
       {
-        customerId: 945-54003745,
+        customerId: process.env.CUSTOMER_ID,
         apiNameId,
         apiKey,
       },
