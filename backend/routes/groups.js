@@ -4,6 +4,10 @@ const dotenv = require('dotenv');
 
 
 const router = express.Router();
+console.log('Sending token request with payload:');
+console.log('customerId:', `"${process.env.CUSTOMER_ID}"`);
+console.log('apiNameId:', apiNameId);
+console.log('apiKey:', `"${apiKey}"`);
 
 // Helper function to get access token
 async function getAccessToken(apiNameId, apiKey) {
