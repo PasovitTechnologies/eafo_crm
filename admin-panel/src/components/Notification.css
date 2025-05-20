@@ -298,6 +298,8 @@
 .users-grid {
   max-height: 200px;
   overflow-y: auto;
+  scrollbar-color: white transparent;
+  scrollbar-width: thin;
 }
 
 .user-card {

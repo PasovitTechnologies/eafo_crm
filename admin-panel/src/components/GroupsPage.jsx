@@ -5,7 +5,7 @@ import './global.css';
 
 function GroupsPage() {
   return (
-      <div className="container">
+      <div className="exam-container">
         <GroupList />
       </div>
   );

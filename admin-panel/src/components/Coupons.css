@@ -69,6 +69,8 @@
   width: 800px;
   max-height: 95%;
   overflow-y: auto;
+  scrollbar-color: white transparent;
+  scrollbar-width: thin;
 }
 
 .coupon-input {
