@@ -270,6 +270,8 @@
   border-radius: 8px;
   font-size: 0.9rem;
   transition: all 0.2s;
+  background-color: #fff;
+  color: #333;
 }
 
 .search-input:focus {
