@@ -1,17 +1,19 @@
 const express = require('express');
 const axios = require('axios');
-const dotenv = require('dotenv');
+require('dotenv').config(); // should be at the top of server.js
 
 
 const router = express.Router();
-console.log('Sending token request with payload:');
-console.log('customerId:', `"${process.env.CUSTOMER_ID}"`);
-console.log('apiNameId:', apiNameId);
-console.log('apiKey:', `"${apiKey}"`);
+
 
 // Helper function to get access token
 async function getAccessToken(apiNameId, apiKey) {
   try {
+    console.log('Sending token request with payload:');
+    console.log('customerId:', `"${process.env.CUSTOMER_ID}"`);
+    console.log('apiNameId:', apiNameId);
+    console.log('apiKey:', `"${apiKey}"`);
+
     const response = await axios.post(
       'https://apiv2.speedexam.net/api/Token/Get-Access-Token',
       {
@@ -36,6 +38,7 @@ async function getAccessToken(apiNameId, apiKey) {
     throw err;
   }
 }
+
 
 
 // Get Group List
