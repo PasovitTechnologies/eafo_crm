@@ -192,7 +192,6 @@ const Webinar = () => {
           <button
             type="button"
             className="back-button"
-            aria-label={t("forgetPasswordPage.backToLogin")}
             onClick={handleGoBack}
           >
             <ArrowLeft className="back-icon" />
@@ -289,7 +288,7 @@ const Webinar = () => {
         alt="No webinars"
         className="empty-illustration"
       />
-      <h3 className="empty-title">{t("webinar.no_webinars")}</h3>
+      <h3 className="empty-title">{t("webinar.no_upcoming_webinar")}</h3>
       <p className="empty-subtitle">Check back later for upcoming events</p>
     </div>
   )}
