@@ -413,6 +413,10 @@
 }
 
 @media (max-width: 600px) {
+  .skeleton-avatar-image {
+    width: 100px;
+    height: 100px;
+  }
   .profile-container,
   .go-back-div {
     padding: 15px;
