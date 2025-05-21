@@ -77,6 +77,12 @@ const Navbar = () => {
     }
   }, [i18n.language]);
 
+  const calculateUnreadCount = (normal = [], important = []) => {
+    const normalUnread = normal.filter((n) => !n.isRead).length;
+    const importantUnread = important.filter((n) => !n.isRead).length;
+    setUnreadCount(normalUnread + importantUnread);
+  };
+
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -115,11 +121,11 @@ const Navbar = () => {
         : [];
 
       setNotifications(normalizedNotifications);
-      setUnreadCount(normalizedNotifications.filter((n) => !n.isRead).length);
+      calculateUnreadCount(normalizedNotifications, importantNotifications);
     } catch (error) {
       console.error("Error fetching notifications:", error);
       setNotifications([]);
-      setUnreadCount(0);
+      calculateUnreadCount([], importantNotifications);
     }
   };
 
@@ -127,38 +133,36 @@ const Navbar = () => {
     try {
       const token = localStorage.getItem("token");
       const email = localStorage.getItem("email");
-  
+
       if (!token || !email) return;
-  
+
       const response = await fetch(`${baseUrl}/api/notifications/important?email=${email}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (!response.ok) throw new Error("Failed to fetch important notifications");
-  
+
       const raw = await response.json();
       const lang = localStorage.getItem("language") || "en";
-  
+
       const formatted = raw.map((n) => ({
         _id: n._id,
         type: "important",
-        isRead: n.isRead, // Directly use the `isRead` status sent by the server
+        isRead: n.isRead,
         createdAt: n.createdAt,
         message: typeof n.message === "object" ? n.message[lang] || n.message["en"] : n.message,
       }));
-  
+
       setImportantNotifications(formatted);
+      calculateUnreadCount(notifications, formatted);
     } catch (err) {
       console.error("Error fetching important notifications:", err);
       setImportantNotifications([]);
+      calculateUnreadCount(notifications, []);
     }
   };
-  
-  
-
-
 
   const markAsRead = async (notificationId) => {
     try {
@@ -183,9 +187,6 @@ const Navbar = () => {
       console.error("Error marking notification as read:", error);
     }
   };
-
-
- 
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -218,7 +219,9 @@ const Navbar = () => {
             <div className="notification-icon-container">
               <FaBell className="notification-icon" onClick={toggleNotifications} />
               {unreadCount > 0 && (
-                <span className="notification-badge" onClick={toggleNotifications}>{unreadCount}</span>
+                <span className="notification-badge" onClick={toggleNotifications}>
+                  {unreadCount}
+                </span>
               )}
               {showNotifications && (
                 <NotificationPanel
@@ -250,3 +253,5 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
+
