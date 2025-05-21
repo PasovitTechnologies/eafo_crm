@@ -98,4 +98,10 @@
   .chatbot-messages-container::-webkit-scrollbar-thumb:hover {
     background: #aaa;
   }
+  .chatbot-unregistered-message {
+    padding: 1rem;
+    text-align: center;
+    font-weight: bold;
+    color: #d9534f;
+  }
   

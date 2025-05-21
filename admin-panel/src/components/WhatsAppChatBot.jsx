@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FiSend, FiX } from "react-icons/fi";
+import { FiX } from "react-icons/fi";
 import { RiSendPlane2Fill } from "react-icons/ri";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast, ToastContainer } from "react-toastify";
@@ -12,14 +12,40 @@ const WhatsAppChatBot = ({ isOpen, onClose, phoneNumber }) => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(true);
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
-  // ✅ Fetch messages when the component opens
   useEffect(() => {
     if (isOpen && phoneNumber) {
-      fetchMessages();
+      checkPhoneRegistration();
     }
   }, [isOpen, phoneNumber]);
+
+  const checkPhoneRegistration = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/api/whatsapp/check`, {
+        headers: {
+          Authorization: import.meta.env.VITE_API_TOKEN,
+        },
+        params: {
+          phone: phoneNumber,
+        },
+      });
+  
+      const exists = response.data?.exists;
+      setIsRegistered(exists);
+  
+      if (!exists) {
+        toast.error("User is not registered on WhatsApp");
+      } else {
+        fetchMessages();
+      }
+    } catch (error) {
+      console.error("Error checking registration:", error.response?.data || error.message);
+      setIsRegistered(false);
+    }
+  };
+  
 
   const fetchMessages = async () => {
     setLoading(true);
@@ -71,10 +97,9 @@ const WhatsAppChatBot = ({ isOpen, onClose, phoneNumber }) => {
           exit={{ opacity: 0, scale: 0.8 }}
           transition={{ duration: 0.4, ease: "easeInOut" }}
         >
-          {/* ✅ Toast Notifications */}
           <ToastContainer position="top-right" autoClose={3000} />
 
-          {/* ✅ Fixed Header */}
+          {/* ✅ Header */}
           <motion.div
             className="chatbot-header"
             initial={{ y: -50, opacity: 0 }}
@@ -83,31 +108,37 @@ const WhatsAppChatBot = ({ isOpen, onClose, phoneNumber }) => {
             transition={{ duration: 0.3 }}
           >
             <span>Chat with {phoneNumber}</span>
-            
-            {/* ✅ Close Icon */}
             <FiX className="chat-close-icon" onClick={onClose} />
           </motion.div>
 
-          {/* ✅ Messages Container */}
-          <div className="chatbot-messages-container">
-            <MessagesContainer messages={messages} loading={loading} />
-          </div>
+          {!isRegistered ? (
+            <div className="chatbot-unregistered-message">
+              <p>User is not registered on WhatsApp.</p>
+            </div>
+          ) : (
+            <>
+              <div className="chatbot-messages-container">
+                <MessagesContainer messages={messages} loading={loading} />
+              </div>
 
-          {/* ✅ Fixed Footer */}
-          <div className="chatbot-footer">
-            <input
-              type="text"
-              placeholder="Type a message..."
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            />
-            <button onClick={sendMessage}>
-              <RiSendPlane2Fill />
-            </button>
-          </div>
+              <div className="chatbot-footer">
+                <input
+                  type="text"
+                  placeholder="Type a message..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                />
+                <button onClick={sendMessage}>
+                  <RiSendPlane2Fill />
+                </button>
+              </div>
+            </>
+          )}
         </motion.div>
       )}
+          <ToastContainer position="top-right" className="custom-toast-container" autoClose={3000} />
+      
     </AnimatePresence>
   );
 };

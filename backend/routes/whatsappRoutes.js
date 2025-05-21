@@ -13,6 +13,38 @@ const WAPPI_BASE_URL = "https://wappi.pro";
 const API_TOKEN = process.env.WAPPI_API_TOKEN;
 const PROFILE_ID = process.env.WAPPI_PROFILE_ID;
 
+
+router.get("/check", async (req, res) => {
+  const { phone } = req.query;
+
+  if (!phone) {
+    return res.status(400).json({ error: "Missing phone number" });
+  }
+
+  try {
+    const response = await axios.get(`${WAPPI_BASE_URL}/api/sync/contact/check`, {
+      headers: {
+        Authorization: API_TOKEN,
+      },
+      params: {
+        profile_id: PROFILE_ID,
+        phone,
+      },
+    });
+
+    const onWhatsApp = response.data?.on_whatsapp || false;
+
+    res.json({
+      exists: onWhatsApp, // ✅ This line is important
+      original: response.data, // Optional: for debugging
+    });
+  } catch (error) {
+    console.error("WhatsApp check error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to check WhatsApp registration" });
+  }
+});
+
+
 // Fetch All WhatsApp Chats (No Limits)
 router.get("/chats", async (req, res) => {
   try {
