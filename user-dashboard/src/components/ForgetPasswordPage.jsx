@@ -204,7 +204,7 @@ const ForgetPasswordPage = ({ onBackToLogin }) => {
           : t("forgetPasswordPage.checkDetails")}
       </button>
 
-      <ToastContainer />
+      <ToastContainer className="toast-container"/>
     </form>
   );
 };
