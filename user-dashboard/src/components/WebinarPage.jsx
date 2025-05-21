@@ -188,11 +188,6 @@ const WebinarPage = () => {
             </h2>
             
             <div className="expert-profile">
-              <img 
-                src="https://randomuser.me/api/portraits/men/32.jpg" 
-                alt="Expert" 
-                className="expert-image"
-              />
               <div className="expert-info">
                 <h3 className="expert-name">
                   {currentLanguage === "ru" ? webinar.chiefGuestNameRussian : webinar.chiefGuestName}
