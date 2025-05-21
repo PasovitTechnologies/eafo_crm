@@ -483,6 +483,14 @@
     "technicalComplaints": "Technical support:",
     "phone": "Phone:"
   },
+  "AuthContact": {
+    "contact_us": "Contact Us",
+    "phone": "Phone",
+    "ask_question": "Ask a Question",
+    "tech_support": "Technical Support"
+  }
+  
+  ,
  
   
   "loginPage": {

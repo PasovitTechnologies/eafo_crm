@@ -6,6 +6,7 @@ import ForgetPasswordPage from "./ForgetPasswordPage";
 import { useTranslation } from "react-i18next";
 import HelpPopup from "./HelpPopup";
 import EAFOWaterLoader from "./EAFOWaterLoader";
+import ContactUs from "./ContactUs";
 
 const AuthForm = () => {
   const [activePanel, setActivePanel] = useState("login");
@@ -64,6 +65,7 @@ const AuthForm = () => {
 
   return (
     <div className="intro-page">
+      <ContactUs/>
       <div className="auth-page">
         {showHelpPopup && <HelpPopup onClose={toggleHelpPopup} />}
         <div className={isMobile ? "" : "auth-wrapper"}>

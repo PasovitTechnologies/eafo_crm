@@ -10,6 +10,7 @@ import {
 import { jwtDecode } from "jwt-decode";
 import "./i18n";
 import Document from "./components/Document";
+import EAFOWaterLoader from "./components/EAFOWaterLoader";
 
 // ✅ Lazy-loaded components
 const Dashboard = lazy(() => import("./components/Dashboard"));
@@ -90,7 +91,8 @@ const Layout = ({ children }) => {
 const App = () => {
   return (
     <Router>
-      <Suspense fallback={<div style={{ padding: "2rem", textAlign: "center" }}>Loading...</div>}>
+<Suspense fallback={<EAFOWaterLoader
+ />}>
         <Layout>
           <Routes>
             {/* 🔑 Public Routes */}

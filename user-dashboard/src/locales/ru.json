@@ -498,6 +498,13 @@
     "technicalComplaints": "Техническая поддержка:",
     "phone": "Телефон:"
   },
+  "AuthContact":{
+    "contact_us": "Свяжитесь с нами",
+    "phone": "Телефон",
+    "ask_question": "Задать вопрос",
+    "tech_support": "Техническая поддержка"
+  },
+  
   "submissionPopup": {
     "title": "Детали отправки",
     "submittedOn": "Отправлено:",
