@@ -1,6 +1,6 @@
-const express = require('express');
-const axios = require('axios');
-const Candidate = require('../models/Candidate');
+const express = require("express");
+const axios = require("axios");
+const Candidate = require("../models/Candidate");
 
 const router = express.Router();
 
@@ -8,19 +8,19 @@ const router = express.Router();
 async function getAccessToken(apiNameId, apiKey) {
   try {
     const response = await axios.post(
-      'https://apiv2.speedexam.net/api/Token/Get-Access-Token',
+      "https://apiv2.speedexam.net/api/Token/Get-Access-Token",
       {
         customerId: process.env.CUSTOMER_ID,
         apiNameId,
         apiKey,
       },
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       }
     );
-    return response.data['token'];
+    return response.data["token"];
   } catch (error) {
-    const err = new Error('Failed to generate access token');
+    const err = new Error("Failed to generate access token");
     err.status = 401;
     throw err;
   }
@@ -28,10 +28,10 @@ async function getAccessToken(apiNameId, apiKey) {
 
 // Helper: Strong 8-char Password
 function generateStrongPassword() {
-  const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const lowercase = 'abcdefghijklmnopqrstuvwxyz';
-  const digits = '0123456789';
-  const special = '!@#$%^&*';
+  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const lowercase = "abcdefghijklmnopqrstuvwxyz";
+  const digits = "0123456789";
+  const special = "!@#$%^&*";
   const all = uppercase + lowercase + digits + special;
 
   let password = [
@@ -45,7 +45,7 @@ function generateStrongPassword() {
     password.push(all[Math.floor(Math.random() * all.length)]);
   }
 
-  return password.sort(() => 0.5 - Math.random()).join('');
+  return password.sort(() => 0.5 - Math.random()).join("");
 }
 
 // Helper: Check candidate existence
@@ -59,23 +59,28 @@ async function checkCandidateExists(email) {
     const response = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
-    const candidates = JSON.parse(response.data.result || '[]');
+    const candidates = JSON.parse(response.data.result || "[]");
     if (candidates.length === 0) break;
     allCandidates.push(...candidates);
     page += 1;
   }
 
-  const found = allCandidates.find(c => c.email.toLowerCase() === email.toLowerCase());
-  return found ? { exists: true, candidateId: found.candidateid } : { exists: false };
+  const found = allCandidates.find(
+    (c) => c.email.toLowerCase() === email.toLowerCase()
+  );
+  return found
+    ? { exists: true, candidateId: found.candidateid }
+    : { exists: false };
 }
 
 // Helper: Add candidate to group
 async function addCandidateToGroup(candidateId, groupId, token) {
-  const url = 'https://apiv2.speedexam.net/api/Employee/Add-Remove-Candidate-Groups';
+  const url =
+    "https://apiv2.speedexam.net/api/Employee/Add-Remove-Candidate-Groups";
   const payload = {
     candidateId: parseInt(candidateId),
     groupIDs: [parseInt(groupId)],
@@ -86,7 +91,7 @@ async function addCandidateToGroup(candidateId, groupId, token) {
   const response = await axios.post(url, payload, {
     headers: {
       Authorization: `Bearer ${token}`,
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
   });
 
@@ -94,25 +99,30 @@ async function addCandidateToGroup(candidateId, groupId, token) {
 }
 
 // GET: Candidates by group
-router.get('/', async (req, res, next) => {
+router.get("/", async (req, res, next) => {
   try {
     const { groupid } = req.query;
     if (!groupid) {
-      const err = new Error('Group ID is required');
+      const err = new Error("Group ID is required");
       err.status = 400;
       throw err;
     }
 
-    const token = await getAccessToken(7, process.env.API_KEY_GET_CANDIDATE_LIST);
-    const url = `https://apiv2.speedexam.net/api/Employee/Get%20Candidate%20List?Groupid=${parseInt(groupid)}&Page_no=1&Page_size=100`;
+    const token = await getAccessToken(
+      7,
+      process.env.API_KEY_GET_CANDIDATE_LIST
+    );
+    const url = `https://apiv2.speedexam.net/api/Employee/Get%20Candidate%20List?Groupid=${parseInt(
+      groupid
+    )}&Page_no=1&Page_size=100`;
     const response = await axios.get(url, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
-    const candidates = JSON.parse(response.data.result || '[]');
+    const candidates = JSON.parse(response.data.result || "[]");
     res.json(candidates);
   } catch (error) {
     next(error);
@@ -120,9 +130,12 @@ router.get('/', async (req, res, next) => {
 });
 
 // GET: All candidates system-wide
-router.get('/all', async (req, res, next) => {
+router.get("/all", async (req, res, next) => {
   try {
-    const token = await getAccessToken(7, process.env.API_KEY_GET_CANDIDATE_LIST);
+    const token = await getAccessToken(
+      7,
+      process.env.API_KEY_GET_CANDIDATE_LIST
+    );
     let page = 1;
     let allCandidates = [];
 
@@ -131,11 +144,11 @@ router.get('/all', async (req, res, next) => {
       const response = await axios.get(url, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
-      const candidates = JSON.parse(response.data.result || '[]');
+      const candidates = JSON.parse(response.data.result || "[]");
       if (candidates.length === 0) break;
       allCandidates.push(...candidates);
       page += 1;
@@ -199,7 +212,7 @@ router.post('/bulk', async (req, res, next) => {
             userName: email,
             password,
             groupsequenceId: parseInt(groupid),
-            isActive: "True"
+            isActive: "True",
           };
 
           const response = await axios.post(
@@ -213,15 +226,33 @@ router.post('/bulk', async (req, res, next) => {
             }
           );
 
-          const result = JSON.parse(response.data.result || '{}');
-          if (result.Statuscode !== 200) {
+          // ✅ Correctly check top-level status
+          if (response.data.Statuscode !== 200) {
+            console.error("Candidate creation failed:", response.data);
+            failed.push(email);
+            continue;
+          }
+
+          // ✅ Safely parse nested result
+          let resultObj = {};
+          try {
+            resultObj = JSON.parse(response.data.result || '{}');
+          } catch (e) {
+            console.error("Invalid JSON in response.result:", response.data.result);
+            failed.push(email);
+            continue;
+          }
+
+          const newCandidateId = resultObj.Result;
+          if (!newCandidateId) {
+            console.error("No candidate ID returned in result:", resultObj);
             failed.push(email);
             continue;
           }
 
           const candidateData = new Candidate({
             email: email.toLowerCase(),
-            candidateId: result.Result,
+            candidateId: newCandidateId,
             firstName,
             lastName,
             username: email,
@@ -235,6 +266,7 @@ router.post('/bulk', async (req, res, next) => {
           created.push(candidateData.toObject());
         }
       } catch (err) {
+        console.error("Failed to process candidate:", email, err.message);
         failed.push(email);
       }
     }
@@ -248,5 +280,6 @@ router.post('/bulk', async (req, res, next) => {
     next(error);
   }
 });
+
 
 module.exports = router;
