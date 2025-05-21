@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaArrowRight } from "react-icons/fa";
 import { useTranslation } from "react-i18next"; // 🌍 Import translation hook
-import coursesIcon from "../assets/courses_icon.png";
 
 
 const CoursesItem = ({ expandingSection, setExpandingSection }) => {
@@ -141,7 +140,7 @@ const CoursesItem = ({ expandingSection, setExpandingSection }) => {
       </div>
       <div className="image-container">
         <img
-          src={coursesIcon}
+          src="https://static.wixstatic.com/shapes/df6cc5_9a25c8efb35d47a19d43c1365f9ff0a3.svg"
           alt="Courses Icon"
           className="courses-image"
         />

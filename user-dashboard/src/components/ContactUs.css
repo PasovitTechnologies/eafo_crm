@@ -6,7 +6,7 @@
 /* Button that triggers the popup */
 .contact-us-button {
   position: fixed;
-  bottom: 100px;
+  bottom: 30px;
   right: 30px;
   display: flex;
   justify-content: center;

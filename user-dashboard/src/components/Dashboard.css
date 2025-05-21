@@ -398,7 +398,8 @@
   align-items: center;
   justify-content: center;
   grid-column: span 2;
-  background: linear-gradient(135deg, #f9f9f9 0%, #e9f1f8 100%);  border-radius: 10px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
   overflow: hidden;
   padding: 20px;
   cursor: pointer;
