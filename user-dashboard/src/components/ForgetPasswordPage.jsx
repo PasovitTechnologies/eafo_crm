@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useTranslation } from "react-i18next";
 import { FaArrowLeft } from "react-icons/fa";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import "./AuthForm.css";
 
 const ForgetPasswordPage = ({ onBackToLogin }) => {
@@ -12,6 +13,8 @@ const ForgetPasswordPage = ({ onBackToLogin }) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPasswordFields, setShowPasswordFields] = useState(false);
+
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
 
@@ -79,7 +82,9 @@ const ForgetPasswordPage = ({ onBackToLogin }) => {
         onBackToLogin?.();
       }, 2000);
     } catch (error) {
-      toast.error(error.response?.data?.message || t("forgetPasswordPage.updateFailed"));
+      toast.error(
+        error.response?.data?.message || t("forgetPasswordPage.updateFailed")
+      );
     } finally {
       setLoading(false);
     }
@@ -90,20 +95,17 @@ const ForgetPasswordPage = ({ onBackToLogin }) => {
       className="forget-form"
       onSubmit={showPasswordFields ? handleChangePassword : handleCheckDetails}
     >
-     <div className="back-button-wrapper">
-  <button
-    type="button"
-    onClick={onBackToLogin}
-    className="back-icon-button"
-    aria-label={t("forgetPasswordPage.backToLogin")}
-  >
-    <FaArrowLeft />
-  </button>
-  <h1>{t("forgetPasswordPage.forgotPassword")}</h1>
-</div>
-
-
-      
+      <div className="back-button-wrapper">
+        <button
+          type="button"
+          onClick={onBackToLogin}
+          className="back-icon-button"
+          aria-label={t("forgetPasswordPage.backToLogin")}
+        >
+          <FaArrowLeft />
+        </button>
+        <h1>{t("forgetPasswordPage.forgotPassword")}</h1>
+      </div>
 
       <div className="input-box">
         <input
@@ -118,45 +120,73 @@ const ForgetPasswordPage = ({ onBackToLogin }) => {
       </div>
 
       <div className="input-box date-input-container">
-  <input
-    type="text"
-    onFocus={(e) => (e.target.type = "date")}
-    onBlur={(e) => !e.target.value && (e.target.type = "text")}
-    value={dob}
-    onChange={(e) => setDob(e.target.value)}
-    required
-    className={!dob ? "has-placeholder" : ""}
-    aria-label={t("forgetPasswordPage.dobAriaLabel")}
-  />
-  {!dob && (
-    <span className="date-placeholder">
-      {t("forgetPasswordPage.dobPlaceholder")}
-    </span>
-  )}
-</div>
+        <input
+          type="text"
+          onFocus={(e) => (e.target.type = "date")}
+          onBlur={(e) => !e.target.value && (e.target.type = "text")}
+          value={dob}
+          onChange={(e) => setDob(e.target.value)}
+          required
+          className={!dob ? "has-placeholder" : ""}
+          aria-label={t("forgetPasswordPage.dobAriaLabel")}
+        />
+        {!dob && (
+          <span className="date-placeholder">
+            {t("forgetPasswordPage.dobPlaceholder")}
+          </span>
+        )}
+      </div>
 
       {showPasswordFields && (
         <>
           <div className="input-box">
-            <input
-              type="password"
-              placeholder={t("forgetPasswordPage.passwordPlaceholder")}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              aria-label={t("forgetPasswordPage.passwordAriaLabel")}
-            />
+          <input
+  type={showPassword ? "text" : "password"}
+  placeholder={t("forgetPasswordPage.passwordPlaceholder")}
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  required
+  aria-label={t("forgetPasswordPage.passwordAriaLabel")}
+/>
+
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={
+                showPassword
+                  ? t("loginPage.hidePassword")
+                  : t("loginPage.showPassword")
+              }
+              style={{ zIndex: 30 }}
+            >
+              {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            </button>
           </div>
 
           <div className="input-box">
-            <input
-              type="password"
-              placeholder={t("forgetPasswordPage.confirmPasswordPlaceholder")}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              aria-label={t("forgetPasswordPage.confirmPasswordAriaLabel")}
-            />
+          <input
+  type={showPassword ? "text" : "password"}
+  placeholder={t("forgetPasswordPage.confirmPasswordPlaceholder")}
+  value={confirmPassword}
+  onChange={(e) => setConfirmPassword(e.target.value)}
+  required
+  aria-label={t("forgetPasswordPage.confirmPasswordAriaLabel")}
+/>
+
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={
+                showPassword
+                  ? t("loginPage.hidePassword")
+                  : t("loginPage.showPassword")
+              }
+              style={{ zIndex: 30 }}
+            >
+              {showPassword ? <AiOutlineEyeInvisible /> : <AiOutlineEye />}
+            </button>
           </div>
         </>
       )}
