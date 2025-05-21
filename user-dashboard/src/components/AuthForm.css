@@ -2,89 +2,92 @@
 
 /* =============== BASE STYLES =============== */
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Inter Tight", sans-serif;
-    text-decoration: none;
-    list-style: none;
-  
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter Tight", sans-serif;
+  text-decoration: none;
+  list-style: none;
+
 
 }
-.intro-page{
-    height: 100vh;
-    overflow-y: hidden;
+
+.intro-page {
+  height: 100vh;
+  overflow-y: hidden;
 }
+
 .auth-page {
-    /* display: flex;
+  /* display: flex;
     justify-content: center;
     align-items: center; */
-    height: 100vh;
-    overflow-y: hidden;
-    background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
+  height: 100vh;
+  overflow-y: hidden;
+  background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
 }
 
 /* ✅ Add styles for the logo */
-.toast-container{
-    z-index: 100000;
-    margin-top: 70px;
+.toast-container {
+  z-index: 100000;
+  margin-top: 70px;
 }
 
-  
+
 
 /* =============== LAYOUT STYLES =============== */
-.container{
+.container {
   /* height: 200px; */
   overflow: hidden;
 }
+
 .auth-wrapper .container {
-    position: relative;
-    width: 95vw;
-    max-width: 1200px;
-    min-height: 600px;
-    background: #fff;
-    margin: 20px;
-    border-radius: 30px;
-    box-shadow: 0 0 30px rgba(0, 0, 0, .2);
-    overflow: hidden;
-    z-index: 0;
+  position: relative;
+  width: 95vw;
+  max-width: 1200px;
+  min-height: 600px;
+  background: #fff;
+  margin: 20px;
+  border-radius: 30px;
+  box-shadow: 0 0 30px rgba(0, 0, 0, .2);
+  overflow: hidden;
+  z-index: 0;
 }
 
 .form-box {
-    position: absolute;
-    right: 0;
-    width: 45%;
-    height: 100%;
-    background: #fff;
-    display: flex;
-    align-items: center;
-    color: #333;
-    padding: 30px 10px;
-    margin-right: 20px;
-    transition: .6s ease-in-out 1.2s, visibility 0s 1s;
+  position: absolute;
+  right: 0;
+  width: 45%;
+  height: 100%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  color: #333;
+  padding: 30px 10px;
+  margin-right: 20px;
+  transition: .6s ease-in-out 1.2s, visibility 0s 1s;
 }
 
 /* Form Visibility Control */
 .form-box.hidden {
-    visibility: hidden;
-    opacity: 0;
-    z-index: 0;
-    transform: translateX(100%);
-  }
-  
- 
-  
-  .form-box.register,
-  .form-box.forget-password {
-    z-index: 1;
-  }
-  
-  /* Smooth transitions */
-  .form-box {
-    transition: all 0.6s ease-in-out;
-  }
+  visibility: hidden;
+  opacity: 0;
+  z-index: 0;
+  transform: translateX(100%);
+}
 
-  /* Hide the native date picker dropdown arrow in Chrome/Safari */
+
+
+.form-box.register,
+.form-box.forget-password {
+  z-index: 1;
+}
+
+/* Smooth transitions */
+.form-box {
+  transition: all 0.6s ease-in-out;
+}
+
+/* Hide the native date picker dropdown arrow in Chrome/Safari */
 input[type="date"]::-webkit-calendar-picker-indicator {
   opacity: 1;
   position: relative;
@@ -109,8 +112,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 /* Hide placeholder when input has value or is focused */
-input:focus + .date-placeholder,
-input:not(.has-placeholder) + .date-placeholder {
+input:focus+.date-placeholder,
+input:not(.has-placeholder)+.date-placeholder {
   display: none;
 }
 
@@ -132,763 +135,807 @@ input:not(.has-placeholder) + .date-placeholder {
   font-weight: 500;
 }
 
-  @media screen and (min-width: 850px) {
+@media screen and (min-width: 850px) {
   .auth-page {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
-} 
   }
-  
-  /* Mobile responsive adjustments */
-  @media screen and (max-width: 850px) {
-    /* .auth-page {
+}
+
+/* Mobile responsive adjustments */
+@media screen and (max-width: 850px) {
+
+  /* .auth-page {
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
         background: linear-gradient(90deg, #e2e2e2, #c9d6ff);
     } */
-    .form-box.login,
-    .form-box.register,
-    .form-box.forget-password {
-      width: 100%;
-      left: 0;
-    }
-    .form-box.login .input-box{
-        width: 100%;
-    }
-  
-    .form-box.hidden {
-      transform: translateY(100%);
-    }
-  
-    .container.active .form-box.register,
-    .container.active .form-box.forget-password {
-      transform: none;
-    }
-  }
-  .register-form h1{
-    text-align: center;
-  }
-  
-  /* Button styles */
-  .text-button {
-    background: none;
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    font-size: 14px;
-    text-decoration: underline;
-    padding: 0;
-    margin-top: 10px;
-    display: inline-block;
-  }
-  
-  .text-button:hover {
-    color: rgba(255, 255, 255, 0.8);
-  }
-  
-  
-  
-  .help-text {
-    margin-top: 20px;
-    font-size: 14px;
-    text-align: center;
-    color: #666;
+  .form-box.login,
+  .form-box.register,
+  .form-box.forget-password {
+    width: 100%;
+    left: 0;
   }
 
-.register-form ,.login-form,.forget-form {
-    max-height: 100%;
-    overflow-y: auto;
-    padding: 10px 20px;
+  .form-box.login .input-box {
     width: 100%;
-    
-    /* Hide scrollbar arrows in all browsers */
-    scrollbar-width: thin; /* Firefox */
-    scrollbar-color: #c1c1c1 transparent; /* Firefox */
   }
-  
-  /* Chrome, Safari, Edge */
-  .register-form::-webkit-scrollbar {
-    width: 8px;
-    height: 8px; /* For horizontal scrollbars if needed */
+
+  .form-box.hidden {
+    transform: translateY(100%);
   }
-  
-  .register-form::-webkit-scrollbar-track {
-    background: transparent;
+
+  .container.active .form-box.register,
+  .container.active .form-box.forget-password {
+    transform: none;
   }
-  
-  .register-form::-webkit-scrollbar-thumb {
-    background-color: #c1c1c1;
-    border-radius: 4px;
-  }
-  
-  /* Completely remove arrows in WebKit browsers */
-  .register-form::-webkit-scrollbar-button {
-    width: 0;
-    height: 0;
-    display: none;
-  }
-  
-  /* IE and Edge */
-  .register-form {
-    -ms-overflow-style: -ms-autohiding-scrollbar;
-  }
+}
+
+.register-form h1 {
+  text-align: center;
+}
+
+/* Button styles */
+.text-button {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+  padding: 0;
+  margin-top: 10px;
+  display: inline-block;
+}
+
+.text-button:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+
+
+.help-text {
+  margin-top: 20px;
+  font-size: 14px;
+  text-align: center;
+  color: #666;
+}
+
+.register-form,
+.login-form,
+.forget-form {
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 10px 20px;
+  width: 100%;
+
+  /* Hide scrollbar arrows in all browsers */
+  scrollbar-width: thin;
+  /* Firefox */
+  scrollbar-color: #c1c1c1 transparent;
+  /* Firefox */
+}
+
+/* Chrome, Safari, Edge */
+.register-form::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  /* For horizontal scrollbars if needed */
+}
+
+.register-form::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.register-form::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 4px;
+}
+
+/* Completely remove arrows in WebKit browsers */
+.register-form::-webkit-scrollbar-button {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+/* IE and Edge */
+.register-form {
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
 /* =============== TYPOGRAPHY =============== */
 .container h1 {
-    font-size: 24px;
-    margin: -10px 0;
-    font-weight: bold;
-    color: #033672;
+  font-size: 24px;
+  margin: -10px 0;
+  font-weight: bold;
+  color: #033672;
 }
-.toggle-panel .toggle-heading{
-    color: #fff;
-    margin-bottom: 20px;
+
+.toggle-panel .toggle-heading {
+  color: #fff;
+  margin-bottom: 20px;
 }
+
 .container p {
-    font-size: 14.5px;
-    margin: 15px 0;
+  font-size: 14.5px;
+  margin: 15px 0;
 }
 
 .forgot-link a {
-    font-size: 14.5px;
-    color: #333;
+  font-size: 14.5px;
+  color: #333;
 }
 
 /* =============== FORM ELEMENTS =============== */
 .input-box {
-    position: relative;
-    margin: 30px 0;
+  position: relative;
+  margin: 30px 0;
 }
 
 .input-box input,
 .input-box select {
-    width: 100%;
-    padding: 13px 50px 13px 20px;
-    background: #eee;
-    border-radius: 8px;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    color: #333;
-    font-weight: 500;
-    transition: all 0.3s ease;
+  width: 100%;
+  padding: 13px 50px 13px 20px;
+  background: #eee;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  color: #333;
+  font-weight: 500;
+  transition: all 0.3s ease;
 }
 
 .input-box input::placeholder {
-    color: #888;
-    font-weight: 400;
+  color: #888;
+  font-weight: 400;
 }
 
 /* Enhanced input styles */
 .input-box input:not([type="password"]),
 .input-box select {
-    background: #f8f9fa;
-    border: 1px solid #e0e0e0;
-    padding: 12px 15px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  padding: 12px 15px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .input-box input:focus,
 .input-box select:focus {
-    border-color: #033672;
-    box-shadow: 0 0 0 3px rgba(116, 148, 236, 0.2);
-    background: #fff;
+  border-color: #033672;
+  box-shadow: 0 0 0 3px rgba(116, 148, 236, 0.2);
+  background: #fff;
 }
+
 /* Style the DatePicker input box */
-.date-picker-div{
-    width: 100%;
-    
-  }
-  .date-picker {
-    width: 800px;
-    padding: 12px 16px;
-    border-radius: 4px;
-    font-size: 16px;
-    outline: none;
-    border: none;
-    transition: border 0.3s;
-    background-color: #fff;
-    color: #333;
-  }
-  
-  /* Add hover and focus effect */
-  .date-picker:hover,
-  .date-picker:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-  }
-  
-  /* Style the date display below the picker */
-  .date-display {
-    margin-top: 8px;
-    font-size: 14px;
-    color: #555;
-  }
-  .age-display {
-    font-size: 14px;
-    color: #000000;
-    white-space: nowrap;
-    padding: 15px 10px;
-    background-color: #f5f5f5;
-    border-radius: 4px;
-    min-width: 80px;
-    text-align: center;
-    margin-left: 10px;
-    font-weight: bold;
-  }
-  
-  /* Style the DatePicker pop-up container */
-  .react-datepicker {
-    font-family: Arial, sans-serif;
-    border: 1px solid #ccc;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
-    background-color: #fff;
-    z-index: 1000;
-  }
-  
-  /* Style the header buttons (Today, Clear, Close) */
-  .react-datepicker__today-button,
-  .react-datepicker__close-button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .react-datepicker__today-button:hover,
-  .react-datepicker__close-button:hover {
-    background-color: #0056b3;
-  }
-  
-  /* Style the calendar days */
-  .react-datepicker__day {
-    width: 40px;
-    line-height: 40px;
-    font-size: 14px;
-    color: #333;
-    transition: background 0.3s;
-  }
-  
-  .react-datepicker__day:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .react-datepicker__day--selected {
-    background-color: #007bff;
-    color: #fff;
-  }
-  
-  /* Month and year dropdown styling */
-  .react-datepicker__month-dropdown-container,
-  .react-datepicker__year-dropdown-container {
-    margin: 5px 0;
-  }
-  
-  .react-datepicker__month-dropdown,
-  .react-datepicker__year-dropdown {
-    border: 1px solid #ccc;
-    background-color: #fff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    z-index: 1050;
-  }
-  
-  /* Dropdown item styling */
-  .react-datepicker__month-option,
-  .react-datepicker__year-option {
-    padding: 8px 12px;
-    transition: background 0.3s;
-  }
-  
-  .react-datepicker__month-option:hover,
-  .react-datepicker__year-option:hover {
-    background-color: #f0f0f0;
-  }
-  
-  /* Button styling in dropdown */
-  .react-datepicker__navigation {
-    top: 10px;
-    border: none;
-    background: transparent;
-    font-size: 18px;
-    color: #007bff;
-    cursor: pointer;
-  }
-  
-  .react-datepicker__navigation:hover {
-    color: #0056b3;
-  }
-  
-  /* Error state styling (if required) */
-  .date-picker.error {
-    border-color: #dc3545;
-  }
-  
-  .date-picker.error:hover,
-  .date-picker.error:focus {
-    box-shadow: 0 0 5px rgba(220, 53, 69, 0.3);
-  }
-  
+.date-picker-div {
+  width: 100%;
+
+}
+
+.date-picker {
+  width: 800px;
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 16px;
+  outline: none;
+  border: none;
+  transition: border 0.3s;
+  background-color: #fff;
+  color: #333;
+}
+
+/* Add hover and focus effect */
+.date-picker:hover,
+.date-picker:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Style the date display below the picker */
+.date-display {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #555;
+}
+
+.age-display {
+  font-size: 14px;
+  color: #000000;
+  white-space: nowrap;
+  padding: 15px 10px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  min-width: 80px;
+  text-align: center;
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+/* Style the DatePicker pop-up container */
+.react-datepicker {
+  font-family: Arial, sans-serif;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  background-color: #fff;
+  z-index: 1000;
+}
+
+/* Style the header buttons (Today, Clear, Close) */
+.react-datepicker__today-button,
+.react-datepicker__close-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.react-datepicker__today-button:hover,
+.react-datepicker__close-button:hover {
+  background-color: #0056b3;
+}
+
+/* Style the calendar days */
+.react-datepicker__day {
+  width: 40px;
+  line-height: 40px;
+  font-size: 14px;
+  color: #333;
+  transition: background 0.3s;
+}
+
+.react-datepicker__day:hover {
+  background-color: #f0f0f0;
+}
+
+.react-datepicker__day--selected {
+  background-color: #007bff;
+  color: #fff;
+}
+
+/* Month and year dropdown styling */
+.react-datepicker__month-dropdown-container,
+.react-datepicker__year-dropdown-container {
+  margin: 5px 0;
+}
+
+.react-datepicker__month-dropdown,
+.react-datepicker__year-dropdown {
+  border: 1px solid #ccc;
+  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1050;
+}
+
+/* Dropdown item styling */
+.react-datepicker__month-option,
+.react-datepicker__year-option {
+  padding: 8px 12px;
+  transition: background 0.3s;
+}
+
+.react-datepicker__month-option:hover,
+.react-datepicker__year-option:hover {
+  background-color: #f0f0f0;
+}
+
+/* Button styling in dropdown */
+.react-datepicker__navigation {
+  top: 10px;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: #007bff;
+  cursor: pointer;
+}
+
+.react-datepicker__navigation:hover {
+  color: #0056b3;
+}
+
+/* Error state styling (if required) */
+.date-picker.error {
+  border-color: #dc3545;
+}
+
+.date-picker.error:hover,
+.date-picker.error:focus {
+  box-shadow: 0 0 5px rgba(220, 53, 69, 0.3);
+}
+
 
 /* Date input specific styling */
 .input-box input[type="date"] {
-    appearance: none;
-    padding: 12px 15px;
-    color: #333;
+  appearance: none;
+  padding: 12px 15px;
+  color: #333;
 }
 
 .input-box input[type="date"]::-webkit-calendar-picker-indicator {
-    opacity: 0.6;
-    cursor: pointer;
-    transition: opacity 0.2s;
+  opacity: 0.6;
+  cursor: pointer;
+  transition: opacity 0.2s;
 }
 
 .input-box input[type="date"]::-webkit-calendar-picker-indicator:hover {
-    opacity: 1;
+  opacity: 1;
 }
 
 /* =============== PASSWORD FIELDS =============== */
 .password-input {
-    position: relative;
-    margin-bottom: 5px;
+  position: relative;
+  margin-bottom: 5px;
 }
 
 .password-input input {
-    padding-right: 40px;
+  padding-right: 40px;
 }
 
 .password-toggle {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #666;
-    font-size: 16px;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #666;
+  font-size: 16px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
 }
 
 .password-toggle:hover {
-    color: #333;
+  color: #333;
 }
 
 /* =============== ERROR STATES =============== */
 .input-box input.error,
 .input-box select.error {
-    border-color: #ff4d4f;
+  border-color: #ff4d4f;
 }
 
 .input-box input.error:focus,
 .input-box select.error:focus {
-    box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.1);
+  box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.1);
 }
 
 .password-error-container {
-    position: relative;
-    margin-top: -5px;
+  position: relative;
+  margin-top: -5px;
 }
 
 .error-message {
-    color: #ff4d4f;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    text-align: left;
-    padding: 3px 5px 0;
-    animation: fadeIn 0.3s ease;
+  color: #ff4d4f;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  text-align: left;
+  padding: 3px 5px 0;
+  animation: fadeIn 0.3s ease;
 }
 
 .error-message svg {
-    margin-right: 5px;
-    font-size: 14px;
-    flex-shrink: 0;
+  margin-right: 5px;
+  font-size: 14px;
+  flex-shrink: 0;
 }
 
 /* =============== BUTTONS =============== */
-.switch-button{
-    width: fit-content;
-    height: 48px;
-    background: #033672;
-    border-radius: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
-    border: 2px solid #fff;
-    cursor: pointer;
-    padding: 10px 20px;
-    font-size: 16px;
-    color: #fff;
-    font-weight: 600;
-    transition: background 0.3s;
+.switch-button {
+  width: fit-content;
+  height: 48px;
+  background: #033672;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+  border: 2px solid #fff;
+  cursor: pointer;
+  padding: 10px 20px;
+  font-size: 16px;
+  color: #fff;
+  font-weight: 600;
+  transition: background 0.3s;
 }
+
 .button {
-    width: 100%;
-    height: 48px;
-    background: #033672;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-    color: #fff;
-    font-weight: 600;
-    transition: background 0.3s;
+  width: 100%;
+  height: 48px;
+  background: #033672;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: #fff;
+  font-weight: 600;
+  transition: background 0.3s;
 }
 
 .button:hover {
-    background: #033672;
+  background: #033672;
 }
 
 /* =============== THIRD-PARTY COMPONENTS =============== */
 /* React Select */
 .input-box .react-select__control {
-    min-height: 44px;
-    border: 1px solid #e0e0e0;
-    background: #f8f9fa;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
+  min-height: 44px;
+  border: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
 }
 
 .input-box .react-select__control--is-focused {
-    border-color: #033672;
-    box-shadow: 0 0 0 3px rgba(116, 148, 236, 0.2);
-    background: #fff;
+  border-color: #033672;
+  box-shadow: 0 0 0 3px rgba(116, 148, 236, 0.2);
+  background: #fff;
 }
 
 .input-box .react-select__control--is-focused.error {
-    border-color: #ff4d4f;
-    box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.1);
+  border-color: #ff4d4f;
+  box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.1);
 }
 
 /* React Phone Input */
 .input-box .react-tel-input {
-    width: 100%;
+  width: 100%;
 }
 
 .input-box .react-tel-input .form-control {
-    width: 100%;
-    padding: 12px 15px 12px 50px;
-    height: auto;
-    background: #f8f9fa;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    
+  width: 100%;
+  padding: 12px 15px 12px 50px;
+  height: auto;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+
 }
 
 .input-box .react-tel-input .form-control:focus {
-    border-color: #033672;
-    box-shadow: 0 0 0 3px rgba(116, 148, 236, 0.2);
-    background: #fff;
+  border-color: #033672;
+  box-shadow: 0 0 0 3px rgba(116, 148, 236, 0.2);
+  background: #fff;
 }
 
 .input-box .react-tel-input .flag-dropdown {
-    background: transparent;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px 0 0 6px;
-    width: 60px;
-    border-right: none;
+  background: transparent;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px 0 0 6px;
+  width: 60px;
+  border-right: none;
 }
 
 .input-box .react-tel-input .flag-dropdown:hover {
-    border-right: none;
+  border-right: none;
 }
 
 /* =============== CHECKBOXES & LINKS =============== */
 .checkbox-group {
-    margin: 15px 0;
-    display: flex;
-    align-items: flex-start;
-  }
-  
-  .checkbox-group label {
-    display: flex;
-    align-items: flex-start;  /* ✅ important: aligns text to top of checkbox */
-    font-size: 13px;
-    color: #555;
-    line-height: 1.4;
-    cursor: pointer;
-    gap: 10px;
-    flex-wrap: nowrap;
-  }
-  
-  .checkbox-group input[type="checkbox"] {
-    margin-top: 3px;           /* ✅ slight top nudge */
-    flex-shrink: 0;
-    cursor: pointer;
-  }
-  
-  .checkbox-group span {
-    display: block;
-    flex: 1;                   /* ✅ takes up remaining space for wrapping */
-    min-width: 0;
-  }
-  
-  .checkbox-group a {
-    color: #033672;
-    text-decoration: none;
-    transition: color 0.2s;
-    font-weight: bold;
-  }
-  
-  .checkbox-group a:hover {
-    color: #033672;
-    text-decoration: underline;
-  }
-  
-  /* Help Button Styles */
+  margin: 15px 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: flex-start;
+  /* ✅ important: aligns text to top of checkbox */
+  font-size: 13px;
+  color: #555;
+  line-height: 1.4;
+  cursor: pointer;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-top: 3px;
+  /* ✅ slight top nudge */
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.checkbox-group span {
+  display: block;
+  flex: 1;
+  /* ✅ takes up remaining space for wrapping */
+  min-width: 0;
+}
+
+.checkbox-group a {
+  color: #033672;
+  text-decoration: none;
+  transition: color 0.2s;
+  font-weight: bold;
+}
+
+.checkbox-group a:hover {
+  color: #033672;
+  text-decoration: underline;
+}
+
+/* Help Button Styles */
 .auth-help-button {
-   
-    padding: 10px 15px;
-    background-color: #4285f4;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .help-button:hover {
-    background-color: #3367d6;
-  }
-  
-  /* Rest of your existing AuthForm styles... */
+
+  padding: 10px 15px;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.help-button:hover {
+  background-color: #3367d6;
+}
+
+/* Rest of your existing AuthForm styles... */
 
 /* =============== SOCIAL ICONS =============== */
 .social-icons {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .social-icons a {
-    display: inline-flex;
-    padding: 10px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    font-size: 24px;
-    color: #333;
-    margin: 0 8px;
-    transition: all 0.3s;
+  display: inline-flex;
+  padding: 10px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  font-size: 24px;
+  color: #333;
+  margin: 0 8px;
+  transition: all 0.3s;
 }
 
 .social-icons a:hover {
-    background: #f5f5f5;
-    transform: translateY(-2px);
+  background: #f5f5f5;
+  transform: translateY(-2px);
 }
 
 /* =============== TOGGLE PANEL =============== */
 .toggle-box {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
 .toggle-box::before {
-    content: '';
-    position: absolute;
-    left: -250%;
-    width: 300%;
-    height: 100%;
-    background: #033672;
-    border-radius: 150px;
-    transition: 1.8s ease-in-out;
+  content: '';
+  position: absolute;
+  left: -250%;
+  width: 300%;
+  height: 100%;
+  background: #033672;
+  border-radius: 150px;
+  transition: 1.8s ease-in-out;
 }
 
 .toggle-panel {
-    position: absolute;
-    width: 50%;
-    height: 100%;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    z-index: 2;
-    transition: .6s ease-in-out;
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
+  transition: .6s ease-in-out;
 }
 
 .toggle-panel .btn {
-    width: fit-content;
-    height: 46px;
-    background: transparent;
-    border: 2px solid #fff;
-    box-shadow: none;
-    padding: 10px 20px;
+  width: fit-content;
+  height: 46px;
+  background: transparent;
+  border: 2px solid #fff;
+  box-shadow: none;
+  padding: 10px 20px;
 }
 
 .toggle-panel .btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.toastContainer{
-    z-index: 100000;
+.toastContainer {
+  z-index: 100000;
 }
 
 /* =============== ANIMATIONS =============== */
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* =============== STATE CLASSES =============== */
 .container.active .form-box {
-    right: 50%;
+  right: 50%;
 }
 
 .form-box.register {
-    visibility: hidden;
+  visibility: hidden;
 }
 
 .container.active .form-box.register {
-    visibility: visible;
+  visibility: visible;
 }
 
 .container.active .toggle-box::before {
-    left: 50%;
+  left: 50%;
 }
 
 .toggle-panel.toggle-left {
-    left: 0;
-    transition-delay: 1.2s;
+  left: 0;
+  transition-delay: 1.2s;
 }
 
 .container.active .toggle-panel.toggle-left {
-    left: -50%;
-    transition-delay: .6s;
+  left: -50%;
+  transition-delay: .6s;
 }
 
 .toggle-panel.toggle-right {
-    right: -50%;
-    transition-delay: .6s;
+  right: -50%;
+  transition-delay: .6s;
 }
 
 .container.active .toggle-panel.toggle-right {
-    right: 0;
-    transition-delay: 1.2s;
+  right: 0;
+  transition-delay: 1.2s;
 }
 
-.forgot-link{
-    text-align: left;
-    margin-bottom: 20px;
+.forgot-link {
+  text-align: left;
+  margin-bottom: 20px;
 }
+
 .back-button-wrapper {
-    margin-bottom: 1rem;
-    display: flex;
-    gap: 20px;
-    align-items: center;
-  }
-  
-  .back-icon-button {
-    background: #033672;
-    border: none;
-    color: #ffffff;
-    padding: 5px 10px;
-    border-radius: 10px;
-    font-size: 1.5rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    transition: transform 0.2s ease, color 0.2s ease;
-  }
-  
-  .back-icon-button:hover {
-    color: #e6e6e6;
-    transform: translateX(-3px);
-    background-color: #041b34;
-  }
-
-  .toggle-right-content{
-    display: flex;
-    flex-direction: column;
-   justify-content: center;
-   align-items: center;  
-  }
-  
-
-@media screen and (max-width: 650px){
-    .auth-page {
-        background: #fff;
-        max-height: 100Vh;
-        overflow: hidden;
-    }
-  .container{ height: 50vh; 
-    overflow: hidden; 
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 20px;
+  align-items: center;
 }
 
-}
-@media screen and (max-width: 850px){
-    .auth-page {
-        background: #fff;
-        height: 100Vh;
-        overflow: hidden;
-    }
-    .container{ height: calc(100vh - 40px); overflow: hidden; }
-
-    .form-box{
-        bottom: 0;
-        width: 100%;
-        height: 70%;
-    }
-   
-
-    .container.active .form-box{
-            right: 0;
-            bottom: 30%;
-        }
-
-    .toggle-box::before{
-        left: 0;
-        top: -270%;
-        width: 100%;
-        height: 300%;
-        border-radius: 20vw;
-    }
-
-        .container.active .toggle-box::before{
-            left: 0;
-            top: 70%;
-            height: 100%;
-        }
-
-        .container.active .toggle-panel.toggle-left{
-            left: 0;
-            top: -30%;
-        }
-
-    .toggle-panel{ 
-        width: 100%;
-        height: 30%;
-    }
-        .toggle-panel.toggle-left{ top: 0; }
-        .toggle-panel.toggle-right{
-            right: 0;
-            bottom: -30%;
-            visibility: hidden;
-        }
-
-            .container.active .toggle-panel.toggle-right{ bottom: 0; visibility: visible; }
+.back-icon-button {
+  background: #033672;
+  border: none;
+  color: #ffffff;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
-@media screen and (max-width: 400px){
-    /* .form-box { padding: 20px; } */
-
-    .toggle-panel h1{font-size: 30px; }
+.back-icon-button:hover {
+  color: #e6e6e6;
+  transform: translateX(-3px);
+  background-color: #041b34;
 }
+
+.toggle-right-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+@media screen and (max-width: 650px) {
+  .auth-page {
+    background: #fff;
+    max-height: 100Vh;
+    overflow: hidden;
+  }
+
+  .container {
+    height: 50vh;
+    overflow: hidden;
+  }
+
+}
+
+@media screen and (max-width: 850px) {
+  .auth-page {
+    background: #fff;
+    height: 100Vh;
+    overflow: hidden;
+  }
+
+  .container {
+    height: calc(100vh - 40px);
+    overflow: hidden;
+  }
+
+  .form-box {
+    bottom: 0;
+    width: 100%;
+    height: 70%;
+  }
+
+
+  .container.active .form-box {
+    right: 0;
+    bottom: 30%;
+  }
+
+  .toggle-box::before {
+    left: 0;
+    top: -270%;
+    width: 100%;
+    height: 300%;
+    border-radius: 20vw;
+  }
+
+  .container.active .toggle-box::before {
+    left: 0;
+    top: 70%;
+    height: 100%;
+  }
+
+  .container.active .toggle-panel.toggle-left {
+    left: 0;
+    top: -30%;
+  }
+
+  .toggle-panel {
+    width: 100%;
+    height: 30%;
+  }
+
+  .toggle-panel.toggle-left {
+    top: 0;
+  }
+
+  .toggle-panel.toggle-right {
+    right: 0;
+    bottom: -30%;
+    visibility: hidden;
+  }
+
+  .container.active .toggle-panel.toggle-right {
+    bottom: 0;
+    visibility: visible;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  /* .form-box { padding: 20px; } */
+
+  .toggle-panel h1 {
+    font-size: 30px;
+  }
+}
+
 /* Mobile-first adjustments */
 @media screen and (max-width: 850px) {
-  .intro-page, 
+
+  .intro-page,
   .auth-page {
     height: 100vh;
     width: 100vw;
@@ -908,7 +955,8 @@ input:not(.has-placeholder) + .date-placeholder {
     margin: 0;
     padding: 0;
   }
-  .register-form{
+
+  .register-form {
     padding-top: 80px;
   }
 
@@ -973,20 +1021,21 @@ input:not(.has-placeholder) + .date-placeholder {
     bottom: -20%;
     padding-top: 10px;
     margin-top: -10px;
-    
+
   }
 
   .container.active .toggle-panel.toggle-right {
     bottom: 0;
   }
 
-  .toggle-right-content{
-  margin-top: -20px;
+  .toggle-right-content {
+    margin-top: -20px;
   }
-  .switch-button{
+
+  .switch-button {
     padding: 5px 10px;
   }
-  
+
 }
 
 /* Extra small devices (phones under 400px) */
@@ -995,20 +1044,21 @@ input:not(.has-placeholder) + .date-placeholder {
     font-size: 1.5rem;
     margin-bottom: 10px;
   }
-  
+
   .toggle-panel p {
     font-size: 13px;
   }
-  
+
   .switch-button {
     padding: 8px 16px;
     font-size: 14px;
   }
-  
+
   .form-box {
     padding: 15px;
   }
-  .date-picker-container{
+
+  .date-picker-container {
     flex-direction: column;
     gap: 20px;
   }

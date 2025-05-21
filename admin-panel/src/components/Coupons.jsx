@@ -179,6 +179,7 @@ const Coupons = () => {
       );
 
       if (response.ok) {
+        fetchCoupons();
         setSuccessMessage("Coupon added successfully!");
         setCouponCode("");
         setPercentage("");
@@ -246,30 +247,31 @@ const Coupons = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchCoupons = async () => {
-      try {
-        const response = await axios.get(
-          `${baseUrl}/api/courses/${courseId}/coupons`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        setCoupons(response.data.coupons || []);
-      } catch (error) {
-        console.error("Failed to fetch coupons:", error);
-      }
-    };
+  const fetchCoupons = async () => {
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/courses/${courseId}/coupons`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setCoupons(response.data.coupons || []);
+    } catch (error) {
+      console.error("Failed to fetch coupons:", error);
+    }
+  };
 
+  // Fetch on component mount or courseId/token change
+  useEffect(() => {
     fetchCoupons();
   }, [courseId, token]);
 
   return (
     <div className="coupons-container">
       <div className="coupons-header">
-        <h2>Coupons</h2>
+        <h2>Promo codes</h2>
         <button className="add-button" onClick={() => setIsModalOpen(true)}>
-          Add Coupon
+          Add Promo code
         </button>
       </div>
 
@@ -279,7 +281,7 @@ const Coupons = () => {
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="coupon-modal-content">
-            <h3>Add New Coupon</h3>
+            <h3>Add Promo codes</h3>
 
             <input
               type="text"
@@ -307,7 +309,7 @@ const Coupons = () => {
 
             {/* Coupon Type Selection */}
             <div className="section">
-              <h3 className="section-title">Coupon Type</h3>
+              <h3 className="section-title">Promo code Type</h3>
               <div className="coupon-type-selector">
                 <div className="radio-group">
                   <label
@@ -343,7 +345,7 @@ const Coupons = () => {
                           className="check-icon"
                         />
                       </svg>
-                      Common Coupon
+                      Common Promo code
                     </span>
                   </label>
                   <label
@@ -796,9 +798,9 @@ const Coupons = () => {
       )}
 
       <div className="coupon-list">
-        <h3>All Coupons</h3>
+        <h3>All Promo code</h3>
         {coupons.length === 0 ? (
-          <p>No coupons available.</p>
+          <p>No Promo codes available.</p>
         ) : (
           <ul className="coupon-items">
             {coupons.map((coupon) => {
