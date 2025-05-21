@@ -29,7 +29,6 @@ const CourseDetails = () => {
   const email = localStorage.getItem("email");
 
   const currentLanguage = i18n.language;
-  console.log(currentLanguage);
 
   const previousLanguage = useRef(i18n.language); // Store previous language
 
@@ -217,7 +216,6 @@ const CourseDetails = () => {
 
       // Ensure we have a submission date
       if (!submissionData.createdAt) {
-        console.warn("No submission date found in response");
         submissionData.createdAt = new Date().toISOString(); // fallback
       }
 
@@ -264,7 +262,6 @@ const CourseDetails = () => {
 
       setShowSubmissionPopup(true);
     } catch (error) {
-      console.error("Fetch submission error:", error);
       setError(error.message);
       setTimeout(() => setError(null), 5000);
     }
@@ -366,7 +363,6 @@ const CourseDetails = () => {
     navigate("/dashboard", { replace: true });
   };
 
-  console.log(submissionDetails);
 
   if (loading) {
     return (
