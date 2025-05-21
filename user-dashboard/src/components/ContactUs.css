@@ -31,7 +31,7 @@
 .contact-us-div .contact-popup {
   position: fixed;
   bottom: 70px; /* Slightly above the button */
-  right: 60px;
+  right: 40px;
   width: 350px;
   background-color: white;
   border-radius: 8px;
