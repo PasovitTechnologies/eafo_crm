@@ -6,13 +6,13 @@
 /* Button that triggers the popup */
 .contact-us-button {
   position: fixed;
-  bottom: 30px;
+  bottom: 20px;
   right: 30px;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: #cd1719; /* Button color */
-  padding: 15px;
+  padding: 12px;
   border-radius: 50%;
   cursor: pointer;
   z-index: 1000;
@@ -23,14 +23,14 @@
 }
 
 .contact-icon {
-  font-size: 30px; /* Larger icon size */
+  font-size: 25px; /* Larger icon size */
   color: white; /* Icon color */
 }
 
 /* Popup container */
 .contact-us-div .contact-popup {
   position: fixed;
-  bottom: 160px; /* Slightly above the button */
+  bottom: 70px; /* Slightly above the button */
   right: 60px;
   width: 350px;
   background-color: white;
