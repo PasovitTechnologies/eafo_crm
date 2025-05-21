@@ -742,6 +742,7 @@
     "registered_users": "Registered Users for Course",
   "name": "Name",
   "email": "Email",
+  "phone": "Phone",
   "ui_status": "UI Status",
   "course_status": "Course Status",
   "contact": "Contact",
