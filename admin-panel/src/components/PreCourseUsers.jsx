@@ -200,6 +200,7 @@ export default function PreCourseUsers() {
           <tr>
             <th>{t("preCourseUsers.name")}</th>
             <th>{t("preCourseUsers.email")}</th>
+            <th>{t("preCourseUsers.phone")}</th>
             <th>{t("preCourseUsers.ui_status")}</th>
             <th>{t("preCourseUsers.course_status")}</th>
             <th>{t("preCourseUsers.contact")}</th>
@@ -223,6 +224,7 @@ export default function PreCourseUsers() {
               >
                 <td>{user.firstName} {user.middleName} {user.lastName}</td>
                 <td>{user.email}</td>
+                <td>{user.phone}</td>
                 <td>
                   <span className={user.uiStatus === "green" ? "status-green" : "status-red"}>
                     {t(`preCourseUsers.${user.uiStatus === "green" ? "registered" : "not_registered"}`)}
