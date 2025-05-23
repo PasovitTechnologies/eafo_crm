@@ -182,7 +182,7 @@ const Document = () => {
 
       if (response.ok) {
         setRefreshTrigger((prev) => prev + 1);
-        toast.success(t("documentUpload.actions.submit") + " успешно!");
+        toast.success(t("documentUpload.actions.submitSuccess"));
       } else {
         toast.error(`${t("documentUpload.actions.submit")}: ${result.message}`);
       }

@@ -562,7 +562,9 @@
         "replace": "Заменить",
         "remove": "Удалить",
         "submit": "Отправить документы",
-        "submitting": "Отправка..."
+        "submitting": "Отправка...",
+        "submitsubmitSuccess": "Документы поданы успешно"
+
       },
       "errors": {
         "required": "{field} обязателен",

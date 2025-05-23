@@ -569,7 +569,10 @@
       "replace": "Replace",
       "remove": "Remove",
       "submit": "Submit Documents",
-      "submitting": "Submitting..."
+      "submitting": "Submitting...",
+      "submitsubmitSuccess": "Documents submitted successfully"
+
+      
     },
     "errors": {
       "required": "{field} is required",
