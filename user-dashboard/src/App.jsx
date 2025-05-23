@@ -62,8 +62,61 @@ const AutoRedirect = () => {
 
 // 🔐 Protected Route
 const PrivateRoute = ({ element }) => {
-  return isTokenValid() ? element : <Navigate to="/" replace />;
+  const [authorized, setAuthorized] = React.useState(null);
+  const token = localStorage.getItem("token");
+  const email = localStorage.getItem("email");
+
+  React.useEffect(() => {
+    const validate = async () => {
+      if (!token || !email) {
+        localStorage.clear();
+        setAuthorized(false);
+        return;
+      }
+
+      try {
+        const decoded = jwtDecode(token);
+        if (decoded.exp < Date.now() / 1000) {
+          localStorage.clear();
+          setAuthorized(false);
+          return;
+        }
+      } catch {
+        localStorage.clear();
+        setAuthorized(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${import.meta.env.VITE_BASE_URL}/api/user/${email}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          localStorage.clear();
+          setAuthorized(false);
+        } else {
+          setAuthorized(true);
+        }
+      } catch (err) {
+        console.error("Error validating user:", err);
+        localStorage.clear();
+        setAuthorized(false);
+      }
+    };
+
+    validate();
+  }, [token, email]);
+
+  if (authorized === null) return <div><EAFOWaterLoader/></div>;
+
+  return authorized ? element : <Navigate to="/" replace />;
 };
+
 
 // 🧭 Layout with Conditional Navbar
 const Layout = ({ children }) => {
