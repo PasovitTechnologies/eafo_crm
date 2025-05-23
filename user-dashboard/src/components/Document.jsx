@@ -17,6 +17,8 @@ const Document = () => {
     institutionDocument: null
   });
 
+  const baseUrl = import.meta.env.VITE_BASE_URL;
+
   const [filePreviews, setFilePreviews] = useState({});
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [languageCertOption, setLanguageCertOption] = useState("upload");
@@ -76,7 +78,7 @@ const Document = () => {
   
       try {
         const res = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/api/user/${email}/documents`,
+          `${baseUrl}/api/user/${email}/documents`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -211,7 +213,7 @@ const Document = () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/user/${email}/documents`,
+        `${baseUrl}/api/user/${email}/documents`,
         {
           method: "PUT",
           headers: { Authorization: `Bearer ${token}` },
@@ -223,7 +225,7 @@ const Document = () => {
 
       if (response.ok) {
         const res = await fetch(
-          `${import.meta.env.VITE_BASE_URL}/api/user/${email}/documents`,
+          `${baseUrl}/api/user/${email}/documents`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -298,7 +300,7 @@ const Document = () => {
                 </span>
                 <div className="file-actions">
                   <a
-                    href={`${import.meta.env.VITE_BASE_URL}/api/user/file/${
+                    href={`${baseUrl}/api/user/file/${
                       uploadedFiles[field].fileId
                     }`}
                     target="_blank"
@@ -308,7 +310,7 @@ const Document = () => {
                     {t("documentUpload.actions.view")}
                   </a>
                   <a
-                    href={`${import.meta.env.VITE_BASE_URL}/api/user/file/${
+                    href={`baseUrl}/api/user/file/${
                       uploadedFiles[field].fileId
                     }`}
                     download={uploadedFiles[field].fileName}
