@@ -563,7 +563,7 @@
         "remove": "Удалить",
         "submit": "Отправить документы",
         "submitting": "Отправка...",
-        "submitsubmitSuccess": "Документы поданы успешно"
+        "submitSuccess": "Документы поданы успешно"
 
       },
       "errors": {

@@ -570,7 +570,8 @@
       "remove": "Remove",
       "submit": "Submit Documents",
       "submitting": "Submitting...",
-      "submitsubmitSuccess": "Documents submitted successfully"
+      "submitSuccess": "Documents submitted successfully"
+     
 
       
     },
