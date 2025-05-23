@@ -14,7 +14,7 @@ const Document = () => {
     certificatePdf: null,
     certificateLink: "",
     referral: "",
-    institutionDocument: null
+    institutionDocument: null,
   });
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -67,7 +67,7 @@ const Document = () => {
       errorMessage: t("documentUpload.errors.fileType", {
         formats: ".pdf, .jpg, .jpeg, .png",
       }),
-    }
+    },
   };
 
   useEffect(() => {
@@ -75,16 +75,13 @@ const Document = () => {
       const email = localStorage.getItem("email");
       const token = localStorage.getItem("token");
       if (!email || !token) return;
-  
+
       try {
-        const res = await fetch(
-          `${baseUrl}/api/user/${email}/documents`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const res = await fetch(`${baseUrl}/api/user/${email}/documents`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const data = await res.json();
-  
+
         if (res.ok && data.documents) {
           setUploadedFiles(data.documents);
           if (data.referral) {
@@ -99,14 +96,13 @@ const Document = () => {
         setLoadingExistingFiles(false);
       }
     };
-  
+
     const timer = setTimeout(() => {
       fetchDocuments();
     }, 1000);
-  
+
     return () => clearTimeout(timer); // Cleanup on unmount
   }, [refreshTrigger]);
-  
 
   const validateFile = (file, field) => {
     const config = fileConfig[field];
@@ -136,25 +132,63 @@ const Document = () => {
     return true;
   };
 
-  const handleFileChange = (e, field) => {
+  const handleFileChange = async (e, field) => {
     const file = e.target.files[0];
     if (!file) return;
     if (!validateFile(file, field)) return;
 
-    setFormData({ ...formData, [field]: file });
+    setFormData((prev) => ({ ...prev, [field]: file }));
+
     const previewURL = file.type.startsWith("image/")
       ? URL.createObjectURL(file)
       : file.name;
+
     setFilePreviews((prev) => ({ ...prev, [field]: previewURL }));
     setUploadedFiles((prev) => {
       const updated = { ...prev };
       delete updated[field];
       return updated;
     });
+
+    // Auto-upload the file
+    await uploadSingleFile(field, file);
   };
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const uploadSingleFile = async (field, file) => {
+    const email = localStorage.getItem("email");
+    const token = localStorage.getItem("token");
+    if (!email || !token) {
+      toast.error("You must be logged in.");
+      return;
+    }
+
+    const singleFormData = new FormData();
+    singleFormData.append(field, file);
+
+    try {
+      const response = await fetch(`${baseUrl}/api/user/${email}/documents`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: singleFormData,
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        setRefreshTrigger((prev) => prev + 1);
+        toast.success(t("documentUpload.actions.submit") + " успешно!");
+      } else {
+        toast.error(`${t("documentUpload.actions.submit")}: ${result.message}`);
+      }
+    } catch (error) {
+      toast.error("Ошибка при загрузке файла.");
+    }
   };
 
   const handleRemoveFile = (field) => {
@@ -212,24 +246,18 @@ const Document = () => {
     formDataToSend.append("referral", formData.referral);
 
     try {
-      const response = await fetch(
-        `${baseUrl}/api/user/${email}/documents`,
-        {
-          method: "PUT",
-          headers: { Authorization: `Bearer ${token}` },
-          body: formDataToSend,
-        }
-      );
+      const response = await fetch(`${baseUrl}/api/user/${email}/documents`, {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}` },
+        body: formDataToSend,
+      });
 
       const result = await response.json();
 
       if (response.ok) {
-        const res = await fetch(
-          `${baseUrl}/api/user/${email}/documents`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const res = await fetch(`${baseUrl}/api/user/${email}/documents`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const data = await res.json();
 
         if (res.ok && data.documents) {
@@ -300,9 +328,7 @@ const Document = () => {
                 </span>
                 <div className="file-actions">
                   <a
-                    href={`${baseUrl}/api/user/file/${
-                      uploadedFiles[field].fileId
-                    }`}
+                    href={`${baseUrl}/api/user/file/${uploadedFiles[field].fileId}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="document-action-btn document-view-btn"
@@ -310,9 +336,7 @@ const Document = () => {
                     {t("documentUpload.actions.view")}
                   </a>
                   <a
-                    href={`baseUrl}/api/user/file/${
-                      uploadedFiles[field].fileId
-                    }`}
+                    href={`baseUrl}/api/user/file/${uploadedFiles[field].fileId}`}
                     download={uploadedFiles[field].fileName}
                     className="document-action-btn document-download-btn"
                   >
@@ -396,32 +420,32 @@ const Document = () => {
 
       {loadingExistingFiles ? (
         <div className="document-details-skeleton">
-        {/* Page Title */}
-        <div className="skeleton-title shimmer" />
-        <div className="skeleton-subtitle shimmer" />
-    
-        {/* Each document section skeleton */}
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div key={index} className="skeleton-upload-card">
-            <div className="skeleton-section-title shimmer" />
-            <div className="skeleton-section-desc shimmer" />
-            <div className="skeleton-file-box shimmer" />
-          </div>
-        ))}
-    
-        {/* Language certificate toggle */}
-        <div className="skeleton-cert-toggle shimmer" />
-        <div className="skeleton-file-box shimmer" />
-    
-        {/* Certificate Link input (if selected) */}
-        <div className="skeleton-url-input shimmer" />
-    
-        {/* Referral input */}
-        <div className="skeleton-referral-input shimmer" />
-    
-        {/* Submit Button */}
-        <div className="skeleton-submit-button shimmer" />
-      </div>
+          {/* Page Title */}
+          <div className="skeleton-title shimmer" />
+          <div className="skeleton-subtitle shimmer" />
+
+          {/* Each document section skeleton */}
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="skeleton-upload-card">
+              <div className="skeleton-section-title shimmer" />
+              <div className="skeleton-section-desc shimmer" />
+              <div className="skeleton-file-box shimmer" />
+            </div>
+          ))}
+
+          {/* Language certificate toggle */}
+          <div className="skeleton-cert-toggle shimmer" />
+          <div className="skeleton-file-box shimmer" />
+
+          {/* Certificate Link input (if selected) */}
+          <div className="skeleton-url-input shimmer" />
+
+          {/* Referral input */}
+          <div className="skeleton-referral-input shimmer" />
+
+          {/* Submit Button */}
+          <div className="skeleton-submit-button shimmer" />
+        </div>
       ) : (
         <form onSubmit={handleSubmit} className="document-upload-form">
           {renderFileSection(
@@ -538,27 +562,10 @@ const Document = () => {
           </div>
 
           {renderFileSection(
-  "institutionDocument",
-  "institutionDocument.label",
-  "institutionDocument.description"
-)}
-
-          <div className="form-actions">
-            <button
-              type="submit"
-              className="submit-btn"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <span className="spinner"></span>
-                  {t("documentUpload.actions.submitting")}
-                </>
-              ) : (
-                t("documentUpload.actions.submit")
-              )}
-            </button>
-          </div>
+            "institutionDocument",
+            "institutionDocument.label",
+            "institutionDocument.description"
+          )}
         </form>
       )}
     </div>
