@@ -71,7 +71,7 @@ const companies = [
   {
     id: 8,
     name: "FIRMST Study Abroad",
-    website: "www.sa.firmst.tech",
+    website: "sa.firmst.tech",
     logo: "https://static.wixstatic.com/media/df6cc5_41088f6e2d0f44d18b1c7c097947d2cc~mv2.png",
     info: "FIRMST Study Abroad is a platform for tailoring personalized plan for international clinical or scientific rotations in many fields of Medicine and Allied Sciences. We are aimed to facilitate a better experience of away externships by working with reliable partner institutions, orchestrating official paperwork and helping deal with organizational issues before and during the rotation.",
     nameRussian:"FIRMST Обучение за рубежом",
