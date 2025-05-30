@@ -65,7 +65,7 @@ const ContactUs = () => {
               </div>
 
               <div style={{ fontSize: "28px", display: "flex", gap: "15px", alignItems: "center", justifyContent: "center" }}>
-                <a href="https://wa.me/79311112255" target="_blank" rel="noopener noreferrer">
+                <a href="https://wa.me/79851257788" target="_blank" rel="noopener noreferrer">
                   <FaWhatsapp style={{ color: "green", cursor: "pointer" }} />
                 </a>
                 <a href="https://t.me/yourTelegramUsername" target="_blank" rel="noopener noreferrer">

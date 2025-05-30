@@ -6,8 +6,8 @@ const router = express.Router();
 
 // Hardcode the Wappi API base URL
 const WAPPI_BASE_URL = "https://wappi.pro";
-const API_TOKEN = process.env.VITE_WAPPI_API_TOKEN || "6992af14a05c7bd81c47ab1f9d90a27d13c99431";
-const PROFILE_ID = process.env.VITE_WAPPI_PROFILE_ID || "3e4a5c3a-7cce";
+const API_TOKEN = process.env.VITE_WAPPI_API_TOKEN || "f25d8ff6573b44915f8b1b5410dd508b252addbf";
+const PROFILE_ID = process.env.VITE_WAPPI_PROFILE_ID || "82e121fb-e779";
 
 // Middleware to validate API token and profile ID
 const validateCredentials = (req, res, next) => {
