@@ -575,7 +575,7 @@
   font-weight: 600;
 }
 
-.webinar-title {
+.webinar-title , .course-title{
   display: -webkit-box;
   -webkit-line-clamp: 2; /* Limit to 2 lines */
   -webkit-box-orient: vertical;
@@ -949,7 +949,7 @@
     font-weight: 600;
   }
   
-  .webinar-title {
+  .webinar-title , .course-title{
     display: -webkit-box;
     -webkit-line-clamp: 2; /* Limit to 2 lines */
     -webkit-box-orient: vertical;

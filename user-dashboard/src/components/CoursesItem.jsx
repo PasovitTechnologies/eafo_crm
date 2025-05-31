@@ -120,7 +120,7 @@ const CoursesItem = ({ expandingSection, setExpandingSection }) => {
                 <div className="upcoming-label">
                   <span className="dot"></span> {t('courses.upcoming')}
                 </div>
-                <h4>{currentLanguage==="ru"? courses[currentIndex].nameRussian:courses[currentIndex].name}</h4>
+                <h4 className="course-title">{currentLanguage==="ru"? courses[currentIndex].nameRussian:courses[currentIndex].name}</h4>
                 <p>
                   {new Date(courses[currentIndex].date).toLocaleDateString(
                     "en-GB",
