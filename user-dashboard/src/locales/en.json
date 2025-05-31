@@ -10,7 +10,7 @@
   "submitting": "Submitting...",
   "notifications" : "Notifications",
   "no_notifications" : "No new notifications",
-  "document": "Document",
+  "document": "Documents",
   "no_upcoming_courses": "No upcoming courses",
   
   "enquiry": {
@@ -226,7 +226,6 @@
     "step7": "For details: Click any card for full webinar information."
   }
   },
-
   "webinarDetails": {
     "breadcrumb_dashboard": "Personal Account",
     "breadcrumb_webinars": "Webinars",
@@ -380,7 +379,6 @@
     "failed_to_fetch_webinars": "Failed to fetch webinar details.",
     "loading": "Loading..."
   },
-
   "registerPage": {
     "title": "Title",
     "firstName": "First Name",
@@ -449,7 +447,6 @@
     "toastUnexpectedResponse": "Server returned an unexpected response.",
     "toastErrorOccurred": "An error occurred. Please try again."
   },
-  
     "forgetPasswordPage": {
     "forgotPassword": "Forgot Password",
     "email": "Email",
@@ -489,11 +486,7 @@
     "phone": "Phone",
     "ask_question": "Ask a Question",
     "tech_support": "Technical Support"
-  }
-  
-  ,
- 
-  
+  },
   "loginPage": {
     "validEmail": "Please enter a valid email address",
     "validPassword": "Password must be at least 8 characters",
@@ -524,8 +517,6 @@
   "download": "Download",
   "close": "Close"
 },
-
-
   "documentUpload": {
     "title": "Document Submission",
     "subtitle": "Upload all required documents for your application",

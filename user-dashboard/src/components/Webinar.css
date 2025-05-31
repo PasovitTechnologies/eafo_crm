@@ -47,7 +47,7 @@ body {
   gap: 8px;
 }
 
-.back-button {
+.webinar-back-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -59,11 +59,11 @@ body {
   transition: background-color 0.2s;
 }
 
-.back-button:hover {
+.webinar-back-button:hover {
   background-color: #f5f5f5;
 }
 
-.back-icon {
+.webinar-back-icon {
   width: 18px;
   height: 18px;
   color: #616161;

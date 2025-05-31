@@ -191,10 +191,10 @@ const Webinar = () => {
         <div className="breadcrumb-container">
           <button
             type="button"
-            className="back-button"
+            className="webinar-back-button"
             onClick={handleGoBack}
           >
-            <ArrowLeft className="back-icon" />
+            <ArrowLeft className="webinar-back-icon" />
           </button>
           
           <div className="breadcrumb-path">
