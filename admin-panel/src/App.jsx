@@ -40,6 +40,7 @@ import Coupons from "./components/Coupons";
 import GroupsPage from "./components/GroupsPage";
 import CreateGroupPage from "./components/CreateGroupPage";
 import CandidatesPage from "./components/CandidatesPage";
+import ChatBot from "./components/ChatBot";
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -90,6 +91,7 @@ const App = () => {
         <>
           <ToastContainer position="top-right" autoClose={3000} />
           {/* Navbar */}
+          <ChatBot/>
           <Navbar
             isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen}
           />

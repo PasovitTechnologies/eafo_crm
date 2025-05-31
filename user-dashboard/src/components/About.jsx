@@ -62,7 +62,7 @@ const companies = [
   {
     id: 7,
     name: "REMESLO DOBRA Foundation",
-    website: "www.remeslodobra.ru",
+    website: "http://remeslodobra.ru/",
     logo: "https://static.wixstatic.com/media/e6f22e_5da0b7344fbd41f8855314057a03960e~mv2.jpg",
     info: "“REMESLO DOBRA Fund” is a non-profit organisation that provides shelter for people in difficult situations. Its mission is the social adaptation of unemployed and homeless individuals who are wards of charitable foundations and social state institutions in Moscow and the Moscow region.",
     nameRussian:"Фонд помощи социально незащищенным людям “Ремесло добра”",

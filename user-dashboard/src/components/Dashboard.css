@@ -455,6 +455,7 @@
 }
 .course-slider {
   position: relative;
+  max-width: 50%;
 }
 
 .course-details {
@@ -529,8 +530,15 @@
 }
 
 .webinar-slider {
-  
   width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 3em; /* Approximately 2 lines of text */
+  line-height: 1.5em;
+  margin: 0.5em 0;
 }
 
 .webinar-details {
@@ -564,6 +572,17 @@
   font-size: 18px;
   margin: 0;
   font-weight: 600;
+}
+
+.webinar-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 3em; /* Approximately 2 lines of text */
+  line-height: 1.5em;
+  margin: 0.5em 0;
 }
 
 .webinar-details p {

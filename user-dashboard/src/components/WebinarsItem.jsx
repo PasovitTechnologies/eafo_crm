@@ -12,8 +12,8 @@ const WebinarsItem = ({ expandingSection, setExpandingSection }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const {t, i18n}=useTranslation();
-  const currentLanguage= i18n.language;
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language;
 
   useEffect(() => {
     const fetchWebinars = async () => {
@@ -79,8 +79,8 @@ const WebinarsItem = ({ expandingSection, setExpandingSection }) => {
         />
       )}
 
-      <div className="webinars-content">
-        <h3>{t('webinar.breadcrumb_webinars')}</h3>
+<div className="webinars-content">
+        <h3>{t("webinar.breadcrumb_webinars")}</h3>
 
         {loading && <p>Loading...</p>}
         {error && <p className="error">{error}</p>}
@@ -89,7 +89,7 @@ const WebinarsItem = ({ expandingSection, setExpandingSection }) => {
           <div className="webinar-slider">
             <AnimatePresence mode="wait">
               <motion.div
-                key={webinars[currentIndex]?.id} // Ensure a new key is used every change
+                key={webinars[currentIndex]?.id}
                 initial={{ rotateX: 90, opacity: 0, transformOrigin: "bottom" }}
                 animate={{
                   rotateX: 0,
@@ -105,9 +105,13 @@ const WebinarsItem = ({ expandingSection, setExpandingSection }) => {
                 className="webinar-details"
               >
                 <div className="upcoming-label">
-                  <span className="dot"></span> {t('webinar.upcoming')}
+                  <span className="dot"></span> {t("webinar.upcoming")}
                 </div>
-                <h4>{currentLanguage==="ru"? webinars[currentIndex].titleRussian: webinars[currentIndex].title}</h4>
+                <h4 className="webinar-title">
+                  {currentLanguage === "ru"
+                    ? webinars[currentIndex].titleRussian
+                    : webinars[currentIndex].title}
+                </h4>
                 <p>
                   {webinars[currentIndex].date} (
                   {webinars[currentIndex].dayOfWeek})
@@ -117,13 +121,11 @@ const WebinarsItem = ({ expandingSection, setExpandingSection }) => {
             </AnimatePresence>
           </div>
         ) : (
-          !loading && <p>{t('webinar.no_upcoming_webinar')}</p>
+          !loading && <p>{t("webinar.no_upcoming_webinar")}</p>
         )}
-
-        {/* 📌 Add Image in Bottom Right */}
       </div>
       <img
-        src="https://static.wixstatic.com/shapes/df6cc5_aea1a9d582f6423e9ef445fc48d6f4e5.svg"
+        src="https://static.wixstatic.com/shapes/df6cc5_087da3679f794796ba83be90b8db2f7d.svg"
         alt="Webinar Icon"
         className="webinar-icon"
       />

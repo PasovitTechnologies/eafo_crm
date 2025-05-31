@@ -16,6 +16,41 @@ const moment = require("moment-timezone");
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
 
+const OPENAI_API_KEY =process.env.OPENAI_API_KEY
+
+
+router.post('/chat', async (req, res) => {
+  const { message } = req.body;
+
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: message
+      })
+    });
+
+    const data = await response.json();
+
+    // Debug log
+    console.log("OpenAI API response:", data);
+
+    if (!data.choices || !data.choices[0]) {
+      return res.status(500).json({ error: "Invalid response from OpenAI API", detail: data });
+    }
+
+    res.json({ reply: data.choices[0].message.content });
+
+  } catch (error) {
+    console.error("OpenAI fetch error:", error);
+    res.status(500).json({ error: "Internal Server Error", detail: error.message });
+  }
+});
 
 
 

@@ -67,7 +67,7 @@ const CourseHelp = ({ onClose }) => {
               <div className="text-guide">
                 <h3>{t("auth.registrationGuide")}</h3>
                 <ol>
-                  {Array.from({ length: 14 }, (_, i) => (
+                  {Array.from({ length: 11 }, (_, i) => (
                     <li key={i}>
                       <strong>{i + 1}.</strong>{" "}
                       {t(`courses.HelpSteps.step${i + 1}`)}

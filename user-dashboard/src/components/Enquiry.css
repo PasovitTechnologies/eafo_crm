@@ -104,7 +104,7 @@
   align-items: center;
 }
 
-.back-icon-button {
+.enquiry-back-icon-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -116,7 +116,7 @@
   transition: background-color 0.2s;
 }
 
-.back-icon-button:hover {
+.enquiry-back-icon-button:hover {
   background-color: #f5f5f5;
 }
 .enquiry-help-button {
@@ -227,7 +227,7 @@
   box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
 }
 
-.filter-dropdown {
+.enquiry-filter-dropdown{
   width: 180px;
   min-width: 150px;
   appearance: none;
@@ -237,6 +237,8 @@
   background-size: 1rem;
   border: 1px solid rgba(0, 0, 0, 0.1);
   margin-right: 15px;
+  padding: 10px 10px;
+  border-radius: 10px;
 }
 
 .raise-btn {

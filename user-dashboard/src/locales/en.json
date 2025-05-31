@@ -59,6 +59,9 @@
     "rateSolution": "Rate this solution:",
     "rateButton": "Rate",
     "editButton": "Edit",
+    "messageTooShort": "Message must be at least 10 characters long.",
+    "characters": "characters",
+    "minCharacters": "minimum 10 required",
     "help":"How to Raise Enquiry?",
     "HelpSteps": {
     "step1": "Click on “Enquiries/Need help?” on your homepage.",
@@ -88,7 +91,7 @@
   "registrationGuide": "Registration Guide",
   "registrationVideo": "Registration Video",
   "videoDescription": "Watch this video for a step-by-step registration process.",
-  "contactSupport": "For further assistance, please contact our support team via email at 📧 or by phone at ☎.",
+  "contactSupport": "For further assistance, please contact our support team via email at 📧 Support@eafo.info or by phone at ☎ +79851257788.",
     "RegisterSteps": {
     "step1": "Select your professional title (e.g., Dr., Prof.) from the drop-down menu.",
     "step2": "Enter your full name exactly as it appears on your official ID (first, middle, last).",
@@ -141,18 +144,16 @@
         "help": "How to Register for course?",
         "HelpSteps": {
           "step1": "Click on the “Courses” tab on your homepage.",
-          "step2": "Click \"Register (Enroll) Now\" on your selected course.",
-          "step3": "Under “Available Forms” click “Register/Enroll” for the “Register & Housing Form.”",
-          "step4": "Select Group (if applicable): Group A or B for session scheduling.",
-          "step5": "Select Registration Type: UG & PG Students, PhD Scholars under 30 years / Extra Subsidized / Subsidized / Online etc.",
-          "step6": "Category of Registration: Registration + Shared Apartment Accommodation / Only Registration.",
-          "step7": "Submit Required Documents: Upload ID/Proof (PDF/JPG/PNG, max 5MB).",
-          "step8": "Select for visa accordingly.",
-          "step9": "Accept Terms & Conditions: Check mandatory agreement boxes.",
-          "step10": "You are now registered. You can click on the “Details” button to check your details.",
-          "step11": "Click “Pay amount” to pay for the registration.",
-          "step12": "Access Confirmation & Documents: View registration details.",
-          "step13": "Complete Payment: After registration, click \"Pay Now\" → Pay using the link → confirm payment."
+          "step2": "Search for the course using the search bar or the drop-down menu.",
+          "step3": "After you select the course, you will be taken to the course page.",
+          "step4": "You can either access the course website or register.",
+          "step5": "Under “Available Forms” click “Register” for the “Register & Housing Form.”",
+          "step6": "Fill out your details and submit any necessary documents.",
+          "step7": "Make sure not to exceed the file size limit of 5 MB.",
+          "step8": "Submit the registration form.",
+          "step9": "You are now registered. You can click on the “Details” button to check your details.",
+          "step10": "Within 72 hours you will receive an invoice for the payment of the course.",
+          "step11": "After receiving the invoice, click “Pay amount” to pay for the registration."
                 }
     },
     "course_details": {
