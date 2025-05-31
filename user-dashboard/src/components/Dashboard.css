@@ -245,7 +245,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 1; /* Ensure it's on top */
+  z-index: 2; /* Ensure it's on top */
 }
 
 /* 🌟 Profile Image */
@@ -314,6 +314,7 @@
 
 /* 🌟 Right Side Arrow */
 .profile-arrow-right {
+  z-index: 1;
   position: absolute;
   right: 20px;
   bottom: 20px;
@@ -455,13 +456,12 @@
 }
 .course-slider {
   position: relative;
-  max-width: 50%;
 }
 
 .course-details {
   position: absolute;
   width: 100%;
-  background: rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.50);
   padding: 10px;
   border-radius: 8px;
   backdrop-filter: blur(0.5px);
@@ -469,6 +469,7 @@
   text-align: left;
   padding: 10px;
   margin-top: 10px;
+  z-index: 1;
 }
 
 .upcoming-label {
@@ -544,7 +545,7 @@
 .webinar-details {
   position: absolute;
   width: 100%;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.50);
   padding: 10px;
   border-radius: 8px;
   backdrop-filter: blur(0.5px);
@@ -869,7 +870,11 @@
     gap: 15px;
     padding-bottom: 10px;
     scroll-behavior:smooth;
+    margin: 10px;
+    padding: 2px;
   }
+ 
+ 
 
   .profile-welcome span {
     font-size: 20px;
@@ -936,5 +941,22 @@
   .social-icon {
     width: 35px;
     height: 35px;
+  }
+
+  .webinar-details h4 {
+    font-size: 16px;
+    margin: 0;
+    font-weight: 600;
+  }
+  
+  .webinar-title {
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* Limit to 2 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: 3em; /* Approximately 2 lines of text */
+    line-height: 1.5em;
+    margin: 0.5em 0;
   }
 }
