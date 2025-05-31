@@ -10,6 +10,26 @@
   font-family: "Inter Tight", sans-serif;
 
 }
+.special-user {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-left: 4px solid #4caf50; /* green accent */
+  background-color: #f0fdf4;
+  color: #256029;
+  font-weight: 500;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.special-user p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
 /* Main container */
 .webinar-header-container {

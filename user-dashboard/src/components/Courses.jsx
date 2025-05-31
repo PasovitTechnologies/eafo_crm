@@ -6,8 +6,7 @@ import "./Courses.css";
 import { motion } from "framer-motion";
 import Loading from "./Loading";
 import CourseHelp from "./HelpComponents/CourseHelp";
-import { ArrowLeft, Search, ChevronDown, HelpCircle } from 'lucide-react';
-
+import { ArrowLeft, Search, ChevronDown, HelpCircle } from "lucide-react";
 
 const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -25,7 +24,8 @@ const Courses = () => {
   const currentLanguage = i18n.language;
   const [showHelpPopup, setShowHelpPopup] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  
+  const [checkspecialUser, setCheckSpecialUser] = useState();
+
   useEffect(() => {
     // ✅ Check if token is available in localStorage
     const token = localStorage.getItem("token");
@@ -45,6 +45,7 @@ const Courses = () => {
   const fetchCourses = async () => {
     setLoading(true);
     const token = localStorage.getItem("token");
+    const userEmail = localStorage.getItem("email");
 
     if (!token) {
       console.error("Unauthorized access. No token found.");
@@ -68,31 +69,46 @@ const Courses = () => {
 
       const data = await response.json();
 
+      // Check if user is in special email list
+      const isSpecialUser = [
+        "sasinarayanan2003@gmail.com",
+        "theva.prime@gmail.com",
+        "drsoma@gmail.com",
+      ].includes(userEmail);
+
+      if (isSpecialUser) {
+        setCheckSpecialUser(true); // ✅ Correct
+      }
+
       const processedCourses = data
-  .filter(course => course.status === "Active") // 🔥 Only keep active courses
-  .map((course) => {
-    const courseDate = course.date ? new Date(course.date) : null;
-    const courseEndDate = course.endDate ? new Date(course.endDate) : null;
+        // Only filter if not special user
+        .filter((course) => isSpecialUser || course.status === "Active")
+        .map((course) => {
+          const courseDate = course.date ? new Date(course.date) : null;
+          const courseEndDate = course.endDate
+            ? new Date(course.endDate)
+            : null;
 
-    return {
-      ...course,
-      fullDate: courseDate,
-      fullEndDate: courseEndDate,
-      formattedDate: courseDate
-        ? courseDate.toLocaleDateString("en-GB")
-        : "N/A",
-      formattedEndDate: courseEndDate
-        ? courseEndDate.toLocaleDateString("en-GB")
-        : "N/A",
-      dateRange:
-        courseDate && courseEndDate
-          ? `${courseDate.toLocaleDateString("en-GB")} - ${courseEndDate.toLocaleDateString("en-GB")}`
-          : courseDate
-          ? courseDate.toLocaleDateString("en-GB")
-          : "N/A",
-    };
-  });
-
+          return {
+            ...course,
+            fullDate: courseDate,
+            fullEndDate: courseEndDate,
+            formattedDate: courseDate
+              ? courseDate.toLocaleDateString("en-GB")
+              : "N/A",
+            formattedEndDate: courseEndDate
+              ? courseEndDate.toLocaleDateString("en-GB")
+              : "N/A",
+            dateRange:
+              courseDate && courseEndDate
+                ? `${courseDate.toLocaleDateString(
+                    "en-GB"
+                  )} - ${courseEndDate.toLocaleDateString("en-GB")}`
+                : courseDate
+                ? courseDate.toLocaleDateString("en-GB")
+                : "N/A",
+          };
+        });
 
       setCourses(processedCourses);
       setFilteredCourses(processedCourses);
@@ -117,7 +133,6 @@ const Courses = () => {
     }
 
     try {
-
       const response = await fetch(`${baseUrl}/api/user/${userEmail}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -177,7 +192,6 @@ const Courses = () => {
   };
 
   const handleRegister = async (courseId, slug) => {
-
     const token = localStorage.getItem("token");
     const userEmail = localStorage.getItem("email");
 
@@ -213,7 +227,6 @@ const Courses = () => {
 
       const formId = form.formId;
 
-
       navigate(`/dashboard/courses/${slug}/forms/${formId}`, {
         state: { formId: formId },
       });
@@ -244,85 +257,87 @@ const Courses = () => {
       <div className="courses-page">
         {showHelpPopup && <CourseHelp onClose={toggleHelpPopup} />}
         <div className="webinar-header-container">
-      {/* Breadcrumb and Help */}
-      <div className="webinar-header-top">
-        <div className="breadcrumb-container">
-          <button
-            type="button"
-            className="back-button"
-            aria-label={t("forgetPasswordPage.backToLogin")}
-            onClick={handleGoBack}
-          >
-            <ArrowLeft className="back-icon" />
-          </button>
-          
-          <div className="breadcrumb-path">
-            <span 
-              onClick={() => navigate("/dashboard")}
-              className="breadcrumb-link"
-            >
-              {t("webinar.breadcrumb_dashboard")}
-            </span>
-            <span className="breadcrumb-separator">/</span>
-            <span className="breadcrumb-current">
-              {t("courses.courses")}
-            </span>
-          </div>
-        </div>
-        
-        <button 
-          className="help-button"
-          onClick={toggleHelpPopup}
-        >
-          <HelpCircle className="help-icon" />
-          {t("courses.help")}
-        </button>
-      </div>
-      
-      {/* Search and Filter */}
-      <div className="search-filter-wrapper">
-        <div className="search-container">
-          <div className="search-icon-wrapper">
-            <Search className="search-icon" />
-          </div>
-          <input
-            type="text"
-            className="search-input"
-            placeholder={t("courses.search_placeholder")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        
-        <div className="filter-container">
-          <div 
-            className="filter-selector"
-            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          >
-            <span>{t(`webinar.${filter.toLowerCase()}`) || filter}</span>
-            <ChevronDown className="dropdown-icon" />
-          </div>
-          
-          {isDropdownOpen && (
-            <div className="filter-dropdown">
-              {['All', 'Upcoming', 'Past', 'Registered'].map((option) => (
-                <div 
-                  key={option} 
-                  className="dropdown-option"
-                  onClick={() => {
-                    setFilter(option);
-                    setIsDropdownOpen(false);
-                  }}
+          {/* Breadcrumb and Help */}
+          <div className="webinar-header-top">
+            <div className="breadcrumb-container">
+              <button
+                type="button"
+                className="back-button"
+                aria-label={t("forgetPasswordPage.backToLogin")}
+                onClick={handleGoBack}
+              >
+                <ArrowLeft className="back-icon" />
+              </button>
+
+              <div className="breadcrumb-path">
+                <span
+                  onClick={() => navigate("/dashboard")}
+                  className="breadcrumb-link"
                 >
-                  {t(`courses.${option.toLowerCase()}`)}
-                </div>
-              ))}
+                  {t("webinar.breadcrumb_dashboard")}
+                </span>
+                <span className="breadcrumb-separator">/</span>
+                <span className="breadcrumb-current">
+                  {t("courses.courses")}
+                </span>
+              </div>
             </div>
-          )}
+
+            <button className="help-button" onClick={toggleHelpPopup}>
+              <HelpCircle className="help-icon" />
+              {t("courses.help")}
+            </button>
+          </div>
+
+          {/* Search and Filter */}
+          <div className="search-filter-wrapper">
+            <div className="search-container">
+              <div className="search-icon-wrapper">
+                <Search className="search-icon" />
+              </div>
+              <input
+                type="text"
+                className="search-input"
+                placeholder={t("courses.search_placeholder")}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <div className="filter-container">
+              <div
+                className="filter-selector"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              >
+                <span>{t(`webinar.${filter.toLowerCase()}`) || filter}</span>
+                <ChevronDown className="dropdown-icon" />
+              </div>
+
+              {isDropdownOpen && (
+                <div className="filter-dropdown">
+                  {["All", "Upcoming", "Past", "Registered"].map((option) => (
+                    <div
+                      key={option}
+                      className="dropdown-option"
+                      onClick={() => {
+                        setFilter(option);
+                        setIsDropdownOpen(false);
+                      }}
+                    >
+                      {t(`courses.${option.toLowerCase()}`)}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
- 
+
+        {checkspecialUser && (
+          <div className="special-user">
+            <p>🌟 You are a company user with inactive course access.</p>
+          </div>
+        )}
 
         <div className="courses-list">
           {loading && (
