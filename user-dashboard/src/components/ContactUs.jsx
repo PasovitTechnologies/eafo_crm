@@ -42,7 +42,7 @@ const ContactUs = () => {
                   <h4><strong>{t("AuthContact.phone")}:</strong></h4>
                   <span>
                     <a target="_blank" rel="noopener noreferrer">
-                      +7 (931) 111-22-55
+                    +7 (985) 125-77-88
                     </a>
                   </span>
                 </div>
@@ -68,7 +68,7 @@ const ContactUs = () => {
                 <a href="https://wa.me/79851257788" target="_blank" rel="noopener noreferrer">
                   <FaWhatsapp style={{ color: "green", cursor: "pointer" }} />
                 </a>
-                <a href="https://t.me/yourTelegramUsername" target="_blank" rel="noopener noreferrer">
+                <a href="https://t.me/79851257788" target="_blank" rel="noopener noreferrer">
                   <FaTelegram style={{ color: "blue", cursor: "pointer" }} />
                 </a>
               </div>
