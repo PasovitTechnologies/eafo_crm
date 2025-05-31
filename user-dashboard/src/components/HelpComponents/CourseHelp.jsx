@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import "../HelpPopup.css";
+import DOMPurify from 'dompurify';
 
 const CourseHelp = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState("text");
@@ -105,7 +106,11 @@ const CourseHelp = ({ onClose }) => {
                       strokeLinejoin="round"
                     />
                   </svg>
-                  <p>{t("auth.contactSupport")}</p>
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(t("auth.contactSupport")),
+                    }}
+                  />
                 </div>
               </div>
             ) : (
