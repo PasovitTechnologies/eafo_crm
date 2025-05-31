@@ -114,9 +114,8 @@ const WebinarsItem = ({ expandingSection, setExpandingSection }) => {
                 </h4>
                 <p>
                   {webinars[currentIndex].date} (
-                  {webinars[currentIndex].dayOfWeek})
+                  {webinars[currentIndex].dayOfWeek}) {webinars[currentIndex].time}
                 </p>
-                <p>{webinars[currentIndex].time}</p>
               </motion.div>
             </AnimatePresence>
           </div>
