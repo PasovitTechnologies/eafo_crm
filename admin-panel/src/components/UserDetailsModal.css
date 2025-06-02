@@ -129,6 +129,7 @@
 /* 🟡 User Info */
 .user-info-header {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 15px;
@@ -294,7 +295,23 @@
 .file-response i {
   font-size: 14px;
 }
+.button-class{
+  display: flex;
+  gap: 10px;
+}
 
+.export-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #e0e0e0;
+  color: #000;
+}
+
+.email-sent-time {
+  font-size: 0.8rem;
+  color: #666;
+  margin-left: 8px;
+}
 /* 🔥 Animations */
 @keyframes slideIn {
   from {

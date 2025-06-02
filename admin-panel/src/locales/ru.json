@@ -202,7 +202,12 @@
     "download": "Скачать",
 
     "submissionDetails": "Детали заявки",
-    "unknownQuestion": "Неизвестный вопрос"
+    "unknownQuestion": "Неизвестный вопрос",
+    
+    "sendReminder": "Отправить напоминание",
+    "reminderSent": "Напоминание отправлено",
+    "sendConfirmation": "Отправить подтверждение",
+    "confirmationSent": "Подтверждение отправлено"
   },
   "invoiceManager": {
       "searchCourses": "Поиск курсов...",

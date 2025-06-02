@@ -134,301 +134,894 @@ const getEmailTemplate = (lang, user, courseName, package) => {
   }
 };
 
-const getCompetitiveEmailTemplate = (lang, user) => {
+const template1EmailTemplate = (lang, user) => {
   const {
     title = "",
     firstName = "",
     middleName = "",
     lastName = "",
+    gender = "",
+    package: packageName = "",
+    price = "",
+    submissionDate = "",
   } = user.personalDetails || {};
+
   const fullName =
     lang === "ru"
       ? `${title} ${lastName} ${firstName} ${middleName}`.trim()
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
+  const salutation =
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+      ? "Уважаемая"
+      : "Уважаемый";
+
   if (lang === "ru") {
     return {
-      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
       html: `
-        <p><strong>Уважаемый(ая) ${fullName},</strong></p>
+        <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
 
-        <p>Мы благодарим Вас за регистрацию и будем рады видеть Вас на Базовых курсах!</p>
+        <p>От лица организационного комитета EAFO мы рады сообщить Вам, что Ваша заявка на Конкурсное участие в XI EAFO Базовых медицинских курсах находится на рассмотрении!</p>
 
-        <p>Для участия в конкурсе для получения возможности участвовать в Курсах по определенной сниженной ценовой категории , Вы должны подать все необходимые файлы (копия паспорта, мотивационное письмо, резюме, при наличии – академические и языковые сертификаты) в разделе «Документы» личного кабинета EAFO (второй раздел слева).</p>
-
-        <p>Обращаем Ваше внимание, что их подача осуществляется <strong>(указано Московское время, GMT+3):</strong></p>
+        <p>Вы выбрали следующую категорию и пакет участия:</p>
         <ul>
-          <li>По конкурсным ценам первого уровня – до 23:59 <strong style="color:#cc0000">31 мая [СБ] 2025</strong></li>
-          <li>Второго уровня – до 23:59 <strong style="color:#cc0000">30 июня [ПН] 2025</strong></li>
-          <li>Третьего уровня – до 23:59 <strong style="color:#cc0000">16 июля [СР] 2025</strong></li>
+          <li><strong>Категория участия:</strong> Конкурсное участие</li>
+          <li><strong>Пакет участия:</strong> ${packageName}</li>
+          <li><strong>Дата подачи заявки:</strong> ${submissionDate}</li>
+          <li><strong>Стоимость участия:</strong> ${price}</li>
         </ul>
-        <p>Участники, подавшие заявку с 17 по 22 июля, могут претендовать только на участие по ценам соответствующего неконкурсного участия третьего уровня.</p>
 
-        <p><strong>Участники, подавшие <span style="color:#cc0000">все</span> необходимые документы до указанных сроков, претендуют на конкурсные цены соответствующего уровня, независимо от даты оглашения результатов отбора.</strong></p>
-        
-        <p style="color:#0000ff"><strong style="color:#0000ff">Рекомендации по написанию мотивационного письма и резюме:</strong></p>
-        <p><strong style="text-decoration:underline">Мотивационное письмо</strong><br>
-        Напишите, почему Вы бы хотели принять участие в Базовых курсах и как знания, полученные во время Курсов, могут повлиять на Вашу профессиональную жизнь. Вы можете раскрыть свою жизненную позицию, описать Ваши таланты и деятельность, которой посвящаете время помимо учебы. Приветствуется написание мотивационного письма на английском языке – таким образом Вы доказываете достойное им владение (письмо на русском также будет принято).</p>
+        <p>Подробнее о мероприятии, категориях участия и их стоимости Вы можете узнать на нашем сайте:<br>
+        <a href="https://www.basic.eafo.info" target="_blank">www.basic.eafo.info</a></p>
 
-        <p><strong style="text-decoration:underline">Резюме</strong><br>
-        Ваше резюме может отражать Ваши научные публикации, выступления на конференциях, опыт работы, стажировки и др. Вы можете отправить резюме на русском, английском или обоих языках.</p>
+        <p>После проверки Вашей заявки мы направим Вам персональную ссылку для прохождения вступительного тестирования, необходимого для конкурсного отбора. Уведомление о возможности прохождения теста также появится в Вашем личном кабинете EAFO.</p>
 
-        <p style="color:#cc0000"><strong style="color:#cc0000;text-decoration:underline">ВНИМАНИЕ! Информация о тестировании для участников конкурсного отбора.</strong><br></p>
-        <p>В следующем письме от ______________  Вы получите ссылку на вступительное тестирование с инструкциями к его выполнению. После выполнения тестовых заданий и загрузки всех необходимых документов будут оглашены результаты конкурсного отбора. На тестировании предусмотрен строгий <strong>прокторинг</strong> (контроль честности тестирования).</p>
+        <p>Если Вы хотите прикрепить дополнительные документы к заявке, Вы можете сделать это через личный кабинет EAFO:<br>
+        <a href="https://www.ui.eafo.info" target="_blank">www.ui.eafo.info</a></p>
 
-        <p><strong>Результаты первой волны конкурсного отбора будут объявлены до 23:59 7 июня, второй – до 23:59 7 июля, третьей – до 23:59 18 июля.</strong> Вы получите письмо с почтового ящика: <a href="mailto:basic@eafo.info">basic@eafo.info</a> , в котором будут оглашаться результаты отбора со ссылкой на оплату.</p>
+        <p>В случае возникновения вопросов, связанных с участием в XI EAFO Базовых медицинских курсах, а также по вопросам Вашей заявки, стоимости участия и организации проживания, просим обращаться по электронной почте:<br>
+        <a href="mailto:basic@eafo.info">basic@eafo.info</a></p>
 
-        
-        <p>Если Вы пройдете конкурсный отбор, Вы будете участвовать по цене конкурсного участия того уровня, который был на момент подачи всех необходимых документов в личный кабинет. Если Вы не окажетесь в числе самых сильных кандидатов, прошедших конкурсный отбор, Вы будете претендовать на участие в Курсах по ценам льготного неконкурсного участия соответствующего уровня, в зависимости от срока подачи всех необходимых документов.</p>
+        <p>По техническим вопросам, касающимся работы сайта и личного кабинета, пожалуйста, обращайтесь в службу технической поддержки:<br>
+        <a href="mailto:support@eafo.info">support@eafo.info</a></p>
 
-        <p>Если у вас возникнут вопросы, вы можете связаться с нами по адресу: basic@eafo.info или по телефону: +7 (931) 111-22-55</p>
-        
-        <p>В случае возникновения любых вопросов, пожалуйста, свяжитесь с нашей службой технической поддержки по адресу: support@eafo.info</p>
-        
-        <p>Будем рады видеть Вас на Курсах!</p>
+        <p>Мы всегда готовы оказать необходимую помощь и поддержку для комфортного участия в мероприятии!</p>
 
-        <p>С уважением,<br>Организационный комитет Базовых курсов.</p>
+        <p><strong>Благодарим за регистрацию и будем рады видеть Вас на Базовых курсах!</strong></p>
+
+        <p>С уважением,<br>Организационный комитет EAFO</p>
       `,
     };
   }
 
+  // English version (if needed, can be adjusted similarly)
   return {
-    subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
+    subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
     html: `<p><strong>Dear ${fullName},</strong></p>
-
-<p>You are welcome to the XI EAFO Basic Oncology/Oncopathology Courses and are delighted to await seeing you soon!</p>
-
-<p>To participate in the Courses at the particular reduced price, you <strong>must upload</strong> all the required files (copy of your passport, motivation letter, CV, and, if you have them, academic and language certificates) in the "Documents" section of your EAFO personal profile.</p>
-
-<p>The submission of all required files should be performed by <strong>(Moscow time, GMT +3):</strong></p>
-<ul>
-  <li>Most favorable subsidized participation fee (first-level price) – before 23:59 <strong style="color:#cc0000">May 31 (Saturday), 2025</strong></li>
-  <li>Second-level price – before 23:59 <strong style="color:#cc0000">June 30 (Monday), 2025</strong></li>
-  <li>Third-level price – before 23:59 <strong style="color:#cc0000">July 16 (Wednesday), 2025</strong></li>
-</ul>
-<p>Those who apply on July 17-22, 2025 can qualify only for a third-level price of the respective non-competitive participation.</p>
-<p><strong>Participants who have submitted <strong style="color:#cc0000">all</strong> the requested documents as per the above-mentioned timeline, are eligible for the fees of the respective level, regardless of the results announcement date</strong></p>
-
-<p><strong style="color:#0000ff">Recommendations for Letter of Motivation and Resume (CV):</strong></p>
-<p><strong style="text-decoration:underline">Letter of Motivation:</strong></p>
-<p>Your Letter of Motivation is a way to tell us why you are interested in the Basic Medical Courses and how the attained knowledge can contribute to the establishment of a well-trained specialist in medicine or allied sciences. We are curious to get initial understanding of your life philosophy, talents, and hobbies. The Letter can be written in any language, though writing it in English for Russian & Commonwealth citizens and in Russian for citizens of other countries would be highly appreciated!</p>
-<p><strong style="text-decoration:underline">Resume (CV)</strong></p>
-<p>In your Resume (CV) you are welcome to reflect your publication list (articles and abstracts), most important conferences and courses you participated in, internships, work experience etc. The Resume can be written in English, Russian, or both languages.</p>
-
-<p style="color:#cc0000;text-decoration:underline"><strong>ATTENTION!</strong> Instructions on the entry testing for the competitive admission.</p>
-
-<p>In the next email from __________ you will receive a link to the entry testing with further instructions. Remember: you are eligible for competitive selection provided you have submitted all the required documents, and entry testing is only one part of it. The entrance test will be <strong style="color:#cc0000">proctored. NB!</strong> The entrance test will be <strong style="color:#cc0000">IN RUSSIAN LANGUAGE</strong> because most of the lectures and other activities at the course will be in Russian and there won't be any synchronous translation.</p>
-
-<p><strong>The results of competitive selection will be announced before 23:59 June, 7 for the first admission wave, before 23:59 July, 7 – for the second wave, before July, 18 – for the third wave.</strong> You will here from us from <a href="mailto:basic@eafo.info">basic@eafo.info</a> with the results and a payment link.</p>
-
-<p>If your application is strong enough, you will qualify to participate in the courses at the competitive participation price of the corresponding level; if not, you'll qualify for participation for the price of a subsidized non-competitive participation of the respective level, according to the time of all required documents submission.</p>
-
-<p>If you have any questions, you can contact us at: basic@eafo.info or by  phone at: +7 (931) 111-22-55</p>
-<p>For any technical issues, please contact our support team at: support@eafo.info</p>
-
-<p>We are looking forward to seeing you at our Courses!</p>
-
-<p>With best regards,<br>Organizing Committee of the XI Basic Medical Courses – 2025</p>`,
+      <p>Your application for Competitive participation in the XI EAFO Basic Medical Course is under review.</p>
+      <p><strong>Participation details:</strong></p>
+      <ul>
+        <li><strong>Category:</strong> Competitive</li>
+        <li><strong>Package:</strong> ${packageName}</li>
+        <li><strong>Submission Date:</strong> ${submissionDate}</li>
+        <li><strong>Price:</strong> ${price}</li>
+      </ul>
+      <p>We’ll send you a testing link and instructions soon. Thank you for registering!</p>
+      <p>Best regards,<br/>EAFO Organizing Committee</p>`,
   };
 };
 
-const getSubsidizedParticipationEmailTemplate = (lang, user) => {
+
+const template2EmailTemplate = (lang, user) => {
   const {
     title = "",
     firstName = "",
     middleName = "",
     lastName = "",
+    gender = "",
+    package: packageName = "",
+    price = "",
+    submissionDate = "",
   } = user.personalDetails || {};
+
   const fullName =
     lang === "ru"
       ? `${title} ${lastName} ${firstName} ${middleName}`.trim()
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
+  const salutation =
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+      ? "Уважаемая"
+      : "Уважаемый";
+
   if (lang === "ru") {
     return {
-      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
       html: `
-        <p><strong>Уважаемый(ая) ${fullName},</strong></p>
+        <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
 
-        <p>Мы благодарим Вас за регистрацию и будем рады видеть Вас на Базовых курсах!</p>
+        <p>От лица организационного комитета EAFO мы рады сообщить Вам, что Ваша заявка на участие в Базовых медицинских курсах успешно зарегистрирована!</p>
 
-        <p>Вы выбрали вариант льготного неконкурсного участия. Информируем Вас, что Вы в <strong style="color:#cc0000">обязательном</strong> порядке должны прикрепить <strong>факт учебы/работы в государственном/некоммерческом учреждении и копию паспорта</strong> в разделе «Документы» личного кабинета EAFO. Подача других документов, обозначенных в этом разделе личного кабинета, является необязательным, но очень желательным условием участия – нам интересно познакомиться с Вашей профессиональной историей и достижениями!</p>
+        <p>Вы выбрали следующую категорию и пакет участия:</p>
+        <ul>
+          <li><strong>Категория участия:</strong> Льготное Внеконкурсное участие</li>
+          <li><strong>Пакет участия:</strong> ${packageName}</li>
+          <li><strong>Дата подачи заявки:</strong> ${submissionDate}</li>
+          <li><strong>Стоимость участия:</strong> ${price}</li>
+        </ul>
 
-        <p style="color:#0000ff"><strong style="color:#0000ff">Рекомендации по написанию мотивационного письма и резюме:</strong></p>
-        <p><strong style="text-decoration:underline">Мотивационное письмо</strong>
-        Напишите, почему Вы бы хотели принять участие в Базовых курсах и как знания, полученные во время Курсов, могут повлиять на Вашу профессиональную жизнь. Вы можете раскрыть свою жизненную позицию, описать Ваши таланты и деятельность, которой посвящаете время помимо учебы. Приветствуется написание мотивационного письма на английском языке – таким образом Вы доказываете достойное им владение (письмо на русском также будет принято).</p>
-        <p><strong style="text-decoration:underline">Резюме</strong>
-        Ваше резюме может отражать Ваши научные публикации, выступления на конференциях, опыт работы, стажировки и др. Вы можете отправить резюме на русском, английском или обоих языках.</p>
+        <p>Подробнее о мероприятии, категориях участия и их стоимости Вы можете узнать на нашем сайте:www.basic.eafo.info</p>
 
-        <p><strong style="color:#cc0000">Обращаем Ваше внимание,</strong> что <strong style="color:#cc0000">оплата</strong> Базовых курсов, в соответствии с таблицей стоимости регистрации и указанными в ней сроками, должна быть произведена в <strong style="color:#cc0000">течение 72 часов</strong> с момента получения настоящего письма. Вы получите от нашей команды <a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a> письмо со ссылкой на оплату (проверяйте папку спам, если не получите от нас письмо в ближайшее время).</p>
+        <p><strong>В течение 48 часов</strong> после обработки Вашей заявки мы направим Вам счёт для оплаты в отдельном письме. Также Вы сможете оплатить своё участие через личный кабинет EAFO:www.ui.eafo.info</p>
 
-        <p>Если у вас возникнут вопросы, вы можете связаться с нами по адресу: basic@eafo.info или по телефону: +7 (931) 111-22-55</p>
-        
-        <p>В случае возникновения любых вопросов, пожалуйста, свяжитесь с нашей службой технической поддержки по адресу: support@eafo.info</p>
-        
-        <p>Будем рады видеть Вас на Курсах!</p>
+        <p>В случае возникновения вопросов, связанных с участием в XI EAFO Базовых медицинских курсах, а также по вопросам Вашей заявки, стоимости участия и организации проживания, просим обращаться по электронной почте: basic@eafo.info.</p>
 
-        <p>С уважением,<br>Оргкомитет XI Базовых курсов – 2025</p>
+        <p>По техническим вопросам, касающимся работы сайта и личного кабинета, пожалуйста, обращайтесь в службу технической поддержки по адресу: support@eafo.info.</p>
+
+        <p><strong>Мы всегда готовы оказать необходимую помощь и поддержку для комфортного участия в мероприятии!</strong></p>
+        <p>Благодарим за регистрацию и будем рады видеть Вас на Базовых курсах!</p>
+
+        <p>С уважением,<br>Организационный комитет EAFO</p>
       `,
     };
   }
 
   return {
-    subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
+    subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
     html: `
-      <p><strong>Dear ${fullName},</strong></p>
+      <p><strong>Dear ${firstName} ${middleName},</strong></p>
 
-      <p>You are welcome to the XI EAFO Basic Oncology/Oncopathology Courses and are delighted to await seeing you soon!</p>
+      <p>Your application for the subsidized non-competitive participation has been received successfully.</p>
 
-      <p>You have chosen an option of a subsidized non-competitive participation. We inform you that <strong>uploading the document attesting that you study or work at the public (governmental)/non-for-profit institution</strong> at the “Documents” section of your EAFO personal profile is <strong style="color:#cc0000">obligatory.</strong> Although being optional for a non-competitive admission, the other documents in this section are strongly recommended for submission – we are curious to get acquainted with you through your resume, professional achievements and motivation letter.</p>
+      <p><strong>Participation details:</strong></p>
+      <ul>
+        <li><strong>Category:</strong> Subsidized Non-competitive Participation</li>
+        <li><strong>Package:</strong> ${packageName}</li>
+        <li><strong>Submission Date:</strong> ${submissionDate}</li>
+        <li><strong>Price:</strong> ${price}</li>
+      </ul>
 
-      <p>The other documents in that section are optional for non-competitive admission, but strongly recommended. We are eager to get to know you through your resume, achievements, and motivation letter.</p>
+      <p>Please upload proof of study/employment in a public or non-profit institution and your passport copy to the “Documents” section of your EAFO account. Submitting other documents (CV, letter, etc.) is optional but highly encouraged — we’d love to get to know your background!</p>
 
-      <p style="color:#0000ff"><strong>Recommendations on compiling a Letter of Motivation and Resume (CV):</strong></p>
-      <p><strong style="text-decoration:underline">Letter of Motivation</strong>
-      Your Letter of Motivation is a way to tell us why you are interested in the Basic Medical Courses and how the attained knowledge can contribute to the establishment of a well-trained specialist in medicine or allied sciences. We are curious to get initial understanding of your life philosophy, talents, and hobbies. The Letter can be written in any language, though writing it in English for Russian & Commonwealth citizens and in Russian for citizens of other countries would be highly appreciated!</p>
-      <p><strong style="text-decoration:underline">Resume (CV)</strong>
-      In your Resume (CV) you are welcome to reflect your publication list (articles and abstracts), most important conferences and courses you participated in, internships, work experience etc. The Resume can be written in English, Russian, or both languages.</p>
+      <p style="color:#0000ff"><strong>Recommendations for Letter of Motivation and Resume:</strong></p>
+      <p><strong style="text-decoration:underline">Letter of Motivation</strong><br>
+      Explain why you want to join the course and how it can benefit your career. Share your values, skills, and interests. English or Russian language accepted.</p>
+      <p><strong style="text-decoration:underline">Resume (CV)</strong><br>
+      Include publications, conferences, work/study experience. Accepted in English, Russian, or both.</p>
 
-      <p><strong style="text-decoration:underline">ATTENTION!</strong> We highlight that the <strong style="color:#cc0000">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:#cc0000">within 72 hours</strong> from the moment you have received this letter. Our team (<a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a>) will send you a payment link shortly, please regularly check your Spam folder.</p>
+      <p><strong style="color:#cc0000">Important:</strong> Payment must be completed <strong style="color:#cc0000">within 72 hours</strong> of this message. A separate email with payment link will arrive from <a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a>. Check your spam folder.</p>
 
-      <p>If you have any questions, you can contact us at: basic@eafo.info or by  phone at: +7 (931) 111-22-55</p>
-      <p>For any technical issues, please contact our support team at: support@eafo.info</p>
-      
-      <p>We are looking forward to seeing you at our Courses!</p>
+      <p>If you have questions, contact us at: <a href="mailto:basic@eafo.info">basic@eafo.info</a> or +7 (931) 111-22-55</p>
+      <p>Technical support: <a href="mailto:support@eafo.info">support@eafo.info</a></p>
+
+      <p><strong>We look forward to seeing you at the Courses!</strong></p>
 
       <p>Best regards,<br>Organizing Committee of the XI Basic Medical Courses – 2025</p>
     `,
   };
 };
 
-const getNonCompetitiveParticipationEmailTemplate = (lang, user) => {
+
+const template3EmailTemplate = (lang, user) => {
   const {
     title = "",
     firstName = "",
     middleName = "",
     lastName = "",
+    gender = "",
+    package: packageName = "",
+    price = "",
+    submissionDate = "",
   } = user.personalDetails || {};
+
   const fullName =
     lang === "ru"
       ? `${title} ${lastName} ${firstName} ${middleName}`.trim()
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
+  const salutation =
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+      ? "Уважаемая"
+      : "Уважаемый";
+
   if (lang === "ru") {
     return {
-      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
       html: `
-        <p><strong>Уважаемый(ая) ${fullName},</strong></p>
+        <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
 
-<p>Мы благодарим Вас за регистрацию на Базовые курсы!</p>
+        <p>От лица организационного комитета EAFO мы рады сообщить Вам, что Ваша заявка на участие в Базовых медицинских курсах успешно зарегистрирована!</p>
 
-<p>Вы выбрали участие в тематических модулях. Подача документов, обозначенных в разделе личного кабинета EAFO «Документы», является необязательным, но очень желательным условием участия – нам интересно познакомиться с Вашей профессиональной историей и достижениями! <strong style="color:#cc0000">Подача копии паспорта в этой секции является обязательной.</strong></p>
+        <p>Вы выбрали следующую категорию и пакет участия:</p>
+        <ul>
+          <li><strong>Категория участия:</strong> Льготное Внеконкурсное участие</li>
+          <li><strong>Пакет участия:</strong> ${packageName}</li>
+          <li><strong>Дата подачи заявки:</strong> ${submissionDate}</li>
+          <li><strong>Стоимость участия:</strong> ${price}</li>
+        </ul>
 
-<p>С Вами в ближайшее время свяжется член нашей команды для уточнения деталей участия и пришлет ссылку на оплату. </p>
+        <p>Подробнее о мероприятии, категориях участия и их стоимости Вы можете узнать на нашем сайте:www.basic.eafo.info</p>
 
-<p>Если у вас возникнут вопросы, вы можете связаться с нами по адресу: basic@eafo.info или по телефону: +7 (931) 111-22-55</p>
+        <p><strong>В течение 48 часов после обработки Вашей заявки c Вами свяжется наш менеджер, чтобы уточнить детали про проживанию.</strong></p>
 
-<p>В случае возникновения любых вопросов, пожалуйста, свяжитесь с нашей службой технической поддержки по адресу: support@eafo.info</p>
+        <p><strong>В случае возникновения вопросов</strong>, связанных с участием в XI EAFO Базовых медицинских курсах, а также по вопросам Вашей заявки, стоимости участия и организации проживания, просим обращаться по электронной почте: basic@eafo.info.</p>
 
-<p>Будем рады видеть Вас на Курсах!</p>
+        <p><strong>По техническим вопросам</strong>, касающимся работы сайта и личного кабинета, пожалуйста, обращайтесь в службу технической поддержки по адресу: support@eafo.info.</p>
 
-<p>С уважением,<br>Организационный комитет Базовых курсов</p>
+        <p><strong>Мы всегда готовы оказать необходимую помощь и поддержку для комфортного участия в мероприятии!</strong></p>
+        <p>Благодарим за регистрацию и будем рады видеть Вас на Базовых курсах!</p>
 
+        <p>С уважением,<br>Организационный комитет EAFO</p>
       `,
     };
   }
 
   return {
-    subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
+    subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
     html: `
-      <p><strong>Dear ${fullName},</strong></p>
+      <p><strong>Dear ${firstName} ${middleName},</strong></p>
 
-      <p>You are welcome to the XI EAFO Basic Oncology/Oncopathology Courses and are delighted to await seeing you soon!</p>
+      <p>Your application for the subsidized non-competitive participation has been received successfully.</p>
 
-      <p>You have chosen an option of participation in modules without competition. We inform you that uploading the <strong>copy of your passport/ID</strong> at the “Documents” section of your EAFO personal profile is <strong style="color:#cc0000">obligatory.</strong> Although being optional for a non-competitive admission, the other documents in this section are strongly recommended for submission – we are curious to get acquainted with you through your resume, professional achievements and motivation letter.</p>
+      <p><strong>Participation details:</strong></p>
+      <ul>
+        <li><strong>Category:</strong> Subsidized Non-competitive Participation</li>
+        <li><strong>Package:</strong> ${packageName}</li>
+        <li><strong>Submission Date:</strong> ${submissionDate}</li>
+        <li><strong>Price:</strong> ${price}</li>
+      </ul>
 
-      <p>The other documents in this section are optional for a non-competitive admission, but strongly recommended. We are curious to get acquainted with you through your resume, professional achievements and motivation letter.</p>
+      <p>Please upload proof of study/employment in a public or non-profit institution and your passport copy to the “Documents” section of your EAFO account. Submitting other documents (CV, letter, etc.) is optional but highly encouraged — we’d love to get to know your background!</p>
 
-      <p style="text-decoration:underline"><strong style="color:#cc0000;">ATTENTION!</strong> We highlight that the <strong style="color:cc0000">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:cc0000">within 72 hours</strong> from the moment you have received this letter. Our team <a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a> will send you a payment link shortly, please regularly check your Spam folder.</p>
+      <p style="color:#0000ff"><strong>Recommendations for Letter of Motivation and Resume:</strong></p>
+      <p><strong style="text-decoration:underline">Letter of Motivation</strong><br>
+      Explain why you want to join the course and how it can benefit your career. Share your values, skills, and interests. English or Russian language accepted.</p>
+      <p><strong style="text-decoration:underline">Resume (CV)</strong><br>
+      Include publications, conferences, work/study experience. Accepted in English, Russian, or both.</p>
 
-      <p>If you have any questions, you can contact us at: basic@eafo.info or by  phone at: +7 (931) 111-22-55</p>
-      <p>For any technical issues, please contact our support team at: support@eafo.info</p>
+      <p><strong style="color:#cc0000">Important:</strong> Payment must be completed <strong style="color:#cc0000">within 72 hours</strong> of this message. A separate email with payment link will arrive from <a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a>. Check your spam folder.</p>
 
-      <p>We are looking forward to seeing you at our Courses!</p>
+      <p>If you have questions, contact us at: <a href="mailto:basic@eafo.info">basic@eafo.info</a> or +7 (931) 111-22-55</p>
+      <p>Technical support: <a href="mailto:support@eafo.info">support@eafo.info</a></p>
+
+      <p><strong>We look forward to seeing you at the Courses!</strong></p>
 
       <p>Best regards,<br>Organizing Committee of the XI Basic Medical Courses – 2025</p>
     `,
   };
 };
 
-const getSponsoredParticipationEmailTemplate = (lang, user) => {
+const template4EmailTemplate = (lang, user) => {
   const {
     title = "",
     firstName = "",
     middleName = "",
     lastName = "",
+    gender = "",
+    package: packageName = "",
+    price = "",
+    submissionDate = "",
   } = user.personalDetails || {};
+
   const fullName =
     lang === "ru"
       ? `${title} ${lastName} ${firstName} ${middleName}`.trim()
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
+  const salutation =
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+      ? "Уважаемая"
+      : "Уважаемый";
+
   if (lang === "ru") {
     return {
-      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
       html: `
-        <p><strong>Уважаемый(ая) ${fullName},</strong></p>
+        <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
 
-        <p>Мы благодарим Вас за регистрацию и будем рады видеть Вас на Базовых курсах!</p>
+        <p>От лица организационного комитета EAFO мы рады сообщить Вам, что Ваша заявка на участие в Базовых медицинских курсах успешно зарегистрирована!</p>
 
-        <p>Вы выбрали вариант неконкурсного участия (для сотрудников коммерческих клиник, спонсируемых участников, представителей фармацевтических компаний и медицинской промышленности).</p>
-        
-        <p>Подача документов, обозначенных в разделе личного кабинета EAFO «Документы», является необязательным, но очень желательным условием участия – нам интересно познакомиться с Вашей профессиональной историей и достижениями! <strong style="color:#cc0000">Подача копии паспорта в этой секции является обязательной.<strong></p>
+        <p>Вы выбрали следующую категорию и пакет участия:</p>
+        <ul>
+          <li><strong>Категория участия:</strong> Льготное Внеконкурсное участие</li>
+          <li><strong>Пакет участия:</strong> ${packageName}</li>
+          <li><strong>Дата подачи заявки:</strong> ${submissionDate}</li>
+          <li><strong>Стоимость участия:</strong> ${price}</li>
+        </ul>
 
-        <p style="color:#0000ff"><strong>Рекомендации по написанию мотивационного письма и резюме:</strong></p>
-        <p><strong style="text-decoration:underline">Мотивационное письмо</strong>
-        Напишите, почему Вы бы хотели принять участие в Базовых курсах и как знания, полученные во время Курсов, могут повлиять на Вашу профессиональную жизнь. Вы можете раскрыть свою жизненную позицию, описать Ваши таланты и деятельность, которой посвящаете время помимо учебы. Приветствуется написание мотивационного письма на английском языке – таким образом Вы доказываете достойное им владение (письмо на русском также будет принято).</p>
-        <p><strong style="text-decoration:underline">Резюме</strong>
-        Ваше резюме может отражать Ваши научные публикации, выступления на конференциях, опыт работы, стажировки и др. Вы можете отправить резюме на русском, английском или обоих языках.</p>
+        <p>Подробнее о мероприятии, категориях участия и их стоимости Вы можете узнать на нашем сайте:www.basic.eafo.info</p>
 
-        <p><strong style="color:#cc0000">Обращаем Ваше внимание,</strong> что <strong style="color:#cc0000">оплата</strong> Базовых курсов, в соответствии с таблицей стоимости регистрации и указанными в ней сроками, должна быть произведена в <strong style="color:#cc0000">течение 72 часов</strong> с момента получения настоящего письма. Вы получите от нашей команды <a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a> письмо со ссылкой на оплату (проверяйте папку спам, если не получите от нас письмо в ближайшее время).</p>
-        
-        <p>Если у вас возникнут вопросы, вы можете связаться с нами по адресу: basic@eafo.info или по телефону: +7 (931) 111-22-55</p>
-        <p>В случае возникновения любых вопросов, пожалуйста, свяжитесь с нашей службой технической поддержки по адресу: support@eafo.info</p>
+        <p><strong>В течение 48 часов</strong> после обработки Вашей заявки мы направим Вам счёт для оплаты в отдельном письме. Также Вы сможете оплатить своё участие через личный кабинет EAFO:www.ui.eafo.info</p>
 
-        <p>Будем рады видеть Вас на Курсах!</p>
+        <p><strong>В случае возникновения вопросов</strong>, связанных с участием в XI EAFO Базовых медицинских курсах, а также по вопросам Вашей заявки, стоимости участия и организации проживания, просим обращаться по электронной почте: basic@eafo.info.</p>
 
-        <p>С уважением,<br>Оргкомитет XI Базовых курсов – 2025</p>
+        <p><strong>По техническим вопросам</strong>, касающимся работы сайта и личного кабинета, пожалуйста, обращайтесь в службу технической поддержки по адресу: support@eafo.info.</p>
+
+        <p><strong>Мы всегда готовы оказать необходимую помощь и поддержку для комфортного участия в мероприятии!</strong></p>
+        <p>Благодарим за регистрацию и будем рады видеть Вас на Базовых курсах!</p>
+
+        <p>С уважением,<br>Организационный комитет EAFO</p>
       `,
     };
   }
 
   return {
-    subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
+    subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
     html: `
-      <p><strong>Dear ${fullName},</strong></p>
+      <p><strong>Dear ${firstName} ${middleName},</strong></p>
 
-      <p>You are welcome to the XI EAFO Basic Oncology/Oncopathology Courses and are delighted to await seeing you soon!</p>
+      <p>Your application for the subsidized non-competitive participation has been received successfully.</p>
 
-      <p>You have chosen an option of sponsored non-competitive participation. We inform you that uploading the <strong>copy of your passport/ID</strong> at the “Documents” section of your EAFO personal profile is <strong style="color:#cc0000">obligatory.</strong> Although being optional for a non-competitive admission, the other documents in this section are strongly recommended for submission – we are curious to get acquainted with you through your resume, professional achievements and motivation letter.</p>
+      <p><strong>Participation details:</strong></p>
+      <ul>
+        <li><strong>Category:</strong> Subsidized Non-competitive Participation</li>
+        <li><strong>Package:</strong> ${packageName}</li>
+        <li><strong>Submission Date:</strong> ${submissionDate}</li>
+        <li><strong>Price:</strong> ${price}</li>
+      </ul>
 
-      <p style="color:#0000ff"><strong>Recommendations on compiling a Letter of Motivation and Resume (CV):</strong></p>
-      <p><strong style="text-decoration:underline">Letter of Motivation</strong></p>
-      <p>Your Letter of Motivation is a way to tell us why you are interested in the Basic Medical Courses and how the attained knowledge can contribute to the establishment of a well-trained specialist in medicine or allied sciences. We are curious to get initial understanding of your life philosophy, talents, and hobbies. The Letter can be written in any language, though writing it in English for Russian & Commonwealth citizens and in Russian for citizens of other countries would be highly appreciated!</p>
-      <p><strong style="text-decoration:underline">Resume (CV)</strong>
-      In your Resume (CV) you are welcome to reflect your publication list (articles and abstracts), most important conferences and courses you participated in, internships, work experience etc. The Resume can be written in English, Russian, or both languages.</p>
+      <p>Please upload proof of study/employment in a public or non-profit institution and your passport copy to the “Documents” section of your EAFO account. Submitting other documents (CV, letter, etc.) is optional but highly encouraged — we’d love to get to know your background!</p>
 
-      <p><strong style="color:#cc0000;text-decoration:underline">ATTENTION!</strong> We highlight that the <strong style="color:#cc0000">registration payment</strong> as per the timeline mentioned in the website must be performed <strong style="color:#cc0000">within 72 hours</strong> from the moment you have received this letter. Our team (<a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a>) will send you a payment link shortly, please regularly check your Spam folder.</p>
+      <p style="color:#0000ff"><strong>Recommendations for Letter of Motivation and Resume:</strong></p>
+      <p><strong style="text-decoration:underline">Letter of Motivation</strong><br>
+      Explain why you want to join the course and how it can benefit your career. Share your values, skills, and interests. English or Russian language accepted.</p>
+      <p><strong style="text-decoration:underline">Resume (CV)</strong><br>
+      Include publications, conferences, work/study experience. Accepted in English, Russian, or both.</p>
 
-      <p>If you have any questions, you can contact us at: basic@eafo.info or by  phone at: +7 (931) 111-22-55</p>
-      <p>For any technical issues, please contact our support team at: support@eafo.info</p>
-      
-      <p>We are looking forward to seeing you at our Courses!</p>
+      <p><strong style="color:#cc0000">Important:</strong> Payment must be completed <strong style="color:#cc0000">within 72 hours</strong> of this message. A separate email with payment link will arrive from <a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a>. Check your spam folder.</p>
+
+      <p>If you have questions, contact us at: <a href="mailto:basic@eafo.info">basic@eafo.info</a> or +7 (931) 111-22-55</p>
+      <p>Technical support: <a href="mailto:support@eafo.info">support@eafo.info</a></p>
+
+      <p><strong>We look forward to seeing you at the Courses!</strong></p>
 
       <p>Best regards,<br>Organizing Committee of the XI Basic Medical Courses – 2025</p>
     `,
   };
 };
+
+
+const template5EmailTemplate = (lang, user) => {
+  const {
+    title = "",
+    firstName = "",
+    middleName = "",
+    lastName = "",
+    gender = "",
+    package: packageName = "",
+    price = "",
+    submissionDate = "",
+  } = user.personalDetails || {};
+
+  const fullName =
+    lang === "ru"
+      ? `${title} ${lastName} ${firstName} ${middleName}`.trim()
+      : `${title} ${firstName} ${middleName} ${lastName}`.trim();
+
+  const salutation =
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+      ? "Уважаемая"
+      : "Уважаемый";
+
+  if (lang === "ru") {
+    return {
+      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      html: `
+        <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
+
+        <p>От лица организационного комитета EAFO мы рады сообщить Вам, что Ваша заявка на участие в Базовых медицинских курсах успешно зарегистрирована!</p>
+
+        <p>Вы выбрали следующую категорию и пакет участия:</p>
+        <ul>
+          <li><strong>Категория участия:</strong> Льготное Внеконкурсное участие</li>
+          <li><strong>Пакет участия:</strong> ${packageName}</li>
+          <li><strong>Дата подачи заявки:</strong> ${submissionDate}</li>
+          <li><strong>Стоимость участия:</strong> ${price}</li>
+        </ul>
+
+        <p>Подробнее о мероприятии, категориях участия и их стоимости Вы можете узнать на нашем сайте:www.basic.eafo.info</p>
+
+        <p><strong>В течение 48 часов</strong> после обработки Вашей заявки мы направим Вам счёт для оплаты в отдельном письме. Также Вы сможете оплатить своё участие через личный кабинет EAFO:www.ui.eafo.info</p>
+
+        <p><strong>В случае возникновения вопросов</strong>, связанных с участием в XI EAFO Базовых медицинских курсах, а также по вопросам Вашей заявки, стоимости участия и организации проживания, просим обращаться по электронной почте: basic@eafo.info.</p>
+
+        <p><strong>По техническим вопросам</strong>, касающимся работы сайта и личного кабинета, пожалуйста, обращайтесь в службу технической поддержки по адресу: support@eafo.info.</p>
+
+        <p><strong>Мы всегда готовы оказать необходимую помощь и поддержку для комфортного участия в мероприятии!</strong></p>
+        <p>Благодарим за регистрацию и будем рады видеть Вас на Базовых курсах!</p>
+
+        <p>С уважением,<br>Организационный комитет EAFO</p>
+      `,
+    };
+  }
+
+  return {
+    subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
+    html: `
+      <p><strong>Dear ${firstName} ${middleName},</strong></p>
+
+      <p>Your application for the subsidized non-competitive participation has been received successfully.</p>
+
+      <p><strong>Participation details:</strong></p>
+      <ul>
+        <li><strong>Category:</strong> Subsidized Non-competitive Participation</li>
+        <li><strong>Package:</strong> ${packageName}</li>
+        <li><strong>Submission Date:</strong> ${submissionDate}</li>
+        <li><strong>Price:</strong> ${price}</li>
+      </ul>
+
+      <p>Please upload proof of study/employment in a public or non-profit institution and your passport copy to the “Documents” section of your EAFO account. Submitting other documents (CV, letter, etc.) is optional but highly encouraged — we’d love to get to know your background!</p>
+
+      <p style="color:#0000ff"><strong>Recommendations for Letter of Motivation and Resume:</strong></p>
+      <p><strong style="text-decoration:underline">Letter of Motivation</strong><br>
+      Explain why you want to join the course and how it can benefit your career. Share your values, skills, and interests. English or Russian language accepted.</p>
+      <p><strong style="text-decoration:underline">Resume (CV)</strong><br>
+      Include publications, conferences, work/study experience. Accepted in English, Russian, or both.</p>
+
+      <p><strong style="color:#cc0000">Important:</strong> Payment must be completed <strong style="color:#cc0000">within 72 hours</strong> of this message. A separate email with payment link will arrive from <a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a>. Check your spam folder.</p>
+
+      <p>If you have questions, contact us at: <a href="mailto:basic@eafo.info">basic@eafo.info</a> or +7 (931) 111-22-55</p>
+      <p>Technical support: <a href="mailto:support@eafo.info">support@eafo.info</a></p>
+
+      <p><strong>We look forward to seeing you at the Courses!</strong></p>
+
+      <p>Best regards,<br>Organizing Committee of the XI Basic Medical Courses – 2025</p>
+    `,
+  };
+};
+
+const template6EmailTemplate = (lang, user) => {
+  const {
+    title = "",
+    firstName = "",
+    middleName = "",
+    lastName = "",
+    gender = "",
+    package: packageName = "",
+    price = "",
+    submissionDate = "",
+    seminarAnswers = [], // array of selected seminars
+  } = user.personalDetails || {};
+
+  const fullName =
+    lang === "ru"
+      ? `${title} ${lastName} ${firstName} ${middleName}`.trim()
+      : `${title} ${firstName} ${middleName} ${lastName}`.trim();
+
+  const salutation =
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+      ? "Уважаемая"
+      : "Уважаемый";
+
+  const seminarCount = seminarAnswers.length;
+
+  // Extract number from price string (e.g., "2000 RUB")
+  const priceMatch = typeof price === "string" ? price.match(/([\d.]+)\s?(\w+)/) : null;
+  let totalPrice = price;
+  let pricePerSeminar = 0;
+  let currency = "";
+
+  if (priceMatch && seminarCount > 0) {
+    pricePerSeminar = parseFloat(priceMatch[1]);
+    currency = priceMatch[2];
+    totalPrice = `${pricePerSeminar * seminarCount} ${currency}`;
+  }
+
+  const formattedSeminarAnswers =
+    Array.isArray(seminarAnswers) && seminarAnswers.length
+      ? `<p><strong>${lang === "ru" ? "Выбранные семинары:" : "Selected Seminar Topics:"}</strong></p><p>` +
+        seminarAnswers
+          .map((a) => `«${a}» (${lang === "ru" ? "1 день" : "1 day"})`)
+          .join("<br/>") +
+        `</p>`
+      : "";
+
+  if (lang === "ru") {
+    return {
+      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      html: `
+        <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
+
+        <p>От лица организационного комитета EAFO мы рады сообщить Вам, что Ваша заявка на участие в Базовых медицинских курсах успешно зарегистрирована!</p>
+
+        ${formattedSeminarAnswers}
+
+        <p><strong>Дата подачи заявки:</strong> ${submissionDate}</p>
+        <p><strong>Стоимость участия:</strong> ${totalPrice}</p>
+
+        <p>Подробнее о мероприятии, категориях участия и их стоимости Вы можете узнать на нашем сайте: www.basic.eafo.info</p>
+
+        <p><strong>В течение 48 часов</strong> после обработки Вашей заявки мы направим Вам счёт для оплаты в отдельном письме. Также Вы сможете оплатить своё участие через личный кабинет EAFO: www.ui.eafo.info</p>
+
+        <p><strong>В случае возникновения вопросов</strong>, связанных с участием в XI EAFO Базовых медицинских курсах, а также по вопросам Вашей заявки, стоимости участия и организации проживания, просим обращаться по электронной почте: basic@eafo.info.</p>
+
+        <p><strong>По техническим вопросам</strong>, касающимся работы сайта и личного кабинета, пожалуйста, обращайтесь в службу технической поддержки по адресу: support@eafo.info.</p>
+
+        <p><strong>Мы всегда готовы оказать необходимую помощь и поддержку для комфортного участия в мероприятии!</strong></p>
+        <p>Благодарим за регистрацию и будем рады видеть Вас на Базовых курсах!</p>
+
+        <p>С уважением,<br>Организационный комитет EAFO</p>
+      `,
+    };
+  }
+
+  return {
+    subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
+    html: `
+      <p><strong>Dear ${firstName} ${middleName},</strong></p>
+
+      <p>Your application for the subsidized non-competitive participation has been received successfully.</p>
+
+      ${formattedSeminarAnswers}
+
+      <p><strong>Submission Date:</strong> ${submissionDate}</p>
+      <p><strong>Total Price:</strong> ${totalPrice}</p>
+
+      <p>Please upload proof of study/employment in a public or non-profit institution and your passport copy to the “Documents” section of your EAFO account. Submitting other documents (CV, letter, etc.) is optional but highly encouraged — we’d love to get to know your background!</p>
+
+      <p style="color:#0000ff"><strong>Recommendations for Letter of Motivation and Resume:</strong></p>
+      <p><strong style="text-decoration:underline">Letter of Motivation</strong><br>
+      Explain why you want to join the course and how it can benefit your career. Share your values, skills, and interests. English or Russian language accepted.</p>
+      <p><strong style="text-decoration:underline">Resume (CV)</strong><br>
+      Include publications, conferences, work/study experience. Accepted in English, Russian, or both.</p>
+
+      <p><strong style="color:#cc0000">Important:</strong> Payment must be completed <strong style="color:#cc0000">within 72 hours</strong> of this message. A separate email with payment link will arrive from <a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a>. Check your spam folder.</p>
+
+      <p>If you have questions, contact us at: <a href="mailto:basic@eafo.info">basic@eafo.info</a> or +7 (931) 111-22-55</p>
+      <p>Technical support: <a href="mailto:support@eafo.info">support@eafo.info</a></p>
+
+      <p><strong>We look forward to seeing you at the Courses!</strong></p>
+
+      <p>Best regards,<br>Organizing Committee of the XI Basic Medical Courses – 2025</p>
+    `,
+  };
+};
+
+
+
+const template7EmailTemplate = (lang, user) => {
+  const {
+    title = "",
+    firstName = "",
+    middleName = "",
+    lastName = "",
+    gender = "",
+    package: packageName = "",
+    price = "",
+    submissionDate = "",
+    seminarAnswers = [], // expected as array
+  } = user.personalDetails || {};
+
+  const fullName =
+    lang === "ru"
+      ? `${title} ${lastName} ${firstName} ${middleName}`.trim()
+      : `${title} ${firstName} ${middleName} ${lastName}`.trim();
+
+  const salutation =
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+      ? "Уважаемая"
+      : "Уважаемый";
+
+  const formattedSeminarAnswers =
+    Array.isArray(seminarAnswers) && seminarAnswers.length
+      ? `<p><strong>${lang === "ru" ? "Выбранные семинары:" : "Selected Seminar Topics:"}</strong></p><p>` +
+        seminarAnswers
+          .map((a) => `«${a}»`)
+          .join("<br/>") +
+        `</p>`
+      : "";
+
+  if (lang === "ru") {
+    return {
+      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      html: `
+        <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
+
+        <p>От лица организационного комитета EAFO мы рады сообщить Вам, что Ваша заявка на участие в Базовых медицинских курсах успешно зарегистрирована!</p>
+
+        <p>Вы выбрали следующую категорию участия:</p>
+        <p>Категория участия:</p>
+        ${formattedSeminarAnswers}
+       
+        <p><strong>Дата подачи заявки:</strong> ${submissionDate}</p>
+        <p><strong>Стоимость участия:</strong> ${price}</p>
+       
+        <p>Подробнее о мероприятии, категориях участия и их стоимости Вы можете узнать на нашем сайте:www.basic.eafo.info</p>
+
+        <p><strong>В течение 48 часов</strong> после обработки Вашей заявки мы направим Вам счёт для оплаты в отдельном письме. Также Вы сможете оплатить своё участие через личный кабинет EAFO: www.ui.eafo.info</p>
+
+        <p><strong>В случае возникновения вопросов</strong>, связанных с участием в XI EAFO Базовых медицинских курсах, а также по вопросам Вашей заявки, стоимости участия и организации проживания, просим обращаться по электронной почте: basic@eafo.info.</p>
+
+        <p><strong>По техническим вопросам</strong>, касающимся работы сайта и личного кабинета, пожалуйста, обращайтесь в службу технической поддержки по адресу: support@eafo.info.</p>
+
+        <p><strong>Мы всегда готовы оказать необходимую помощь и поддержку для комфортного участия в мероприятии!</strong></p>
+        <p>Благодарим за регистрацию и будем рады видеть Вас на Базовых курсах!</p>
+
+        <p>С уважением,<br>Организационный комитет EAFO</p>
+      `,
+    };
+  }
+
+  return {
+    subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
+    html: `
+      <p><strong>Dear ${firstName} ${middleName},</strong></p>
+
+      <p>Your application for the subsidized non-competitive participation has been received successfully.</p>
+
+      <p><strong>Participation details:</strong></p>
+      <ul>
+        <li><strong>Category:</strong> Subsidized Non-competitive Participation</li>
+        <li><strong>Package:</strong> ${packageName}</li>
+        <li><strong>Submission Date:</strong> ${submissionDate}</li>
+        <li><strong>Price:</strong> ${price}</li>
+      </ul>
+
+      ${formattedSeminarAnswers}
+
+      <p>Please upload proof of study/employment in a public or non-profit institution and your passport copy to the “Documents” section of your EAFO account. Submitting other documents (CV, letter, etc.) is optional but highly encouraged — we’d love to get to know your background!</p>
+
+      <p style="color:#0000ff"><strong>Recommendations for Letter of Motivation and Resume:</strong></p>
+      <p><strong style="text-decoration:underline">Letter of Motivation</strong><br>
+      Explain why you want to join the course and how it can benefit your career. Share your values, skills, and interests. English or Russian language accepted.</p>
+      <p><strong style="text-decoration:underline">Resume (CV)</strong><br>
+      Include publications, conferences, work/study experience. Accepted in English, Russian, or both.</p>
+
+      <p><strong style="color:#cc0000">Important:</strong> Payment must be completed <strong style="color:#cc0000">within 72 hours</strong> of this message. A separate email with payment link will arrive from <a href="mailto:eafo@e-registrar.org">eafo@e-registrar.org</a>. Check your spam folder.</p>
+
+      <p>If you have questions, contact us at: <a href="mailto:basic@eafo.info">basic@eafo.info</a> or +7 (931) 111-22-55</p>
+      <p>Technical support: <a href="mailto:support@eafo.info">support@eafo.info</a></p>
+
+      <p><strong>We look forward to seeing you at the Courses!</strong></p>
+
+      <p>Best regards,<br>Organizing Committee of the XI Basic Medical Courses – 2025</p>
+    `,
+  };
+};
+
+async function sendRegistrationEmail(
+  user,
+  form,
+  linkedItemDetails,
+  submission,
+  extras = {}
+) {
+  if (!submission || !submission.responses) {
+    console.error(`❌ Missing submission data for user ${user.email}`);
+    console.debug("Submission object received:", submission);
+    return;
+  }
+  
+
+  const invoiceAnswerRaw = submission.responses
+    .find((r) => r.isUsedForInvoice)
+    ?.answer?.trim();
+
+  if (!invoiceAnswerRaw) {
+    console.warn(
+      `⚠️ No invoice-related answer found for user ${user.email}. Defaulting to sponsored email.`
+    );
+  } else {
+    console.log(`ℹ️ Invoice answer: "${invoiceAnswerRaw}" for user ${user.email}`);
+  }
+
+  const packageName = extras.package || linkedItemDetails?.name || "Package 1";
+  console.log(`📦 Detected package: "${packageName}"`);
+
+  const template1Packages = [
+    "Конкурсное участие Тариф 1 Пакет 1",
+    "Конкурсное участие Тариф 1 Пакет 2",
+    "Конкурсное участие Тариф 1 Пакет 3",
+    "Конкурсное участие Тариф 1 Пакет 4",
+    "Конкурсное участие Тариф 1 Пакет 5",
+    "Конкурсное участие Тариф 1 Пакет 6",
+  ];
+  const template2Packages = [
+    "Льготное Внеконкурсное участие Тариф 1 Пакет 7",
+    "Льготное Внеконкурсное участие Тариф 1 Пакет 12",
+  ];
+  const template3Packages = [
+    "Льготное Внеконкурсное участие Тариф 1 Пакет 8",
+    "Льготное Внеконкурсное участие Тариф 1 Пакет 9",
+    "Льготное Внеконкурсное участие Тариф 1 Пакет 10",
+    "Льготное Внеконкурсное участие Тариф 1 Пакет 11",
+  ];
+  const template4Packages = [
+    "Внеконкурсное участие (полная стоимость) Тариф 1 Пакет 13",
+    "Внеконкурсное участие (полная стоимость) 1 Пакет 18",
+  ];
+  const template5Packages = [
+    "Внеконкурсное участие (полная стоимость) Тариф 1 Пакет 14",
+    "Внеконкурсное участие (полная стоимость) 1 Пакет 15",
+    "Внеконкурсное участие (полная стоимость) 1 Пакет 16",
+    "Внеконкурсное участие (полная стоимость) 1 Пакет 17",
+  ];
+
+  const template1 = template1Packages.includes(packageName);
+  const template2 = template2Packages.includes(packageName);
+  const template3 = template3Packages.includes(packageName);
+  const template4 = template4Packages.includes(packageName);
+  const template5 = template5Packages.includes(packageName);
+
+  const lang = form.isUsedForRussian ? "ru" : "en";
+  console.log(`🌐 Language selected: ${lang}`);
+
+  const extendedUser = {
+    ...user,
+    personalDetails: {
+      ...user.personalDetails,
+      package: extras.package || linkedItemDetails?.name || "",
+      price:
+        extras.price ||
+        (linkedItemDetails?.amount && linkedItemDetails?.currency
+          ? `${linkedItemDetails.amount} ${linkedItemDetails.currency}`
+          : ""),
+      submissionDate:
+        extras.submissionDate || new Date().toLocaleDateString("ru-RU"),
+    },
+  };
+
+  let conditionalTemplateMatch = null;
+
+  // --- Template 6 / 7: Based on yes/no answer to a specific question ---
+  const conditionalTemplates = [
+    {
+      questionId: "683b4e5153716bcccf4bd2dd", // YES/NO question
+      conditions: [
+        {
+          answer: "Да",
+          template: template6EmailTemplate,
+          label: "template6 (yes answer)",
+        },
+        {
+          answer: "Нет",
+          template: template7EmailTemplate,
+          label: "template7 (no answer)",
+        },
+      ],
+    },
+  ];
+
+  for (const rule of conditionalTemplates) {
+    const matchedResponse = submission.responses.find(
+      (r) => r.questionId === rule.questionId
+    );
+
+    if (matchedResponse && matchedResponse.answer) {
+      const normalizedAnswer = matchedResponse.answer.trim().toLowerCase();
+      const matchedCondition = rule.conditions.find(
+        (cond) => cond.answer.toLowerCase() === normalizedAnswer
+      );
+      if (matchedCondition) {
+        conditionalTemplateMatch = matchedCondition;
+        break;
+      }
+    }
+  }
+
+  // --- Template 8 / 9: Special logic for Seminar Package 19 based on language ---
+  // --- Template 8 / 9: Special logic for Seminar Package 19 or 20 ---
+if (
+  packageName === "Участие в тематических Семинарах Пакет 19" ||
+  packageName === "Участие в тематических Семинарах Пакет 20"
+) {
+  const seminarQuestionId =
+    lang === "ru"
+      ? "683b4dec53716bcccf4bc4ee"
+      : "TEMPLATE_SEMINAR_EN_QUESTION_ID";
+
+  const seminarResponse = submission.responses.find(
+    (r) => r.questionId === seminarQuestionId
+  );
+
+  const answersArray = Array.isArray(seminarResponse?.answer)
+    ? seminarResponse.answer
+    : seminarResponse?.answer
+    ? [seminarResponse.answer]
+    : [];
+
+  const normalizedAnswers = answersArray.map((a) => a.trim().toLowerCase());
+
+  console.log(`📋 Seminar response for user ${user.email}:`);
+  console.log(`🔸 Raw seminar answers:`, seminarResponse?.answer);
+  console.log(`🔸 Parsed answers array:`, answersArray);
+  console.log(`🔸 Normalized answers:`, normalizedAnswers);
+
+  if (packageName === "Участие в тематических Семинарах Пакет 19") {
+    if (normalizedAnswers.includes("да") || normalizedAnswers.includes("yes")) {
+      conditionalTemplateMatch = {
+        template: (lang, user) =>
+          template6EmailTemplate(lang, {
+            ...user,
+            personalDetails: {
+              ...user.personalDetails,
+              seminarAnswers: answersArray,
+            },
+          }),
+        label: "template6 (Seminar 19 - yes)",
+      };
+    } else if (
+      normalizedAnswers.includes("нет") ||
+      normalizedAnswers.includes("no")
+    ) {
+      conditionalTemplateMatch = {
+        template: (lang, user) =>
+          template7EmailTemplate(lang, {
+            ...user,
+            personalDetails: {
+              ...user.personalDetails,
+              seminarAnswers: answersArray,
+            },
+          }),
+        label: "template7 (Seminar 19 - no)",
+      };
+    }
+  } else if (packageName === "Участие в тематических Семинарах Пакет 20") {
+    conditionalTemplateMatch = {
+      template: (lang, user) =>
+        template6EmailTemplate(lang, {
+          ...user,
+          personalDetails: {
+            ...user.personalDetails,
+            seminarAnswers: answersArray,
+          },
+        }),
+      label: "template6 (Seminar 20 - no condition)",
+    };
+  }
+
+
+  }
+  
+
+  // --- Select Final Email Template ---
+  let emailTemplate;
+
+  if (template1) {
+    console.log("📨 Using competitive email template");
+    emailTemplate = template1EmailTemplate(lang, extendedUser);
+  } else if (template2) {
+    console.log("📨 Using subsidized email template");
+    emailTemplate = template2EmailTemplate(lang, extendedUser);
+  } else if (template3) {
+    console.log("📨 Using non-competitive email template (template3)");
+    emailTemplate = template3EmailTemplate(lang, extendedUser);
+  } else if (template4) {
+    console.log("📨 Using non-competitive email template (template4)");
+    emailTemplate = template4EmailTemplate(lang, extendedUser);
+  } else if (template5) {
+    console.log("📨 Using non-competitive email template (template5)");
+    emailTemplate = template5EmailTemplate(lang, extendedUser);
+  } else if (conditionalTemplateMatch) {
+    console.log(`📨 Using conditional email template: ${conditionalTemplateMatch.label}`);
+    emailTemplate = conditionalTemplateMatch.template(lang, extendedUser);
+  } else {
+    console.log("📨 Using sponsored (default) email template");
+    emailTemplate = getSponsoredParticipationEmailTemplate(lang, extendedUser);
+  }
+
+  // --- Send Email ---
+  if (!emailTemplate) {
+    console.error(
+      `❌ No email template found for user ${user.email}. Invoice answer: "${invoiceAnswerRaw}"`
+    );
+    return;
+  }
+
+  try {
+    await sendEmailRusender(
+      { email: user.email, firstName: user.firstName },
+      emailTemplate
+    );
+    console.log(`✅ Registration email sent to ${user.email}`);
+  } catch (err) {
+    console.error(`❌ Failed to send registration email to ${user.email}:`, err.message);
+  }
+}
+
+
+
 
 // Configure multer for file uploads
 const upload = multer({
@@ -976,12 +1569,10 @@ router.put("/:formId/questions", authenticateJWT, async (req, res) => {
       return res.status(404).json({ error: "Form not found" });
     }
 
-    return res
-      .status(200)
-      .json({
-        message: "Questions updated successfully",
-        questions: updatedForm.questions,
-      });
+    return res.status(200).json({
+      message: "Questions updated successfully",
+      questions: updatedForm.questions,
+    });
   } catch (error) {
     console.error("Error updating questions:", error);
     return res.status(500).json({ error: "Internal Server Error" });
@@ -1280,7 +1871,10 @@ async function processCriticalSubmission(req, session, discountInfo) {
           }
 
           // Check coupon expiration
-          if (matchedCoupon.expiresAt && new Date(matchedCoupon.expiresAt) < new Date()) {
+          if (
+            matchedCoupon.expiresAt &&
+            new Date(matchedCoupon.expiresAt) < new Date()
+          ) {
             console.log(`Coupon ${matchedCoupon.code} has expired`);
             continue;
           }
@@ -1303,10 +1897,10 @@ async function processCriticalSubmission(req, session, discountInfo) {
                 { courseId: form.courseId, "coupons._id": matchedCoupon._id },
                 {
                   $addToSet: {
-                    "coupons.$.users": { 
-                      user: user._id, 
+                    "coupons.$.users": {
+                      user: user._id,
                       status: "used",
-                      usedAt: new Date() 
+                      usedAt: new Date(),
                     },
                   },
                   $inc: { "coupons.$.currentLimit": 1 },
@@ -1323,42 +1917,55 @@ async function processCriticalSubmission(req, session, discountInfo) {
             result.appliedCoupon = {
               code: matchedCoupon.code,
               percentage: matchedCoupon.percentage,
-              type: matchedCoupon.type
+              type: matchedCoupon.type,
             };
 
-          // User-specific coupon handling
+            // User-specific coupon handling
           } else if (matchedCoupon.type === "user") {
             if (!matchedCoupon.users || matchedCoupon.users.length === 0) {
-              console.log(`No users defined for user coupon ${matchedCoupon.code}`);
+              console.log(
+                `No users defined for user coupon ${matchedCoupon.code}`
+              );
               continue;
             }
 
-            const userCouponData = matchedCoupon.users.find(u => 
-              (u.user?.toString?.() || u?.toString?.()) === user._id.toString()
+            const userCouponData = matchedCoupon.users.find(
+              (u) =>
+                (u.user?.toString?.() || u?.toString?.()) ===
+                user._id.toString()
             );
 
             if (!userCouponData) {
-              console.log(`User ${user._id} not allowed to use coupon ${matchedCoupon.code}`);
+              console.log(
+                `User ${user._id} not allowed to use coupon ${matchedCoupon.code}`
+              );
               continue;
             }
 
             if (userCouponData.status === "used") {
-              console.log(`User ${user._id} has already used coupon ${matchedCoupon.code}`);
+              console.log(
+                `User ${user._id} has already used coupon ${matchedCoupon.code}`
+              );
               continue;
             }
 
             // Check if coupon has usage limits
-            if (matchedCoupon.usageLimit && userCouponData.usageCount >= matchedCoupon.usageLimit) {
-              console.log(`User ${user._id} has reached usage limit for coupon ${matchedCoupon.code}`);
+            if (
+              matchedCoupon.usageLimit &&
+              userCouponData.usageCount >= matchedCoupon.usageLimit
+            ) {
+              console.log(
+                `User ${user._id} has reached usage limit for coupon ${matchedCoupon.code}`
+              );
               continue;
             }
 
             // Update coupon status and usage count
             const updateObj = {
-              $set: { 
+              $set: {
                 "coupons.$.users.$[elem].status": "used",
-                "coupons.$.users.$[elem].usedAt": new Date()
-              }
+                "coupons.$.users.$[elem].usedAt": new Date(),
+              },
             };
 
             if (matchedCoupon.usageLimit) {
@@ -1366,21 +1973,21 @@ async function processCriticalSubmission(req, session, discountInfo) {
             }
 
             await CourseCoupons.updateOne(
-              { 
-                courseId: form.courseId, 
-                "coupons._id": matchedCoupon._id
+              {
+                courseId: form.courseId,
+                "coupons._id": matchedCoupon._id,
               },
               updateObj,
-              { 
+              {
                 session,
-                arrayFilters: [{ "elem.user": user._id }]
+                arrayFilters: [{ "elem.user": user._id }],
               }
             );
 
             result.appliedCoupon = {
               code: matchedCoupon.code,
               percentage: matchedCoupon.percentage,
-              type: matchedCoupon.type
+              type: matchedCoupon.type,
             };
           }
         }
@@ -1406,7 +2013,7 @@ async function processCriticalSubmission(req, session, discountInfo) {
         paymentData.discountPercentage = result.appliedCoupon.percentage;
         paymentData.discountType = result.appliedCoupon.type;
         paymentData.discountStatus = "used";
-        
+
         // Apply discount to amount if needed
         if (result.appliedCoupon.percentage) {
           paymentData.originalAmount = paymentData.amount;
@@ -1420,11 +2027,13 @@ async function processCriticalSubmission(req, session, discountInfo) {
         { _id: user._id, "courses.courseId": form.courseId },
         {
           $push: {
-            "courses.$.payments": paymentData
+            "courses.$.payments": paymentData,
           },
         },
         { session }
       );
+
+      
 
       await Course.updateOne(
         { _id: form.courseId },
@@ -1433,17 +2042,31 @@ async function processCriticalSubmission(req, session, discountInfo) {
             payments: {
               ...paymentData,
               email,
-              userId: user._id
-            }
+              userId: user._id,
+            },
           },
         },
         { session }
       );
+
+      
+      
     }
+
+    await sendRegistrationEmail(user, form, result.linkedItemDetails, submissions, {
+      package: result.linkedItemDetails?.name,
+      price: `${result.linkedItemDetails?.amount} ${result.linkedItemDetails?.currency}`,
+    });
+    
+
+    
   }
+
 
   result.submission = newSubmission;
   return result;
+
+  
 }
 
 // Background job processor
@@ -1677,73 +2300,8 @@ async function sendTelegramNotification(user, form, linkedItemDetails) {
   }
 }
 
-async function sendRegistrationEmail(
-  user,
-  form,
-  linkedItemDetails,
-  submission
-) {
-  if (!submission || !submission.responses) {
-    console.error(`Missing submission data for user ${user.email}`);
-    return;
-  }
 
-  const invoiceAnswerRaw = submission.responses
-    .find((r) => r.isUsedForInvoice)
-    ?.answer?.trim();
 
-  if (!invoiceAnswerRaw) {
-    console.warn(
-      `No invoice-related answer found for user ${user.email}. Defaulting to sponsored email.`
-    );
-  }
-
-  const isCompetitive = [
-    "Competitive participation",
-    "Конкурсное участие",
-  ].includes(invoiceAnswerRaw);
-  const isSubsidized = [
-    "Subsidized Non-competitive participation",
-    "Льготное Внеконкурсное участие",
-  ].includes(invoiceAnswerRaw);
-  const isNonCompetitive = [
-    "Non-competitive participation in thematic modules",
-    "Внеконкурсное участие в тематических модулях",
-  ].includes(invoiceAnswerRaw);
-
-  const lang = form.isUsedForRussian ? "ru" : "en";
-  let emailTemplate;
-
-  if (isCompetitive) {
-    emailTemplate = getCompetitiveEmailTemplate(lang, user);
-  } else if (isSubsidized) {
-    emailTemplate = getSubsidizedParticipationEmailTemplate(lang, user);
-  } else if (isNonCompetitive) {
-    emailTemplate = getNonCompetitiveParticipationEmailTemplate(lang, user);
-  } else {
-    emailTemplate = getSponsoredParticipationEmailTemplate(lang, user);
-  }
-
-  if (!emailTemplate) {
-    console.error(
-      `No email template found for user ${user.email}. Invoice answer: "${invoiceAnswerRaw}"`
-    );
-    return;
-  }
-
-  try {
-    await sendEmailRusender(
-      { email: user.email, firstName: user.firstName },
-      emailTemplate
-    );
-    console.log(`✅ Registration email sent to ${user.email}`);
-  } catch (err) {
-    console.error(
-      `❌ Failed to send registration email to ${user.email}:`,
-      err.message
-    );
-  }
-}
 
 router.get("/files/:fileId", authenticateJWT, async (req, res) => {
   try {

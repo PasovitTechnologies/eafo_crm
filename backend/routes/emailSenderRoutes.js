@@ -524,4 +524,323 @@ router.post("/email-send", upload.single("attachment"), async (req, res) => {
     }
 });
 
+
+
+router.post("/test-remainder", async (req, res) => {
+  const {
+    email,
+    firstName,
+    middleName,
+    lastName,
+    gender,
+    registrationType,
+    package: packageName,
+    registeredAt,
+    amount,
+    currency,
+    isRussian = true,
+    courseId
+  } = req.body;
+
+  if (!email || !courseId) {
+    return res.status(400).json({ success: false, message: "Email and courseId are required." });
+  }
+
+  try {
+    const salutation =
+      gender?.toLowerCase() === "женщина" || gender?.toLowerCase() === "female"
+        ? isRussian ? "Уважаемая" : "Dear Ms."
+        : isRussian ? "Уважаемый" : "Dear Mr.";
+
+    const fullName = `${firstName} ${middleName || ""}`.trim();
+    const formattedDate = registeredAt
+      ? new Date(registeredAt).toLocaleDateString(isRussian ? "ru-RU" : "en-GB")
+      : "";
+
+    const subject = isRussian
+      ? "Тестирование для отбора на Конкурсное участие в Базовых медицинских курсах"
+      : "Testing for Competitive Participation in Basic Medical Courses";
+
+      const html = isRussian
+      ? `<p><strong>${salutation} ${fullName}!</strong></p>
+
+      <p>Ранее Вы подавали заявку на Конкурсное участие в XI EAFO Базовых медицинских курсах. Рады сообщить, что Ваша заявка одобрена!</p>
+
+      <p>Для участия в конкурсном отборе Вам необходимо пройти вступительное тестирование. На Вашу электронную почту отправлено письмо с персональной ссылкой для прохождения теста.</p>
+
+      <p>Если у Вас возникнут вопросы или потребуется помощь, пожалуйста, обращайтесь к нам по адресу: <a href="mailto:basic@eafo.info">basic@eafo.info</a> — мы всегда рады помочь!</p>
+
+      <p><strong>Пожалуйста, ознакомьтесь с правилами прохождения тестирования:</strong></p>
+      <ol>
+        <li>Тест будет состоять из 40 вопросов с одним правильным ответом</li>
+        <li>Для ответа на все вопросы у Вас будет 20 минут</li>
+        <li>Экзамен проходит в защищённом режиме с системой прокторинга. Мы отслеживаем Вашу активность во время экзамена, и любое подозрительное поведение фиксируется.</li>
+      </ol>
+
+      <p><strong>Во время экзамена запрещены следующие действия:</strong></p>
+      <ul>
+        <li>Свертывание окна браузера</li>
+        <li>Изменение размера окна браузера</li>
+        <li>Открытие новой вкладки</li>
+        <li>Запуск других программ</li>
+        <li>Создание снимка экрана</li>
+        <li>Нажатие Ctrl + C / Ctrl + V</li>
+        <li>Нажатие клавиши Print Screen / F12</li>
+      </ul>
+
+      <p>Если будут выявлены нарушения правил, Вы получите предупреждение о подозрительном действии. В случае трёх нарушений, тест будет завершён досрочно.</p>
+
+      <p>По итогам результатов тестирования, а также оценки других критериев конкурсного отбора (мотивационное письмо, резюме, средний балл, наличие языковых сертификатов) будет составлен ранжированный список участников, согласно которому будет осуществлен допуск к Конкурсному участию.</p>
+
+      <p>Подробнее об условиях конкурсного отбора Вы можете узнать на нашем сайте:<br/>
+      <a href="https://eafo.vercel.app/categories-of-participation">https://eafo.vercel.app/categories-of-participation</a></p>
+
+      <p><strong>Напоминаем, что Вы выбрали следующую категорию и формат участия:</strong></p>
+      <ul>
+        <li><strong>Категория участия:</strong> ${registrationType || "-"}</li>
+        <li><strong>Пакет участия:</strong> ${packageName || "-"}</li>
+        <li><strong>Дата подачи заявки:</strong> ${formattedDate || "-"}</li>
+        <li><strong>Стоимость участия:</strong> ${amount || "-"} ${currency || "RUB"}</li>
+      </ul>
+
+      <p><strong>Обращаем Ваше внимание:</strong> для сохранения указанной выше цены, необходимо пройти тест и прикрепить все необходимые документы в личном кабинете EAFO <strong>до 15 июня 2025 года</strong>.</p>
+
+      <p>По вопросам участия, стоимости и проживания пишите:<br/>
+      <a href="mailto:basic@eafo.info">basic@eafo.info</a> или звоните: +7 (985) 125-77-88 (Telegram, WhatsApp)</p>
+
+      <p>Тех. поддержка: <a href="mailto:support@eafo.info">support@eafo.info</a></p>
+
+      <p><strong>Благодарим Вас за участие и ждем результатов тестирования!</strong></p>
+
+      <p>С уважением,<br/>Организационный комитет EAFO</p>`
+
+      : `
+        <p><strong>${salutation} ${fullName}!</strong></p>
+
+        <p>You previously applied for Competitive Participation in the XI EAFO Basic Medical Courses. We are pleased to inform you that your application has been approved!</p>
+
+        <p>To participate in the selection process, you need to complete the entrance test. A personal link to the test has been sent to your email.</p>
+
+        <p>If you have any questions or need assistance, feel free to contact us at <a href="mailto:basic@eafo.info">basic@eafo.info</a> — we’re always happy to help!</p>
+
+        <p><strong>Please read the test rules carefully:</strong></p>
+        <ol>
+          <li>The test consists of 40 questions with only one correct answer each.</li>
+          <li>You will have 20 minutes to complete all questions.</li>
+          <li>The test is conducted in a secure proctored environment. Your activity during the exam is monitored, and any suspicious behavior is logged.</li>
+        </ol>
+
+        <p><strong>The following actions are prohibited during the exam:</strong></p>
+        <ul>
+          <li>Minimizing the browser window</li>
+          <li>Resizing the browser window</li>
+          <li>Opening new browser tabs</li>
+          <li>Launching other software</li>
+          <li>Taking screenshots</li>
+          <li>Using Ctrl + C / Ctrl + V</li>
+          <li>Pressing Print Screen / F12</li>
+        </ul>
+
+        <p>Any violations will trigger a warning. After three warnings, the test will be terminated automatically.</p>
+
+        <p>Based on your test results and other selection criteria (motivation letter, resume, GPA, language certificates), a ranked list of participants will be created. Access to Competitive Participation will be granted accordingly.</p>
+
+        <p>More about the selection process:<br/>
+        <a href="https://eafo.vercel.app/categories-of-participation">https://eafo.vercel.app/categories-of-participation</a></p>
+
+        <p><strong>Your chosen participation details:</strong></p>
+        <ul>
+          <li><strong>Participation Category:</strong> ${participationCategory || "-"}</li>
+          <li><strong>Participation Package:</strong> ${packageName || "-"}</li>
+          <li><strong>Application Date:</strong> ${formattedDate || "-"}</li>
+          <li><strong>Participation Fee:</strong> ${price || "-"}</li>
+        </ul>
+
+        <p><strong>Please note:</strong> To secure the stated fee, you must complete the test and upload the required documents to your EAFO personal account <strong>by June 15, 2025</strong>.</p>
+
+        <p>If you have questions regarding the XI EAFO Basic Medical Courses, your application, pricing, or accommodation, contact us via:<br/>
+        <a href="mailto:basic@eafo.info">basic@eafo.info</a> or WhatsApp/Telegram: +7 (985) 125-77-88</p>
+
+        <p>For technical support regarding the website or your profile, email us at: <a href="mailto:support@eafo.info">support@eafo.info</a></p>
+
+        <p><strong>Thank you for participating in the XI EAFO Basic Medical Courses selection process. We look forward to your test results!</strong></p>
+
+        <p>Best regards,<br/>EAFO Organizing Committee</p>
+      `;
+    // Send the email
+    await sendEmailRusender({ email, name: fullName }, { subject, html });
+    console.log("✅ Email sent to:", email);
+
+    // Find the user
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.warn("⚠️ User not found:", email);
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+    console.log("✅ User found:", user._id);
+
+    // Find the course
+    const course = user.courses.find((c) => c.courseId.toString() === courseId.toString());
+    if (!course) {
+      console.warn("⚠️ Course not found in user.courses:", courseId);
+      return res.status(404).json({ success: false, message: "Course not found for this user." });
+    }
+    console.log("✅ Course found in user.courses:", course.courseId);
+
+    // Log emails object before
+    console.log("📨 Emails status before update:", course.emails);
+
+    // Update the emails object
+    course.emails = {
+      ...(course.emails || {}),
+      reminderSent: true,
+      sentAt: new Date(),
+    };
+
+    console.log("📩 Emails status after update:", course.emails);
+
+    user.markModified("courses"); // Required for nested array update
+    await user.save();
+
+    console.log("💾 User saved successfully");
+
+    res.status(200).json({ success: true, message: "Reminder email sent and status saved." });
+  } catch (err) {
+    console.error("❌ Error in /test-remainder:", err);
+    res.status(500).json({ success: false, message: "Failed to send email." });
+  }
+});
+
+
+
+
+router.post("/confirmation", async (req, res) => {
+  const {
+    email,
+    firstName,
+    middleName,
+    lastName,
+    gender,
+    registrationType,
+    package: packageName,
+    registeredAt,
+    amount,
+    currency,
+    isRussian = true,
+    courseId,
+  } = req.body;
+
+  if (!email || !courseId) {
+    return res.status(400).json({ success: false, message: "Email and courseId are required." });
+  }
+
+  try {
+    const salutation =
+      gender?.toLowerCase() === "женщина" || gender?.toLowerCase() === "female"
+        ? isRussian ? "Уважаемая" : "Dear Ms."
+        : isRussian ? "Уважаемый" : "Dear Mr.";
+
+    const fullName = `${firstName || ""} ${middleName || ""}`.trim();
+    const formattedDate = registeredAt
+      ? new Date(registeredAt).toLocaleDateString(isRussian ? "ru-RU" : "en-GB")
+      : "";
+
+    const subject = isRussian
+      ? "Подтверждение: Конкурсное участие в Базовых медицинских курсах"
+      : "Confirmation: Competitive Participation in Basic Medical Courses";
+
+      const html = isRussian
+      ? `
+        <p><strong>${salutation} ${fullName}!</strong></p>
+
+        <p>Ваш слот для <strong>Конкурсного участия</strong> в XI EAFO Базовых медицинских курсах подтвержден!</p>
+
+        <p>Вы ранее подали заявку, и мы рады сообщить, что она была <strong>одобрена</strong>.</p>
+
+        <p>На Вашу электронную почту отправлена персональная ссылка для прохождения <strong>вступительного теста</strong>.</p>
+
+        <p><strong>Напоминаем Ваши регистрационные данные:</strong></p>
+        <ul>
+          <li><strong>Категория участия:</strong> ${registrationType || "-"}</li>
+          <li><strong>Пакет участия:</strong> ${packageName || "-"}</li>
+          <li><strong>Дата подачи заявки:</strong> ${formattedDate || "-"}</li>
+          <li><strong>Стоимость участия:</strong> ${amount || "-"} ${currency || "RUB"}</li>
+        </ul>
+
+        <p><strong>Важно:</strong> для сохранения указанной стоимости, пожалуйста, пройдите тестирование и загрузите необходимые документы в личном кабинете EAFO до <strong>15 июня 2025 года</strong>.</p>
+
+        <p>Если у Вас возникнут вопросы, пожалуйста, свяжитесь с нами: <a href="mailto:basic@eafo.info">basic@eafo.info</a> или через Telegram/WhatsApp: +7 (985) 125-77-88</p>
+
+        <p>Тех. поддержка: <a href="mailto:support@eafo.info">support@eafo.info</a></p>
+
+        <p><strong>Благодарим за участие и ждем Ваши результаты!</strong></p>
+        <p>С уважением,<br/>Организационный комитет EAFO</p>
+      `
+      : `
+        <p><strong>${salutation} ${fullName}!</strong></p>
+
+        <p>Your slot for <strong>Competitive Participation</strong> in the XI EAFO Basic Medical Courses has been <strong>confirmed</strong>.</p>
+
+        <p>You previously submitted an application, and we are pleased to inform you that it has been <strong>approved</strong>.</p>
+
+        <p>A personal test link has been sent to your email for the <strong>entrance examination</strong>.</p>
+
+        <p><strong>Your registration details:</strong></p>
+        <ul>
+          <li><strong>Participation Category:</strong> ${registrationType || "-"}</li>
+          <li><strong>Participation Package:</strong> ${packageName || "-"}</li>
+          <li><strong>Application Date:</strong> ${formattedDate || "-"}</li>
+          <li><strong>Participation Fee:</strong> ${amount || "-"} ${currency || "USD"}</li>
+        </ul>
+
+        <p><strong>Note:</strong> To retain this fee, please complete your test and upload the necessary documents in your EAFO account before <strong>June 15, 2025</strong>.</p>
+
+        <p>If you have any questions, contact us via email: <a href="mailto:basic@eafo.info">basic@eafo.info</a> or WhatsApp/Telegram: +7 (985) 125-77-88</p>
+
+        <p>Tech support: <a href="mailto:support@eafo.info">support@eafo.info</a></p>
+
+        <p><strong>Thank you for participating, and we look forward to your test results!</strong></p>
+        <p>Best regards,<br/>EAFO Organizing Committee</p>
+      `;
+
+    await sendEmailRusender({ email, name: fullName }, { subject, html });
+    console.log("✅ Confirmation email sent to:", email);
+
+    // Update database
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.warn("⚠️ User not found:", email);
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    const course = user.courses.find((c) => c.courseId.toString() === courseId.toString());
+    if (!course) {
+      console.warn("⚠️ Course not found for user:", courseId);
+      return res.status(404).json({ success: false, message: "Course not found for this user." });
+    }
+
+    console.log("📨 Previous emails object:", course.emails);
+
+    course.emails = {
+      ...(course.emails || {}),
+      confirmationSent: true,
+      sentAt: new Date(),
+    };
+
+    console.log("📩 Updated emails object:", course.emails);
+
+    user.markModified("courses");
+    await user.save();
+    console.log("💾 User updated with confirmationSent status");
+
+    res.status(200).json({ success: true, message: "Confirmation email sent and status saved." });
+  } catch (err) {
+    console.error("❌ Confirmation email error:", err);
+    res.status(500).json({ success: false, message: "Failed to send confirmation email." });
+  }
+});
+
+
+
+
 module.exports = router;

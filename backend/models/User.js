@@ -122,10 +122,15 @@ const userSchema = new mongoose.Schema(
         }],
 
         notes: [{
-          paymentId: { type: mongoose.Schema.Types.ObjectId, required: true },
           text: { type: String, required: true },
           createdAt: { type: Date, default: () => moment.tz("Europe/Moscow").toDate() }
-          }]
+          }],
+
+          emails: {
+            reminderSent: Boolean,
+            confirmationSent: Boolean,
+            sentAt: Date,
+          },
       
         
       }

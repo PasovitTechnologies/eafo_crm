@@ -16,6 +16,8 @@ import ContractDocument from "./ContractDocument";
 import { useCallback } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Swal from "sweetalert2";
+
 
 const InvoiceModal = ({
   submission,
@@ -43,6 +45,8 @@ const InvoiceModal = ({
   const [emailSending, setEmailSending] = useState(false);
   const [whatsappLoading, setWhatsappLoading] = useState(false);
   const [whatsappStatus, setWhatsappStatus] = useState(null);
+  const [isFreeParticipant, setIsFreeParticipant] = useState(false);
+
   const { t } = useTranslation(); // Translation hook
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const percentage = discountPercentage;
@@ -100,6 +104,12 @@ const InvoiceModal = ({
       if (submission.email && courseId) {
         fetchPaymentHistory();
         fetchCoursePayments();
+      }
+
+      if (submission.status?.toLowerCase() === "free") {
+        setIsFreeParticipant(true);
+      } else {
+        setIsFreeParticipant(false);
       }
     }
   }, [isOpen, submission, courseId]);
@@ -598,6 +608,67 @@ const InvoiceModal = ({
     }
   };
 
+
+  const handleFreeCheckboxChange = async (e) => {
+    const checked = e.target.checked;
+  
+    console.log("📥 Free checkbox changed:", checked);
+  
+    if (!checked) {
+      console.log("🛑 Unchecked – skipping free marking.");
+      setIsFreeParticipant(false);
+      return;
+    }
+  
+    const result = await Swal.fire({
+      title: "Confirm Free Access",
+      text: "Are you sure you want to mark this participant as free?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, make free",
+      cancelButtonText: "Cancel",
+    });
+  
+    if (result.isConfirmed) {
+      try {
+        console.log("✅ Confirmed. Sending request to mark as free...");
+        setIsFreeParticipant(true);
+        const token = localStorage.getItem("token");
+  
+        const response = await axios.put(
+          `${baseUrl}/api/user/${submission.email}/courses/${courseId}/free`,
+          {
+            transactionId: submission.transactionId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+  
+        console.log("📤 Free mark response:", response.data);
+  
+        if (response.data.success) {
+          Swal.fire("Marked Free", "The participant was marked as free.", "success");
+          fetchPaymentHistory();
+        } else {
+          throw new Error(response.data.message || "Failed to mark as free");
+        }
+      } catch (error) {
+        console.error("❌ Error updating free status:", error);
+        Swal.fire("Error", error.message || "Failed to update status", "error");
+        setIsFreeParticipant(false);
+      }
+    } else {
+      console.log("❌ Cancelled marking as free");
+      setIsFreeParticipant(false);
+    }
+  };
+  
+  
+  
+
   return (
     <>
       <ToastContainer className="custom-toast-container" />
@@ -738,6 +809,25 @@ const InvoiceModal = ({
             </div>
           </div>
         )}
+      <div className="free-access-section">
+  <label className="free-access-control">
+    <input
+      type="checkbox"
+      checked={isFreeParticipant}
+      onChange={handleFreeCheckboxChange}
+      className="free-access-checkbox"
+    />
+    <span className="free-access-labe">Make this participant free</span>
+  </label>
+
+  {isFreeParticipant && (
+    <div className="free-access-status">✅ Marked as Free</div>
+  )}
+</div>
+
+
+
+
 
         <div className="payment-history">
           <h3>{t("InvoiceModal.paymentHistory")}</h3>

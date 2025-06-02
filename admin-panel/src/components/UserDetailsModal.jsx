@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import PTSansNarrowBase64 from "../assets/fonts/PTSansNarrow.base64.js";
 import "react-toastify/dist/ReactToastify.css";
 import { toast, ToastContainer } from "react-toastify";
+import Swal from "sweetalert2";
 
 const UserDetailsModal = ({ submission, userData, closeModal }) => {
   const { courseId } = useParams();
@@ -29,6 +30,11 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
   const [otherFormsData, setOtherFormsData] = useState({});
   const [imageLoaded, setImageLoaded] = useState(false);
   const [qrImageUrl, setQrImageUrl] = useState(null);
+  const [emailSentStatus, setEmailSentStatus] = useState({
+    reminder: false,
+    confirmation: false,
+  });
+  
 
   const [otherFormsSubmissions, setOtherFormsSubmissions] = useState({});
   const token = localStorage.getItem("token");
@@ -152,6 +158,8 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
     fetchData();
   }, [courseId, userData, submission.responses, token]);
 
+  console.log(submission.email);
+
   useEffect(() => {
     if (fullUserData && courseId) {
       // Find the current course
@@ -267,7 +275,7 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
           <i className="fas fa-file"></i>{" "}
           {`File (${(fileData.size / 1024).toFixed(2)} KB)`}
         </a>
-        
+
         <button className="download-btn" onClick={() => downloadFile(fileData)}>
           <i className="fas fa-download"></i> Download
         </button>
@@ -281,30 +289,30 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
         alert("Invalid file data");
         return;
       }
-  
+
       const token = localStorage.getItem("token");
       const response = await fetch(`${baseUrl}/api/form/files/${file.fileId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (!response.ok) {
         throw new Error(`Server responded with ${response.status}`);
       }
-  
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-  
+
       // Use filename from the file object
       const filename = file.fileName || "download";
-  
+
       const a = document.createElement("a");
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);
       a.click();
-  
+
       // Cleanup
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
@@ -313,7 +321,6 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
       alert(`Download failed: ${error.message}`);
     }
   };
-  
 
   const loadFont = async () => {
     const response = await fetch("/fonts/PTSansNarrow-Regular.ttf");
@@ -623,22 +630,23 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
   const renderFormSubmissions = (formId) => {
     const formData = otherFormsSubmissions[formId];
     if (!formData) return <div>No submission data found for this form.</div>;
-  
+
     return (
       <div className="content-info">
         <h3>{formData.formName}</h3>
         <ul className="submission-responses">
           {formData.submission.responses.map((res, idx) => {
             const label = getQuestionLabel(res.questionId, formId);
-  
+
             const hasFiles = Array.isArray(res.files) && res.files.length > 0;
             const singleFile = res.file && res.file.fileId;
             const embeddedFile = res.answer && res.answer.fileId;
-  
+
             const renderFileBlock = (file, i) => (
               <div className="file-response" key={i}>
                 <span>
-                  <i className="fas fa-file-alt"></i> {file.fileName} ({(file.size / 1024).toFixed(2)} KB)
+                  <i className="fas fa-file-alt"></i> {file.fileName} (
+                  {(file.size / 1024).toFixed(2)} KB)
                 </span>
                 <button
                   className="download-btn"
@@ -648,24 +656,28 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
                 </button>
               </div>
             );
-  
+
             return (
               <li key={idx} className="response-item">
                 <div className="response-question">
                   <strong>{label}:</strong>
                 </div>
                 <div className="response-answer">
-                  {hasFiles
-                    ? res.files.map(renderFileBlock)
-                    : singleFile
-                    ? renderFileBlock(res.file)
-                    : embeddedFile
-                    ? renderFileBlock(res.answer)
-                    : res.answer
-                    ? Array.isArray(res.answer)
-                      ? res.answer.join(", ")
-                      : res.answer
-                    : <i>N/A</i>}
+                  {hasFiles ? (
+                    res.files.map(renderFileBlock)
+                  ) : singleFile ? (
+                    renderFileBlock(res.file)
+                  ) : embeddedFile ? (
+                    renderFileBlock(res.answer)
+                  ) : res.answer ? (
+                    Array.isArray(res.answer) ? (
+                      res.answer.join(", ")
+                    ) : (
+                      res.answer
+                    )
+                  ) : (
+                    <i>N/A</i>
+                  )}
                 </div>
               </li>
             );
@@ -674,8 +686,6 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
       </div>
     );
   };
-  
-  
 
   const getProfessionalDocuments = () => {
     if (!fullUserData?.documents || typeof fullUserData.documents !== "object")
@@ -702,19 +712,20 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
     if (!name) return "";
     return name.length <= maxLength
       ? name
-      : `${name.substring(0, maxLength - 7)}...${name.slice(name.lastIndexOf(".") || -3)}`;
+      : `${name.substring(0, maxLength - 7)}...${name.slice(
+          name.lastIndexOf(".") || -3
+        )}`;
   };
-  
 
   const viewFile = async (file) => {
     const previewableTypes = ["application/pdf", "image/", "image/svg+xml"];
-  
+
     // ❌ If not previewable type
     if (!previewableTypes.some((type) => file.contentType.startsWith(type))) {
-      toast.error("Preview is not supported for this file type.")
+      toast.error("Preview is not supported for this file type.");
       return;
     }
-  
+
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${baseUrl}/api/form/files/${file.fileId}`, {
@@ -722,15 +733,15 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       if (!response.ok) throw new Error("Failed to fetch file");
-  
+
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-  
+
       // Open previewable file in new tab
       window.open(url, "_blank");
-  
+
       // Optional cleanup
       setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch (error) {
@@ -738,18 +749,95 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
       alert("Unable to preview this file.");
     }
   };
-  
-  
-  
-  
+
+  const sendEmail = async (type) => {
+    if (!submission?.email) {
+      toast.error("Email not available");
+      return;
+    }
+
+    const result = await Swal.fire({
+      title:
+        type === "reminder"
+          ? "Send Reminder Email?"
+          : "Send Confirmation Email?",
+      text: `This will send a ${
+        type === "reminder" ? "reminder" : "confirmation"
+      } email to ${submission.email}`,
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes, send it",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!result.isConfirmed) return;
+
+    const endpoint =
+      type === "reminder"
+        ? `${baseUrl}/api/email/test-remainder`
+        : `${baseUrl}/api/email/confirmation`;
+
+    try {
+      const payment = fullUserData?.courses?.find(
+        (c) => c.courseId === courseId
+      )?.payments?.[0];
+      const personal = fullUserData?.personalDetails || {};
+
+      const emailPayload = {
+        email: submission.email,
+        registrationType: invoiceType,
+        registeredAt: new Date(submission.createdAt).toLocaleString("ru-RU"),
+        package: payment?.package,
+        amount: payment?.amount,
+        currency: payment?.currency,
+        firstName: personal.firstName || "",
+        middleName: personal.middleName || "",
+        lastName: personal.lastName || "",
+        gender: personal.gender || "",
+        courseId: courseId,
+      };
+
+      // ✅ Log the payload being sent
+      console.log("Sending email with payload:", emailPayload);
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(emailPayload),
+      });
+
+      if (res.ok) {
+        toast.success(
+          `${type === "reminder" ? "Reminder" : "Confirmation"} email sent!`
+        );
+      } else {
+        const data = await res.json();
+        toast.error(data?.message || `Failed to send ${type} email.`);
+      }
+    } catch (err) {
+      console.error(`Error sending ${type} email:`, err);
+      toast.error(`Error sending ${type} email.`);
+    }
+  };
 
   const certificateLink = fullUserData?.documents?.certificateLink?.value || "";
   const referral = fullUserData?.documents?.referral?.value || "";
+  
 
+const emailStatus = fullUserData?.courses?.find(c => c.courseId === courseId)?.emails;
+const reminderSent = emailStatus?.reminderSent || false;
+const confirmationSent = emailStatus?.confirmationSent || false;
   return (
     <div className="userdeatils-modal-overlay" onClick={closeModal}>
-    <ToastContainer position="top-right" className="custom-toast-container" autoClose={3000} />
-      
+      <ToastContainer
+        position="top-right"
+        className="custom-toast-container"
+        autoClose={3000}
+      />
+
       <div
         className="userdeatils-modal-content"
         onClick={(e) => e.stopPropagation()}
@@ -789,12 +877,35 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
           </div>
 
           <div className="export-buttons">
-            <button className="export-btn" onClick={exportToCSV}>
-              {t("userDetailsModal.exportCSV")}
-            </button>
-            <button className="export-btn" onClick={exportToPDF}>
-              {t("userDetailsModal.exportPDF")}
-            </button>
+            <div className="button-class">
+              <button className="export-btn" onClick={exportToCSV}>
+                {t("userDetailsModal.exportCSV")}
+              </button>
+              <button className="export-btn" onClick={exportToPDF}>
+                {t("userDetailsModal.exportPDF")}
+              </button>
+            </div>
+            <div className="button-class">
+  <button
+    className="export-btn"
+    onClick={() => sendEmail("reminder")}
+    disabled={reminderSent}
+  >
+    {reminderSent
+      ? t("userDetailsModal.reminderSent") || "Reminder Sent"
+      : t("userDetailsModal.sendReminder") || "Send Reminder"}
+  </button>
+
+  <button
+    className="export-btn"
+    onClick={() => sendEmail("confirmation")}
+    disabled={confirmationSent}
+  >
+    {confirmationSent
+      ? t("userDetailsModal.confirmationSent") || "Confirmation Sent"
+      : t("userDetailsModal.sendConfirmation") || "Send Confirmation"}
+  </button>
+</div>
           </div>
           {/* Add this section where appropriate in your modal */}
           {selectedQrCode && selectedQrCode.qrFileId && (
@@ -1056,72 +1167,76 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
                 </div>
               )}
 
-{activeTab === "Registration" && (
-  <div className="content-info">
-    <h3>{t("userDetailsModal.submissionDetails")}</h3>
-    <ul className="submission-responses">
-      {submission.responses.map((res, idx) => {
-        const label = getQuestionLabel(res.questionId);
-        const files = getEffectiveFiles(res);
+              {activeTab === "Registration" && (
+                <div className="content-info">
+                  <h3>{t("userDetailsModal.submissionDetails")}</h3>
+                  <ul className="submission-responses">
+                    {submission.responses.map((res, idx) => {
+                      const label = getQuestionLabel(res.questionId);
+                      const files = getEffectiveFiles(res);
 
-        return (
-          <li key={idx} className="response-item">
-            <div className="response-question">
-              <strong>{label}:</strong>
-            </div>
-            <div className="response-answer">
-              {files.length > 0 ? (
-                files.map((file, i) => (
-                  <div className="file-response" key={i}>
-  <span title={file.fileName}>
-    <i className="fas fa-file-alt"></i>{" "}
-    {formatFileName(file.fileName)} ({(file.size / 1024).toFixed(2)} KB)
-  </span>
-  <button
-  className="view-btn"
-  onClick={() => viewFile(file)}
->
-  <i className="fas fa-eye"></i> View
-</button>
+                      return (
+                        <li key={idx} className="response-item">
+                          <div className="response-question">
+                            <strong>{label}:</strong>
+                          </div>
+                          <div className="response-answer">
+                            {files.length > 0 ? (
+                              files.map((file, i) => (
+                                <div className="file-response" key={i}>
+                                  <span title={file.fileName}>
+                                    <i className="fas fa-file-alt"></i>{" "}
+                                    {formatFileName(file.fileName)} (
+                                    {(file.size / 1024).toFixed(2)} KB)
+                                  </span>
+                                  <button
+                                    className="view-btn"
+                                    onClick={() => viewFile(file)}
+                                  >
+                                    <i className="fas fa-eye"></i> View
+                                  </button>
 
-  <button
-    className="download-btn"
-    onClick={() => downloadFile(file)}
-  >
-    <i className="fas fa-download"></i> {t("userDetailsModal.download")}
-  </button>
-</div>
-
-                ))
-              ) : Array.isArray(res.answer) ? (
-                res.answer.every(item => typeof item === "object" && item.firstName) ? (
-                  res.answer.map((entry, i) => (
-                    <p key={i}>
-                      {entry.lastName} {entry.firstName}{" "}
-                      {entry.middleName ? entry.middleName : ""}
-                    </p>
-                  ))
-                ) : (
-                  res.answer.join(", ")
-                )
-              ) : typeof res.answer === "object" && res.answer?.firstName ? (
-                <p>
-                  {res.answer.lastName} {res.answer.firstName}{" "}
-                  {res.answer.middleName ? res.answer.middleName : ""}
-                </p>
-              ) : (
-                res.answer || <i>N/A</i>
+                                  <button
+                                    className="download-btn"
+                                    onClick={() => downloadFile(file)}
+                                  >
+                                    <i className="fas fa-download"></i>{" "}
+                                    {t("userDetailsModal.download")}
+                                  </button>
+                                </div>
+                              ))
+                            ) : Array.isArray(res.answer) ? (
+                              res.answer.every(
+                                (item) =>
+                                  typeof item === "object" && item.firstName
+                              ) ? (
+                                res.answer.map((entry, i) => (
+                                  <p key={i}>
+                                    {entry.lastName} {entry.firstName}{" "}
+                                    {entry.middleName ? entry.middleName : ""}
+                                  </p>
+                                ))
+                              ) : (
+                                res.answer.join(", ")
+                              )
+                            ) : typeof res.answer === "object" &&
+                              res.answer?.firstName ? (
+                              <p>
+                                {res.answer.lastName} {res.answer.firstName}{" "}
+                                {res.answer.middleName
+                                  ? res.answer.middleName
+                                  : ""}
+                              </p>
+                            ) : (
+                              res.answer || <i>N/A</i>
+                            )}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               )}
-              
-            </div>
-          </li>
-        );
-      })}
-    </ul>
-  </div>
-)}
-
-
 
               {/* Render other forms when their tab is active */}
               {otherForms.some((form) => form.formId === activeTab) &&

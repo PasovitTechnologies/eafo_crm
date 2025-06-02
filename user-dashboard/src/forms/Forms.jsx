@@ -169,8 +169,8 @@ const Forms = () => {
 
     // 🔥 Update the required status dynamically
     updatedVisibleQuestions.forEach((q) => {
-      if (q.isConditional) {
-        q.isRequired = true; // ✅ Mark conditional questions as required when shown
+      if (q.isConditional && q.isRequired !== false) {
+        q.isRequired = true;
       }
     });
 
@@ -1034,8 +1034,15 @@ const Forms = () => {
             <div className="form-title-description">
               <h1 className="form-title">{formDetails.title}</h1>
               {formDetails.description && (
-                <p className="form-description">{formDetails.description}</p>
-              )}
+ <div
+ className="form-description"
+ dangerouslySetInnerHTML={{
+   __html: formDetails.description
+ }}
+/>
+
+)}
+
             </div>
           </div>
 

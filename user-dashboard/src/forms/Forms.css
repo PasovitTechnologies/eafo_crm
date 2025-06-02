@@ -283,11 +283,7 @@ input[type="checkbox"] {
 
 /* 🌟 Content Display */
 .content-display {
-    background-color: #f9f9f9;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin: 10px 0;
+    
     color: #333;
     font-size: 14px;
 }

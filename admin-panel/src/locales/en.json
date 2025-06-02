@@ -202,7 +202,12 @@
     "unknownQuestion": "Unknown Question",
 
     "certificateLink": "Certificate Link",
-    "referral": "Referral"
+    "referral": "Referral",
+
+    "sendReminder": "Send Reminder",
+    "reminderSent": "Reminder Sent",
+    "sendConfirmation": "Send Confirmation",
+    "confirmationSent": "Confirmation Sent"
   },
 
   "invoiceManager": {

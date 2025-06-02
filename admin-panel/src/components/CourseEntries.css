@@ -167,6 +167,14 @@
     color: #000;
 }
 
+.notes-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+
+
+  
 /* 📱 Tablet and Smaller */
 @media screen and (max-width: 1024px) {
     .entries-wrapper {

@@ -90,8 +90,7 @@ const App = () => {
       {isAuthenticated ? (
         <>
           <ToastContainer position="top-right" autoClose={3000} />
-          {/* Navbar */}
-          <ChatBot/>
+        
           <Navbar
             isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen}
           />

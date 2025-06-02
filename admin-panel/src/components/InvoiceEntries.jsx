@@ -40,6 +40,9 @@ const InvoiceEntries = () => {
   const [selectedPaymentForNotes, setSelectedPaymentForNotes] = useState(null);
   const [userNotes, setUserNotes] = useState([]);
   const [showPercent, setShowPercent] = useState(true);
+  const [hoveredEmail, setHoveredEmail] = useState(null);
+  const [userNotesMap, setUserNotesMap] = useState({});
+  const [hoveredRowId, setHoveredRowId] = useState(null);
 
   useEffect(() => {
     if (!courseId) return;
@@ -172,6 +175,8 @@ const InvoiceEntries = () => {
         return "status-not-created";
       case "error":
         return "status-error";
+      case "free":
+        return "status-free"; // ✅ NEW STATUS CLASS
       default:
         return "status-unknown";
     }
@@ -230,9 +235,18 @@ const InvoiceEntries = () => {
 
       if (response.ok) {
         const data = await response.json();
+        const updatedNotes = [...userNotes, data.note];
         setUserNotes([...userNotes, data.note]);
         setNewNote("");
+
+
+        setUserNotesMap((prev) => ({
+          ...prev,
+          [selectedPaymentForNotes.email]: updatedNotes,
+        }));
       }
+
+     
     } catch (error) {
       console.error("Error adding note:", error);
     }
@@ -256,16 +270,20 @@ const InvoiceEntries = () => {
       );
 
       if (response.ok) {
-        setUserNotes(
-          userNotes.map((note) =>
-            note._id === editingNoteId
-              ? { ...note, text: editingNoteText }
-              : note
-          )
+        const updated = userNotes.map((note) =>
+          note._id === editingNoteId ? { ...note, text: editingNoteText } : note
         );
+        setUserNotes(updated);
         setEditingNoteId(null);
         setEditingNoteText("");
+      
+        // 👇 Refresh tooltip notes
+        setUserNotesMap((prev) => ({
+          ...prev,
+          [selectedPaymentForNotes.email]: updated,
+        }));
       }
+      
     } catch (error) {
       console.error("Error updating note:", error);
     }
@@ -285,8 +303,16 @@ const InvoiceEntries = () => {
       );
 
       if (response.ok) {
-        setUserNotes(userNotes.filter((note) => note._id !== noteId));
+        const updated = userNotes.filter((note) => note._id !== noteId);
+        setUserNotes(updated);
+      
+        // 👇 Refresh tooltip notes
+        setUserNotesMap((prev) => ({
+          ...prev,
+          [selectedPaymentForNotes.email]: updated,
+        }));
       }
+      
     } catch (error) {
       console.error("Error deleting note:", error);
     }
@@ -333,10 +359,38 @@ const InvoiceEntries = () => {
     );
   };
 
+  const handleNotesHover = async (email) => {
+    setHoveredEmail(email);
+
+    if (!userNotesMap[email]) {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(
+          `${baseUrl}/api/user/${email}/courses/${courseId}/notes`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserNotesMap((prev) => ({
+            ...prev,
+            [email]: data.notes || [],
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching notes:", error);
+      }
+    }
+  };
+
   return (
     <div className="invoice-entries-container">
       <div className="entries-header">
-        <div className="search-filter-container">
+        <div className="invoice-search-filter-container">
           <div className="search-input-wrapper">
             <FiSearch className="course-search-icon" />
             <input
@@ -418,16 +472,50 @@ const InvoiceEntries = () => {
                       {payment.status || "Unknown"}
                     </div>
                   </td>
-                  <td>
-                    <button
-                      className={`notes-btn ${
-                        hasNotes(payment.email) ? "has-notes" : "no-notes"
-                      }`}
-                      onClick={() => handleNotesClick(payment)}
-                      title="View/Add Notes"
+                  <td className="notes-cell">
+                    <div
+                      className="notes-wrapper"
+                      onMouseEnter={(e) => {
+                        e.stopPropagation();
+                        handleNotesHover(payment.email);
+                        setHoveredRowId(`${payment.email}_${index}`);
+                      }}
+                      onMouseLeave={(e) => {
+                        e.stopPropagation();
+                        setHoveredRowId(null);
+                      }}
                     >
-                      <FaRegStickyNote />
-                    </button>
+                      <button
+                        className={`notes-btn ${
+                          hasNotes(payment.email) ? "has-notes" : "no-notes"
+                        }`}
+                        onClick={() => handleNotesClick(payment)}
+                        title="View/Add Notes"
+                      >
+                        <FaRegStickyNote />
+                      </button>
+                      {hoveredRowId === `${payment.email}_${index}` &&
+                        userNotesMap[payment.email]?.length > 0 && (
+                          <div
+                            className="notes-tooltip"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent <tr> click
+                              handleNotesClick(payment);
+                            }}
+                          >
+                            <ul>
+                              {userNotesMap[payment.email].map((note, idx) => (
+                                <li key={note._id}>
+                                  <span className="note-index">{idx + 1}.</span>{" "}
+                                  {note.text.length > 100
+                                    ? note.text.slice(0, 100) + "..."
+                                    : note.text}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                    </div>
                   </td>
 
                   <td className="invoice-actions">
@@ -476,7 +564,6 @@ const InvoiceEntries = () => {
 
       {selectedSubmission && (
         <InvoiceModal
-          
           submission={selectedSubmission}
           isOpen={!!selectedSubmission}
           onClose={() => setSelectedSubmission(null)}

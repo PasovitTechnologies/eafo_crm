@@ -12,6 +12,8 @@ const { GridFSBucket } = require("mongodb");
 const crypto = require("crypto");
 const { message } = require("telegram/client");
 const moment = require("moment-timezone");
+const Course = require("../models/Course");
+
 
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret";
@@ -679,7 +681,6 @@ router.post('/:email/courses/:courseId/notes', authenticateJWT, async (req, res)
     }
 
     const newNote = {
-      paymentId,
       text,
       createdAt: moment.tz("Europe/Moscow").toDate(), 
     };
@@ -846,6 +847,83 @@ router.get('/fetch/all-users', authenticateJWT, async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+
+// PUT /api/user/:email/courses/:courseId/payments/:transactionId/mark-free
+
+// PUT /api/user/:email/courses/:courseId/free
+router.put("/:email/courses/:courseId/free", authenticateJWT, async (req, res) => {
+  const { email, courseId } = req.params;
+  const { transactionId } = req.body;
+
+  console.log("📩 Received request to mark as free:", { email, courseId, transactionId });
+
+  if (!transactionId) {
+    console.warn("⚠️ Missing transactionId in request body");
+    return res.status(400).json({ success: false, message: "transactionId is required" });
+  }
+
+  try {
+    // Step 1: Update User Schema
+    const user = await User.findOne({ email });
+    if (!user) {
+      console.warn("❌ User not found:", email);
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    const course = user.courses.find(c => String(c.courseId) === String(courseId));
+    console.log("🧾 Full user course entries:", user.courses);
+
+    if (!course) {
+      console.warn("❌ Course not found for user:", courseId);
+      return res.status(404).json({ success: false, message: "Course not found for user" });
+    }
+
+    const userPayment = course.payments.find(p => String(p.transactionId) === String(transactionId));
+    if (!userPayment) {
+      console.warn("❌ Payment not found for transactionId in user:", transactionId);
+      return res.status(404).json({ success: false, message: "Payment not found in user data" });
+    }
+
+    if (userPayment.status === "free") {
+      console.log("ℹ️ User payment already marked as free.");
+    } else {
+      userPayment.status = "free";
+      await user.save();
+      console.log("✅ User payment status marked as free.");
+    }
+
+    // Step 2: Update Course Schema
+    const courseDoc = await Course.findOne({
+      _id: courseId,
+      "payments.transactionId": transactionId,
+      "payments.email": email,
+    });
+
+    if (!courseDoc) {
+      console.warn("❌ Course document with matching payment not found");
+      return res.status(404).json({ success: false, message: "Matching course payment not found" });
+    }
+
+    const coursePayment = courseDoc.payments.find(p => p.transactionId === transactionId && p.email === email);
+    if (coursePayment.status !== "free") {
+      coursePayment.status = "free";
+      await courseDoc.save();
+      console.log("✅ Course payment status marked as free.");
+    } else {
+      console.log("ℹ️ Course payment already marked as free.");
+    }
+
+    return res.status(200).json({ success: true, message: "Payment marked as free in user and course data" });
+  } catch (error) {
+    console.error("❌ Error marking payment as free:", error);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
+
+
+
 
 
 
