@@ -5,7 +5,20 @@ import DOMPurify from "dompurify";
 
 const WebinarHelp = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState("text");
-  const { t } = useTranslation();
+  const { t , i18n} = useTranslation();
+
+  const htmlContent =
+  i18n.language === 'ru'
+    ? `
+      Для получения помощи свяжитесь с нашей службой поддержки по электронной почте 📧 
+      <a href="mailto:Support@eafo.info" class="support-link">Support@eafo.info</a> 
+      или по телефону ☎ +7 (985) 125-77-88.
+    `
+    : `
+      For further assistance, please contact our support team via email at 📧 
+      <a href="mailto:Support@eafo.info" class="support-link">Support@eafo.info</a> 
+      or by phone at ☎ +7 (985) 125-77-88.
+    `;
 
   return (
     <div className="help-popup">
@@ -107,10 +120,10 @@ const WebinarHelp = ({ onClose }) => {
                     />
                   </svg>
                   <p
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(t("auth.contactSupport")),
-                    }}
-                  />
+      dangerouslySetInnerHTML={{
+        __html: DOMPurify.sanitize(htmlContent),
+      }}
+    />
                 </div>
               </div>
             ) : (

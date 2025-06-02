@@ -91,7 +91,7 @@
   "registrationGuide": "Registration Guide",
   "registrationVideo": "Registration Video",
   "videoDescription": "Watch this video for a step-by-step registration process.",
-  "contactSupport": "For further assistance, please contact our support team via email at 📧 <a href=mailto:Support@eafo.info>Support@eafo.info</a> or by phone at ☎ +7 (985) 125-77-88.",
+  "contactSupport": "For further assistance, please contact our support team via email at 📧 <a href=\"mailto:Support@eafo.info\" style=\"color:#007BFF; text-decoration:none;\" onmouseover=\"this.style.color='#0056b3'\" onmouseout=\"this.style.color='#007BFF'\">Support@eafo.info</a> or by phone at ☎ +7 (985) 125-77-88.",
     "RegisterSteps": {
     "step1": "Select your professional title (e.g., Dr., Prof.) from the drop-down menu.",
     "step2": "Enter your full name exactly as it appears on your official ID (first, middle, last).",

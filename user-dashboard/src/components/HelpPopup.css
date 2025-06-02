@@ -17,6 +17,17 @@
     font-family: "Inter Tight", sans-serif;
 
   }
+  .support-link {
+    color: #007BFF;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+  
+  .support-link:hover {
+    color: #0056b3;
+    text-decoration: underline;
+  }
+  
   
   .popup-container {
     background-color: white;
