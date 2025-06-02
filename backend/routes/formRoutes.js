@@ -2416,11 +2416,11 @@ router.get("/:formId/info", authenticateJWT, async (req, res) => {
   }
 });
 
-router.get("/:formId/submitted", authenticateJWT, async (req, res) => {
+router.post("/:formId/submitted", authenticateJWT, async (req, res) => {
   try {
     const { formId } = req.params;
     const email = req.user.email; // JWT authenticated user
-
+    const { slug } = req.body;
     if (!formId || !email) {
       return res.status(400).json({
         success: false,

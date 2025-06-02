@@ -93,14 +93,12 @@ const Forms = () => {
     hasLogo: false,
     isUsedForRussian: false,
   });
-  console.log(slug);
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const { t } = useTranslation();
-  console.log(1);
 
   useEffect(() => {
-    // ✅ Check if token is available in localStorage
+    // Check if token is available in localStorage
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/"); // Redirect to / if token is missing
@@ -134,12 +132,16 @@ const Forms = () => {
       }
 
       try {
-        // ✅ Call the new backend endpoint using JWT-based email
+        // Call the new backend endpoint using JWT-based email
         const res = await fetch(`${baseUrl}/api/form/${formId}/submitted`, {
+          method: "POST", // Must be POST to include body
           headers: {
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
+          body: JSON.stringify({ slug }), // Include slug in the body
         });
+        
 
         if (!res.ok) throw new Error("Failed to check submission");
 
@@ -151,7 +153,7 @@ const Forms = () => {
           return;
         }
 
-        // ✅ Not submitted — load form questions and metadata
+        // Not submitted — load form questions and metadata
         const [questionsRes, formRes] = await Promise.all([
           fetch(`${baseUrl}/api/form/${formId}/questions`, {
             headers: {
@@ -249,7 +251,6 @@ const Forms = () => {
     );
     const visibleIds = new Set(visibleQuestions.map((q) => q._id));
 
-    console.log("✅ Visible question IDs after change:", [...visibleIds]);
 
     // Clean answers for now-hidden questions
     const cleanedAnswers = Object.fromEntries(
@@ -260,8 +261,6 @@ const Forms = () => {
       (key) => !visibleIds.has(key)
     );
 
-    console.log("🧹 Removed hidden question answers:", removedAnswers);
-    console.log("📦 Final cleaned answers:", cleanedAnswers);
 
     setAnswers(cleanedAnswers);
     setVisibleQuestions(visibleQuestions);
