@@ -49,7 +49,12 @@ const sendEmailRusender = async (recipient, mail) => {
 };
 
 
-const russianEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, amount, currency, courseName) => `
+const russianEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, amount, currency, courseName) => {
+  const date = new Date();
+  const formattedDate = date.toLocaleDateString('ru-RU'); // "02.06.2025"
+  const year = date.getFullYear();
+
+  return `
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -59,47 +64,41 @@ const russianEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, 
 <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 0;">
   <div style="max-width: 600px; margin: 40px auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
     
-    <h2 style="color: #003366; margin-bottom: 20px;">
-      Счет за участие в ${courseName} EAFO – ${invoiceNumber}
-    </h2>
-    
-    <p style="margin-bottom: 20px;">
-      <strong>${fullName},</strong>
-    </p>
-    
-    <p style="margin-bottom: 20px;">
-      Благодарим Вас за регистрацию на <strong>${courseName}</strong>.
+    <p><strong>${fullName},</strong></p>
+    <p>Благодарим Вас за регистрацию на XI EAFO Базовые медицинские курсы, который пройдет 23 июля по 8 августа 2025 в г. Магас, Республика Ингушетия.</p>
+
+    <p style="margin-bottom: 10px;">
+      <strong>Номер счета:</strong> ${invoiceNumber}<br />
+      <strong>Пакет:</strong> ${packageName}<br />
+      <strong>Сумма:</strong> ${amount} ${currency}<br />
+      <strong>Дата:</strong> ${formattedDate}
     </p>
 
-    <p style="margin-bottom: 20px;">
+    <p>
       Вы можете получить доступ к деталям платежа, нажав на ссылку ниже. Завершите процесс регистрации, произведя оплату.
     </p>
 
-    <p style="margin-bottom: 10px;"><strong>Номер счета:</strong> ${invoiceNumber}<br />
-    <strong>Пакет:</strong> ${packageName}<br />
-    <strong>Сумма:</strong> ${amount} ${currency}</p>
-
-    <p style="margin-top: 30px; margin-bottom: 10px;">
+    <p>
       <strong>Ссылка для оплаты для российских участников:</strong>
     </p>
-    
+
     <p style="margin-bottom: 20px;">
-      <a href=${paymentUrl} style="color: #007bff; text-decoration: none;">
+      <a href="${paymentUrl}" style="color: #007bff; text-decoration: none;">
         Заплатить сейчас
       </a>
     </p>
 
-    <p style="margin-bottom: 20px; color: #d9534f;">
+    <p>
       *Участник должен оплатить сумму, указанную в счете, в течение 3 дней.
     </p>
 
-    <p style="margin-bottom: 20px;">
-      После совершения платежа отправьте подтверждение банковского перевода и свое полное имя на адрес: 
+    <p>
+      После совершения платежа отправьте подтверждение банковского перевода и свое полное имя на адрес:
       <a href="mailto:travel@eafo.info">travel@eafo.info</a>
     </p>
 
-    <p style="margin-bottom: 40px;">
-      Если у вас есть какие-либо вопросы, свяжитесь с командой EAFO по адресу: 
+    <p>
+      Если у вас есть какие-либо вопросы, свяжитесь с командой EAFO по адресу:
       <a href="mailto:info@eafo.info">info@eafo.info</a>
     </p>
 
@@ -110,15 +109,22 @@ const russianEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, 
 
     <hr style="margin-top: 40px; border: none; border-top: 1px solid #eee;" />
     <p style="font-size: 12px; color: #999;">
-      © ${new Date().getFullYear()} EAFO. Все права защищены.
+      © ${year} EAFO. Все права защищены.
     </p>
   </div>
 </body>
 </html>
 `;
+};
 
 
-const englishEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, amount, currency, courseName) => `
+
+const englishEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, amount, currency, courseName) => {
+  const date = new Date();
+  const formattedDate = date.toLocaleDateString('en-GB'); // e.g., 02/06/2025
+  const year = date.getFullYear();
+
+  return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -128,63 +134,59 @@ const englishEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, 
 <body style="font-family: Arial, sans-serif; background-color: #f9f9f9; margin: 0; padding: 0;">
   <div style="max-width: 600px; margin: 40px auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
     
-    <h2 style="color: #003366; margin-bottom: 20px;">
-      Invoice for the ${courseName} - ${invoiceNumber} from EAFO
-    </h2>
-    
-    <p style="margin-bottom: 20px;">
-      <strong>${fullName},</strong>
+    <p><strong>${fullName},</strong></p>
+    <p>Thank you for registering for the XI EAFO Basic Medical Courses, which will take place from July 23 to August 8, 2025 in Magas, Republic of Ingushetia.</p>
+
+    <p style="margin-bottom: 10px;">
+      <strong>Invoice Number:</strong> ${invoiceNumber}<br />
+      <strong>Package:</strong> ${packageName}<br />
+      <strong>Amount:</strong> ${amount} ${currency}<br />
+      <strong>Date:</strong> ${formattedDate}
     </p>
-    
-    <p style="margin-bottom: 20px;">
-      Thank you for submitting your registration form for the <strong>${courseName}</strong>.
+
+    <p>
+      You can access the payment details by clicking the link below. Please complete your registration by making the payment.
+    </p>
+
+    <p>
+      <strong>Payment link for international participants:</strong>
     </p>
 
     <p style="margin-bottom: 20px;">
-      You can access your invoice with payment details by clicking on the link below. Complete the registration process by making payment.
-    </p>
-
-    <p style="margin-bottom: 10px;"><strong>Invoice Number:</strong> ${invoiceNumber}<br />
-    <strong>Package:</strong> ${packageName}<br />
-    <strong>Amount:</strong> ${amount} ${currency}</p>
-
-    <p style="margin-top: 30px; margin-bottom: 10px;">
-      <strong>Payment link for participants from countries other than Russia:</strong>
-    </p>
-    
-    <p style="margin-bottom: 20px;">
-      <a href=${paymentUrl} style="color: #007bff; text-decoration: none;">
+      <a href="${paymentUrl}" style="color: #007bff; text-decoration: none;">
         Pay Now
       </a>
     </p>
 
-    <p style="margin-bottom: 20px; color: #d9534f;">
-      *Participant must pay the amount mentioned in the invoice within 3 days.
+    <p>
+      *Participants must pay the amount specified in the invoice within 3 days.
     </p>
 
-    <p style="margin-bottom: 20px;">
-      After you make the payment, please send the bank transfer confirmation and your full name to: 
+    <p>
+      After making the payment, please send the bank transfer confirmation and your full name to:
       <a href="mailto:travel@eafo.info">travel@eafo.info</a>
     </p>
 
-    <p style="margin-bottom: 40px;">
-      If you have any questions, contact our team at: 
+    <p>
+      If you have any questions, please contact the EAFO team at:
       <a href="mailto:info@eafo.info">info@eafo.info</a>
     </p>
 
     <p style="margin-bottom: 0;">
       Best regards,<br/>
-      <strong>Team EAFO</strong>
+      <strong>EAFO Team</strong>
     </p>
 
     <hr style="margin-top: 40px; border: none; border-top: 1px solid #eee;" />
     <p style="font-size: 12px; color: #999;">
-      © ${new Date().getFullYear()} EAFO. All rights reserved.
+      © ${year} EAFO. All rights reserved.
     </p>
   </div>
 </body>
 </html>
 `;
+};
+
 
 
 
@@ -281,7 +283,7 @@ router.post("/send", async (req, res) => {
       : `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
 
       const emailSubject = isRussian
-      ? `Счет за курс ${courseName} - ${nextInvoiceNumber} от EAFO`
+      ? `Счет за XI EAFO Базовые медицинские курсы - Номер счета от EAFO`
       : `Invoice for the course ${courseName} - ${nextInvoiceNumber} from EAFO`;
     
       const emailBody = isRussian
@@ -385,7 +387,7 @@ router.post("/send-email", async (req, res) => {
       : `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
 
       const emailSubject = isRussian
-      ? `Счет за курс ${courseName} - ${nextInvoiceNumber} от EAFO`
+      ? `Счет за XI EAFO Базовые медицинские курсы - Номер счета от EAFO`
       : `Invoice for the course ${courseName} - ${nextInvoiceNumber} from EAFO`;
     
       const emailBody = isRussian
@@ -460,7 +462,7 @@ router.post("/resend", async (req, res) => {
     console.log(`[Resend Email] Course Name: ${courseName}`);
 
     const emailSubject = isRussian
-      ? `Счет за курс ${courseName} - ${invoiceNumber} от EAFO`
+      ? `Счет за XI EAFO Базовые медицинские курсы - Номер счета от EAFO`
       : `Invoice for the course ${courseName} - ${invoiceNumber} from EAFO`;
 
     const emailBody = isRussian

@@ -158,7 +158,7 @@ const template1EmailTemplate = (lang, user) => {
 
   if (lang === "ru") {
     return {
-      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      subject: `Регистрация на XI EAFO Базовые медицинские курсы`,
       html: `
         <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
 
@@ -237,7 +237,7 @@ const template2EmailTemplate = (lang, user) => {
 
   if (lang === "ru") {
     return {
-      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      subject: `Регистрация на XI EAFO Базовые медицинские курсы`,
       html: `
         <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
 
@@ -327,7 +327,7 @@ const template3EmailTemplate = (lang, user) => {
 
   if (lang === "ru") {
     return {
-      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      subject: `Регистрация на XI EAFO Базовые медицинские курсы`,
       html: `
         <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
 
@@ -416,7 +416,7 @@ const template4EmailTemplate = (lang, user) => {
 
   if (lang === "ru") {
     return {
-      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      subject: `Регистрация на XI EAFO Базовые медицинские курсы`,
       html: `
         <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
 
@@ -506,7 +506,7 @@ const template5EmailTemplate = (lang, user) => {
 
   if (lang === "ru") {
     return {
-      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      subject: `Регистрация на XI EAFO Базовые медицинские курсы`,
       html: `
         <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
 
@@ -619,7 +619,7 @@ const template6EmailTemplate = (lang, user) => {
 
   if (lang === "ru") {
     return {
-      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      subject: `Регистрация на XI EAFO Базовые медицинские курсы`,
       html: `
         <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
 
@@ -714,7 +714,7 @@ const template7EmailTemplate = (lang, user) => {
 
   if (lang === "ru") {
     return {
-      subject: `Подтверждение подачи регистрационной формы для участия в XI EAFO Базовом медицинском курсе`,
+      subject: `Регистрация на XI EAFO Базовые медицинские курсы`,
       html: `
         <p><strong>${salutation} ${firstName} ${middleName}!</strong></p>
 
