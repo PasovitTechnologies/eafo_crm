@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { FaArrowLeft } from "react-icons/fa";
 import { ArrowLeft, Search, ChevronDown, HelpCircle } from 'lucide-react';
 import Loading from "./Loading";
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';  // Import the CSS file
 import { 
   FiAlertCircle, 
@@ -182,6 +182,11 @@ const Webinar = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
     >
+       <ToastContainer
+              className="toast-container"
+              style={{ color: "#fff" }}
+              autoClose={3000}
+            />
       <div className="webinar-page">
               {showHelpPopup && <WebinarHelp onClose={toggleHelpPopup} />}
         

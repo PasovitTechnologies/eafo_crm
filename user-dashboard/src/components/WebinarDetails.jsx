@@ -4,6 +4,8 @@ import "./WebinarDetails.css";
 import Loading from "./Loading";
 import { motion } from "framer-motion";
 import { ArrowLeft} from 'lucide-react';
+import { toast, ToastContainer } from 'react-toastify';
+
 import { useTranslation } from "react-i18next";  // ✅ Import translation hook
 import { 
   FiPlayCircle, 
@@ -124,7 +126,7 @@ const WebinarDetails = () => {
       const result = await response.json();
       if (!response.ok) throw new Error(result.message || "Failed to register");
 
-      setRegistrationMessage("Successfully registered!");
+      toast.success("Registered successfully!");
       setRegisteredWebinars((prev) => new Set([...prev, webinarId]));
       setIsRegistered(true);
     } catch (err) {
@@ -188,6 +190,12 @@ const WebinarDetails = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
     >
+
+<ToastContainer
+        className="toast-container"
+        style={{ color: "#fff" }}
+        autoClose={3000}
+      />
       <div className="webinar-details-page">
         <div className="breadcrumb">
           <button
