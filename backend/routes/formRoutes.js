@@ -788,7 +788,7 @@ async function sendRegistrationEmail(
   extras = {}
 ) {
   if (!submission || !submission.responses) {
-    console.error(`❌ Missing submission data for user ${user.email}`);
+    console.error(`Missing submission data for user ${user.email}`);
     console.debug("Submission object received:", submission);
     return;
   }
@@ -800,14 +800,14 @@ async function sendRegistrationEmail(
 
   if (!invoiceAnswerRaw) {
     console.warn(
-      `⚠️ No invoice-related answer found for user ${user.email}. Defaulting to sponsored email.`
+      ` No invoice-related answer found for user ${user.email}. Defaulting to sponsored email.`
     );
   } else {
-    console.log(`ℹ️ Invoice answer: "${invoiceAnswerRaw}" for user ${user.email}`);
+    console.log(`Invoice answer: "${invoiceAnswerRaw}" for user ${user.email}`);
   }
 
   const packageName = extras.package || linkedItemDetails?.name || "Package 1";
-  console.log(`📦 Detected package: "${packageName}"`);
+  console.log(`Detected package: "${packageName}"`);
 
   const template1Packages = [
     "Конкурсное участие Тариф 1 Пакет 1",
@@ -818,14 +818,14 @@ async function sendRegistrationEmail(
     "Конкурсное участие Тариф 1 Пакет 6",
   ];
   const template2Packages = [
-    "Льготное Внеконкурсное участие Тариф 1 Пакет 7",
-    "Льготное Внеконкурсное участие Тариф 1 Пакет 12",
+    "Льготное внеконкурсное участие Тариф 1 Пакет 7",
+    "Льготное внеконкурсное участие Тариф 1 Пакет 12",
   ];
   const template3Packages = [
-    "Льготное Внеконкурсное участие Тариф 1 Пакет 8",
-    "Льготное Внеконкурсное участие Тариф 1 Пакет 9",
-    "Льготное Внеконкурсное участие Тариф 1 Пакет 10",
-    "Льготное Внеконкурсное участие Тариф 1 Пакет 11",
+    "Льготное внеконкурсное участие Тариф 1 Пакет 8",
+    "Льготное внеконкурсное участие Тариф 1 Пакет 9",
+    "Льготное внеконкурсное участие Тариф 1 Пакет 10",
+    "Льготное внеконкурсное участие Тариф 1 Пакет 11",
   ];
   const template4Packages = [
     "Внеконкурсное участие (полная стоимость) Тариф 1 Пакет 13",
@@ -833,9 +833,9 @@ async function sendRegistrationEmail(
   ];
   const template5Packages = [
     "Внеконкурсное участие (полная стоимость) Тариф 1 Пакет 14",
-    "Внеконкурсное участие (полная стоимость) 1 Пакет 15",
-    "Внеконкурсное участие (полная стоимость) 1 Пакет 16",
-    "Внеконкурсное участие (полная стоимость) 1 Пакет 17",
+    "Внеконкурсное участие (полная стоимость) Тариф 1 Пакет 15",
+    "Внеконкурсное участие (полная стоимость) Тариф 1  Пакет 16",
+    "Внеконкурсное участие (полная стоимость) Тариф 1  Пакет 17",
   ];
 
   const template1 = template1Packages.includes(packageName);
@@ -881,6 +881,21 @@ async function sendRegistrationEmail(
         },
       ],
     },
+    {
+      questionId: "683cba4d53716bcccf4db693", // YES/NO question
+      conditions: [
+        {
+          answer: "Yes",
+          template: template6EmailTemplate,
+          label: "template6 (yes answer)",
+        },
+        {
+          answer: "No",
+          template: template7EmailTemplate,
+          label: "template7 (no answer)",
+        },
+      ],
+    }
   ];
 
   for (const rule of conditionalTemplates) {
@@ -909,7 +924,7 @@ if (
   const seminarQuestionId =
     lang === "ru"
       ? "683b4dec53716bcccf4bc4ee"
-      : "TEMPLATE_SEMINAR_EN_QUESTION_ID";
+      : "683cba0153716bcccf4da31e";
 
   const seminarResponse = submission.responses.find(
     (r) => r.questionId === seminarQuestionId
