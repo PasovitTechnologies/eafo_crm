@@ -10,14 +10,14 @@ const CourseHelp = ({ onClose }) => {
   const htmlContent =
   i18n.language === 'ru'
     ? `
-      Для получения помощи свяжитесь с нашей службой поддержки по электронной почте 📧 
+      Если Вам потребуется помощь, пожалуйста, обращайтесь по электронной почте 📧 
       <a href="mailto:Support@eafo.info" class="support-link">Support@eafo.info</a> 
-      или по телефону ☎ +7 (985) 125-77-88.
+      или по телефону ☎ <a href="tel:+79851257788" class="support-link">+7 (985) 125-77-88</a> (WhatsApp, Telegram).
     `
     : `
-      For further assistance, please contact our support team via email at 📧 
+      If you need assistance, please contact us via email 📧 
       <a href="mailto:Support@eafo.info" class="support-link">Support@eafo.info</a> 
-      or by phone at ☎ +7 (985) 125-77-88.
+      or by phone ☎ <a href="tel:+79851257788" class="support-link">+7 (985) 125-77-88</a> (WhatsApp, Telegram).
     `;
 
   
@@ -76,7 +76,7 @@ const CourseHelp = ({ onClose }) => {
               <div className="text-guide">
                 <h3>{t("auth.registrationGuide")}</h3>
                 <ol>
-                  {Array.from({ length: 11 }, (_, i) => (
+                  {Array.from({ length: 4 }, (_, i) => (
                     <li key={i}>
                       <strong>{i + 1}.</strong>{" "}
                       {t(`courses.HelpSteps.step${i + 1}`)}

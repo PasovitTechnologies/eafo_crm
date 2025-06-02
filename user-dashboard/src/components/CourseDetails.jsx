@@ -360,7 +360,7 @@ const CourseDetails = () => {
   };
 
   const handleGoBack = () => {
-    navigate("/dashboard", { replace: true });
+    navigate("/dashboard/courses", { replace: true });
   };
 
 

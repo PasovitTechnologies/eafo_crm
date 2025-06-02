@@ -143,17 +143,10 @@
         "no_upcoming_courses":"No upcoming courses.",
         "help": "How to Register for course?",
         "HelpSteps": {
-          "step1": "Click on the “Courses” tab on your homepage.",
-          "step2": "Search for the course using the search bar or the drop-down menu.",
-          "step3": "After you select the course, you will be taken to the course page.",
-          "step4": "You can either access the course website or register.",
-          "step5": "Under “Available Forms” click “Register” for the “Register & Housing Form.”",
-          "step6": "Fill out your details and submit any necessary documents.",
-          "step7": "Make sure not to exceed the file size limit of 5 MB.",
-          "step8": "Submit the registration form.",
-          "step9": "You are now registered. You can click on the “Details” button to check your details.",
-          "step10": "Within 72 hours you will receive an invoice for the payment of the course.",
-          "step11": "After receiving the invoice, click “Pay amount” to pay for the registration."
+          "step1": "Find the desired course in the menu or by using the search bar.",
+  "step2": "Click 'Apply' to read the course description and begin your application.",
+  "step3": "Fill out the application form, attach the required documents (each file must be no larger than 5 MB), and submit the completed form.",
+  "step4": "We will send you an email with further instructions to the address specified in your EAFO personal account."
                 }
     },
     "course_details": {
