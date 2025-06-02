@@ -62,14 +62,7 @@ const CourseHelp = ({ onClose }) => {
               >
                 {t("auth.guideText")}
               </button>
-              <button
-                className={`tab-button ${
-                  activeTab === "video" ? "active" : ""
-                }`}
-                onClick={() => setActiveTab("video")}
-              >
-                {t("auth.guideVideo")}
-              </button>
+             
               <div
                 className={`tab-slider ${
                   activeTab === "text" ? "left" : "right"
