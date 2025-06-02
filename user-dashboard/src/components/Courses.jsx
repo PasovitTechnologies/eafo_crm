@@ -76,7 +76,8 @@ const Courses = () => {
         "drsoma@gmail.com",
         "mmuthumurali@gmail.com",
         "islamudin.aldanov@gmail.com",
-        "mail@praveenan.ru"
+        "mail@praveenan.ru",
+        "katrina05101@yandex.ru"
       ].includes(userEmail);
 
       if (isSpecialUser) {
