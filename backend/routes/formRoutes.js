@@ -2416,4 +2416,45 @@ router.get("/:formId/info", authenticateJWT, async (req, res) => {
   }
 });
 
+router.get("/:formId/submitted", authenticateJWT, async (req, res) => {
+  try {
+    const { formId } = req.params;
+    const email = req.user.email; // JWT authenticated user
+
+    if (!formId || !email) {
+      return res.status(400).json({
+        success: false,
+        message: "Form ID and email are required",
+      });
+    }
+
+    // 🔍 Find the form where a submission by this user exists
+    const form = await Form.findOne({
+      _id: formId,
+      "submissions.email": email.toLowerCase().trim(),
+    }).select("_id submissions.$"); // Only return the matched submission
+
+    if (!form || !form.submissions || form.submissions.length === 0) {
+      return res.status(200).json({
+        success: true,
+        submitted: false,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      submitted: true,
+      submittedAt: form.submissions[0].submittedAt,
+    });
+  } catch (error) {
+    console.error("Error checking submission:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+});
+
+
 module.exports = router;

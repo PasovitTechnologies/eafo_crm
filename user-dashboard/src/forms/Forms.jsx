@@ -9,16 +9,20 @@ import "./Forms.css";
 import { useTranslation } from "react-i18next"; // 🌍 Import translation hook
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import { FaExclamationCircle } from "react-icons/fa";
 
 const isQuestionVisible = (question, answers, questions) => {
   if (!question.isConditional) return true;
 
-  const triggeredRules = questions.flatMap(q =>
-    q.rules?.filter(rule => rule.targetQuestionIds?.includes(question._id)) ?? []
+  const triggeredRules = questions.flatMap(
+    (q) =>
+      q.rules?.filter((rule) =>
+        rule.targetQuestionIds?.includes(question._id)
+      ) ?? []
   );
 
-  return triggeredRules.some(rule =>
-    rule.conditions.every(cond => {
+  return triggeredRules.some((rule) =>
+    rule.conditions.every((cond) => {
       const triggerAnswer = answers[cond.triggerQuestionId];
       return Array.isArray(triggerAnswer)
         ? triggerAnswer.includes(cond.condition)
@@ -36,19 +40,20 @@ function getVisibleQuestionsRecursively(allQuestions, answers) {
 
     // Find rules where this question is the trigger
     const triggeredRules = allQuestions
-      .flatMap(q => q.rules || [])
-      .filter(rule => 
-        rule.conditions.some(cond =>
-          cond.triggerQuestionId === question._id &&
-          (answers[cond.triggerQuestionId] === cond.condition ||
-            (Array.isArray(answers[cond.triggerQuestionId]) &&
-              answers[cond.triggerQuestionId].includes(cond.condition)))
+      .flatMap((q) => q.rules || [])
+      .filter((rule) =>
+        rule.conditions.some(
+          (cond) =>
+            cond.triggerQuestionId === question._id &&
+            (answers[cond.triggerQuestionId] === cond.condition ||
+              (Array.isArray(answers[cond.triggerQuestionId]) &&
+                answers[cond.triggerQuestionId].includes(cond.condition)))
         )
       );
 
     for (const rule of triggeredRules) {
       for (const targetId of rule.targetQuestionIds) {
-        const targetQ = allQuestions.find(q => q._id === targetId);
+        const targetQ = allQuestions.find((q) => q._id === targetId);
         if (targetQ) {
           reveal(targetQ);
         }
@@ -57,22 +62,14 @@ function getVisibleQuestionsRecursively(allQuestions, answers) {
   }
 
   // Always start from root (non-conditional questions)
-  allQuestions.forEach(q => {
+  allQuestions.forEach((q) => {
     if (!q.isConditional) {
       reveal(q);
     }
   });
 
-  return [...visible].map(id => allQuestions.find(q => q._id === id));
+  return [...visible].map((id) => allQuestions.find((q) => q._id === id));
 }
-
-
-
-
-
-
-
-
 
 const Forms = () => {
   const navigate = useNavigate();
@@ -89,6 +86,7 @@ const Forms = () => {
   const [promoCodeStatus, setPromoCodeStatus] = useState({});
   const [validatingPromoCodes, setValidatingPromoCodes] = useState({});
   const [discountInfo, setDiscountInfo] = useState(null);
+  const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const [formDetails, setFormDetails] = useState({
     title: "",
     description: "",
@@ -99,7 +97,7 @@ const Forms = () => {
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const { t } = useTranslation();
-  console.log(1)
+  console.log(1);
 
   useEffect(() => {
     // ✅ Check if token is available in localStorage
@@ -117,16 +115,43 @@ const Forms = () => {
     }
 
     const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("No token found");
+    const email = localStorage.getItem("email");
+
+    if (!token || !email) {
+      console.error("Missing token or email");
       setError("Unauthorized: Please log in.");
       setLoading(false);
       return;
     }
 
-    const fetchData = async () => {
-      setLoading(true);
+    const checkIfSubmitted = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("Unauthorized: No token found.");
+        setLoading(false);
+        return;
+      }
+
       try {
+        // ✅ Call the new backend endpoint using JWT-based email
+        const res = await fetch(`${baseUrl}/api/form/${formId}/submitted`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) throw new Error("Failed to check submission");
+
+        const { submitted } = await res.json();
+
+        if (submitted) {
+          setAlreadySubmitted(true);
+          setLoading(false);
+          return;
+        }
+
+        // ✅ Not submitted — load form questions and metadata
         const [questionsRes, formRes] = await Promise.all([
           fetch(`${baseUrl}/api/form/${formId}/questions`, {
             headers: {
@@ -158,14 +183,14 @@ const Forms = () => {
           isUsedForRussian: formData.isUsedForRussian,
         });
       } catch (err) {
-        console.error("Error fetching form data:", err);
+        console.error("Error checking submission:", err);
         setError(err.message || "Something went wrong.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    checkIfSubmitted();
   }, [formId]);
 
   useEffect(() => {
@@ -211,40 +236,36 @@ const Forms = () => {
       questionId,
       answer,
     });
-  
+
     const updatedAnswers = {
       ...answers,
-      [questionId]: answer
+      [questionId]: answer,
     };
-  
+
     // Determine which questions are now visible
-    const visibleQuestions = getVisibleQuestionsRecursively(questions, updatedAnswers);
-    const visibleIds = new Set(visibleQuestions.map(q => q._id));
-  
+    const visibleQuestions = getVisibleQuestionsRecursively(
+      questions,
+      updatedAnswers
+    );
+    const visibleIds = new Set(visibleQuestions.map((q) => q._id));
+
     console.log("✅ Visible question IDs after change:", [...visibleIds]);
-  
+
     // Clean answers for now-hidden questions
     const cleanedAnswers = Object.fromEntries(
       Object.entries(updatedAnswers).filter(([key]) => visibleIds.has(key))
     );
-  
+
     const removedAnswers = Object.keys(updatedAnswers).filter(
       (key) => !visibleIds.has(key)
     );
-  
+
     console.log("🧹 Removed hidden question answers:", removedAnswers);
     console.log("📦 Final cleaned answers:", cleanedAnswers);
-  
+
     setAnswers(cleanedAnswers);
     setVisibleQuestions(visibleQuestions);
   };
-  
-  
-  
-  
-  
-  
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -304,7 +325,12 @@ const Forms = () => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      toast.error("Please fill in all required fields.");
+      toast.error(
+        formDetails.isUsedForRussian
+          ? "Пожалуйста, заполните все необходимые поля"
+          : "Please fill in all required fields."
+      );
+
       setIsSubmitting(false);
       return;
     }
@@ -1022,7 +1048,51 @@ const Forms = () => {
 
   return (
     <div className="form-container">
-      {submissionSuccess ? (
+      {alreadySubmitted ? (
+        <div className="submission-message-container">
+          <div className="submission-message-card">
+            <div className="message-icon-container">
+              <svg
+                className="message-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <h2 className="message-title">
+              {formDetails.isUsedForRussian
+                ? "Вы уже заполнили эту форму."
+                : "You have already submitted this form."}
+            </h2>
+            <p className="message-description">
+              {formDetails.isUsedForRussian
+                ? "Если вы считаете, что это ошибка, пожалуйста, свяжитесь с поддержкой."
+                : "If you believe this is a mistake, please contact support."}
+            </p>
+            <button className="contact-support-btn">
+              {formDetails.isUsedForRussian
+                ? "Связаться с поддержкой"
+                : "Contact Support"}
+            </button>
+            <div className="contact-details">
+              <p>
+                {formDetails.isUsedForRussian
+                  ? "Свяжитесь с нашей службой поддержки по электронной почте 📧 Support@eafo.info или по телефону ☎ +7 (985) 125-77-88"
+                  : "Contact our support team via email at 📧 Support@eafo.info or by phone at ☎ +7 (985) 125-77-88"}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : submissionSuccess ? (
         <div className="success-animation-container">
           <div className="success-content">
             {/* Animated checkmark */}
@@ -1049,7 +1119,7 @@ const Forms = () => {
 
             <h2 className="success-title">
               {formDetails.isUsedForRussian
-                ? "Форма успешно отправлена!"
+                ? "Заявка успешно отправлена!"
                 : "Form submitted successfully!"}
             </h2>
 
@@ -1059,24 +1129,19 @@ const Forms = () => {
                   ? "Подтверждение и дальнейшие инструкции были отправлены на вашу электронную почту с адреса eafo@e-register.org."
                   : "Confirmation & further instructions have been sent to your email from eafo@e-register.org."}
               </p>
-              <p>
-                {formDetails.isUsedForRussian
-                  ? "Мы отправили детали на вашу электронную почту"
-                  : "We've sent the details to your email"}
-              </p>
             </div>
 
             <div className="form-reference">
               <p>
                 {formDetails.isUsedForRussian
-                  ? `Форма: ${formDetails.title}`
+                  ? `Заявка: ${formDetails.title}`
                   : `Form: ${formDetails.title}`}
               </p>
             </div>
 
             <button className="success-action-btn" onClick={() => navigate(-1)}>
               {formDetails.isUsedForRussian
-                ? "Вернуться к формам"
+                ? "вернуться к заявкам"
                 : "Back to forms"}
             </button>
 
@@ -1108,7 +1173,14 @@ const Forms = () => {
             </div>
 
             <div className="form-title-description">
-              <h1 className="form-title">{formDetails.title}</h1>
+              {formDetails.title && (
+                <h1
+                  className="form-title"
+                  dangerouslySetInnerHTML={{
+                    __html: formDetails.title,
+                  }}
+                />
+              )}
               {formDetails.description && (
                 <div
                   className="form-description"
@@ -1144,7 +1216,12 @@ const Forms = () => {
                     )}
                     {errors[question._id] && (
                       <span className="error-message">
-                        {errors[question._id]}
+                        <FaExclamationCircle
+                          style={{ marginRight: "6px", color: "red" }}
+                        />
+                        {formDetails.isUsedForRussian
+                          ? "Необходимо заполнить это поле"
+                          : "This field is required"}
                       </span>
                     )}
                   </div>

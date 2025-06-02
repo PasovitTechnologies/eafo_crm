@@ -334,8 +334,17 @@ input[type="checkbox"] {
 .accept-text a:hover {
     text-decoration: underline;
 }
+.error-message {
+  color: red;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
 
-/* 🛑 No Questions Message */
+
+/* No Questions Message */
 .no-questions-message {
     font-size: 1rem;
     color: #888;
@@ -346,14 +355,14 @@ input[type="checkbox"] {
     background-color: #f5f5f5;
 }
 
-/* 🚦 Form Controls */
+/* Form Controls */
 .form-controls {
     display: flex;
     flex-direction: column;
     margin-top: 1.5rem;
 }
 
-/* 💾 Submit Button (Full Width) */
+/* Submit Button (Full Width) */
 button.submit-btn {
   background-color: #3b82f6;
   color: white;
@@ -388,6 +397,107 @@ button.submit-btn:hover {
   border: 1px solid #ddd;
   padding: 16px;
   border-radius: 8px;
+}
+
+.submission-message-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  padding: 2rem;
+}
+
+.submission-message-card {
+  max-width: 500px;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.message-icon-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.message-icon {
+  color: #10b981; /* Green color for success */
+  width: 64px;
+  height: 64px;
+}
+
+.message-icon svg {
+  color: #10b981; /* Green color for success */
+  width: 64px;
+  height: 64px;
+}
+
+.message-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+
+.message-description {
+  color: #6b7280;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.contact-support-btn {
+  background-color: #f3f4f6;
+  color: #111827;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.contact-support-btn:hover {
+  background-color: #e5e7eb;
+}
+
+.contact-support-btn::before {
+  content: "";
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z'%3E%3C/path%3E%3Cpolyline points='22,6 12,13 2,6'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+}
+
+.contact-details {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.contact-details p {
+  margin: 0;
+}
+
+/* Add this to make the email and phone clickable */
+.contact-details a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.contact-details a:hover {
+  text-decoration: underline;
 }
 
 @media (min-width: 768px) {
