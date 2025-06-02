@@ -10,6 +10,68 @@ import { useTranslation } from "react-i18next"; // 🌍 Import translation hook
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
+const isQuestionVisible = (question, answers, questions) => {
+  if (!question.isConditional) return true;
+
+  const triggeredRules = questions.flatMap(q =>
+    q.rules?.filter(rule => rule.targetQuestionIds?.includes(question._id)) ?? []
+  );
+
+  return triggeredRules.some(rule =>
+    rule.conditions.every(cond => {
+      const triggerAnswer = answers[cond.triggerQuestionId];
+      return Array.isArray(triggerAnswer)
+        ? triggerAnswer.includes(cond.condition)
+        : triggerAnswer === cond.condition;
+    })
+  );
+};
+
+function getVisibleQuestionsRecursively(allQuestions, answers) {
+  const visible = new Set();
+
+  function reveal(question) {
+    if (visible.has(question._id)) return;
+    visible.add(question._id);
+
+    // Find rules where this question is the trigger
+    const triggeredRules = allQuestions
+      .flatMap(q => q.rules || [])
+      .filter(rule => 
+        rule.conditions.some(cond =>
+          cond.triggerQuestionId === question._id &&
+          (answers[cond.triggerQuestionId] === cond.condition ||
+            (Array.isArray(answers[cond.triggerQuestionId]) &&
+              answers[cond.triggerQuestionId].includes(cond.condition)))
+        )
+      );
+
+    for (const rule of triggeredRules) {
+      for (const targetId of rule.targetQuestionIds) {
+        const targetQ = allQuestions.find(q => q._id === targetId);
+        if (targetQ) {
+          reveal(targetQ);
+        }
+      }
+    }
+  }
+
+  // Always start from root (non-conditional questions)
+  allQuestions.forEach(q => {
+    if (!q.isConditional) {
+      reveal(q);
+    }
+  });
+
+  return [...visible].map(id => allQuestions.find(q => q._id === id));
+}
+
+
+
+
+
+
+
 
 
 const Forms = () => {
@@ -33,10 +95,11 @@ const Forms = () => {
     hasLogo: false,
     isUsedForRussian: false,
   });
-  console.log(slug)
+  console.log(slug);
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
   const { t } = useTranslation();
+  console.log(1)
 
   useEffect(() => {
     // ✅ Check if token is available in localStorage
@@ -144,54 +207,50 @@ const Forms = () => {
   }, [formId]);
 
   const handleAnswerChange = (questionId, answer) => {
-    const updatedAnswers = { ...answers, [questionId]: answer };
-    setAnswers(updatedAnswers);
-
-    const updatedVisibleQuestions = questions.filter((q) => {
-      if (!q.isConditional) return true;
-
-      const applicableRules = questions.flatMap(
-        (mainQ) =>
-          mainQ.rules?.filter((rule) =>
-            rule.targetQuestionIds?.includes(q._id)
-          ) ?? []
-      );
-
-      return applicableRules.some((rule) =>
-        rule.conditions.every((condition) => {
-          const triggerAnswer = updatedAnswers[condition.triggerQuestionId];
-          return condition.logic === "AND"
-            ? triggerAnswer === condition.condition
-            : triggerAnswer !== condition.condition;
-        })
-      );
+    console.log("🔄 User changed answer", {
+      questionId,
+      answer,
     });
-
-    // 🔥 Update the required status dynamically
-    updatedVisibleQuestions.forEach((q) => {
-      if (q.isConditional && q.isRequired !== false) {
-        q.isRequired = true;
-      }
-    });
-
-    // 🔥 Clean up old answers: Remove answers for hidden questions
-    const visibleQuestionIds = updatedVisibleQuestions.map((q) => q._id);
-    const cleanedAnswers = Object.keys(updatedAnswers).reduce((acc, key) => {
-      if (visibleQuestionIds.includes(key)) {
-        acc[key] = updatedAnswers[key];
-      }
-      return acc;
-    }, {});
-
+  
+    const updatedAnswers = {
+      ...answers,
+      [questionId]: answer
+    };
+  
+    // Determine which questions are now visible
+    const visibleQuestions = getVisibleQuestionsRecursively(questions, updatedAnswers);
+    const visibleIds = new Set(visibleQuestions.map(q => q._id));
+  
+    console.log("✅ Visible question IDs after change:", [...visibleIds]);
+  
+    // Clean answers for now-hidden questions
+    const cleanedAnswers = Object.fromEntries(
+      Object.entries(updatedAnswers).filter(([key]) => visibleIds.has(key))
+    );
+  
+    const removedAnswers = Object.keys(updatedAnswers).filter(
+      (key) => !visibleIds.has(key)
+    );
+  
+    console.log("🧹 Removed hidden question answers:", removedAnswers);
+    console.log("📦 Final cleaned answers:", cleanedAnswers);
+  
     setAnswers(cleanedAnswers);
-    setVisibleQuestions(updatedVisibleQuestions);
+    setVisibleQuestions(visibleQuestions);
   };
+  
+  
+  
+  
+  
+  
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     setIsSubmitting(true);
-  
+
     const email = localStorage.getItem("email");
     const token = localStorage.getItem("token");
     if (!email || !token) {
@@ -199,14 +258,14 @@ const Forms = () => {
       setIsSubmitting(false);
       return;
     }
-  
+
     // Validate required fields
     let newErrors = {};
     visibleQuestions.forEach((question) => {
       const answer = answers[question._id];
-  
+
       if (!question.isRequired) return;
-  
+
       if (question.type === "file") {
         if (!answer || (Array.isArray(answer) && answer.length === 0)) {
           newErrors[question._id] = "This field is required";
@@ -242,39 +301,43 @@ const Forms = () => {
         newErrors[question._id] = "This field is required";
       }
     });
-  
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       toast.error("Please fill in all required fields.");
       setIsSubmitting(false);
       return;
     }
-  
+
     try {
       const submissions = await Promise.all(
         Object.keys(answers).map(async (questionId) => {
           const question = questions.find((q) => q._id === questionId);
           const answer = answers[questionId];
-  
+
           // Handle file uploads
           if (question.type === "file" && answer) {
             const fileArray = Array.isArray(answer) ? answer : [answer];
-  
+
             const fileDataArray = await Promise.all(
               fileArray.map(async (fileEntry) => {
                 const base64Data = fileEntry.preview
                   ? fileEntry.preview
                   : await fileToBase64(fileEntry.file);
-  
+
                 return {
                   preview: base64Data,
-                  type: fileEntry.type || fileEntry.file?.type || "application/octet-stream",
-                  name: fileEntry.name || fileEntry.file?.name || "uploaded_file",
+                  type:
+                    fileEntry.type ||
+                    fileEntry.file?.type ||
+                    "application/octet-stream",
+                  name:
+                    fileEntry.name || fileEntry.file?.name || "uploaded_file",
                   size: fileEntry.size || fileEntry.file?.size || 0,
                 };
               })
             );
-  
+
             return {
               questionId,
               isUsedForInvoice: question?.isUsedForInvoice || false,
@@ -282,9 +345,7 @@ const Forms = () => {
               fileData: question.multiple ? fileDataArray : fileDataArray[0],
             };
           }
-  
-         
-  
+
           // Default answer for other questions
           return {
             questionId,
@@ -294,14 +355,14 @@ const Forms = () => {
           };
         })
       );
-  
+
       const submissionData = {
         formId,
         email,
         submissions,
         discountInfo,
       };
-  
+
       const response = await fetch(
         `${baseUrl}/api/form/${formId}/submissions`,
         {
@@ -313,12 +374,12 @@ const Forms = () => {
           body: JSON.stringify(submissionData),
         }
       );
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Submission failed");
       }
-  
+
       const result = await response.json();
       toast.success("Form submitted successfully!");
       setAnswers({});
@@ -327,13 +388,14 @@ const Forms = () => {
       return result;
     } catch (error) {
       console.error("Error submitting form:", error);
-      toast.error(error.message || "An error occurred while submitting the form.");
+      toast.error(
+        error.message || "An error occurred while submitting the form."
+      );
       throw error;
     } finally {
       setIsSubmitting(false);
     }
   };
-  
 
   // Helper function to convert file to base64
   const fileToBase64 = (file) => {
@@ -376,38 +438,36 @@ const Forms = () => {
     return <span>📄</span>;
   };
 
-
   const validatePromoCode = async (questionId, code) => {
     if (!code) {
-      setPromoCodeStatus(prev => ({ ...prev, [questionId]: null }));
+      setPromoCodeStatus((prev) => ({ ...prev, [questionId]: null }));
       return;
     }
-  
-    setValidatingPromoCodes(prev => ({ ...prev, [questionId]: true }));
-  
+
+    setValidatingPromoCodes((prev) => ({ ...prev, [questionId]: true }));
+
     try {
       const userEmail = localStorage.getItem("email");
       const courseSlug = slug;
-  
+
       const response = await fetch(`${baseUrl}/api/courses/coupons/validate`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ code, email: userEmail, slug: courseSlug }),
       });
-  
+
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
-  
+
       const data = await response.json();
-  
-  
-      setPromoCodeStatus(prev => ({ ...prev, [questionId]: data.valid }));
-  
+
+      setPromoCodeStatus((prev) => ({ ...prev, [questionId]: data.valid }));
+
       if (data.valid) {
-        setDiscountInfo(prev => ({
+        setDiscountInfo((prev) => ({
           ...prev,
           [questionId]: {
             amount: data.coupon.percentage,
@@ -416,20 +476,17 @@ const Forms = () => {
             id: data.coupon._id,
             totalLimit: data.coupon.totalLimit,
             currentLimit: data.coupon.currentLimit,
-          }
+          },
         }));
       }
-  
     } catch (error) {
-      console.error('Promo code validation error:', error);
-      setPromoCodeStatus(prev => ({ ...prev, [questionId]: false }));
+      console.error("Promo code validation error:", error);
+      setPromoCodeStatus((prev) => ({ ...prev, [questionId]: false }));
     } finally {
-      setValidatingPromoCodes(prev => ({ ...prev, [questionId]: false }));
+      setValidatingPromoCodes((prev) => ({ ...prev, [questionId]: false }));
     }
   };
-  
 
-  
   const handlePromoCodeChange = (questionId, value) => {
     handleAnswerChange(questionId, value);
     // Debounce validation
@@ -585,137 +642,155 @@ const Forms = () => {
         );
 
       case "file":
-          const isMultiple = question.multiple; // Determine if multiple files are allowed
-          const currentFiles = value || []; // Always treat value as an array for consistency
-        
-          return (
-            <div className="file-upload-container">
-              {/* Info message (dynamic based on single/multiple) */}
-              <p className="file-info-message">
-                {formDetails.isUsedForRussian
-                  ? `Максимальный размер файла: 5MB${isMultiple ? " (можно загрузить несколько файлов)" : ""}`
-                  : `Max file size: 5MB${isMultiple ? " (multiple files allowed)" : ""}`}
-              </p>
-        
-              {/* File input (conditionally allow multiple) */}
-              <input
-                type="file"
-                multiple={isMultiple} // Only allow multiple if specified
-                onChange={(e) => {
-                  const newFiles = Array.from(e.target.files || []);
-                  if (!newFiles.length) return;
-        
-                  // Validate file sizes
-                  const validFiles = newFiles.filter(file => file.size <= 5 * 1024 * 1024);
-                  const invalidFiles = newFiles.filter(file => file.size > 5 * 1024 * 1024);
-        
-                  if (invalidFiles.length) {
-                    toast.error(
-                      formDetails.isUsedForRussian
-                        ? `Некоторые файлы превышают 5MB (${invalidFiles.length})`
-                        : `Some files exceed 5MB limit (${invalidFiles.length})`
-                    );
-                  }
-        
-                  if (!validFiles.length) {
-                    e.target.value = ""; // Clear input if no valid files
-                    return;
-                  }
-        
-                  // Process files (previews, metadata)
-                  Promise.all(
-                    validFiles.map(file => {
-                      return new Promise(resolve => {
-                        const fileName =
-                          file.name.length > 15
-                            ? `${file.name.substring(0, 10)}...${file.name.split('.').pop()}`
-                            : file.name;
-                    
-                        if (file.type.startsWith("image/")) {
-                          const reader = new FileReader();
-                          reader.onload = (event) =>
-                            resolve({
-                              file,
-                              preview: event.target.result,
-                              name: file.name,            // ✅ full name to submit
-                              displayName: fileName,      // ✅ short name for display
-                              size: file.size,
-                              type: file.type
-                            });
-                          reader.readAsDataURL(file);
-                        } else {
+        const isMultiple = question.multiple; // Determine if multiple files are allowed
+        const currentFiles = value || []; // Always treat value as an array for consistency
+
+        return (
+          <div className="file-upload-container">
+            {/* Info message (dynamic based on single/multiple) */}
+            <p className="file-info-message">
+              {formDetails.isUsedForRussian
+                ? `Максимальный размер файла: 5MB${
+                    isMultiple ? " (можно загрузить несколько файлов)" : ""
+                  }`
+                : `Max file size: 5MB${
+                    isMultiple ? " (multiple files allowed)" : ""
+                  }`}
+            </p>
+
+            {/* File input (conditionally allow multiple) */}
+            <input
+              type="file"
+              multiple={isMultiple} // Only allow multiple if specified
+              onChange={(e) => {
+                const newFiles = Array.from(e.target.files || []);
+                if (!newFiles.length) return;
+
+                // Validate file sizes
+                const validFiles = newFiles.filter(
+                  (file) => file.size <= 5 * 1024 * 1024
+                );
+                const invalidFiles = newFiles.filter(
+                  (file) => file.size > 5 * 1024 * 1024
+                );
+
+                if (invalidFiles.length) {
+                  toast.error(
+                    formDetails.isUsedForRussian
+                      ? `Некоторые файлы превышают 5MB (${invalidFiles.length})`
+                      : `Some files exceed 5MB limit (${invalidFiles.length})`
+                  );
+                }
+
+                if (!validFiles.length) {
+                  e.target.value = ""; // Clear input if no valid files
+                  return;
+                }
+
+                // Process files (previews, metadata)
+                Promise.all(
+                  validFiles.map((file) => {
+                    return new Promise((resolve) => {
+                      const fileName =
+                        file.name.length > 15
+                          ? `${file.name.substring(0, 10)}...${file.name
+                              .split(".")
+                              .pop()}`
+                          : file.name;
+
+                      if (file.type.startsWith("image/")) {
+                        const reader = new FileReader();
+                        reader.onload = (event) =>
                           resolve({
                             file,
-                            name: file.name,              // ✅ full name to submit
-                            displayName: fileName,        // ✅ short name for display
+                            preview: event.target.result,
+                            name: file.name, // ✅ full name to submit
+                            displayName: fileName, // ✅ short name for display
                             size: file.size,
-                            type: file.type
+                            type: file.type,
                           });
-                        }
-                      });
-                    })
-                    
-                  ).then(processedFiles => {
-                    // For single upload: Replace existing file
-                    // For multiple: Append new files
-                    const updatedFiles = isMultiple
-                      ? [...currentFiles, ...processedFiles]
-                      : processedFiles.slice(0, 1); // Only keep first file if not multiple
-        
-                    handleAnswerChange(question._id, updatedFiles.length ? updatedFiles : null);
-                  });
-                }}
-                required={question.required && !currentFiles.length}
-                className="form-file"
-                accept={question.acceptedFileTypes?.join(",") || "*"}
-              />
-        
-              {/* File list display */}
-              {currentFiles.length > 0 && (
-                <div className="file-list">
-                  {currentFiles.map((fileData, index) => (
-                    <div key={index} className="file-info-container">
-                      <div className="file-icon">{getFileIcon(fileData.type)}</div>
-                      <div className="file-details">
-                      <p className="file-name">{fileData.displayName || fileData.name}</p>
-                      <p className="file-size">
-                          {(fileData.size / 1024 / 1024).toFixed(2)} MB
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        className="remove-file-btn"
-                        onClick={() => {
-                          const filteredFiles = currentFiles.filter((_, i) => i !== index);
-                          handleAnswerChange(
-                            question._id, 
-                            filteredFiles.length ? filteredFiles : null
-                          );
-                        }}
-                      >
-                        {formDetails.isUsedForRussian ? "Удалить" : "Remove"}
-                      </button>
+                        reader.readAsDataURL(file);
+                      } else {
+                        resolve({
+                          file,
+                          name: file.name, // ✅ full name to submit
+                          displayName: fileName, // ✅ short name for display
+                          size: file.size,
+                          type: file.type,
+                        });
+                      }
+                    });
+                  })
+                ).then((processedFiles) => {
+                  // For single upload: Replace existing file
+                  // For multiple: Append new files
+                  const updatedFiles = isMultiple
+                    ? [...currentFiles, ...processedFiles]
+                    : processedFiles.slice(0, 1); // Only keep first file if not multiple
+
+                  handleAnswerChange(
+                    question._id,
+                    updatedFiles.length ? updatedFiles : null
+                  );
+                });
+              }}
+              required={question.required && !currentFiles.length}
+              className="form-file"
+              accept={question.acceptedFileTypes?.join(",") || "*"}
+            />
+
+            {/* File list display */}
+            {currentFiles.length > 0 && (
+              <div className="file-list">
+                {currentFiles.map((fileData, index) => (
+                  <div key={index} className="file-info-container">
+                    <div className="file-icon">
+                      {getFileIcon(fileData.type)}
                     </div>
-                  ))}
-                </div>
-              )}
-        
-              {/* Image previews */}
-              <div className="file-preview-container">
-                {currentFiles.map(
-                  (fileData, index) =>
-                    fileData.preview && (
-                      <img
-                        key={index}
-                        src={fileData.preview}
-                        alt={`Preview ${index + 1}`}
-                        className="preview-image"
-                      />
-                    )
-                )}
+                    <div className="file-details">
+                      <p className="file-name">
+                        {fileData.displayName || fileData.name}
+                      </p>
+                      <p className="file-size">
+                        {(fileData.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      className="remove-file-btn"
+                      onClick={() => {
+                        const filteredFiles = currentFiles.filter(
+                          (_, i) => i !== index
+                        );
+                        handleAnswerChange(
+                          question._id,
+                          filteredFiles.length ? filteredFiles : null
+                        );
+                      }}
+                    >
+                      {formDetails.isUsedForRussian ? "Удалить" : "Remove"}
+                    </button>
+                  </div>
+                ))}
               </div>
+            )}
+
+            {/* Image previews */}
+            <div className="file-preview-container">
+              {currentFiles.map(
+                (fileData, index) =>
+                  fileData.preview && (
+                    <img
+                      key={index}
+                      src={fileData.preview}
+                      alt={`Preview ${index + 1}`}
+                      className="preview-image"
+                    />
+                  )
+              )}
             </div>
-          );
+          </div>
+        );
 
       case "content":
         return (
@@ -745,36 +820,34 @@ const Forms = () => {
             </label>
           </div>
         );
-      
-      
 
-        case "name":
-          const nameValues = answers[question._id] || [
-            { firstName: "", middleName: "", lastName: "" }
-          ];
-        
-          const updateNameEntry = (index, field, value) => {
-            const updated = [...nameValues];
-            updated[index][field] = value;
-            handleAnswerChange(question._id, updated);
-          };
-        
-          const addNameEntry = () => {
-            handleAnswerChange(question._id, [
-              ...nameValues,
-              { firstName: "", middleName: "", lastName: "" }
-            ]);
-          };
-        
-          const removeNameEntry = (index) => {
-            const updated = nameValues.filter((_, i) => i !== index);
-            handleAnswerChange(question._id, updated);
-          };
-        
-          return (
-            <div className="name-fields-wrapper">
-              {nameValues.map((entry, index) => (
-                <div key={index} className="name-entry">
+      case "name":
+        const nameValues = answers[question._id] || [
+          { firstName: "", middleName: "", lastName: "" },
+        ];
+
+        const updateNameEntry = (index, field, value) => {
+          const updated = [...nameValues];
+          updated[index][field] = value;
+          handleAnswerChange(question._id, updated);
+        };
+
+        const addNameEntry = () => {
+          handleAnswerChange(question._id, [
+            ...nameValues,
+            { firstName: "", middleName: "", lastName: "" },
+          ]);
+        };
+
+        const removeNameEntry = (index) => {
+          const updated = nameValues.filter((_, i) => i !== index);
+          handleAnswerChange(question._id, updated);
+        };
+
+        return (
+          <div className="name-fields-wrapper">
+            {nameValues.map((entry, index) => (
+              <div key={index} className="name-entry">
                 {formDetails.isUsedForRussian ? (
                   <>
                     {/* Russian Order: Last Name → First Name → Middle Name */}
@@ -792,7 +865,7 @@ const Forms = () => {
                         className="form-input"
                       />
                     </div>
-              
+
                     <div className="form-group">
                       <label>
                         Имя<span className="required-star"> *</span>
@@ -807,7 +880,7 @@ const Forms = () => {
                         className="form-input"
                       />
                     </div>
-              
+
                     <div className="form-group">
                       <label>Отчество</label>
                       <input
@@ -837,7 +910,7 @@ const Forms = () => {
                         className="form-input"
                       />
                     </div>
-              
+
                     <div className="form-group">
                       <label>Middle Name</label>
                       <input
@@ -849,7 +922,7 @@ const Forms = () => {
                         className="form-input"
                       />
                     </div>
-              
+
                     <div className="form-group">
                       <label>
                         Last Name<span className="required-star"> *</span>
@@ -866,7 +939,7 @@ const Forms = () => {
                     </div>
                   </>
                 )}
-              
+
                 {question.multipleNames && nameValues.length > 1 && (
                   <button
                     type="button"
@@ -877,67 +950,70 @@ const Forms = () => {
                   </button>
                 )}
               </div>
-              
-              ))}
-        
-              {question.multipleNames && (
-                <button
-                  type="button"
-                  className="add-name-btn"
-                  onClick={addNameEntry}
-                >
-                  {formDetails.isUsedForRussian
-                    ? "Добавить еще имя"
-                    : "Add another name"}
-                </button>
-              )}
-        
-              {errors[question._id] && (
-                <span className="error-message">{errors[question._id]}</span>
-              )}
+            ))}
+
+            {question.multipleNames && (
+              <button
+                type="button"
+                className="add-name-btn"
+                onClick={addNameEntry}
+              >
+                {formDetails.isUsedForRussian
+                  ? "Добавить еще имя"
+                  : "Add another name"}
+              </button>
+            )}
+
+            {errors[question._id] && (
+              <span className="error-message">{errors[question._id]}</span>
+            )}
+          </div>
+        );
+
+      case "promocode":
+        return (
+          <div className="promo-code-container">
+            <div className="promo-code-input-wrapper">
+              <input
+                type="text"
+                value={value}
+                onChange={(e) =>
+                  handlePromoCodeChange(question._id, e.target.value)
+                }
+                required={question.required}
+                className="form-input"
+                placeholder={
+                  formDetails.isUsedForRussian
+                    ? "Введите промокод"
+                    : "Enter promo code"
+                }
+              />
+
+              {/* Discount percentage badge - only shows when valid */}
+              {promoCodeStatus[question._id] === true &&
+                discountInfo?.[question._id] && (
+                  <div className="discount-badge">
+                    {discountInfo[question._id].amount}% OFF
+                  </div>
+                )}
             </div>
-          );
-        
-          case "promocode":
-            return (
-              <div className="promo-code-container">
-                <div className="promo-code-input-wrapper">
-                  <input
-                    type="text"
-                    value={value}
-                    onChange={(e) => handlePromoCodeChange(question._id, e.target.value)}
-                    required={question.required}
-                    className="form-input"
-                    placeholder={formDetails.isUsedForRussian 
-                      ? "Введите промокод" 
-                      : "Enter promo code"}
-                  />
-                  
-                  {/* Discount percentage badge - only shows when valid */}
-                  {promoCodeStatus[question._id] === true && discountInfo?.[question._id] && (
-                    <div className="discount-badge">
-                      {discountInfo[question._id].amount}% OFF
-                    </div>
-                  )}
-                </div>
-                
-                {validatingPromoCodes[question._id] && (
-                  <div className="promo-code-status validating">
-                    {formDetails.isUsedForRussian 
-                      ? "Проверка..." 
-                      : "Validating..."}
-                  </div>
-                )}
-                
-                {promoCodeStatus[question._id] === false && (
-                  <div className="promo-code-status invalid">
-                    ✗ {formDetails.isUsedForRussian 
-                      ? "Недействительный промокод" 
-                      : "Invalid promo code"}
-                  </div>
-                )}
+
+            {validatingPromoCodes[question._id] && (
+              <div className="promo-code-status validating">
+                {formDetails.isUsedForRussian ? "Проверка..." : "Validating..."}
               </div>
-            );
+            )}
+
+            {promoCodeStatus[question._id] === false && (
+              <div className="promo-code-status invalid">
+                ✗{" "}
+                {formDetails.isUsedForRussian
+                  ? "Недействительный промокод"
+                  : "Invalid promo code"}
+              </div>
+            )}
+          </div>
+        );
 
       default:
         return <span>Unsupported question type: {question.type}</span>;
@@ -1034,15 +1110,13 @@ const Forms = () => {
             <div className="form-title-description">
               <h1 className="form-title">{formDetails.title}</h1>
               {formDetails.description && (
- <div
- className="form-description"
- dangerouslySetInnerHTML={{
-   __html: formDetails.description
- }}
-/>
-
-)}
-
+                <div
+                  className="form-description"
+                  dangerouslySetInnerHTML={{
+                    __html: formDetails.description,
+                  }}
+                />
+              )}
             </div>
           </div>
 
