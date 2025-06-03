@@ -149,10 +149,10 @@ const template1EmailTemplate = (lang, user) => {
   const fullName =
     lang === "ru"
       ? `${title} ${lastName} ${firstName} ${middleName}`.trim()
-      : `${title} ${firstName} ${middleName} ${lastName}`.trim();
+      : `${title} ${firstName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женский"
       ? "Уважаемая"
       : "Уважаемый";
 
@@ -198,7 +198,7 @@ const template1EmailTemplate = (lang, user) => {
   // English version (if needed, can be adjusted similarly)
   return {
     subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
-    html: `<p><strong>Dear ${fullName},</strong></p>
+    html: `<p><strong>Dear ${firstName} ${lastName},</strong></p>
       <p>Your application for Competitive participation in the XI EAFO Basic Medical Course is under review.</p>
       <p><strong>Participation details:</strong></p>
       <ul>
@@ -231,7 +231,7 @@ const template2EmailTemplate = (lang, user) => {
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женский"
       ? "Уважаемая"
       : "Уважаемый";
 
@@ -270,7 +270,7 @@ const template2EmailTemplate = (lang, user) => {
   return {
     subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
     html: `
-      <p><strong>Dear ${firstName} ${middleName},</strong></p>
+      <p><strong>Dear ${firstName} ${lastName},</strong></p>
 
       <p>Your application for the subsidized non-competitive participation has been received successfully.</p>
 
@@ -321,7 +321,7 @@ const template3EmailTemplate = (lang, user) => {
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женский"
       ? "Уважаемая"
       : "Уважаемый";
 
@@ -360,7 +360,7 @@ const template3EmailTemplate = (lang, user) => {
   return {
     subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
     html: `
-      <p><strong>Dear ${firstName} ${middleName},</strong></p>
+      <p><strong>Dear ${firstName} ${lastName},</strong></p>
 
       <p>Your application for the subsidized non-competitive participation has been received successfully.</p>
 
@@ -410,7 +410,7 @@ const template4EmailTemplate = (lang, user) => {
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женский"
       ? "Уважаемая"
       : "Уважаемый";
 
@@ -449,7 +449,7 @@ const template4EmailTemplate = (lang, user) => {
   return {
     subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
     html: `
-      <p><strong>Dear ${firstName} ${middleName},</strong></p>
+      <p><strong>Dear ${firstName} ${lastName},</strong></p>
 
       <p>Your application for the subsidized non-competitive participation has been received successfully.</p>
 
@@ -500,7 +500,7 @@ const template5EmailTemplate = (lang, user) => {
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женский"
       ? "Уважаемая"
       : "Уважаемый";
 
@@ -539,7 +539,7 @@ const template5EmailTemplate = (lang, user) => {
   return {
     subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
     html: `
-      <p><strong>Dear ${firstName} ${middleName},</strong></p>
+      <p><strong>Dear ${firstName} ${lastName},</strong></p>
 
       <p>Your application for the subsidized non-competitive participation has been received successfully.</p>
 
@@ -590,7 +590,7 @@ const template6EmailTemplate = (lang, user) => {
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женский"
       ? "Уважаемая"
       : "Уважаемый";
 
@@ -649,7 +649,7 @@ const template6EmailTemplate = (lang, user) => {
   return {
     subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
     html: `
-      <p><strong>Dear ${firstName} ${middleName},</strong></p>
+      <p><strong>Dear ${firstName} ${lastName},</strong></p>
 
       <p>Your application for the subsidized non-competitive participation has been received successfully.</p>
 
@@ -699,7 +699,7 @@ const template7EmailTemplate = (lang, user) => {
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женский"
       ? "Уважаемая"
       : "Уважаемый";
 
@@ -746,7 +746,7 @@ const template7EmailTemplate = (lang, user) => {
   return {
     subject: `Confirmation of Registration Form Submission for the XI EAFO Basic Medical Course`,
     html: `
-      <p><strong>Dear ${firstName} ${middleName},</strong></p>
+      <p><strong>Dear ${firstName} ${lastName},</strong></p>
 
       <p>Your application for the subsidized non-competitive participation has been received successfully.</p>
 
