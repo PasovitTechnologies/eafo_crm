@@ -211,7 +211,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 24px;
-  background-color: #4a6baf;
+  background-color: #033672;
   color: white;
   border-radius: 6px;
   text-decoration: none;
@@ -220,7 +220,7 @@
 }
 
 .website-link-button:hover {
-  background-color: #3a5a9f;
+  background-color: rgb(24, 40, 74);
 }
 
 .website-link-button i {
@@ -288,10 +288,10 @@
 
 .form-info strong {
   display: block;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   color: #333;
   margin-bottom: 0.25rem;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .form-description {
@@ -315,12 +315,13 @@
   gap: 0.5rem;
   padding: 0.625rem 1rem;
   border-radius: 8px;
-  font-size: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
   border: none;
   white-space: nowrap;
+  font-weight: bold;
 }
 
 .btn i {
@@ -329,12 +330,12 @@
 
 /* Button Variants */
 .btn.register {
-  background: #033672;
+  background: #d91c22;
   color: white;
 }
 
 .btn.register:hover {
-  background: #05182e;
+  background: #d91c22;
 }
 
 .btn.submit {

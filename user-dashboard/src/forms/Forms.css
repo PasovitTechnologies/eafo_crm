@@ -29,7 +29,7 @@
   
   .form-logo {
     width: auto;
-    max-height: 80px;
+    max-height: 115px;
     object-fit: contain;
     border-radius: 4px;
   }
@@ -529,14 +529,10 @@ button.submit-btn:hover {
 
   /* Responsive adjustments */
   @media (max-width: 768px) {
-    .form-header {
-      flex-direction: column;
-      gap: 15px;
-    }
     
     .form-logo {
       width: auto;
-      max-height: 70px;
+      max-height: 100px;
     }
   }
 /* 📱 Responsive Design */
@@ -561,6 +557,28 @@ button.submit-btn:hover {
       gap: 0.5rem; /* Reduced space between questions */
       margin-bottom: 0.7rem;
       padding: 10px;
+  }
+}
+
+@media (max-width: 475px) {
+  .form-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .form-logo {
+    width: auto;
+    max-height: 80px;
+  }
+  .form-title {
+    text-align: center;
+  }
+  
+  .form-description {
+   text-align: center;
+   font-size: 14px;
   }
 }
 /* File Remove Button Styles */
