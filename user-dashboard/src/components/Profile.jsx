@@ -244,8 +244,8 @@ const Profile = () => {
   const getGenderOptions = () => {
     return currentLanguage === "ru"
       ? [
-          { value: "Мужчина", label: "Мужчина" },
-          { value: "Женщина", label: "Женщина" },
+          { value: "Мужской", label: "Мужской" },
+          { value: "Женский", label: "Женский" },
           { value: "Другое", label: "Другое" },
         ]
       : [

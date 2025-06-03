@@ -127,6 +127,12 @@
         "register_now": "Submit",
         "registered_status": "Submitted",
         "see_more": "See more",
+
+    "importantUpdate": "Important Update",
+    "registerNow": "Register Now - Limited Time Offer!",
+    "limitedSeats": "Only a few seats remaining for our upcoming courses",
+    "learnMore": "Learn More",
+  
         "error": "Failed to load courses. Please try again.",
         "breadcrumb_separator": "/",
         "unauthorized": "Unauthorized access. Please log in.",

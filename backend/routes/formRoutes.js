@@ -152,7 +152,7 @@ const template1EmailTemplate = (lang, user) => {
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
       ? "Уважаемая"
       : "Уважаемый";
 
@@ -231,7 +231,7 @@ const template2EmailTemplate = (lang, user) => {
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
       ? "Уважаемая"
       : "Уважаемый";
 
@@ -321,7 +321,7 @@ const template3EmailTemplate = (lang, user) => {
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
       ? "Уважаемая"
       : "Уважаемый";
 
@@ -410,7 +410,7 @@ const template4EmailTemplate = (lang, user) => {
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
       ? "Уважаемая"
       : "Уважаемый";
 
@@ -500,7 +500,7 @@ const template5EmailTemplate = (lang, user) => {
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
       ? "Уважаемая"
       : "Уважаемый";
 
@@ -590,7 +590,7 @@ const template6EmailTemplate = (lang, user) => {
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
       ? "Уважаемая"
       : "Уважаемый";
 
@@ -699,7 +699,7 @@ const template7EmailTemplate = (lang, user) => {
       : `${title} ${firstName} ${middleName} ${lastName}`.trim();
 
   const salutation =
-    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "женщина"
+    gender?.toLowerCase() === "female" || gender?.toLowerCase() === "Женский"
       ? "Уважаемая"
       : "Уважаемый";
 
