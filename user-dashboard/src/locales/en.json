@@ -184,8 +184,9 @@
         "start_date": "Start Date",
         "end_date": "End Date",
         "visit_website": "Visit Course Website"
-        
+  
     },
+
     "webinar": {
     "breadcrumb_dashboard": "Personal Account",
     "breadcrumb_webinars": "Webinars",

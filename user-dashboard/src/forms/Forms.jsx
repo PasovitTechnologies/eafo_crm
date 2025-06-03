@@ -1210,8 +1210,8 @@ const Forms = () => {
                     {renderInputField(question)}
                     {question.description && (
                       <div className="question-description">
-                        <small>{question.description}</small>
-                      </div>
+                      <small dangerouslySetInnerHTML={{ __html: question.description }} />
+                    </div>
                     )}
                     {errors[question._id] && (
                       <span className="error-message">
