@@ -145,9 +145,10 @@ const RegisterPage = ({ onSwitchToLogin }) => {
 
   // Form validation functions
   const validatePassword = (password) => {
-    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     return regex.test(password);
   };
+  
 
   const handleEmailChange = (e) => {
     const value = e.target.value;

@@ -188,7 +188,7 @@ const Courses = () => {
       filtered = filtered.filter((course) => course.fullDate >= new Date());
     } else if (filter === "Past") {
       filtered = filtered.filter((course) => course.fullDate < new Date());
-    } else if (filter === "Registered") {
+    } else if (filter === "Submitted") {
       filtered = filtered.filter((course) => registeredCourses.has(course._id));
     }
 
@@ -319,7 +319,7 @@ const Courses = () => {
 
               {isDropdownOpen && (
                 <div className="filter-dropdown">
-                  {["All", "Upcoming", "Past", "Registered"].map((option) => (
+                  {["All", "Upcoming", "Past", "Submitted"].map((option) => (
                     <div
                       key={option}
                       className="dropdown-option"

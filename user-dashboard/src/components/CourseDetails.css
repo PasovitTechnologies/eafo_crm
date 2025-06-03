@@ -204,6 +204,9 @@
 .website-link-container {
   margin: 25px 0;
   text-align: center;
+  display: flex;
+  justify-content: flex-end;
+  padding: 0px 45px;
 }
 
 .website-link-button {
@@ -231,10 +234,10 @@
 /* Modern Forms Container */
 .available-forms {
   margin-top: 2rem;
-  background: white;
+  background: rgb(249, 249, 249);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .available-forms h3 {
@@ -263,7 +266,7 @@
   background: #fafafa;
   border-radius: 10px;
   transition: all 0.2s ease;
-  border: 1px solid #eee;
+  border: 1px solid #d5cfcf;
 }
 
 .form-list-item:hover {
@@ -332,6 +335,8 @@
 .btn.register {
   background: #d91c22;
   color: white;
+  font-size: 1.4rem;
+  
 }
 
 .btn.register:hover {
