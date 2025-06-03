@@ -502,6 +502,57 @@ button.submit-btn:hover {
 
 .question-description a:hover {
   text-decoration: underline; /* Underline on hover */
+}.compact-file-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.compact-upload-input {
+  display: none;
+}
+
+.compact-upload-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background-color: #f9fafb;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.compact-upload-label:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.compact-upload-icon {
+  width: 16px;
+  height: 16px;
+  color: #4b5563;
+}
+
+.compact-upload-text {
+  white-space: nowrap;
+}
+
+.compact-clear-btn {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px;
+  margin-left: -4px;
+}
+
+.compact-clear-btn:hover {
+  color: #ef4444;
 }
 .contact-details a:hover {
   text-decoration: underline;

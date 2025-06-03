@@ -573,7 +573,10 @@ const Forms = () => {
             required={question.required}
             className="form-select"
           >
-            <option value="">Select an option</option>
+            <option value="">
+  {formDetails.isUsedForRussian ? "Выберите опцию" : "Select an option"}
+</option>
+
             {(question.options ?? []).map((opt, index) => (
               <option key={index} value={opt}>
                 {opt}
@@ -650,7 +653,7 @@ const Forms = () => {
             onRemove={(selectedList) =>
               handleAnswerChange(question._id, selectedList)
             }
-            placeholder="Select options"
+            placeholder={formDetails.isUsedForRussian ? "Выберите опции" : "Select options"}
             className="multiselect-wrapper"
           />
         );

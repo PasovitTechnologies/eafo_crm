@@ -93,33 +93,39 @@ const LoginPage = ({ onSwitchToRegister, onSwitchToForgotPassword }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!isValidEmail(email)) {
       toast.error(t("loginPage.validEmail"));
       return;
     }
-
+  
     if (password.length < 8) {
       toast.error(t("loginPage.validPassword"));
       return;
     }
-
+  
     setLoading(true);
-
+  
     try {
       const response = await axios.post(`${baseUrl}/api/user/login`, {
         email,
         password,
       });
-
+  
       const { token } = response.data;
       if (!token) throw new Error(t("loginPage.invalidResponse"));
-
+  
       localStorage.setItem("token", token);
       localStorage.setItem("email", email);
       setIsLoggedIn(true);
-
+  
+      // Check for language in localStorage and set to "ru" if not available
+      if (!localStorage.getItem("language")) {
+        localStorage.setItem("language", "ru");
+      }
+  
       toast.success(t("loginPage.loginSuccess"));
+      
     } catch (error) {
       const errorMessage =
         error.response?.data?.message || t("loginPage.loginFailed");
