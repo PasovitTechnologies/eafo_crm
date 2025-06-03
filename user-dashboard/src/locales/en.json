@@ -574,6 +574,15 @@
       "description": "Mandatory for applicants seeking preferential non-competitive participation; if such a document is available, it must be attached by applicants for competitive participation"
     }
   
+  },
+
+  "offlinePage": {
+    "onlineTitle": "Connection Restored!",
+    "offlineTitle": "No Internet Connection",
+    "onlineMessage": "You're back online. Enjoy seamless browsing!",
+    "offlineMessage": "Please check your network connection and try again.",
+    "retryButton": "Retry Connection",
+    "onlineToast": "You're back online!"
   }
 
 

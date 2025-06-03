@@ -1,4 +1,4 @@
-import React, { useEffect, Suspense, lazy } from "react";
+import React, { useEffect, Suspense, lazy, useState } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -11,6 +11,7 @@ import { jwtDecode } from "jwt-decode";
 import "./i18n";
 import Document from "./components/Document";
 import EAFOWaterLoader from "./components/EAFOWaterLoader";
+import OfflinePage from "./components/OfflinePage"; // Import the OfflinePage
 
 // ✅ Lazy-loaded components
 const Dashboard = lazy(() => import("./components/Dashboard"));
@@ -39,6 +40,26 @@ const isTokenValid = () => {
   } catch {
     return false;
   }
+};
+
+
+const useNetworkStatus = () => {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
+  return isOnline;
 };
 
 // 🔐 Auto Redirect on Token Expiry
@@ -142,90 +163,98 @@ const Layout = ({ children }) => {
 
 // 🎬 Main App Component
 const App = () => {
+
+  const isOnline = useNetworkStatus();
+
   return (
     <Router>
-<Suspense fallback={<EAFOWaterLoader
- />}>
-        <Layout>
-          <Routes>
-            {/* 🔑 Public Routes */}
-            <Route path="/" element={<AuthForm />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forget-password" element={<ForgetPasswordPage />} />
+      {!isOnline ? (
+        <OfflinePage />
+      ) : (
+        <Suspense fallback={<EAFOWaterLoader
+          />}>
+                 <Layout>
+                   <Routes>
+                     {/* 🔑 Public Routes */}
+                     <Route path="/" element={<AuthForm />} />
+                     <Route path="/register" element={<RegisterPage />} />
+                     <Route path="/forget-password" element={<ForgetPasswordPage />} />
+         
+                     {/* 🔒 Protected Routes */}
+                     <Route
+                       path="/dashboard"
+                       element={
+                         <PrivateRoute element={<><AutoRedirect /><Dashboard /></>} />
+                       }
+                     />
+                     <Route
+                       path="/profile"
+                       element={
+                         <PrivateRoute element={<><AutoRedirect /><Profile /></>} />
+                       }
+                     />
+                     <Route
+                       path="/dashboard/webinars"
+                       element={
+                         <PrivateRoute element={<><AutoRedirect /><Webinar /></>} />
+                       }
+                     />
+                     <Route
+                       path="/dashboard/webinars/:id"
+                       element={
+                         <PrivateRoute element={<><AutoRedirect /><WebinarDetails /></>} />
+                       }
+                     />
+                     <Route
+                       path="/dashboard/webinars/:id/watch-webinar"
+                       element={
+                         <PrivateRoute element={<><AutoRedirect /><WebinarPage /></>} />
+                       }
+                     />
+                     <Route
+                       path="/dashboard/courses"
+                       element={
+                         <PrivateRoute element={<><AutoRedirect /><Courses /></>} />
+                       }
+                     />
+                     <Route
+                       path="/dashboard/courses/:slug"
+                       element={
+                         <PrivateRoute element={<><AutoRedirect /><CourseDetails /></>} />
+                       }
+                     />
+                     <Route
+                       path="/dashboard/courses/:courseName/forms/:formName"
+                       element={
+                         <PrivateRoute element={<><AutoRedirect /><Forms /></>} />
+                       }
+                     />
+                     <Route
+                       path="/dashboard/enquiry"
+                       element={
+                         <PrivateRoute element={<><AutoRedirect /><Enquiry /></>} />
+                       }
+                     />
+                     <Route
+                       path="/dashboard/about"
+                       element={
+                         <PrivateRoute element={<><AutoRedirect /><About /></>} />
+                       }
+                     />
+                     <Route
+                       path="/dashboard/document"
+                       element={
+                         <PrivateRoute element={<><AutoRedirect /><Document /></>} />
+                       }
+                     />
+         
+                     {/* 🌐 Catch-All */}
+                     <Route path="*" element={<Navigate to="/" />} />
+                   </Routes>
+                 </Layout>
+               </Suspense>
+      )}
 
-            {/* 🔒 Protected Routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute element={<><AutoRedirect /><Dashboard /></>} />
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <PrivateRoute element={<><AutoRedirect /><Profile /></>} />
-              }
-            />
-            <Route
-              path="/dashboard/webinars"
-              element={
-                <PrivateRoute element={<><AutoRedirect /><Webinar /></>} />
-              }
-            />
-            <Route
-              path="/dashboard/webinars/:id"
-              element={
-                <PrivateRoute element={<><AutoRedirect /><WebinarDetails /></>} />
-              }
-            />
-            <Route
-              path="/dashboard/webinars/:id/watch-webinar"
-              element={
-                <PrivateRoute element={<><AutoRedirect /><WebinarPage /></>} />
-              }
-            />
-            <Route
-              path="/dashboard/courses"
-              element={
-                <PrivateRoute element={<><AutoRedirect /><Courses /></>} />
-              }
-            />
-            <Route
-              path="/dashboard/courses/:slug"
-              element={
-                <PrivateRoute element={<><AutoRedirect /><CourseDetails /></>} />
-              }
-            />
-            <Route
-              path="/dashboard/courses/:courseName/forms/:formName"
-              element={
-                <PrivateRoute element={<><AutoRedirect /><Forms /></>} />
-              }
-            />
-            <Route
-              path="/dashboard/enquiry"
-              element={
-                <PrivateRoute element={<><AutoRedirect /><Enquiry /></>} />
-              }
-            />
-            <Route
-              path="/dashboard/about"
-              element={
-                <PrivateRoute element={<><AutoRedirect /><About /></>} />
-              }
-            />
-            <Route
-              path="/dashboard/document"
-              element={
-                <PrivateRoute element={<><AutoRedirect /><Document /></>} />
-              }
-            />
-
-            {/* 🌐 Catch-All */}
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </Layout>
-      </Suspense>
     </Router>
   );
 };
