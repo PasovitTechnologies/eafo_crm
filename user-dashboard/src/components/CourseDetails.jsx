@@ -395,6 +395,17 @@ const CourseDetails = () => {
     );
   }
 
+  const hasPaid = () => {
+    return payments.some(payment => 
+      payment.status?.toLowerCase() === "paid" || 
+      (course?.payments?.some(cp => 
+        cp.invoiceNumber === payment.invoiceNumber &&
+        cp.status?.toLowerCase() === "paid"
+      ))
+    );
+  };
+  
+
   return (
     <motion.div
       className="course-details-page-div"
@@ -549,81 +560,82 @@ const CourseDetails = () => {
 
                             {/* Action buttons on the right */}
                             <div className="form-actions-buttons">
-                              {isRegistered && form.isUsedForRegistration ? (
-                                <div className="registered-form-container">
-                                  {/* Registered status button spanning full width */}
-                                  <div className="registered-status-fullwidth">
-                                    <i className="fas fa-check-circle"></i>
-                                    <span>
-                                      {t("course_details.registered")}
-                                    </span>
-                                  </div>
+  {isRegistered && form.isUsedForRegistration ? (
+    <div className="registered-form-container">
+      {/* Status row (changes between Submitted/Registered) */}
+      <div className={`registered-status-fullwidth ${
+        hasPaid() ? 'registered' : 'submitted'
+      }`}>
+        <i className={`fas ${
+          hasPaid() ? 'fa-check-circle' : 'fa-check'
+        }`}></i>
+        <span>
+          {hasPaid() 
+            ? t("course_details.registered") 
+            : t("course_details.submitted")}
+        </span>
+      </div>
 
-                                  {/* Action buttons below - each taking half width */}
-                                  <div className="registered-actions-row">
-                                    <button
-                                      className="user-view-details"
-                                      onClick={() =>
-                                        fetchSubmissionDetails(form.formId)
-                                      }
-                                    >
-                                      <span>
-                                        {t("course_details.view_details")}
-                                      </span>
-                                    </button>
-                                    <button
-                                      className="payment-amount-btn"
-                                      onClick={openPaymentPopup}
-                                    >
-                                      <i className="fas fa-credit-card"></i>
-                                      <span>
-                                        {t("course_details.pay_amount")}
-                                      </span>
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : isAlreadyRegistered ? (
-                                <div className="submitted-state">
-                                  <span className="status-badge submitted">
-                                    <i className="fas fa-check"></i>
-                                    {t("course_details.submitted")}
-                                  </span>
-                                  <button
-                                    className="btn view-details"
-                                    onClick={() =>
-                                      fetchSubmissionDetails(form.formId)
-                                    }
-                                  >
-                                    <i className="fas fa-eye"></i>
-                                    <span className="btn-text">
-                                      {t("course_details.view_details")}
-                                    </span>
-                                  </button>
-                                </div>
-                              ) : (
-                                <button
-                                  className={`btn ${
-                                    form.isUsedForRegistration
-                                      ? "register"
-                                      : "submit"
-                                  }`}
-                                  onClick={() => handleFormNavigation(form)}
-                                >
-                                  <i
-                                    className={`fas ${
-                                      form.isUsedForRegistration
-                                        ? "fa-user-plus"
-                                        : "fa-paper-plane"
-                                    }`}
-                                  ></i>
-                                  <span className="btn-text">
-                                    {form.isUsedForRegistration
-                                      ? t("course_details.register")
-                                      : t("course_details.submit")}
-                                  </span>
-                                </button>
-                              )}
-                            </div>
+      {/* Action buttons (always visible) */}
+      <div className="registered-actions-row">
+        <button
+          className="user-view-details"
+          onClick={() => fetchSubmissionDetails(form.formId)}
+        >
+          <span>{t("course_details.view_details")}</span>
+        </button>
+        <button
+          className={`payment-amount-btn ${
+            hasPaid() ? 'paid' : ''
+          }`}
+          onClick={openPaymentPopup}
+        >
+          <i className="fas fa-credit-card"></i>
+          <span>
+            
+              {t("course_details.pay_amount")}
+          </span>
+        </button>
+      </div>
+    </div>
+  ) : isAlreadyRegistered ? (
+    <div className="submitted-state">
+      <span className="status-badge submitted">
+        <i className="fas fa-check"></i>
+        {t("course_details.submitted")}
+      </span>
+      <button
+        className="btn view-details"
+        onClick={() => fetchSubmissionDetails(form.formId)}
+      >
+        <i className="fas fa-eye"></i>
+        <span className="btn-text">
+          {t("course_details.view_details")}
+        </span>
+      </button>
+    </div>
+  ) : (
+    <button
+      className={`btn ${
+        form.isUsedForRegistration ? "register" : "submit"
+      }`}
+      onClick={() => handleFormNavigation(form)}
+    >
+      <i
+        className={`fas ${
+          form.isUsedForRegistration
+            ? "fa-user-plus"
+            : "fa-paper-plane"
+        }`}
+      ></i>
+      <span className="btn-text">
+        {form.isUsedForRegistration
+          ? t("course_details.register")
+          : t("course_details.submit")}
+      </span>
+    </button>
+  )}
+</div>
                           </div>
                         </li>
                       );

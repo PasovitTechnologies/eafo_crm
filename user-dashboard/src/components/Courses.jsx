@@ -25,9 +25,9 @@ const Courses = () => {
   const [showHelpPopup, setShowHelpPopup] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [checkspecialUser, setCheckSpecialUser] = useState();
+  const [userPayments, setUserPayments] = useState([]);
 
   useEffect(() => {
-    // ✅ Check if token is available in localStorage
     const token = localStorage.getItem("token");
     if (!token) {
       navigate("/");
@@ -69,7 +69,6 @@ const Courses = () => {
 
       const data = await response.json();
 
-      // Check if user is in special email list
       const isSpecialUser = [
         "sasinarayanan2003@gmail.com",
         "theva.prime@gmail.com",
@@ -82,11 +81,10 @@ const Courses = () => {
       ].includes(userEmail);
 
       if (isSpecialUser) {
-        setCheckSpecialUser(true); // ✅ Correct
+        setCheckSpecialUser(true);
       }
 
       const processedCourses = data
-        // Only filter if not special user
         .filter((course) => isSpecialUser || course.status === "Active")
         .map((course) => {
           const courseDate = course.date ? new Date(course.date) : null;
@@ -117,8 +115,6 @@ const Courses = () => {
 
       setCourses(processedCourses);
       setFilteredCourses(processedCourses);
-
-      // Fetch registration status
       await fetchUserRegistrationStatus(processedCourses);
     } catch (err) {
       console.error("Error fetching courses:", err);
@@ -147,44 +143,71 @@ const Courses = () => {
       }
 
       const userData = await response.json();
-
+      const payments = [];
       const registeredSet = new Set();
 
       courses.forEach((course) => {
-        const courseForms = course.forms || [];
+        const userCourse = userData.courses?.find(c => c.courseId === course._id);
+        if (userCourse) {
+          const courseForms = course.forms || [];
+          const registrationForms = courseForms.filter(f => f.isUsedForRegistration);
+          
+          const isRegistered = registrationForms.some(form => 
+            userCourse.registeredForms?.some(f => f.formId === form.formId)
+          );
 
-        const allFormIds = courseForms
-          .filter((form) => form.isUsedForRegistration)
-          .map((form) => form.formId);
-
-        const isRegistered = userData.courses?.some((userCourse) =>
-          userCourse.registeredForms?.some((form) =>
-            allFormIds.includes(form.formId)
-          )
-        );
-
-        if (isRegistered) {
-          registeredSet.add(course._id);
+          if (isRegistered) {
+            registeredSet.add(course._id);
+            if (userCourse.payments) {
+              payments.push(...userCourse.payments.map(p => ({
+                ...p,
+                courseId: course._id // Ensure courseId is attached
+              })));
+            }
+          }
         }
       });
 
       setRegisteredCourses(registeredSet);
+      setUserPayments(payments);
     } catch (error) {
       console.error("Error fetching registration status:", error);
     }
   };
 
+  const hasPaidForCourse = (courseId) => {
+    return userPayments.some(payment => {
+      // Check direct payment status (case-insensitive)
+      if (
+        payment.status?.toLowerCase() === "paid" &&
+        payment.courseId === courseId
+      ) {
+        return true;
+      }
+  
+      // Check nested coursePayments array (case-insensitive)
+      if (payment.coursePayments) {
+        return payment.coursePayments.some(
+          cp =>
+            cp.status?.toLowerCase() === "paid" &&
+            cp.courseId === courseId
+        );
+      }
+  
+      return false;
+    });
+  };
+  
+
   const applyFilters = () => {
     let filtered = [...courses];
 
-    // 🔎 Search filter
     if (searchQuery.trim()) {
       filtered = filtered.filter((course) =>
         course.name.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
 
-    // 📅 Date filters
     if (filter === "Upcoming") {
       filtered = filtered.filter((course) => course.fullDate >= new Date());
     } else if (filter === "Past") {
@@ -215,7 +238,6 @@ const Courses = () => {
       }
 
       const course = await response.json();
-
       const language = localStorage.getItem("language") || "en";
 
       const form = course.forms?.find(
@@ -230,10 +252,8 @@ const Courses = () => {
         return;
       }
 
-      const formId = form.formId;
-
-      navigate(`/dashboard/courses/${slug}/forms/${formId}`, {
-        state: { formId: formId },
+      navigate(`/dashboard/courses/${slug}/forms/${form.formId}`, {
+        state: { formId: form.formId },
       });
     } catch (error) {
       console.error("Error registering:", error);
@@ -262,7 +282,6 @@ const Courses = () => {
       <div className="courses-page">
         {showHelpPopup && <CourseHelp onClose={toggleHelpPopup} />}
         <div className="webinar-header-container">
-          {/* Breadcrumb and Help */}
           <div className="webinar-header-top">
             <div className="breadcrumb-container">
               <button
@@ -294,7 +313,6 @@ const Courses = () => {
             </button>
           </div>
 
-          {/* Search and Filter */}
           <div className="search-filter-wrapper">
             <div className="search-container">
               <div className="search-icon-wrapper">
@@ -349,17 +367,12 @@ const Courses = () => {
             <div className="courses-list">
               {Array.from({ length: 4 }).map((_, index) => (
                 <div key={index} className="skeleton-course-card">
-                  {/* Left image area */}
                   <div className="skeleton-course-image shimmer"></div>
-
-                  {/* Center text area */}
                   <div className="skeleton-course-content">
                     <div className="skeleton-line long shimmer"></div>
                     <div className="skeleton-line medium shimmer"></div>
                     <div className="skeleton-line short shimmer"></div>
                   </div>
-
-                  {/* Right buttons */}
                   <div className="skeleton-course-actions">
                     <div className="skeleton-button shimmer"></div>
                     <div className="skeleton-button shimmer"></div>
@@ -376,6 +389,21 @@ const Courses = () => {
 
           {filteredCourses.map((course) => {
             const isRegistered = registeredCourses.has(course._id);
+            const hasPaid = hasPaidForCourse(course._id);
+            
+            let statusText, buttonClass;
+            if (isRegistered) {
+              if (hasPaid) {
+                statusText = t("courses.registered");
+                buttonClass = "registered-button";
+              } else {
+                statusText = t("courses.submitted");
+                buttonClass = "submitted-button";
+              }
+            } else {
+              statusText = t("courses.register_now");
+              buttonClass = "";
+            }
 
             return (
               <div
@@ -386,7 +414,7 @@ const Courses = () => {
                 <img
                   src={
                     currentLanguage === "ru"
-                      ? course?.bannerUrlRussian || course?.bannerUrl // ✅ Fallback to main banner if Russian one is missing
+                      ? course?.bannerUrlRussian || course?.bannerUrl
                       : course?.bannerUrl
                   }
                   alt={course.name}
@@ -394,9 +422,7 @@ const Courses = () => {
                 />
                 <div className="course-info">
                   <h3>
-                    {currentLanguage === "ru"
-                      ? course.nameRussian
-                      : course.name}
+                    {currentLanguage === "ru" ? course.nameRussian : course.name}
                   </h3>
                   <p>
                     <strong>{t("courses.date")}:</strong> {course.dateRange}
@@ -405,16 +431,24 @@ const Courses = () => {
 
                 <div className="course-actions">
                   <button
-                    className={`register-btn ${
-                      isRegistered ? "registered-button disabled" : ""
-                    }`}
+                    className={`register-btn ${buttonClass}`}
                     disabled={isRegistered}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!isRegistered) {
+                        handleRegister(course._id, course.slug);
+                      }
+                    }}
                   >
-                    {isRegistered
-                      ? t("courses.registered_status")
-                      : t("courses.register_now")}
+                    {statusText}
                   </button>
-                  <button className="see-more-btn">
+                  <button 
+                    className="see-more-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigateToCourseDetails(course);
+                    }}
+                  >
                     {t("courses.see_more")}
                   </button>
                 </div>
