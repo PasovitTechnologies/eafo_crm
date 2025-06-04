@@ -141,7 +141,6 @@ const Forms = () => {
           },
           body: JSON.stringify({ slug }), // Include slug in the body
         });
-        
 
         if (!res.ok) throw new Error("Failed to check submission");
 
@@ -251,7 +250,6 @@ const Forms = () => {
     );
     const visibleIds = new Set(visibleQuestions.map((q) => q._id));
 
-
     // Clean answers for now-hidden questions
     const cleanedAnswers = Object.fromEntries(
       Object.entries(updatedAnswers).filter(([key]) => visibleIds.has(key))
@@ -260,7 +258,6 @@ const Forms = () => {
     const removedAnswers = Object.keys(updatedAnswers).filter(
       (key) => !visibleIds.has(key)
     );
-
 
     setAnswers(cleanedAnswers);
     setVisibleQuestions(visibleQuestions);
@@ -387,6 +384,8 @@ const Forms = () => {
         submissions,
         discountInfo,
       };
+
+      console.log(submissionData);
 
       const response = await fetch(
         `${baseUrl}/api/form/${formId}/submissions`,
@@ -574,8 +573,10 @@ const Forms = () => {
             className="form-select"
           >
             <option value="">
-  {formDetails.isUsedForRussian ? "Выберите опцию" : "Select an option"}
-</option>
+              {formDetails.isUsedForRussian
+                ? "Выберите опцию"
+                : "Select an option"}
+            </option>
 
             {(question.options ?? []).map((opt, index) => (
               <option key={index} value={opt}>
@@ -653,7 +654,9 @@ const Forms = () => {
             onRemove={(selectedList) =>
               handleAnswerChange(question._id, selectedList)
             }
-            placeholder={formDetails.isUsedForRussian ? "Выберите опции" : "Select options"}
+            placeholder={
+              formDetails.isUsedForRussian ? "Выберите опции" : "Select options"
+            }
             className="multiselect-wrapper"
           />
         );
@@ -686,88 +689,116 @@ const Forms = () => {
                   }`}
             </p>
 
-            {/* File input (conditionally allow multiple) */}
-            <input
-              type="file"
-              multiple={isMultiple} // Only allow multiple if specified
-              onChange={(e) => {
-                const newFiles = Array.from(e.target.files || []);
-                if (!newFiles.length) return;
+            {/* Custom file input wrapper */}
+            <div className="custom-file-input">
+              {/* The actual file input (hidden) */}
+              <input
+                type="file"
+                multiple={isMultiple}
+                onChange={(e) => {
+                  const newFiles = Array.from(e.target.files || []);
+                  if (!newFiles.length) return;
 
-                // Validate file sizes
-                const validFiles = newFiles.filter(
-                  (file) => file.size <= 5 * 1024 * 1024
-                );
-                const invalidFiles = newFiles.filter(
-                  (file) => file.size > 5 * 1024 * 1024
-                );
-
-                if (invalidFiles.length) {
-                  toast.error(
-                    formDetails.isUsedForRussian
-                      ? `Некоторые файлы превышают 5MB (${invalidFiles.length})`
-                      : `Some files exceed 5MB limit (${invalidFiles.length})`
+                  // Validate file sizes
+                  const validFiles = newFiles.filter(
+                    (file) => file.size <= 5 * 1024 * 1024
                   );
-                }
+                  const invalidFiles = newFiles.filter(
+                    (file) => file.size > 5 * 1024 * 1024
+                  );
 
-                if (!validFiles.length) {
-                  e.target.value = ""; // Clear input if no valid files
-                  return;
-                }
+                  if (invalidFiles.length) {
+                    toast.error(
+                      formDetails.isUsedForRussian
+                        ? `Некоторые файлы превышают 5MB (${invalidFiles.length})`
+                        : `Some files exceed 5MB limit (${invalidFiles.length})`
+                    );
+                  }
 
-                // Process files (previews, metadata)
-                Promise.all(
-                  validFiles.map((file) => {
-                    return new Promise((resolve) => {
-                      const fileName =
-                        file.name.length > 15
-                          ? `${file.name.substring(0, 10)}...${file.name
-                              .split(".")
-                              .pop()}`
-                          : file.name;
+                  if (!validFiles.length) {
+                    e.target.value = ""; // Clear input if no valid files
+                    return;
+                  }
 
-                      if (file.type.startsWith("image/")) {
-                        const reader = new FileReader();
-                        reader.onload = (event) =>
+                  // Process files (previews, metadata)
+                  Promise.all(
+                    validFiles.map((file) => {
+                      return new Promise((resolve) => {
+                        const fileName =
+                          file.name.length > 15
+                            ? `${file.name.substring(0, 10)}...${file.name
+                                .split(".")
+                                .pop()}`
+                            : file.name;
+
+                        if (file.type.startsWith("image/")) {
+                          const reader = new FileReader();
+                          reader.onload = (event) =>
+                            resolve({
+                              file,
+                              preview: event.target.result,
+                              name: file.name, // ✅ full name to submit
+                              displayName: fileName, // ✅ short name for display
+                              size: file.size,
+                              type: file.type,
+                            });
+                          reader.readAsDataURL(file);
+                        } else {
                           resolve({
                             file,
-                            preview: event.target.result,
                             name: file.name, // ✅ full name to submit
                             displayName: fileName, // ✅ short name for display
                             size: file.size,
                             type: file.type,
                           });
-                        reader.readAsDataURL(file);
-                      } else {
-                        resolve({
-                          file,
-                          name: file.name, // ✅ full name to submit
-                          displayName: fileName, // ✅ short name for display
-                          size: file.size,
-                          type: file.type,
-                        });
-                      }
-                    });
-                  })
-                ).then((processedFiles) => {
-                  // For single upload: Replace existing file
-                  // For multiple: Append new files
-                  const updatedFiles = isMultiple
-                    ? [...currentFiles, ...processedFiles]
-                    : processedFiles.slice(0, 1); // Only keep first file if not multiple
+                        }
+                      });
+                    })
+                  ).then((processedFiles) => {
+                    // For single upload: Replace existing file
+                    // For multiple: Append new files
+                    const updatedFiles = isMultiple
+                      ? [...currentFiles, ...processedFiles]
+                      : processedFiles.slice(0, 1); // Only keep first file if not multiple
 
-                  handleAnswerChange(
-                    question._id,
-                    updatedFiles.length ? updatedFiles : null
-                  );
-                });
-              }}
-              required={question.required && !currentFiles.length}
-              className="form-file"
-              accept={question.acceptedFileTypes?.join(",") || "*"}
-            />
+                    handleAnswerChange(
+                      question._id,
+                      updatedFiles.length ? updatedFiles : null
+                    );
+                    e.target.value = ""; // ✅ Fix: reset input value so same file can be re-selected
+                  });
+                }}
+                required={question.required && !currentFiles.length}
+                className="form-file"
+                accept={question.acceptedFileTypes?.join(",") || "*"}
+                id={`file-input-${question._id}`} // Added ID for label
+              />
 
-            {/* File list display */}
+              {/* Custom visible label */}
+              <label
+                htmlFor={`file-input-${question._id}`}
+                className="file-input-label"
+              >
+                <span className="file-input-button">
+                  {formDetails.isUsedForRussian
+                    ? "Выберите файл"
+                    : "Choose file"}
+                </span>
+                <span className="file-input-text">
+                  {currentFiles.length > 0
+                    ? isMultiple
+                      ? formDetails.isUsedForRussian
+                        ? `Выбрано файлов: ${currentFiles.length}`
+                        : `Files selected: ${currentFiles.length}`
+                      : currentFiles[0].displayName || currentFiles[0].name
+                    : formDetails.isUsedForRussian
+                    ? "Файл не выбран"
+                    : "No file chosen"}
+                </span>
+              </label>
+            </div>
+
+            {/* Rest of your existing code remains exactly the same */}
             {currentFiles.length > 0 && (
               <div className="file-list">
                 {currentFiles.map((fileData, index) => (
@@ -803,7 +834,6 @@ const Forms = () => {
               </div>
             )}
 
-            {/* Image previews */}
             <div className="file-preview-container">
               {currentFiles.map(
                 (fileData, index) =>
@@ -819,7 +849,6 @@ const Forms = () => {
             </div>
           </div>
         );
-
       case "content":
         return (
           <div
@@ -1048,6 +1077,30 @@ const Forms = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="form-container">
+        <div className="form-header">
+          <Skeleton height={40} width={300} style={{ marginBottom: 16 }} />
+          <Skeleton height={20} width={500} count={2} />
+        </div>
+
+        <div className="form-questions-container">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div key={index} className="form-question">
+              <Skeleton height={24} width={200} style={{ marginBottom: 8 }} />
+              <Skeleton height={40} width="100%" />
+            </div>
+          ))}
+        </div>
+
+        <div className="form-controls">
+          <Skeleton height={45} width={150} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="form-container">
       {alreadySubmitted ? (
@@ -1136,8 +1189,8 @@ const Forms = () => {
             <div className="form-reference">
               <p>
                 {formDetails.isUsedForRussian
-                  ? `Заявка: ${formDetails.title}`
-                  : `Form: ${formDetails.title}`}
+                  ? `Заявка: ${formDetails.title.replace(/<[^>]*>/g, "")}`
+                  : `Form: ${formDetails.title.replace(/<[^>]*>/g, "")}`}
               </p>
             </div>
 
@@ -1213,8 +1266,12 @@ const Forms = () => {
                     {renderInputField(question)}
                     {question.description && (
                       <div className="question-description">
-                      <small dangerouslySetInnerHTML={{ __html: question.description }} />
-                    </div>
+                        <small
+                          dangerouslySetInnerHTML={{
+                            __html: question.description,
+                          }}
+                        />
+                      </div>
                     )}
                     {errors[question._id] && (
                       <span className="error-message">
@@ -1230,11 +1287,15 @@ const Forms = () => {
                 </div>
               ))}
 
-              {visibleQuestions.length === 0 && (
-                <div className="no-questions-message">
-                  No questions available based on the rules.
-                </div>
-              )}
+              {!loading &&
+                questions.length > 0 &&
+                visibleQuestions.length === 0 && (
+                  <div className="no-questions-message">
+                    {formDetails.isUsedForRussian
+                      ? "Нет доступных вопросов на основе выбранных параметров."
+                      : "No questions available based on the rules."}
+                  </div>
+                )}
             </div>
 
             <div className="form-controls">

@@ -643,7 +643,7 @@
 
   "userDatabase": {
     "title": "База данных пользователей",
-    "searchPlaceholder": "Поиск по email...",
+    "searchPlaceholder": "Поиск по email, Имя...",
     "exportButton": "Экспорт в CSV",
     "tableHeaderId": "ID",
     "tableHeaderFullName": "Полное имя",

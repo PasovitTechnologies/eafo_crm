@@ -26,6 +26,8 @@ const CourseDetails = () => {
   const [paymentDetails, setPaymentDetails] = useState(null);
   const [showSubmissionPopup, setShowSubmissionPopup] = useState(false);
   const [submissionDetails, setSubmissionDetails] = useState(null);
+  const [submissionLoading, setSubmissionLoading] = useState(false);
+
   const email = localStorage.getItem("email");
 
   const currentLanguage = i18n.language;
@@ -172,6 +174,9 @@ const CourseDetails = () => {
   
 
   const fetchSubmissionDetails = async (formId) => {
+    setSubmissionLoading(true);            // Show loading message in popup
+  setShowSubmissionPopup(true);         // Immediately open the popup
+  setSubmissionDetails(null);           // Clear previous details
     try {
       const token = localStorage.getItem("token");
       const email = localStorage.getItem("email");
@@ -264,6 +269,9 @@ const CourseDetails = () => {
     } catch (error) {
       setError(error.message);
       setTimeout(() => setError(null), 5000);
+    }
+    finally {
+      setSubmissionLoading(false); // Hide loading state
     }
   };
 
@@ -727,18 +735,16 @@ const CourseDetails = () => {
               </div>
             )}
 
-            {showSubmissionPopup && submissionDetails && (
-              <div
-                className="submission-overlay"
-                onClick={() => setShowSubmissionPopup(false)}
-              >
-                <div
-                  className="submission-popup"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <h3>{t("submissionPopup.title")}</h3>
-
-                  <div className="submission-content">
+{showSubmissionPopup && (
+  <div className="submission-overlay" onClick={() => setShowSubmissionPopup(false)}>
+    <div className="submission-popup" onClick={(e) => e.stopPropagation()}>
+      {submissionLoading ? (
+        <div className="submission-loading-message">
+          <p>{t("submissionPopup.loadingMessage", "Please wait while we fetch submission details...")}</p>
+        </div>
+      ) : submissionDetails ? (
+        <>
+            <div className="submission-content">
                     <div className="submission-meta">
                       <p>
                         <strong>{t("submissionPopup.submittedOn")}</strong>{" "}
@@ -833,14 +839,14 @@ const CourseDetails = () => {
                                     >
                                       <div className="file-info">
                                         <p>
-                                          <strong>File:</strong> {file.fileName}
+                                          <strong>{t("submissionPopup.name")}:</strong> {file.fileName}
                                         </p>
                                         <p>
-                                          <strong>Size:</strong>{" "}
+                                          <strong>{t("submissionPopup.size")}:</strong>{" "}
                                           {(file.size / 1024).toFixed(2)} KB
                                         </p>
                                         <p>
-                                          <strong>Uploaded on:</strong>{" "}
+                                          <strong>{t("submissionPopup.uploadedOn")}:</strong>{" "}
                                           {new Date(
                                             file.uploadDate
                                           ).toLocaleString()}
@@ -852,7 +858,7 @@ const CourseDetails = () => {
                                         onClick={() => downloadFile(file)}
                                       >
                                         <i className="fas fa-download"></i>{" "}
-                                        Download
+                                        {t("submissionPopup.download")}
                                       </button>
                                       <button
                                         className="view-btn download-btn"
@@ -914,9 +920,19 @@ const CourseDetails = () => {
                   >
                     <FaTimes className="close-icon" />
                   </button>
-                </div>
-              </div>
-            )}
+
+        </>
+      ) : (
+        <p className="error">{t("submissionPopup.submissionError", "Unable to load submission details.")}</p>
+      )}
+    </div>
+  </div>
+)}
+
+
+            
+
+            
           </div>
         )}
       </div>

@@ -1768,9 +1768,7 @@ async function processCriticalSubmission(req, session, discountInfo) {
   const result = {};
 
   const form = await Form.findById(formId)
-    .select(
-      "isUsedForRegistration isUsedForRussian formName description courseId"
-    )
+    .select("isUsedForRegistration isUsedForRussian formName description courseId")
     .session(session);
 
   if (!form) throw new Error("Form not found");
@@ -1780,9 +1778,9 @@ async function processCriticalSubmission(req, session, discountInfo) {
   result.isUsedForRegistration = form.isUsedForRegistration;
 
   const processedSubmissions = await Promise.all(
-    submissions.map(async (submission) => {
+    submissions.map(async (submission, idx) => {
       if (!submission.questionId) {
-        throw new Error(`Missing questionId in submission`);
+        throw new Error(`Missing questionId in submission index ${idx}`);
       }
 
       const response = {
@@ -1792,14 +1790,21 @@ async function processCriticalSubmission(req, session, discountInfo) {
       };
 
       if (submission.isFile && submission.fileData) {
-        response.files = Array.isArray(submission.fileData)
-          ? submission.fileData.map((f) => ({ pending: true, name: f.name }))
-          : [{ pending: true, name: submission.fileData.name }];
-      } else {
+        console.log(`📄 Uploading file(s) immediately for questionId: ${submission.questionId}`);
+      
+        const fileDataArray = Array.isArray(submission.fileData)
+          ? submission.fileData
+          : [submission.fileData];
+      
+        const uploadedFiles = await Promise.all(
+          fileDataArray.map((fileData, i) => uploadFileToGridFS(fileData, formId, submission.questionId, email))
+        );
+      
+        response.files = uploadedFiles;
+      }
+       else {
         if (!submission.answer) {
-          throw new Error(
-            `Missing answer for question ${submission.questionId}`
-          );
+          throw new Error(`Missing answer for question ${submission.questionId}`);
         }
         response.answer = submission.answer;
       }
@@ -1810,11 +1815,7 @@ async function processCriticalSubmission(req, session, discountInfo) {
 
   if (form.isUsedForRegistration) {
     const invoiceFields = extractInvoiceFields(processedSubmissions);
-    result.linkedItemDetails = await findLinkedItems(
-      invoiceFields,
-      form.courseId,
-      session
-    );
+    result.linkedItemDetails = await findLinkedItems(invoiceFields, form.courseId, session);
   }
 
   const newSubmission = {
@@ -1822,6 +1823,8 @@ async function processCriticalSubmission(req, session, discountInfo) {
     responses: processedSubmissions,
     submittedAt: moment.tz("Europe/Moscow").toDate(),
   };
+
+  console.log("✅ Final processed submission:", JSON.stringify(newSubmission, null, 2));
 
   await Form.updateOne(
     { _id: formId },
@@ -1854,7 +1857,7 @@ async function processCriticalSubmission(req, session, discountInfo) {
 
     result.user = user;
 
-    // --- Enhanced Coupon handling ---
+
     if (discountInfo && result.linkedItemDetails) {
       const courseCouponEntry = await CourseCoupons.findOne({
         courseId: form.courseId,
@@ -2072,17 +2075,16 @@ async function processCriticalSubmission(req, session, discountInfo) {
       package: result.linkedItemDetails?.name,
       price: `${result.linkedItemDetails?.amount} ${result.linkedItemDetails?.currency}`,
     });
-    
 
-    
+    // Apply coupon logic — unchanged, keep your existing coupon logic here
+
+    // (Optional: log coupon handling success/failure)
   }
-
 
   result.submission = newSubmission;
   return result;
-
-  
 }
+
 
 // Background job processor
 formSubmissionQueue.process(async (job) => {
@@ -2131,6 +2133,21 @@ formSubmissionQueue.process(async (job) => {
   }
 });
 
+async function getOriginalFileData(questionId, formId) {
+  const form = await Form.findById(formId).lean();
+  const latestSubmission = form?.submissions?.slice(-1)[0];
+
+  if (!latestSubmission) throw new Error("No submission found");
+
+  const response = latestSubmission.responses.find(
+    (res) => res.questionId.toString() === questionId.toString()
+  );
+
+  if (!response || !response.files) throw new Error("File data not found in responses");
+
+  return response.files.filter(f => f.pending && f.preview);
+}
+
 // Helper functions for background tasks
 async function processFileUploads(submission, formId, email) {
   const fileUpdates = [];
@@ -2175,9 +2192,15 @@ async function processFileUploads(submission, formId, email) {
 }
 
 async function uploadFileToGridFS(fileData, formId, questionId, email) {
+  if (!fileData?.preview) {
+    throw new Error(`Missing preview data for file: ${fileData?.name || "unknown file"}`);
+  }
+
   const base64Data = fileData.preview.split(",")[1] || fileData.preview;
   const fileBuffer = Buffer.from(base64Data, "base64");
   const uniqueFileName = `${Date.now()}-${fileData.name || "file"}`;
+
+  console.log(`📁 Uploading file to GridFS: ${fileData.name}`);
 
   const writeStream = gfs.openUploadStream(uniqueFileName, {
     contentType: fileData.type || "application/octet-stream",
@@ -2206,6 +2229,8 @@ async function uploadFileToGridFS(fileData, formId, questionId, email) {
     uploadDate: moment.tz("Europe/Moscow").toDate(),
   };
 }
+
+
 
 async function generateAndStoreQRCode(user, form, courseId) {
   const qrUrl = `https://qr.eafo.info/qrscanner/view/${user._id}/${courseId}/${form._id}`;

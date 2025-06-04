@@ -642,7 +642,7 @@
 
   "userDatabase": {
     "title": "User Database",
-    "searchPlaceholder": "Search by email...",
+    "searchPlaceholder": "Search by email, Name...",
     "exportButton": "Export CSV",
     "tableHeaderId": "ID",
     "tableHeaderFullName": "Full Name",

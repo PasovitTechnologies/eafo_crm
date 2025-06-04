@@ -190,7 +190,7 @@
         "start_date": "Start Date",
         "end_date": "End Date",
         "visit_website": "Visit Course Website"
-  
+
     },
 
     "webinar": {
@@ -516,7 +516,12 @@
   "size": "Size:",
   "type": "Type:",
   "download": "Download",
-  "close": "Close"
+  "close": "Close",
+  "name": "File Name",
+  "loadingMessage": "Please wait while we fetch submission details...",
+  "submissionError": "Unable to load submission details.",
+  "uploadedOn": "Uploaded on"
+
 },
   "documentUpload": {
     "title": "Document Submission",

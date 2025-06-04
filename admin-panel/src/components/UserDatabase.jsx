@@ -8,7 +8,7 @@ import 'react-loading-skeleton/dist/skeleton.css';
 import "./UserDatabase.css";
 
 const UserDatabase = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();  // Initialize navigate
   const [users, setUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,9 +77,15 @@ const UserDatabase = () => {
     document.body.removeChild(link);
   };
 
-  const filteredUsers = users.filter((user) =>
-    user.email.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredUsers = users.filter((user) => {
+    const emailMatch = user.email?.toLowerCase().includes(searchQuery.toLowerCase());
+  
+    const fullName = getFullName(user.personalDetails, i18n.language || "en").toLowerCase();
+    const nameMatch = fullName.includes(searchQuery.toLowerCase());
+  
+    return emailMatch || nameMatch;
+  });
+  
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;

@@ -185,7 +185,8 @@
     "start_date": "Дата начала",
     "end_date": "Дата окончания",
     "visit_website": "Посетить сайт курса"
-  },
+    
+      },
   "webinar": {
     "breadcrumb_dashboard": "Личный кабинет",
     "breadcrumb_webinars": "Вебинары",
@@ -512,7 +513,14 @@
     "size": "Размер:",
     "type": "Тип:",
     "download": "Скачать",
-    "close": "Закрыть"
+    "close": "Закрыть",
+
+    
+    "name": "Имя файла",
+    "loadingMessage": "Пожалуйста, подождите, загружаются детали отправки...",
+    "submissionError": "Не удалось загрузить детали отправки.",
+     "uploadedOn": "Загружено"
+
   },
   
     "documentUpload": {
