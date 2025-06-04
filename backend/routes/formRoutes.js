@@ -678,8 +678,6 @@ const template6EmailTemplate = (lang, user) => {
   };
 };
 
-
-
 const template7EmailTemplate = (lang, user) => {
   const {
     title = "",

@@ -720,12 +720,13 @@
   width: 100%;
   box-sizing: border-box;
 }
-.course-actions .registered-button{
-  background-color: #4CAF50;
-  border: 3px solid #4CAF50;
+.course-actions .registered-button, .submitted-button{
+  background-color: #268d2a;
+  border: 3px solid #268d2a;
+  color: #fff;
 }
 
-.course-actions .registered-button:hover{
+.course-actions .registered-button:hover, .submitted-button:hover{
   background-color: #1c580d;
   border: 3px solid #2b691b;
 }
@@ -750,17 +751,12 @@
 }
 
 
-.register-btn {
-  background: #02408a;
-  color: white;
-}
-
 .see-more-btn {
   background: white;
   color: #02408a;
 }
 
-.register-btn:hover, .see-more-btn:hover {
+.see-more-btn:hover {
   background: #0f407c;
   color: white;
 }
