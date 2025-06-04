@@ -314,13 +314,13 @@ const Courses = () => {
           </div>
 
           <div className="search-filter-wrapper">
-            <div className="search-container">
-              <div className="search-icon-wrapper">
-                <Search className="search-icon" />
+            <div className="course-search-container">
+              <div className="course-search-icon-wrapper">
+                <Search className="course-search-icon" />
               </div>
               <input
                 type="text"
-                className="search-input"
+                className="course-search-input"
                 placeholder={t("courses.search_placeholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
