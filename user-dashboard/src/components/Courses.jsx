@@ -402,7 +402,7 @@ const Courses = () => {
               }
             } else {
               statusText = t("courses.register_now");
-              buttonClass = "";
+              buttonClass = "register";
             }
 
             return (

@@ -278,7 +278,7 @@ const RegisterPage = ({ onSwitchToLogin }) => {
   const firstLink = "https://workdrive.zohoexternal.com/file/ddmoqd07c238d03b641309ce3c263d6f7eb41";
   const secondLink = "https://workdrive.zohoexternal.com/file/ddmoq2fabfdce574e41db8cdffd1416f18d3d";
   const thirdLink = "https://workdrive.zohoexternal.com/file/ddmoqd74740f24acb4948a5fd734db5cd8e00";
-  const fourthLink = "https://workdrive.zohoexternal.com/file/ddmoqd6e00dae72934d0cabbb3a441b5f9105";
+  const fourthLink = "https://workdrive.zohoexternal.com/file/5j75p1b6a3d63eccd404cae8139e4265a7628";
 
 
 

@@ -182,6 +182,7 @@ const Forms = () => {
           description: formData.description || "",
           hasLogo: !!formData.formLogo,
           isUsedForRussian: formData.isUsedForRussian,
+          name:formData.formName
         });
       } catch (err) {
         console.error("Error checking submission:", err);
@@ -220,7 +221,9 @@ const Forms = () => {
           description: data.description || "",
           hasLogo: !!data.formLogo, // Just check if logo exists
           isUsedForRussian: data.isUsedForRussian,
+          name:data.formName
         });
+
       } catch (err) {
         setError(err.message);
         console.error("Error fetching form details:", err);
@@ -1228,6 +1231,7 @@ const Forms = () => {
             </div>
 
             <div className="form-title-description">
+              
               {formDetails.title && (
                 <h1
                   className="form-title"
@@ -1245,10 +1249,21 @@ const Forms = () => {
                 />
               )}
             </div>
+           
           </div>
+
+          {formDetails.name && (
+    <h2
+      className="form-name-title"
+      dangerouslySetInnerHTML={{ __html: formDetails.name }}
+    />
+  )}
 
           <form onSubmit={handleSubmit}>
             <div className="form-questions-container">
+            
+       
+
               {visibleQuestions.map((question) => (
                 <div key={question._id} className="form-question">
                   {question.type !== "accept" && (

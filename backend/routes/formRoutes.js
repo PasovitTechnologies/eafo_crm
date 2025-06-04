@@ -2447,6 +2447,7 @@ router.get("/:formId/info", authenticateJWT, async (req, res) => {
       createdAt: form.createdAt,
       updatedAt: form.updatedAt,
       isUsedForRussian: form.isUsedForRussian,
+      formName:form.formName
     });
   } catch (error) {
     console.error("Error fetching form details:", error);
