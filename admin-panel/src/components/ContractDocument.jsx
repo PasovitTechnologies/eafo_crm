@@ -63,7 +63,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
 
     const options = {
       margin: [0, 0, 0, 0],
-      filename: `CONTRACT_${formData.agreement_number}.pdf`,
+      filename: `Счет_${formData.agreement_number}.pdf`,
       image: { type: "jpeg", quality: 1.0 }, // High quality image rendering
       html2canvas: { scale: 3, useCORS: true }, // Increased scale for sharpness
       jsPDF: { unit: "mm", format: [210, 350], orientation: "portrait" }, // Increased height
@@ -348,7 +348,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
                       <td>Основание:</td>
                       <td>
                         Договор № {formData.agreement_number} от{" "}
-                        {formatDateDDMMYYYY(formData.agreement_date) || ""} г.
+                        {formatDateDDMMYYYY(formData.agreement_date) || ""} г.р
                       </td>
                     </tr>
                   </tbody>
@@ -456,7 +456,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
                     услуг информационно-аналитического ассистанса,
                     опубликованного на сайте:
                     <a
-                      href="https://path.eafo.info/ru/"
+                      href=" https://www.basic.eafo.info"
                       target="_blank"
                       style={{ color: "#007BFF", textDecoration: "none" }}
                     >
@@ -477,9 +477,9 @@ const ContractDocument = ({ data = {}, onClose }) => {
                     Оплата данного счета означает принятие всех условий АНО
                     «ЕАФО» и заключение Договора оказания услуг
                     информационно-аналитического ассистанса, опубликованного на
-                    сайте
+                    сайте:
                     <a
-                      href="https://path.eafo.info/ru/"
+                      href=" https://www.basic.eafo.info"
                       target="_blank"
                       style={{ color: "#007BFF", textDecoration: "none" }}
                     >

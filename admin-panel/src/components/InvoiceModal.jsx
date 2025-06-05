@@ -431,14 +431,18 @@ const InvoiceModal = ({
     }
   }, [paymentUrl, whatsappLoading, userData, submission, items, totalAmount]);
 
+  const capitalize = (str) => str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
   const handleViewAkt = (payment) => {
     console.log("🧾 handleViewAkt clicked", payment); // ✅ Debug log
+
+    
 
     if (userData) {
       console.log("✅ Valid paid payment, opening AKT modal");
 
       const aktDetails = {
-        full_name: `${userData.personalDetails.lastName} ${userData.personalDetails.firstName} ${userData.personalDetails.lastName}`,
+        full_name :`${userData.personalDetails.lastName.toUpperCase()} ${capitalize(userData.personalDetails.firstName)} ${capitalize(userData.personalDetails.middleName)}`,
         date_of_birth: new Date(
           userData.personalDetails.dob
         ).toLocaleDateString(),
@@ -469,7 +473,7 @@ const InvoiceModal = ({
     if (userData) {
       // Removed the check for payment status
       const aktDetails = {
-        full_name: `${userData.personalDetails.lastName} ${userData.personalDetails.firstName} ${userData.personalDetails.lastName}`,
+        full_name :`${userData.personalDetails.lastName.toUpperCase()} ${capitalize(userData.personalDetails.firstName)} ${capitalize(userData.personalDetails.middleName)}`,
         date_of_birth: new Date(
           userData.personalDetails.dob
         ).toLocaleDateString(),
