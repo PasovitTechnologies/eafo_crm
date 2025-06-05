@@ -232,13 +232,17 @@ router.post("/send-wp", async (req, res) => {
 
 
 // Generate new Invoice Number
-    let currentInvoiceNumber = course.currentInvoiceNumber || "INV/EAFO-000-00001";
-    const match = currentInvoiceNumber.match(/(\d{5})$/);
-    let nextInvoiceNumber = match
-      ? currentInvoiceNumber.replace(/\d{5}$/, (parseInt(match[0], 10) + 1).toString().padStart(5, "0"))
-      : "INV/EAFO-000-00001";
+let currentInvoiceNumber = course.currentInvoiceNumber || "EAFO-003/25/0100";
 
-    course.currentInvoiceNumber = nextInvoiceNumber;
+// Match the last 4 digits
+const match = currentInvoiceNumber.match(/(\d{4})$/);
+
+let nextInvoiceNumber = match
+  ? currentInvoiceNumber.replace(/(\d{4})$/, (parseInt(match[1], 10) + 1).toString().padStart(4, "0"))
+  : "EAFO-003/25/0100";  // Fallback
+
+course.currentInvoiceNumber = nextInvoiceNumber;
+
 
     // Update user payment
     userPayment.invoiceNumber = nextInvoiceNumber;

@@ -82,6 +82,92 @@ const ContractDocument = ({ data = {}, onClose }) => {
     }));
   };
 
+
+  const numberToWordsRussian = (num) => {
+    if (typeof num !== "number" || isNaN(num)) return "ноль рублей ноль копеек";
+  
+    const belowTwenty = [
+      "ноль", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять", "десять",
+      "одиннадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать",
+      "семнадцать", "восемнадцать", "девятнадцать"
+    ];
+  
+    const tens = [
+      "", "", "двадцать", "тридцать", "сорок", "пятьдесят",
+      "шестьдесят", "семьдесят", "восемьдесят", "девяносто"
+    ];
+  
+    const hundreds = [
+      "", "сто", "двести", "триста", "четыреста",
+      "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот"
+    ];
+  
+    const thousandsForms = ["тысяча", "тысячи", "тысяч"];
+    const millionsForms = ["миллион", "миллиона", "миллионов"];
+    const billionsForms = ["миллиард", "миллиарда", "миллиардов"];
+  
+    const getForm = (n, forms) => {
+      const lastDigit = n % 10;
+      const lastTwoDigits = n % 100;
+      if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return forms[2];
+      if (lastDigit === 1) return forms[0];
+      if (lastDigit >= 2 && lastDigit <= 4) return forms[1];
+      return forms[2];
+    };
+  
+    const convertTriplet = (n, isFemale = false) => {
+      let result = [];
+      const h = Math.floor(n / 100);
+      const t = Math.floor((n % 100) / 10);
+      const u = n % 10;
+      result.push(hundreds[h]);
+      if (t > 1) {
+        result.push(tens[t]);
+        result.push(u === 1 && isFemale ? "одна" : u === 2 && isFemale ? "две" : belowTwenty[u]);
+      } else {
+        if (t * 10 + u > 0) {
+          if (t * 10 + u === 1 && isFemale) result.push("одна");
+          else if (t * 10 + u === 2 && isFemale) result.push("две");
+          else result.push(belowTwenty[t * 10 + u]);
+        }
+      }
+      return result.filter(Boolean).join(" ");
+    };
+  
+    const parts = [];
+  
+    const integerPart = Math.floor(num);
+    const fractionalPart = Math.round((num - integerPart) * 100);
+  
+    const billions = Math.floor(integerPart / 1e9);
+    const millions = Math.floor((integerPart % 1e9) / 1e6);
+    const thousands = Math.floor((integerPart % 1e6) / 1e3);
+    const remainder = integerPart % 1e3;
+  
+    if (billions) parts.push(`${convertTriplet(billions)} ${getForm(billions, billionsForms)}`);
+    if (millions) parts.push(`${convertTriplet(millions)} ${getForm(millions, millionsForms)}`);
+    if (thousands) parts.push(`${convertTriplet(thousands, true)} ${getForm(thousands, thousandsForms)}`);
+    if (remainder || parts.length === 0) parts.push(`${convertTriplet(remainder)} рублей`);
+  
+    const kopecks = fractionalPart.toString().padStart(2, "0");
+    const kopeckWords = fractionalPart === 0 ? "ноль копеек" : `${convertTriplet(fractionalPart)} копеек`;
+  
+    return `${parts.join(" ")} ${kopeckWords}`.replace(/\s+/g, " ").trim();
+  };
+
+  const formatDateDDMMYYYY = (date) => {
+    if (!date) return "N/A";
+    const d = new Date(date);
+    if (isNaN(d)) return "N/A";
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}.${month}.${year}`;
+  };
+
+
+
+
   return (
     <div className="contract-page">
       <div className="contract-popup-overlay">
@@ -205,7 +291,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
                       <td className="col-3">40703810 9 02570 000043</td>
                     </tr>
 
-                    {/* ✅ Dynamic participant info */}
+                    {/* Dynamic participant info */}
                     <tr>
                       <td className="col-1">
                         Исполнитель: Автономная некоммерческая организация
@@ -213,8 +299,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
                         онкологическая программа «ЕАФО» (АНО "ЕАФО")
                         <br />
                         <br />
-                        Заказчик: {formData.full_name} ({formData.date_of_birth}{" "}
-                        г.р),
+                        Заказчик: {formData.full_name} ({formatDateDDMMYYYY(formData.date_of_birth) || ""} г.р),
                         <br />
                         контактные данные: {formData.email}; тел.:{" "}
                         {formData.phone_no}
@@ -227,7 +312,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
 
                 <h2 style={{ margin: "5px 0px", fontSize: "16px" }}>
                   Счет-оферта на оплату № {formData.agreement_number} от{" "}
-                  {formData.agreement_date}
+                  {formatDateDDMMYYYY(formData.agreement_date) || ""} г
                 </h2>
 
                 <p style={{ textDecoration: "underline", marginBottom: "5px" }}>
@@ -254,7 +339,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
                       <td>Заказчик:</td>
                       <td>
                         {formData.full_name} (
-                        {new Date(formData.date_of_birth).toLocaleDateString()})
+                          {formatDateDDMMYYYY(formData.date_of_birth) || ""} г)
                         <br />
                         E-mail: {formData.email}; Тел.: {formData.phone_no}
                       </td>
@@ -263,7 +348,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
                       <td>Основание:</td>
                       <td>
                         Договор № {formData.agreement_number} от{" "}
-                        {formData.agreement_date}
+                        {formatDateDDMMYYYY(formData.agreement_date) || ""} г.
                       </td>
                     </tr>
                   </tbody>
@@ -353,7 +438,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
                     {formatCurrency(formData.total_amount)}.
                   </p>
                   <p style={{ fontSize: "14px" }}>
-                    Сумма прописью: <b>десять рублей 00 копеек</b>
+                    Сумма прописью: <b>{numberToWordsRussian(parseFloat(formData.total_amount || 0))}</b>
                   </p>
 
                   {/* Compact table for total and VAT */}
@@ -375,7 +460,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
                       target="_blank"
                       style={{ color: "#007BFF", textDecoration: "none" }}
                     >
-                      https://path.eafo.info/ru/ (Event website Russian)
+                      https://www.basic.eafo.info
                     </a>
                     <br />и Политикой оператора в отношении персональных данных,
                     опубликованной на сайте:
@@ -398,9 +483,9 @@ const ContractDocument = ({ data = {}, onClose }) => {
                       target="_blank"
                       style={{ color: "#007BFF", textDecoration: "none" }}
                     >
-                      https://path.eafo.info/ru/
+                      https://www.basic.eafo.info: 
                     </a>
-                    в письменной форме (п.п.2,3 ст.434, п.3 ст.438 ГК РФ), а
+                     в письменной форме (п.п.2,3 ст.434, п.3 ст.438 ГК РФ), а
                     также письменное согласие на обработку персональных данных
                     согласно Политики оператора в отношении персональных данных,
                     опубликованной на сайте:

@@ -12,6 +12,7 @@ import "./i18n";
 import Document from "./components/Document";
 import EAFOWaterLoader from "./components/EAFOWaterLoader";
 import OfflinePage from "./components/OfflinePage"; // Import the OfflinePage
+import PaymentSuccess from "./components/PaymentSuccess";
 
 // ✅ Lazy-loaded components
 const Dashboard = lazy(() => import("./components/Dashboard"));
@@ -179,6 +180,7 @@ const App = () => {
                      <Route path="/" element={<AuthForm />} />
                      <Route path="/register" element={<RegisterPage />} />
                      <Route path="/forget-password" element={<ForgetPasswordPage />} />
+
          
                      {/* 🔒 Protected Routes */}
                      <Route

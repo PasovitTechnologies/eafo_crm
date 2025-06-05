@@ -274,7 +274,12 @@
     "contract": "Счета",
     "orderId": "Номер заказа",
     "invoiceNumber":"Номер счета",
-     "paymentMethod":"Способ оплаты"
+    "paymentMethod":"Способ оплаты",
+    "markAsPaid": "Отметить как оплачено",
+    "markAsFree": "Сделать участника бесплатным",
+    "markAsFreeStatus": "Отмечен как бесплатный",
+    "generateInvoiceOnly": "Генерировать без оплаты Ссылку"
+
   }
   ,
   "CourseManager": {

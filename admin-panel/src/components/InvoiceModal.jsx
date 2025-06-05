@@ -18,7 +18,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
 
-
 const InvoiceModal = ({
   submission,
   isOpen,
@@ -316,23 +315,24 @@ const InvoiceModal = ({
       );
 
       if (response.data.success) {
-        console.log("✅ Invoice email sent successfully:", response.data);
+        console.log("Invoice email sent successfully:", response.data);
         setShowPopup(true);
         fetchPaymentHistory();
         setPaymentUrl("");
+
+        setTimeout(() => {
+          setShowPopup(false);
+        }, 3000);
       } else {
-        console.error(
-          "❌ Failed to send invoice email:",
-          response.data.message
-        );
+        console.error("Failed to send invoice email:", response.data.message);
       }
     } catch (error) {
       console.error(
-        "❌ Error sending email request:",
+        "Error sending email request:",
         error.response?.data || error.message
       );
       alert(
-        `❌ Error: ${error.response?.data?.message || "Failed to send invoice"}`
+        `Error: ${error.response?.data?.message || "Failed to send invoice"}`
       );
     } finally {
       setEmailSending(false);
@@ -434,18 +434,18 @@ const InvoiceModal = ({
   const handleViewAkt = (payment) => {
     console.log("🧾 handleViewAkt clicked", payment); // ✅ Debug log
 
-    if (getRealPaymentStatus(payment) === "paid" && userData) {
+    if (userData) {
       console.log("✅ Valid paid payment, opening AKT modal");
 
       const aktDetails = {
-        full_name: `${userData.personalDetails.title} ${userData.personalDetails.firstName} ${userData.personalDetails.lastName}`,
+        full_name: `${userData.personalDetails.lastName} ${userData.personalDetails.firstName} ${userData.personalDetails.lastName}`,
         date_of_birth: new Date(
           userData.personalDetails.dob
         ).toLocaleDateString(),
         email: userData.email,
         phone_no: userData.personalDetails.phone || "N/A",
         agreement_number: `${payment.invoiceNumber}`,
-        agreement_date: new Date().toLocaleDateString(),
+        agreement_date: `${payment.paidAt}`,
         service_name: payment.package,
         total_amount: `${payment.amount} ${payment.currency}`,
         userData,
@@ -469,14 +469,14 @@ const InvoiceModal = ({
     if (userData) {
       // Removed the check for payment status
       const aktDetails = {
-        full_name: `${userData.personalDetails.title} ${userData.personalDetails.firstName} ${userData.personalDetails.lastName}`,
+        full_name: `${userData.personalDetails.lastName} ${userData.personalDetails.firstName} ${userData.personalDetails.lastName}`,
         date_of_birth: new Date(
           userData.personalDetails.dob
         ).toLocaleDateString(),
         email: userData.email,
         phone_no: userData.personalDetails.phone || "N/A",
         agreement_number: `${payment.invoiceNumber}`,
-        agreement_date: new Date().toLocaleDateString(),
+        agreement_date: `${payment.paidAt}`,
         service_name: payment.package,
         total_amount: `${payment.amount} ${payment.currency}`,
         userData,
@@ -608,18 +608,17 @@ const InvoiceModal = ({
     }
   };
 
-
   const handleFreeCheckboxChange = async (e) => {
     const checked = e.target.checked;
-  
+
     console.log("📥 Free checkbox changed:", checked);
-  
+
     if (!checked) {
       console.log("🛑 Unchecked – skipping free marking.");
       setIsFreeParticipant(false);
       return;
     }
-  
+
     const result = await Swal.fire({
       title: "Confirm Free Access",
       text: "Are you sure you want to mark this participant as free?",
@@ -628,13 +627,13 @@ const InvoiceModal = ({
       confirmButtonText: "Yes, make free",
       cancelButtonText: "Cancel",
     });
-  
+
     if (result.isConfirmed) {
       try {
         console.log("✅ Confirmed. Sending request to mark as free...");
         setIsFreeParticipant(true);
         const token = localStorage.getItem("token");
-  
+
         const response = await axios.put(
           `${baseUrl}/api/user/${submission.email}/courses/${courseId}/free`,
           {
@@ -646,12 +645,18 @@ const InvoiceModal = ({
             },
           }
         );
-  
+
         console.log("📤 Free mark response:", response.data);
-  
+
         if (response.data.success) {
-          Swal.fire("Marked Free", "The participant was marked as free.", "success");
+          Swal.fire(
+            "Marked Free",
+            "The participant was marked as free.",
+            "success"
+          );
           fetchPaymentHistory();
+          await fetchCoursePayments(); // <-- Add this line
+
         } else {
           throw new Error(response.data.message || "Failed to mark as free");
         }
@@ -665,9 +670,108 @@ const InvoiceModal = ({
       setIsFreeParticipant(false);
     }
   };
-  
-  
-  
+
+  const handleGenerateInvoiceOnly = async () => {
+    if (!submission.email || items.length === 0 || totalAmount <= 0) {
+      setError("Email and valid amount required.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    const orderNumber = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const invoiceData = {
+      amount: totalAmount,
+      currency: selectedMethod === "stripe" ? "INR" : "RUB",
+      email: submission.email,
+      courseId,
+      formId,
+      orderId: orderNumber,
+      transactionId: submission.transactionId,
+      package: items.map((item) => item.name).join(", "),
+      rawAmount: rawTotal.toFixed(2),
+      payableAmount: totalAmount.toFixed(2),
+      discountPercentage: discountPercentage || 0,
+      code: discountCode,
+      paymentUrl: null,
+      onlyInvoice: true,
+    };
+
+    console.log(invoiceData);
+
+    try {
+      const response = await axios.post(
+        `${baseUrl}/api/email/manual`,
+        invoiceData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.data.success) {
+        toast.success(`Invoice generated: ${response.data.invoiceNumber}`);
+        setPaymentUrl(""); // no URL since this is invoice-only
+        setOrderId(orderNumber);
+        fetchPaymentHistory();
+        
+      } else {
+        throw new Error(response.data.message || "Failed to generate invoice");
+      }
+    } catch (error) {
+      console.error("Invoice generation error:", error);
+      setError(error.response?.data?.message || "Failed to generate invoice");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMarkAsPaid = async (payment) => {
+    const confirmed = await Swal.fire({
+      title: "Confirm Payment",
+      text: `Are you sure you want to mark invoice ${payment.invoiceNumber} as paid?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, mark as paid",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirmed.isConfirmed) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `${baseUrl}/api/email/payment/mark-paid`,
+        {
+          invoiceNumber: payment.invoiceNumber,
+          courseId,
+          email: submission.email,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        toast.success(`Invoice ${payment.invoiceNumber} marked as paid`);
+        fetchPaymentHistory();
+        await fetchCoursePayments(); // <-- Add this line
+
+      } else {
+        throw new Error(response.data.message || "Failed to update status");
+      }
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Error updating payment status"
+      );
+    }
+  };
 
   return (
     <>
@@ -758,6 +862,14 @@ const InvoiceModal = ({
           )}
         </div>
 
+        <button
+          onClick={handleGenerateInvoiceOnly}
+          disabled={loading || totalAmount <= 0}
+          className="generate-invoice-btn"
+        >
+         {t("InvoiceModal.generateInvoiceOnly")}
+        </button>
+
         <button onClick={handlePayment} disabled={loading || totalAmount <= 0}>
           {loading
             ? t("InvoiceModal.generateLink")
@@ -809,25 +921,24 @@ const InvoiceModal = ({
             </div>
           </div>
         )}
-      <div className="free-access-section">
-  <label className="free-access-control">
-    <input
-      type="checkbox"
-      checked={isFreeParticipant}
-      onChange={handleFreeCheckboxChange}
-      className="free-access-checkbox"
-    />
-    <span className="free-access-labe">Make this participant free</span>
-  </label>
 
-  {isFreeParticipant && (
-    <div className="free-access-status">✅ Marked as Free</div>
-  )}
-</div>
+        <div className="free-access-section">
+          <label className="free-access-control">
+            <input
+              type="checkbox"
+              checked={isFreeParticipant}
+              onChange={handleFreeCheckboxChange}
+              className="free-access-checkbox"
+            />
+            <span className="free-access-labe">{t("InvoiceModal.markAsFree")}</span>
+          </label>
 
+          {isFreeParticipant && (
+            <div className="free-access-status">{t("InvoiceModal.markAsFreeStatus")}</div>
+          )}
+        </div>
 
-
-
+        
 
         <div className="payment-history">
           <h3>{t("InvoiceModal.paymentHistory")}</h3>
@@ -835,7 +946,11 @@ const InvoiceModal = ({
             <p className="error-message">{error}</p>
           ) : paymentHistory.length > 0 ? (
             <ul className="payment-info-list">
-              {paymentHistory.map((payment, index) => (
+              {paymentHistory
+               .filter((payment) => !!payment.invoiceNumber)
+              .map((payment, index) => (
+
+                
                 <li key={index} className="payment-info-item">
                   <div>
                     <p>
@@ -857,27 +972,29 @@ const InvoiceModal = ({
                     <p>
                       <strong>{t("InvoiceModal.date")}:</strong> {payment.time}
                     </p>
+                    {payment.paymentLink && (
+                      <div className="payment-link-container">
+                        <a
+                          href={payment.paymentLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {t("InvoiceModal.paymentLink")}
+                        </a>
 
-                    <div className="payment-link-container">
-                      <a
-                        href={payment.paymentLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {t("InvoiceModal.paymentLink")}
-                      </a>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(payment.paymentLink);
+                            toast.success("Link copied!");
+                          }}
+                          className="copy-button"
+                          title={t("InvoiceModal.copyLink")}
+                        >
+                          <FaRegCopy size={18} />
+                        </button>
+                      </div>
+                    )}
 
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(payment.paymentLink);
-                          toast.success("Link copied!");
-                        }}
-                        className="copy-button"
-                        title={t("InvoiceModal.copyLink")}
-                      >
-                        <FaRegCopy size={18} />
-                      </button>
-                    </div>
                     <div className="buttons-container">
                       <div className="payment-actions">
                         {/* AKT Button - Only if paid */}
@@ -929,6 +1046,18 @@ const InvoiceModal = ({
                           </button>
                         </div>
                       )}
+                    </div>
+                    <div className="mark-paid-section">
+                      <label>
+                        <input
+                          type="checkbox"
+                          onChange={() => handleMarkAsPaid(payment)}
+                          disabled={getRealPaymentStatus(payment) === "paid"}
+                          checked={getRealPaymentStatus(payment) === "paid"} // <- controlled by status
+                        />
+
+                        <span style={{ marginLeft: "5px" }}>{t("InvoiceModal.markAsPaid")}</span>
+                      </label>
                     </div>
                   </div>
                 </li>

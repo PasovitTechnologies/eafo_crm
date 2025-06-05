@@ -62,45 +62,77 @@ const AktDocument = ({ data = {}, onClose }) => {
   };
 
   const numberToWordsRussian = (num) => {
-    if (!num) return "ноль рублей ноль копеек";
-
+    if (typeof num !== "number" || isNaN(num)) return "ноль рублей ноль копеек";
+  
     const belowTwenty = [
       "ноль", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять", "десять",
       "одиннадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать",
       "семнадцать", "восемнадцать", "девятнадцать"
     ];
-
+  
     const tens = [
-      "", "десять", "двадцать", "тридцать", "сорок", "пятьдесят",
+      "", "", "двадцать", "тридцать", "сорок", "пятьдесят",
       "шестьдесят", "семьдесят", "восемьдесят", "девяносто"
     ];
-
+  
     const hundreds = [
       "", "сто", "двести", "триста", "четыреста",
       "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот"
     ];
-
-    const convert = (n) => {
-      if (n < 20) return belowTwenty[n];
-      if (n < 100) return `${tens[Math.floor(n / 10)]} ${belowTwenty[n % 10]}`.trim();
-      if (n < 1000) {
-        const h = Math.floor(n / 100);
-        const remainder = n % 100;
-        return `${hundreds[h]} ${convert(remainder)}`.trim();
-      }
-      return n.toString();
+  
+    const thousandsForms = ["тысяча", "тысячи", "тысяч"];
+    const millionsForms = ["миллион", "миллиона", "миллионов"];
+    const billionsForms = ["миллиард", "миллиарда", "миллиардов"];
+  
+    const getForm = (n, forms) => {
+      const lastDigit = n % 10;
+      const lastTwoDigits = n % 100;
+      if (lastTwoDigits >= 11 && lastTwoDigits <= 14) return forms[2];
+      if (lastDigit === 1) return forms[0];
+      if (lastDigit >= 2 && lastDigit <= 4) return forms[1];
+      return forms[2];
     };
-
+  
+    const convertTriplet = (n, isFemale = false) => {
+      let result = [];
+      const h = Math.floor(n / 100);
+      const t = Math.floor((n % 100) / 10);
+      const u = n % 10;
+      result.push(hundreds[h]);
+      if (t > 1) {
+        result.push(tens[t]);
+        result.push(u === 1 && isFemale ? "одна" : u === 2 && isFemale ? "две" : belowTwenty[u]);
+      } else {
+        if (t * 10 + u > 0) {
+          if (t * 10 + u === 1 && isFemale) result.push("одна");
+          else if (t * 10 + u === 2 && isFemale) result.push("две");
+          else result.push(belowTwenty[t * 10 + u]);
+        }
+      }
+      return result.filter(Boolean).join(" ");
+    };
+  
+    const parts = [];
+  
     const integerPart = Math.floor(num);
     const fractionalPart = Math.round((num - integerPart) * 100);
-
-    const integerWords = convert(integerPart);
-    const fractionWords = fractionalPart === 0
-      ? "ноль копеек"
-      : `${convert(fractionalPart)} копеек`;
-
-    return `${integerWords} рублей ${fractionWords}`;
+  
+    const billions = Math.floor(integerPart / 1e9);
+    const millions = Math.floor((integerPart % 1e9) / 1e6);
+    const thousands = Math.floor((integerPart % 1e6) / 1e3);
+    const remainder = integerPart % 1e3;
+  
+    if (billions) parts.push(`${convertTriplet(billions)} ${getForm(billions, billionsForms)}`);
+    if (millions) parts.push(`${convertTriplet(millions)} ${getForm(millions, millionsForms)}`);
+    if (thousands) parts.push(`${convertTriplet(thousands, true)} ${getForm(thousands, thousandsForms)}`);
+    if (remainder || parts.length === 0) parts.push(`${convertTriplet(remainder)} рублей`);
+  
+    const kopecks = fractionalPart.toString().padStart(2, "0");
+    const kopeckWords = fractionalPart === 0 ? "ноль копеек" : `${convertTriplet(fractionalPart)} копеек`;
+  
+    return `${parts.join(" ")} ${kopeckWords}`.replace(/\s+/g, " ").trim();
   };
+  
 
   const formatCurrency = (amount) => {
     if (!amount) return "0.00 руб";
@@ -122,6 +154,17 @@ const AktDocument = ({ data = {}, onClose }) => {
       [name]: newValue,
     }));
   };
+
+  const formatDateDDMMYYYY = (date) => {
+    if (!date) return "N/A";
+    const d = new Date(date);
+    if (isNaN(d)) return "N/A";
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}.${month}.${year}`;
+  };
+  
   
 
   const handleSave = () => {
@@ -171,7 +214,7 @@ const AktDocument = ({ data = {}, onClose }) => {
           <div className="akt-content" ref={aktRef}>
             <div className="container">
               <p className="heading" style={{ fontSize: "25px", fontWeight: "bold", textDecoration: "underline" }}>
-              Акт сдачи-приемки услуг № OF {formData.agreement_number?.slice(2) || "N/A"} от {formData.agreement_date || "N/A"}
+              Акт сдачи-приемки услуг № {formData.agreement_number|| "N/A"} {formatDateDDMMYYYY(formData.agreement_date) || ""} г от 8 августа 2025 г. 
             </p>
 
             <div style={{ marginTop: "20px" }}>
@@ -186,13 +229,13 @@ const AktDocument = ({ data = {}, onClose }) => {
                   </tr>
                   <tr>
                     <td>Заказчик:</td>
-                    <td>{formData.full_name} ({new Date(formData.date_of_birth).toLocaleDateString()})<br />
+                    <td>{formData.full_name} ({formatDateDDMMYYYY(formData.date_of_birth) || ""} г.р.)<br />
                       E-mail: {formData.email}; Тел.: {formData.phone_no}
                     </td>
                   </tr>
                   <tr>
                     <td>Основание:</td>
-                    <td>Договор № {formData.agreement_number} от {formData.agreement_date}</td>
+                    <td>Договор № {formData.agreement_number} от {formatDateDDMMYYYY(formData.agreement_date) || ""} г.</td>
                   </tr>
                 </tbody>
               </table>
@@ -212,10 +255,26 @@ const AktDocument = ({ data = {}, onClose }) => {
                   <tr>
                     <td>1</td>
                     <td>{formData.service_name}</td>
-                    <td>1</td>
+                    <td style={{textAlign:"right"}}>1</td>
                     <td>шт</td>
-                    <td>{formatCurrency(formData.total_amount)}</td>
-                    <td>{formatCurrency(formData.total_amount)}</td>
+                    <td style={{textAlign:"right"}}>{formatCurrency(formData.total_amount)}</td>
+                    <td style={{textAlign:"right"}}>{formatCurrency(formData.total_amount)}</td>
+                  </tr>
+                  <tr>
+                    <td style={{border:"none"}}></td>
+                    <td style={{border:"none"}}></td>
+                    <td style={{border:"none"}}></td>
+                    <td style={{border:"none"}}></td>
+                    <td style={{border:"none",textAlign:"right"}}>Итого:</td>
+                    <td style={{textAlign:"right"}}>{formatCurrency(formData.total_amount)}</td>
+                  </tr>
+                  <tr>
+                    <td style={{border:"none"}}></td>
+                    <td style={{border:"none"}}></td>
+                    <td style={{border:"none"}}></td>
+                    <td style={{border:"none"}}></td>
+                    <td style={{border:"none",textAlign:"right"}}>Без налога (НДС)</td>
+                    <td style={{border:"none",textAlign:"right"}}>-</td>
                   </tr>
                 </tbody>
               </table>

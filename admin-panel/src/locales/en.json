@@ -275,7 +275,12 @@
     "invoiceNumber":"Invoice Number",
     "whatsappSuccess": "WhatsApp message queued successfully!",
     "whatsappError": "Failed to send WhatsApp: {{error}}",
-    "paymentMethod":"Payment Method"
+    "paymentMethod":"Payment Method",
+    "markAsPaid":"Mark as Paid",
+    "markAsFree":"Make this participant free",
+    "markAsFreeStatus":"Marked as Free",
+    "generateInvoiceOnly": "Generate Without Payment Link"
+
   },
   "CourseManager": {
     "title": "Course Manager",

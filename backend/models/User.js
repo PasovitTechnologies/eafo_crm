@@ -98,7 +98,7 @@ const userSchema = new mongoose.Schema(
             currency: { type: String, required: false },         // e.g., "INR"
             orderId: { type: String, required: false },         // e.g., "INR"
 
-            // 👇 Fields you will push LATER during payment processing
+            // Fields you will push LATER during payment processing
             invoiceNumber: { type: String, required: false, default: "" },
             paymentId: { type: String, required: false },         // Unique ID from payment gateway
             paymentLink: { type: String, required: false },       // URL to payment link
@@ -108,6 +108,7 @@ const userSchema = new mongoose.Schema(
             discountPercentage: { type: String, required: false },
             discountStatus: { type: String, required: false },
             payableAmount: { type: String, required: false },
+            paidAt: { type: Date },
 
           }
         ],

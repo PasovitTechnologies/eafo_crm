@@ -220,20 +220,34 @@ router.post("/send", async (req, res) => {
 
     const coursePayment = course.payments.find(p => p.transactionId === transactionId);
     if (!coursePayment) throw new Error("Transaction ID not found in course payments");
+    
 
 
     // Generate next Invoice Number
-    let currentInvoiceNumber = course.currentInvoiceNumber || "INV/EAFO-000-00001";
-    const match = currentInvoiceNumber.match(/(\d{5})$/);
-    let nextInvoiceNumber;
+    // Generate next Invoice Number
+// Generate next Invoice Number
+let currentInvoiceNumber = course.currentInvoiceNumber || "EAFO-003/25/0100";
 
-    if (match) {
-      const currentNumber = parseInt(match[0], 10);
-      nextInvoiceNumber = currentInvoiceNumber.replace(/\d{5}$/, (currentNumber + 1).toString().padStart(5, "0"));
-      course.currentInvoiceNumber = nextInvoiceNumber;
-    } else {
-      nextInvoiceNumber = "INV/EAFO-000-00001"; // fallback
-    }
+// Match last 4 digits in the format EAFO-003/25/0100
+const match = currentInvoiceNumber.match(/(\d{4})$/);
+let nextInvoiceNumber;
+
+if (match) {
+  const currentNumber = parseInt(match[1], 10);
+  const newNumber = (currentNumber + 1).toString().padStart(4, "0");
+
+  // Replace only the last 4 digits
+  nextInvoiceNumber = currentInvoiceNumber.replace(/(\d{4})$/, newNumber);
+
+  // Save it to course
+  course.currentInvoiceNumber = nextInvoiceNumber;
+} else {
+  // Fallback if format invalid
+  nextInvoiceNumber = "EAFO-003/25/0100";
+  course.currentInvoiceNumber = nextInvoiceNumber;
+}
+
+
 
 
     // Update User Payment
@@ -337,16 +351,22 @@ router.post("/send-email", async (req, res) => {
     if (!course) throw new Error("Course not found");
 
     // Generate Invoice Number
-    let currentInvoiceNumber = course.currentInvoiceNumber || "INV/EAFO-000-00001";
-    const match = currentInvoiceNumber.match(/(\d{5})$/);
-    let nextInvoiceNumber = "INV/EAFO-000-00001"; // default fallback
+    // Generate Invoice Number
+let currentInvoiceNumber = course.currentInvoiceNumber || "EAFO-003/25/0100";
+const match = currentInvoiceNumber.match(/(\d{4})$/);
+let nextInvoiceNumber = "EAFO-003/25/0100"; // fallback
 
-    if (match) {
-      const currentNumber = parseInt(match[0], 10);
-      nextInvoiceNumber = currentInvoiceNumber.replace(/\d{5}$/, (currentNumber + 1).toString().padStart(5, "0"));
-    }
+if (match) {
+  const currentNumber = parseInt(match[0], 10);
+  const incremented = (currentNumber + 1).toString().padStart(4, "0");
+  nextInvoiceNumber = currentInvoiceNumber.replace(/\d{4}$/, incremented);
+}
 
     course.currentInvoiceNumber = nextInvoiceNumber;
+
+console.log("Current Invoice:", currentInvoiceNumber);
+console.log("Next Invoice:", nextInvoiceNumber);
+
 
     // Create New Payment Entry
     const newPayment = {
@@ -481,6 +501,151 @@ router.post("/resend", async (req, res) => {
   } catch (error) {
     console.error("Resend email error:", error.message);
     return res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+
+router.post("/manual", async (req, res) => {
+  const {
+    email,
+    courseId,
+    transactionId,
+    orderId,
+    paymentUrl,
+    currency,
+    package: packageName,
+    amount,
+    payableAmount,
+    discountPercentage,
+    code
+  } = req.body;
+
+  if (!email || !courseId || !transactionId || !orderId) {
+    return res.status(400).json({ success: false, message: "Missing required data." });
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const user = await User.findOne({ email }).session(session);
+    if (!user) throw new Error("User not found");
+
+    const userCourse = user.courses.find(c => c.courseId.toString() === courseId);
+    if (!userCourse) throw new Error("User is not enrolled in this course");
+
+    const userPayment = userCourse.payments.find(p => p.transactionId === transactionId);
+    if (!userPayment) throw new Error("Transaction ID not found in user payments");
+
+    const course = await Course.findById(courseId).session(session);
+    if (!course) throw new Error("Course not found");
+
+    const coursePayment = course.payments.find(p => p.transactionId === transactionId);
+    if (!coursePayment) throw new Error("Transaction ID not found in course payments");
+
+    // Generate next Invoice Number
+    let currentInvoiceNumber = course.currentInvoiceNumber || "EAFO-003/25/0100";
+    const match = currentInvoiceNumber.match(/(\d{4})$/);
+    let nextInvoiceNumber;
+
+    if (match) {
+      const currentNumber = parseInt(match[1], 10);
+      const newNumber = (currentNumber + 1).toString().padStart(4, "0");
+      nextInvoiceNumber = currentInvoiceNumber.replace(/(\d{4})$/, newNumber);
+      course.currentInvoiceNumber = nextInvoiceNumber;
+    } else {
+      nextInvoiceNumber = "EAFO-003/25/0100";
+      course.currentInvoiceNumber = nextInvoiceNumber;
+    }
+
+    // Update User Payment
+    Object.assign(userPayment, {
+      invoiceNumber: nextInvoiceNumber,
+      paymentLink: paymentUrl || null,
+      status: "Pending",
+      orderId,
+      time: moment.tz("Europe/Moscow").toDate(),
+      package: packageName,
+      amount,
+      currency,
+      payableAmount,
+      discountPercentage,
+      discountCode: code
+    });
+
+    // Update Course Payment
+    Object.assign(coursePayment, {
+      invoiceNumber: nextInvoiceNumber,
+      paymentLink: paymentUrl || null,
+      orderId,
+      status: "Pending",
+      time: moment.tz("Europe/Moscow").toDate(),
+      package: packageName,
+      amount,
+      currency,
+      payableAmount,
+      discountPercentage,
+      discountCode: code
+    });
+
+    // Save updates
+    await user.save({ session });
+    await course.save({ session });
+    await session.commitTransaction();
+
+    return res.status(200).json({
+      success: true,
+      message: "Invoice generated and saved successfully",
+      invoiceNumber: nextInvoiceNumber
+    });
+
+  } catch (error) {
+    await session.abortTransaction();
+    console.error("Invoice generation error:", error);
+    return res.status(500).json({ success: false, message: error.message });
+  } finally {
+    session.endSession();
+  }
+});
+
+router.put("/payment/mark-paid", async (req, res) => {
+  const { invoiceNumber, email, courseId } = req.body;
+
+  if (!invoiceNumber || !email || !courseId) {
+    return res.status(400).json({ success: false, message: "Missing required fields" });
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const user = await User.findOne({ email }).session(session);
+    const course = await Course.findById(courseId).session(session);
+    if (!user || !course) throw new Error("User or course not found");
+
+    // Update in course
+    const coursePayment = course.payments.find(p => p.invoiceNumber === invoiceNumber);
+    if (!coursePayment) throw new Error("Invoice not found in course");
+    coursePayment.status = "Paid";
+
+    // Update in user course payments
+    const userCourse = user.courses.find(c => c.courseId.toString() === courseId);
+    if (!userCourse) throw new Error("User is not enrolled in this course");
+
+    const userPayment = userCourse.payments.find(p => p.invoiceNumber === invoiceNumber);
+    if (!userPayment) throw new Error("Invoice not found in user payments");
+    userPayment.status = "Paid";
+
+    await course.save({ session });
+    await user.save({ session });
+    await session.commitTransaction();
+
+    res.status(200).json({ success: true, message: "Payment marked as paid" });
+  } catch (error) {
+    await session.abortTransaction();
+    res.status(500).json({ success: false, message: error.message });
+  } finally {
+    session.endSession();
   }
 });
 

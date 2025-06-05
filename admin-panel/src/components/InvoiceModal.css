@@ -255,6 +255,9 @@ body.modal-open {
   animation: pulse 1.5s infinite;
 }
 
+.generate-invoice-btn{
+  margin-right: 10px;
+}
 @keyframes pulse {
   0%, 100% { opacity: 0.6; }
   50% { opacity: 1; }
@@ -447,7 +450,9 @@ body.modal-open {
   color: #276749;
   font-weight: 500;
 }
-
+.mark-paid-section{
+  margin-top: 10px;
+}
 
 /* ================================
    Responsive Design
@@ -489,6 +494,9 @@ body.modal-open {
     flex-direction: column;
     gap: 10px;
   }
+  .generate-invoice-btn{
+    margin-bottom: 10px;
+  }
   
 }
 
@@ -529,4 +537,5 @@ body.modal-open {
   .payment-actions button{
     flex: 1;
   }
+  
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./InvoiceManager.css";
 import { FiArrowLeft, FiSearch, FiFilter } from "react-icons/fi";
-import { useTranslation } from "react-i18next"; // 🌍 Translation
+import { useTranslation } from "react-i18next"; // Translation
 
 const InvoiceManager = () => {
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -12,7 +12,7 @@ const InvoiceManager = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [showFilterModal, setShowFilterModal] = useState(false);
   
-  const { t, i18n } = useTranslation();  // 🌍 Translation hook
+  const { t, i18n } = useTranslation();  // Translation hook
   const currentLanguage=i18n.language;
   const navigate = useNavigate();
   const filterRef = useRef(null);

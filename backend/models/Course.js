@@ -39,7 +39,8 @@ const paymentSchema = new mongoose.Schema({
   discountPercentage: { type: String, required: false },
   discountStatus: { type: String, required: false },
   payableAmount: { type: String, required: false },
- 
+  paidAt: { type: Date },
+  
   
 
   status: {
