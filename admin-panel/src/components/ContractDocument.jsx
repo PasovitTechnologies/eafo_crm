@@ -339,7 +339,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
                       <td>Заказчик:</td>
                       <td>
                         {formData.full_name} (
-                          {formatDateDDMMYYYY(formData.date_of_birth) || ""} г)
+                          {formatDateDDMMYYYY(formData.date_of_birth) || ""} г.р)
                         <br />
                         E-mail: {formData.email}; Тел.: {formData.phone_no}
                       </td>
@@ -348,7 +348,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
                       <td>Основание:</td>
                       <td>
                         Договор № {formData.agreement_number} от{" "}
-                        {formatDateDDMMYYYY(formData.agreement_date) || ""} г.р
+                        {formatDateDDMMYYYY(formData.agreement_date) || ""} г.
                       </td>
                     </tr>
                   </tbody>
