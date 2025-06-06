@@ -646,106 +646,100 @@ const CourseDetails = () => {
             </div>
 
             {showPaymentPopup && (
-              <div className="payment-overlay" onClick={closePaymentPopup}>
-                <div
-                  className="payment-popup"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {/* Close Icon */}
-                  <button
-                    className="close-icon-btn"
-                    onClick={closePaymentPopup}
-                    aria-label="Close"
-                  >
-                    <FaTimes className="close-icon" />
-                  </button>
+  <div className="payment-overlay" onClick={closePaymentPopup}>
+    <div className="payment-popup" onClick={(e) => e.stopPropagation()}>
+      {/* Close Icon */}
+      <button
+        className="close-icon-btn"
+        onClick={closePaymentPopup}
+        aria-label="Close"
+      >
+        <FaTimes className="close-icon" />
+      </button>
 
-                  <h2 className="popup-title">
-                    {t("course_details.payment_details")}
-                  </h2>
+      <h2 className="popup-title">
+        {t("course_details.payment_details")}
+      </h2>
 
-                  <div className="payment-list">
-                    {payments.length > 0 ? (
-                      payments.map((payment) => {
-                        // Crosscheck real status from Course
-                        const coursePayment = course?.payments?.find(
-                          (cp) => cp.invoiceNumber === payment.invoiceNumber
-                        );
-                        const realStatus = coursePayment
-                          ? coursePayment.status
-                          : payment.status;
+      <div className="payment-list">
+        {payments.length > 0 ? (
+          payments.map((payment) => {
+            const coursePayment = course?.payments?.find(
+              (cp) => cp.invoiceNumber === payment.invoiceNumber
+            );
+            const realStatus = coursePayment
+              ? coursePayment.status
+              : payment.status;
 
-                        // Disable button if Paid, Expired, or Not created
-                        const disablePayButton = [
-                          "Paid",
-                          "Expired",
-                          "Not created",
-                        ].includes(realStatus);
+            const disablePayButton = [
+              "Paid",
+              "Expired",
+              "Not created",
+            ].includes(realStatus);
 
-                        return (
-                          <div className="payment-card" key={payment.paymentId}>
-                            <div>
-                              <div className="payment-header">
-                                <h3>{payment.package}</h3>
-                              </div>
+            return (
+              <div className="payment-card" key={payment.transactionId}>
+                <div className="payment-info">
+                  {payment.packages.map((pkg, idx) => (
+                    <p key={idx}>
+                      <strong>{pkg.name}</strong>
+                    </p>
+                  ))}
+                  <p>
+                    {t("course_details.amount")}:{" "}
+                    <span className="payment-amount">
+                      {(payment.payableAmount ?? payment.totalAmount)} {payment.currency}
+                    </span>
+                  </p>
+                  <p>
+                    {t("course_details.status")}:{" "}
+                    <span
+                      className={`payment-status ${realStatus
+                        .toLowerCase()
+                        .replace(/\s/g, "-")}`}
+                    >
+                      {realStatus}
+                    </span>
+                  </p>
+                </div>
 
-                              <div className="payment-info">
-                                <p>
-                                  {t("course_details.amount")}:{" "}
-                                  <span className="payment-amount">
-                                    {payment.payableAmount} {payment.currency}
-                                  </span>
-                                </p>
-                                <p>
-                                  {t("course_details.status")}:{" "}
-                                  <span
-                                    className={`payment-status ${realStatus
-                                      .toLowerCase()
-                                      .replace(/\s/g, "-")}`}
-                                  >
-                                    {realStatus}
-                                  </span>
-                                </p>
-                              </div>
-                            </div>
-
-                            <div className="popup-buttons">
-                              {!disablePayButton ? (
-                                <button
-                                  className="payment-button"
-                                  onClick={() =>
-                                    handlePayNow(payment.paymentLink)
-                                  }
-                                >
-                                  {t("course_details.pay_now")}
-                                </button>
-                              ) : (
-                                <span
-                                  className={`payment-status ${realStatus
-                                    .toLowerCase()
-                                    .replace(/\s/g, "-")} payment-button`}
-                                >
-                                  {realStatus === "Paid"
-                                    ? t("course_details.paid")
-                                    : realStatus === "Expired"
-                                    ? t("course_details.payment_expired")
-                                    : t("course_details.not_created")}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="no-payments-message">
-                        <i className="fas fa-info-circle"></i>
-                        <p>{t("course_details.no_payments_available")}</p>
-                      </div>
-                    )}
-                  </div>
+                <div className="popup-buttons">
+                  {!disablePayButton ? (
+                    <button
+                      className="payment-button"
+                      onClick={() => handlePayNow(payment.paymentLink)}
+                    >
+                      {t("course_details.pay_now")}
+                    </button>
+                  ) : (
+                    <span
+                      className={`payment-status ${realStatus
+                        .toLowerCase()
+                        .replace(/\s/g, "-")} payment-button`}
+                    >
+                      {realStatus === "Paid"
+                        ? t("course_details.paid")
+                        : realStatus === "Expired"
+                        ? t("course_details.payment_expired")
+                        : t("course_details.not_created")}
+                    </span>
+                  )}
                 </div>
               </div>
-            )}
+            );
+          })
+        ) : (
+          <div className="no-payments-message">
+            <i className="fas fa-info-circle"></i>
+            <p>{t("course_details.no_payments_available")}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
+
 
 {showSubmissionPopup && (
   <div className="submission-overlay" onClick={() => setShowSubmissionPopup(false)}>
