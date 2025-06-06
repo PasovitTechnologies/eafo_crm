@@ -245,7 +245,9 @@
     "sendInvoice": "Отправить счет",
     "sendEmail": "Отправить email",
     "sendWhatsApp": "Отправить WhatsApp",
-    "noSubmissions": "Записей не найдено."
+    "noSubmissions": "Записей не найдено.",
+    "createInvoice": "Создать счет-фактуру"
+
   },
 
   "invoiceModal": {

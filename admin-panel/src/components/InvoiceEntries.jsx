@@ -431,7 +431,7 @@ const InvoiceEntries = () => {
   onClick={() => setShowInvoiceCreator(true)}
   className="create-invoice-btn"
 >
-  Create Invoice
+  {t("InvoiceEntries.createInvoice")}
 </button>
 
 
@@ -604,14 +604,17 @@ const InvoiceEntries = () => {
           courseId={courseId}
           discountCode={selectedSubmission.discountCode}
           discountPercentage={selectedSubmission.discountPercentage}
+          fullName={selectedSubmission.fullName}
         />
       )}
+
       {showEmailModal && (
         <EmailModal
           emailDetails={emailDetails}
           onClose={() => setShowEmailModal(false)}
         />
       )}
+
       {showWhatsAppModal && (
         <WhatsAppChatBot
           isOpen={showWhatsAppModal}
@@ -619,6 +622,7 @@ const InvoiceEntries = () => {
           onClose={() => setShowWhatsAppModal(false)}
         />
       )}
+
       {showTelegramModal && (
         <TelegramChatBot
           isOpen={showTelegramModal}
@@ -626,6 +630,7 @@ const InvoiceEntries = () => {
           onClose={() => setShowTelegramModal(false)}
         />
       )}
+
       {showInvoiceCreator && (
         <InvoiceCreator
         onClose={() => {

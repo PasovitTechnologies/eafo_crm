@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import "./RegistrationFormsViewer.css";
 
-const RegistrationFormsViewer = ({ email, onClose }) => {
+const RegistrationFormsViewer = ({ email, onClose, fullName }) => {
   const { t } = useTranslation();
   const [formsData, setFormsData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -39,7 +39,6 @@ const RegistrationFormsViewer = ({ email, onClose }) => {
   };
 
   return (
-    <div className="rfv-modal__backdrop">
       <div className="rfv-modal__container">
         <div className="rfv-modal__header">
           <h2 className="rfv-modal__title">{t('registrationForms.title')}</h2>
@@ -55,7 +54,10 @@ const RegistrationFormsViewer = ({ email, onClose }) => {
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
             <path d="M22 6l-10 7L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
           </svg>
-          <span className="rfv-user__email">{email}</span>
+          <div className="user-div">
+          <span className="rfv-user__email">{fullName}</span>
+          <span className="rfv-user__email">({email})</span>
+        </div>
         </div>
 
         {loading ? (
@@ -114,7 +116,6 @@ const RegistrationFormsViewer = ({ email, onClose }) => {
           </div>
         )}
       </div>
-    </div>
   );
 };
 

@@ -1,18 +1,5 @@
 /* Root styles */
-.rfv-modal__backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1120;
-    backdrop-filter: blur(4px);
-    animation: rfv-fadeIn 0.3s ease-out;
-  }
+
   
   @keyframes rfv-fadeIn {
     from { opacity: 0; }
@@ -194,7 +181,9 @@
     color: #2d3748;
     font-weight: 600;
   }
-  
+  .user-div{
+    display: flex;
+  }
   .rfv-form__course-id {
     font-size: 13px;
     color: #718096;
@@ -279,4 +268,14 @@
     .rfv-modal__container {
       padding: 32px;
     }
+    
   }
+
+  @media (max-width: 750px) {
+    .user-div{
+        display: flex;
+        flex-direction: column;
+      }
+  }
+
+  

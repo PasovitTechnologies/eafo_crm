@@ -245,7 +245,9 @@
     "sendInvoice": "Send Invoice",
     "sendEmail": "Send Email",
     "sendWhatsApp": "Send WhatsApp",
-    "noSubmissions": "No submissions found."
+    "noSubmissions": "No submissions found.",
+    "createInvoice": "Create Invoice"
+
   },
   "invoiceModal": {
     "title": "Payment Invoice",

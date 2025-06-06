@@ -7,7 +7,6 @@ import "react-toastify/dist/ReactToastify.css";
 import "./InvoiceCreator.css";
 import { useTranslation } from "react-i18next";
 
-
 const InvoiceCreator = ({ onClose, courseId }) => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [users, setUsers] = useState([]);
@@ -22,7 +21,6 @@ const InvoiceCreator = ({ onClose, courseId }) => {
   const [error, setError] = useState(null);
   const [emailSending, setEmailSending] = useState(false);
   const { t } = useTranslation();
-  
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -33,16 +31,24 @@ const InvoiceCreator = ({ onClose, courseId }) => {
         const courseRes = await fetch(`${baseUrl}/api/courses/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         if (!courseRes.ok) throw new Error("Failed to fetch course");
         const courseData = await courseRes.json();
         const paymentEmails = courseData.payments
           ?.filter((p) => !!p.email)
           .map((p) => p.email);
         const uniqueEmails = Array.from(new Set(paymentEmails));
-        const userOptions = uniqueEmails.map((email) => ({
-          value: email,
-          label: email,
-        }));
+
+        const userOptions = await Promise.all(
+          uniqueEmails.map(async (email) => {
+            const userDetails = await fetchUserDetailsByEmail(email);
+            const label = userDetails
+              ? `${userDetails.fullName} (${email})`
+              : email;
+            return { value: email, label };
+          })
+        );
+
         setUsers(userOptions);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -53,6 +59,31 @@ const InvoiceCreator = ({ onClose, courseId }) => {
       fetchUsers();
     }
   }, [courseId]);
+
+  const fetchUserDetailsByEmail = async (email) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${baseUrl}/api/user/${email}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) throw new Error("User not found");
+
+      const data = await response.json();
+      const fullName = `${data.personalDetails?.firstName || ""} ${
+        data.personalDetails?.middleName || ""
+      } ${data.personalDetails?.lastName || ""}`.trim();
+      const phoneWithCode = `${data.personalDetails?.phone || ""}`;
+
+      return { fullName, phone: phoneWithCode };
+    } catch (err) {
+      console.error("❌ Error fetching user details:", err);
+      return null;
+    }
+  };
 
   const handleAddItem = () => {
     const currency = selectedMethod === "alfabank" ? "RUB" : "INR";
@@ -229,7 +260,9 @@ const InvoiceCreator = ({ onClose, courseId }) => {
         <h2 className="invoice-title">{t("invoiceCreator.title")}</h2>
 
         <div className="invoice-section">
-          <label className="invoice-label">{t("invoiceCreator.selectUser")}</label>
+          <label className="invoice-label">
+            {t("invoiceCreator.selectUser")}
+          </label>
           <Select
             options={users}
             value={selectedUser}
@@ -237,15 +270,23 @@ const InvoiceCreator = ({ onClose, courseId }) => {
             placeholder={t("invoiceCreator.searchUser")}
             className="invoice-select"
             classNamePrefix="invoice-select"
+            filterOption={(option, input) =>
+              option.label.toLowerCase().includes(input.toLowerCase()) ||
+              option.value.toLowerCase().includes(input.toLowerCase())
+            }
           />
         </div>
 
         <div className="invoice-section">
-          <label className="invoice-label">{t("invoiceCreator.paymentMethod")}</label>
+          <label className="invoice-label">
+            {t("invoiceCreator.paymentMethod")}
+          </label>
           <div className="payment-method-buttons">
-          <button
+            <button
               type="button"
-              className={`method-btn ${selectedMethod === "alfabank" ? "active" : ""}`}
+              className={`method-btn ${
+                selectedMethod === "alfabank" ? "active" : ""
+              }`}
               onClick={() => {
                 setSelectedMethod("alfabank");
                 setItems(items.map((i) => ({ ...i, currency: "RUB" })));
@@ -255,7 +296,9 @@ const InvoiceCreator = ({ onClose, courseId }) => {
             </button>
             <button
               type="button"
-              className={`method-btn ${selectedMethod === "stripe" ? "active" : ""}`}
+              className={`method-btn ${
+                selectedMethod === "stripe" ? "active" : ""
+              }`}
               onClick={() => {
                 setSelectedMethod("stripe");
                 setItems(items.map((i) => ({ ...i, currency: "INR" })));
@@ -334,16 +377,17 @@ const InvoiceCreator = ({ onClose, courseId }) => {
             </div>
           ))}
 
-<div className="invoice-total-row">
-  <span className="invoice-total-label">{t("invoiceCreator.totalAmount")}:</span>
-  <span className="invoice-total-value">
-    {items
-      .reduce((acc, i) => acc + i.amount * i.quantity, 0)
-      .toFixed(2)}{" "}
-    {selectedMethod === "alfabank" ? "RUB" : "INR"}
-  </span>
-</div>
-
+          <div className="invoice-total-row">
+            <span className="invoice-total-label">
+              {t("invoiceCreator.totalAmount")}:
+            </span>
+            <span className="invoice-total-value">
+              {items
+                .reduce((acc, i) => acc + i.amount * i.quantity, 0)
+                .toFixed(2)}{" "}
+              {selectedMethod === "alfabank" ? "RUB" : "INR"}
+            </span>
+          </div>
 
           <button
             className="add-item-btn"
@@ -373,7 +417,9 @@ const InvoiceCreator = ({ onClose, courseId }) => {
 
           {paymentUrl && (
             <div className="payment-link-container">
-              <p className="payment-link-label">{t("invoiceCreator.paymentLink")}</p>
+              <p className="payment-link-label">
+                {t("invoiceCreator.paymentLink")}
+              </p>
               <a
                 href={paymentUrl}
                 target="_blank"
@@ -388,14 +434,21 @@ const InvoiceCreator = ({ onClose, courseId }) => {
                   onClick={handleSendEmail}
                   disabled={emailSending}
                 >
-                  {emailSending ? "Sending..." : <><i className="icon-email"></i> {t("invoiceCreator.email")}</>}
+                  {emailSending ? (
+                    "Sending..."
+                  ) : (
+                    <>
+                      <i className="icon-email"></i> {t("invoiceCreator.email")}
+                    </>
+                  )}
                 </button>
 
                 <button
                   className="share-btn whatsapp"
                   onClick={handleSendWhatsApp}
                 >
-                  <i className="icon-whatsapp"></i> {t("invoiceCreator.whatsapp")}
+                  <i className="icon-whatsapp"></i>{" "}
+                  {t("invoiceCreator.whatsapp")}
                 </button>
               </div>
             </div>

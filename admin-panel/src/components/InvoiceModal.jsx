@@ -27,6 +27,7 @@ const InvoiceModal = ({
   courseId,
   discountCode,
   discountPercentage,
+  fullName 
 }) => {
   const [items, setItems] = useState([]);
   const [selectedMethod, setSelectedMethod] = useState("");
@@ -882,7 +883,7 @@ const InvoiceModal = ({
       ></div>
 
       {/* Main Modal Container */}
-      <div className={`modern-invoice-modal ${isOpen ? "open" : ""}`}>
+      <div className={`modern-invoice-modal ${isOpen ? "open" : ""} ${showFormViewer ? "split-view" : ""}`}>
         {/* Modal Header with primary color */}
         <div className="modal-header">
           <h2 className="modal-title">{t("invoiceModal.title")}</h2>
@@ -927,7 +928,10 @@ const InvoiceModal = ({
                 strokeLinecap="round"
               />
             </svg>
-            <span>{submission.email}</span>
+            <div className="user-div">
+            <span>{submission.fullName}</span>
+            <span>({submission.email})</span>
+          </div>
           </div>
         </div>
 
@@ -1336,14 +1340,16 @@ const InvoiceModal = ({
         </div>
       )}
 
-      {showFormViewer && (
-        <div className="form-viewer-modal">
-          <RegistrationFormsViewer
-            email={submission.email}
-            onClose={handleCloseFormViewer}
-          />
-        </div>
-      )}
+{showFormViewer && (
+  <div className="form-viewer-split">
+    <RegistrationFormsViewer
+      email={submission.email}
+      onClose={handleCloseFormViewer}
+      fullName={fullName || submission.fullName || ""}
+    />
+  </div>
+)}
+
     </>
   );
 };
