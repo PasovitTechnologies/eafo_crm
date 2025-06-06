@@ -7,6 +7,15 @@
   overflow-y: hidden;
 
 }
+.item-modal-close{
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: #666;
+  transition: color 0.2s;
+  font-size: 16px;
+}
 .course-details-header {
   display: flex;
   justify-content: space-between;

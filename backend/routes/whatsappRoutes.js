@@ -169,8 +169,7 @@ router.post("/send", async (req, res) => {
 
 
 router.post("/send-wp", async (req, res) => {
-
-  const requiredFields = ["to", "message", "courseId", "orderId", "transactionId", "paymentUrl", "email"];
+  const requiredFields = ["to", "message", "courseId", "orderId", "transactionId", "paymentUrl", "email", "packages"];
   const missingFields = requiredFields.filter(field => !req.body[field]);
 
   if (missingFields.length > 0) {
@@ -181,106 +180,108 @@ router.post("/send-wp", async (req, res) => {
     });
   }
 
-  const { to, message, courseId, orderId, transactionId, paymentUrl, email, package: packageName, amount, currency, payableAmount, discountPercentage, code } = req.body;
+  const {
+    to,
+    message,
+    courseId,
+    orderId,
+    transactionId,
+    paymentUrl,
+    email,
+    packages,
+    payableAmount,
+    discountPercentage,
+    code,
+  } = req.body;
 
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
-
+    // Send WhatsApp message
     const response = await axios.post(
       `${WAPPI_BASE_URL}/api/sync/message/send`,
       { body: message, recipient: to },
       {
         headers: { Authorization: API_TOKEN },
         params: { profile_id: PROFILE_ID },
-        timeout: 30000
+        timeout: 30000,
       }
     );
-
 
     if (response.data?.status !== "done") {
       throw new Error("Failed to send WhatsApp message");
     }
 
-    // Fetch course
+    // Fetch Course
     const course = await Course.findById(courseId).session(session);
     if (!course) throw new Error("Course not found");
 
-
-    // Find the User by Email
+    // Fetch User
     const user = await User.findOne({ email }).session(session);
-    if (!user) {
-      console.log(`No user found for email: ${email}`);
-      await session.abortTransaction();
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
+    if (!user) throw new Error("User not found");
 
-
-    // Find User Course
+    // Locate user's course record
     const userCourse = user.courses.find(c => c.courseId?.toString() === courseId?.toString());
     if (!userCourse) throw new Error("User not enrolled in the course");
 
-    // Find Payment inside User
+    // Locate user and course payment records
     const userPayment = userCourse.payments.find(p => p.transactionId === transactionId);
-    if (!userPayment) throw new Error("Transaction ID not found in user payments");
-
-
-    // Find Payment inside Course
     const coursePayment = course.payments.find(p => p.transactionId === transactionId);
-    if (!coursePayment) throw new Error("Transaction ID not found in course payments");
+    if (!userPayment || !coursePayment) throw new Error("Transaction ID not found in payments");
+
+    // Generate new Invoice Number
+    let currentInvoiceNumber = course.currentInvoiceNumber || "EAFO-003/25/0100";
+    const match = currentInvoiceNumber.match(/(\d{4})$/);
+    const newNumber = match ? (parseInt(match[1], 10) + 1).toString().padStart(4, "0") : "0100";
+    const nextInvoiceNumber = currentInvoiceNumber.replace(/(\d{4})$/, newNumber);
+    course.currentInvoiceNumber = nextInvoiceNumber;
+
+    const currency = packages[0]?.currency || "RUB";
+
+    const normalizedPackages = packages.map(pkg => ({
+      name: pkg.name,
+      amount: parseFloat(pkg.amount),
+      currency: pkg.currency,
+      quantity: parseInt(pkg.quantity) || 1, // fallback if missing
+    }));
 
 
-// Generate new Invoice Number
-let currentInvoiceNumber = course.currentInvoiceNumber || "EAFO-003/25/0100";
+    const totalAmount = normalizedPackages.reduce(
+      (sum, pkg) => sum + (pkg.amount * pkg.quantity),
+      0
+    );
+    
+    
 
-// Match the last 4 digits
-const match = currentInvoiceNumber.match(/(\d{4})$/);
+    // Update payment info (User + Course)
+    const paymentUpdate = {
+      invoiceNumber: nextInvoiceNumber,
+      paymentLink: paymentUrl,
+      orderId,
+      time: new Date(),
+      viaWhatsApp: true,
+      status: "Pending",
+      packages: normalizedPackages,
+      totalAmount,
+      payableAmount: parseFloat(payableAmount), // this should ideally match `totalAmount` unless discount applied
+      currency,
+      discountPercentage,
+      discountCode: code,
+    };
+    
 
-let nextInvoiceNumber = match
-  ? currentInvoiceNumber.replace(/(\d{4})$/, (parseInt(match[1], 10) + 1).toString().padStart(4, "0"))
-  : "EAFO-003/25/0100";  // Fallback
+    Object.assign(userPayment, paymentUpdate);
+    Object.assign(coursePayment, paymentUpdate);
 
-course.currentInvoiceNumber = nextInvoiceNumber;
-
-
-    // Update user payment
-    userPayment.invoiceNumber = nextInvoiceNumber;
-    userPayment.paymentLink = paymentUrl;
-    userPayment.orderId = orderId;
-    userPayment.time = new Date();
-    userPayment.viaWhatsApp = true;
-    userPayment.status = "Pending";
-    userPayment.package = packageName;
-    userPayment.amount = amount;
-    userPayment.currency = currency;
-    userPayment.payableAmount = payableAmount;
-    userPayment.discountPercentage = discountPercentage;
-    userPayment.discountCode = code;
-
-    // Update course payment
-    coursePayment.invoiceNumber = nextInvoiceNumber;
-    coursePayment.paymentLink = paymentUrl;
-    coursePayment.orderId = orderId;
-    coursePayment.time = new Date();
-    coursePayment.viaWhatsApp = true;
-    coursePayment.status = "Pending";
-    coursePayment.package = packageName;
-    coursePayment.amount = amount;
-    coursePayment.currency = currency;
-    coursePayment.payableAmount = payableAmount;
-    coursePayment.discountPercentage = discountPercentage;
-    coursePayment.discountCode = code;
-
-    // Save user and course
+    // Save updates
     await user.save({ session });
     await course.save({ session });
 
-
-    // Create Notification
+    // Add notification
     const notification = {
       type: "payment_created",
-      courseId: courseId,
+      courseId,
       courseName: course.name,
       invoiceNumber: nextInvoiceNumber,
       message: {
@@ -290,30 +291,29 @@ course.currentInvoiceNumber = nextInvoiceNumber;
       read: false,
       createdAt: new Date(),
       paymentLink: paymentUrl,
-      amount: userPayment.amount,
-      currency: userPayment.currency,
-      viaWhatsApp: true
+      amount: paymentUpdate.totalAmount,
+      currency,
+      viaWhatsApp: true,
     };
 
     let userNotification = await UserNotification.findOne({ userId: user._id }).session(session);
     if (!userNotification) {
       userNotification = new UserNotification({
         userId: user._id,
-        notifications: [notification]
+        notifications: [notification],
       });
     } else {
       userNotification.notifications.push(notification);
     }
 
     await userNotification.save({ session });
-
     await session.commitTransaction();
 
     return res.json({
       success: true,
       status: "sent",
       message: "WhatsApp message sent and payment updated successfully",
-      invoiceNumber: nextInvoiceNumber
+      invoiceNumber: nextInvoiceNumber,
     });
 
   } catch (error) {
@@ -321,12 +321,13 @@ course.currentInvoiceNumber = nextInvoiceNumber;
     console.error("Error sending WhatsApp message:", error.message, error.response?.data);
     return res.status(500).json({
       success: false,
-      error: error.response?.data?.message || error.message
+      error: error.response?.data?.message || error.message,
     });
   } finally {
     session.endSession();
   }
 });
+
 
 router.post("/resend-whatsapp", async (req, res) => {
   const { phone, invoiceNumber } = req.body;

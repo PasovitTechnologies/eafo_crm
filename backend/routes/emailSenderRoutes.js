@@ -14,6 +14,26 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 const RUSENDER_API = "https://api.beta.rusender.ru/api/v1/external-mails/send";
 
+async function runWithRetry(fn, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    const session = await mongoose.startSession();
+    try {
+      session.startTransaction();
+      const result = await fn(session);
+      await session.commitTransaction();
+      session.endSession();
+      return result;
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      if (err.codeName !== "WriteConflict" || attempt === maxRetries) {
+        throw err;
+      }
+      console.warn(`⚠️ Write conflict, retrying (${attempt}/${maxRetries})...`);
+    }
+  }
+}
+
 // Helper function to send emails using Rusender
 const sendEmailRusender = async (recipient, mail) => {
   const emailData = {
@@ -193,154 +213,155 @@ const englishEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, 
 
 // Endpoint to send emails and save payments
 router.post("/send", async (req, res) => {
-  const { email, courseId, transactionId, orderId, paymentUrl, currency, package: packageName, amount, payableAmount, discountPercentage, code } = req.body;
+  const {
+    email,
+    courseId,
+    transactionId,
+    orderId,
+    paymentUrl,
+    packages,
+    payableAmount,
+    discountPercentage,
+    code,
+  } = req.body;
 
-  if (!email || !courseId || !transactionId || !orderId || !paymentUrl) {
+  if (!email || !courseId || !transactionId || !orderId || !paymentUrl || !packages?.length) {
     return res.status(400).json({ success: false, message: "Missing required data." });
   }
 
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
-    const user = await User.findOne({ email }).session(session);
-    if (!user) throw new Error("User not found");
+    const result = await runWithRetry(async (session) => {
+      const user = await User.findOne({ email }).session(session);
+      if (!user) throw new Error("User not found");
 
-    const userCourse = user.courses.find(c => c.courseId.toString() === courseId);
-    if (!userCourse) throw new Error("User is not enrolled in this course");
+      const userCourse = user.courses.find(c => c.courseId.toString() === courseId);
+      if (!userCourse) throw new Error("User is not enrolled in this course");
 
-    
-    const userPayment = userCourse.payments.find(p => p.transactionId === transactionId);
-    if (!userPayment) throw new Error("Transaction ID not found in user payments");
+      const userPayment = userCourse.payments.find(p => p.transactionId === transactionId);
+      if (!userPayment) throw new Error("Transaction ID not found in user payments");
 
+      const course = await Course.findById(courseId).session(session);
+      if (!course) throw new Error("Course not found");
 
-    // Find course
-    const course = await Course.findById(courseId).session(session);
-    if (!course) throw new Error("Course not found");
+      const coursePayment = course.payments.find(p => p.transactionId === transactionId);
+      if (!coursePayment) throw new Error("Transaction ID not found in course payments");
 
-    const coursePayment = course.payments.find(p => p.transactionId === transactionId);
-    if (!coursePayment) throw new Error("Transaction ID not found in course payments");
-    
+      // Generate Invoice Number
+      let currentInvoiceNumber = course.currentInvoiceNumber || "EAFO-003/25/0100";
+      const match = currentInvoiceNumber.match(/(\d{4})$/);
+      let nextInvoiceNumber = "EAFO-003/25/0100";
 
+      if (match) {
+        const newNumber = (parseInt(match[1], 10) + 1).toString().padStart(4, "0");
+        nextInvoiceNumber = currentInvoiceNumber.replace(/(\d{4})$/, newNumber);
+      }
+      course.currentInvoiceNumber = nextInvoiceNumber;
 
-    // Generate next Invoice Number
-    // Generate next Invoice Number
-// Generate next Invoice Number
-let currentInvoiceNumber = course.currentInvoiceNumber || "EAFO-003/25/0100";
+      // Calculate totals
+      const totalAmount = packages.reduce((sum, pkg) => {
+        const amount = parseFloat(pkg.amount) || 0;
+        const quantity = parseInt(pkg.quantity) || 1;
+        return sum + amount * quantity;
+      }, 0);
 
-// Match last 4 digits in the format EAFO-003/25/0100
-const match = currentInvoiceNumber.match(/(\d{4})$/);
-let nextInvoiceNumber;
+      const currency = packages[0]?.currency || "INR";
+      const packageLabel = packages.map(p => p.name).join(", ");
 
-if (match) {
-  const currentNumber = parseInt(match[1], 10);
-  const newNumber = (currentNumber + 1).toString().padStart(4, "0");
+      const normalizedPackages = packages.map(pkg => ({
+        name: pkg.name,
+        amount: parseFloat(pkg.amount),
+        currency: pkg.currency,
+        quantity: parseInt(pkg.quantity) || 1, // fallback for missing values
+      }));
+      
 
-  // Replace only the last 4 digits
-  nextInvoiceNumber = currentInvoiceNumber.replace(/(\d{4})$/, newNumber);
+      const commonData = {
+        invoiceNumber: nextInvoiceNumber,
+        paymentLink: paymentUrl,
+        status: "Pending",
+        orderId,
+        time: moment.tz("Europe/Moscow").toDate(),
+        packages: normalizedPackages,
+        totalAmount,
+        payableAmount,
+        currency,
+        discountPercentage,
+        discountCode: code,
+      };
+      
 
-  // Save it to course
-  course.currentInvoiceNumber = nextInvoiceNumber;
-} else {
-  // Fallback if format invalid
-  nextInvoiceNumber = "EAFO-003/25/0100";
-  course.currentInvoiceNumber = nextInvoiceNumber;
-}
+      Object.assign(userPayment, commonData);
+      Object.assign(coursePayment, commonData);
 
+      await user.save({ session });
+      await course.save({ session });
 
-
-
-    // Update User Payment
-    userPayment.invoiceNumber = nextInvoiceNumber;
-    userPayment.paymentLink = paymentUrl;
-    userPayment.status = "Pending",
-    userPayment.orderId = orderId; // <-- Push orderId into paymentId field
-    userPayment.time = moment.tz("Europe/Moscow").toDate();
-    userPayment.package = packageName;
-    userPayment.amount = amount;
-    userPayment.currency = currency;
-    userPayment.payableAmount = payableAmount;
-    userPayment.discountPercentage = discountPercentage;
-    userPayment.discountCode = code;
-
-
-    // Update Course Payment
-    coursePayment.invoiceNumber = nextInvoiceNumber;
-    coursePayment.paymentLink = paymentUrl;
-    coursePayment.orderId = orderId;
-    coursePayment.status = "Pending",
-    coursePayment.time = moment.tz("Europe/Moscow").toDate();
-    coursePayment.package = packageName;
-    coursePayment.amount = amount;
-    coursePayment.currency = currency;
-    coursePayment.payableAmount = payableAmount;
-    coursePayment.discountPercentage = discountPercentage;
-    coursePayment.discountCode = code;
-
-
-    // Save changes
-    await user.save({ session });
-    await course.save({ session });
-
-    const payment = userPayment;
-
-
-    // Prepare and Send Email
-    const { title, firstName, middleName, lastName } = user.personalDetails || {};
-
-
-    const isRussian = currency === "RUB";
-    const courseName = isRussian ? course.nameRussian : course.name;
-
-    const fullName = isRussian
-      ? `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()
-      : `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
+      // Email
+      const { title, firstName, middleName, lastName } = user.personalDetails || {};
+      const isRussian = currency === "RUB";
+      const courseName = isRussian ? course.nameRussian : course.name;
+      const fullName = isRussian
+        ? `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()
+        : `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
 
       const emailSubject = isRussian
-      ? `Счет за XI EAFO Базовые медицинские курсы - Номер счета от EAFO`
-      : `Invoice for the course ${courseName} - ${nextInvoiceNumber} from EAFO`;
-    
+        ? `Счет за XI EAFO Базовые медицинские курсы - Номер счета от EAFO`
+        : `Invoice for the course ${courseName} - ${nextInvoiceNumber} from EAFO`;
+
       const emailBody = isRussian
-  ? russianEmailTemplate(fullName, nextInvoiceNumber, payment.paymentLink, payment.package, payment.amount, payment.currency, courseName)
-  : englishEmailTemplate(fullName, nextInvoiceNumber, payment.paymentLink, payment.package, payment.amount, payment.currency, courseName);
+        ? russianEmailTemplate(fullName, nextInvoiceNumber, paymentUrl, packageLabel, totalAmount.toFixed(2), currency, courseName)
+        : englishEmailTemplate(fullName, nextInvoiceNumber, paymentUrl, packageLabel, totalAmount.toFixed(2), currency, courseName);
 
-    const mail = { subject: emailSubject, html: emailBody };
+      const emailResult = await sendEmailRusender({ email, name: fullName }, { subject: emailSubject, html: emailBody });
 
-    const emailResult = await sendEmailRusender({ email, name: fullName }, mail);
-
-
-    await session.commitTransaction();
+      return { invoiceNumber: nextInvoiceNumber, emailResult };
+    });
 
     return res.status(200).json({
       success: true,
       message: "Invoice updated and email sent successfully",
-      invoiceNumber: nextInvoiceNumber,
-      emailResult
+      ...result,
     });
 
   } catch (error) {
-    await session.abortTransaction();
-    console.error("Error during email sending and updating:", error);
+    console.error("❌ Error during email sending and updating:", error);
     return res.status(500).json({ success: false, message: error.message });
-  } finally {
-    session.endSession();
   }
 });
 
 
+
+
 router.post("/send-email", async (req, res) => {
-  const { email, courseId, transactionId, orderId, paymentUrl, currency, package: packageName, originalAmount, discountPercentage, code } = req.body;
+  const { 
+    email, 
+    courseId, 
+    transactionId, 
+    orderId, 
+    paymentUrl, 
+    currency, 
+    packages,  // Changed from 'package' to 'packages' (array of items)
+    totalAmount, // Changed from originalAmount
+    discountPercentage, 
+    code 
+  } = req.body;
 
-  if (!email || !courseId || !transactionId || !orderId || !paymentUrl) {
-    return res.status(400).json({ success: false, message: "❌ Missing required data." });
-  }
-
+  // Validate required fields
+  const requiredFields = ['email', 'courseId', 'transactionId', 'orderId', 'paymentUrl'];
+  const missingFields = requiredFields.filter(field => !req.body[field]);
   
+  if (missingFields.length > 0) {
+    return res.status(400).json({ 
+      success: false, 
+      message: `❌ Missing required fields: ${missingFields.join(', ')}` 
+    });
+  }
 
   const session = await mongoose.startSession();
   session.startTransaction();
 
   try {
+    // Find user and validate
     const user = await User.findOne({ email }).session(session);
     if (!user) throw new Error("User not found");
 
@@ -350,28 +371,30 @@ router.post("/send-email", async (req, res) => {
     const course = await Course.findById(courseId).session(session);
     if (!course) throw new Error("Course not found");
 
-    // Generate Invoice Number
-    // Generate Invoice Number
-let currentInvoiceNumber = course.currentInvoiceNumber || "EAFO-003/25/0100";
-const match = currentInvoiceNumber.match(/(\d{4})$/);
-let nextInvoiceNumber = "EAFO-003/25/0100"; // fallback
-
-if (match) {
-  const currentNumber = parseInt(match[0], 10);
-  const incremented = (currentNumber + 1).toString().padStart(4, "0");
-  nextInvoiceNumber = currentInvoiceNumber.replace(/\d{4}$/, incremented);
-}
+    // Generate Invoice Number with better error handling
+    let nextInvoiceNumber;
+    try {
+      const currentInvoiceNumber = course.currentInvoiceNumber || "EAFO-003/25/0100";
+      const match = currentInvoiceNumber.match(/(\d{4})$/);
+      
+      if (match) {
+        const currentNumber = parseInt(match[0], 10);
+        const incremented = (currentNumber + 1).toString().padStart(4, "0");
+        nextInvoiceNumber = currentInvoiceNumber.replace(/\d{4}$/, incremented);
+      } else {
+        nextInvoiceNumber = "EAFO-003/25/0101"; // Fallback with incremented number
+      }
+    } catch (err) {
+      console.error("Error generating invoice number:", err);
+      nextInvoiceNumber = `EAFO-${Date.now().toString().slice(-4)}`; // Emergency fallback
+    }
 
     course.currentInvoiceNumber = nextInvoiceNumber;
 
-console.log("Current Invoice:", currentInvoiceNumber);
-console.log("Next Invoice:", nextInvoiceNumber);
-
-
-    // Create New Payment Entry
+    // Create New Payment Entry with enhanced data
     const newPayment = {
       paymentLink: paymentUrl,
-      package: packageName || "standard",
+      packages: Array.isArray(packages) ? packages : [{ name: "Standard", amount: payableAmount }],
       currency,
       paymentId: orderId,
       orderId,
@@ -379,62 +402,97 @@ console.log("Next Invoice:", nextInvoiceNumber);
       invoiceNumber: nextInvoiceNumber,
       time: moment.tz("Europe/Moscow").toDate(),
       status: "Pending",
-
+      totalAmount: totalAmount,
+      ...(discountPercentage && { discountPercentage }),
+      ...(code && { discountCode: code })
     };
 
+    // Update user and course records
     userCourse.payments.push(newPayment);
     course.payments.push({
+      email,
       ...newPayment,
       user: user._id,
+      userName: user.personalDetails ? 
+        `${user.personalDetails.firstName} ${user.personalDetails.lastName}` : 
+        user.email
     });
 
-
-    // Save to DB
+    // Save changes
     await user.save({ session });
     await course.save({ session });
 
-    const payment = userPayment;
-
-    // Prepare and Send Email
+    // Prepare email content
     const { title, firstName, middleName, lastName } = user.personalDetails || {};
     const isRussian = currency === "RUB";
-
     const courseName = isRussian ? course.nameRussian : course.name;
-
 
     const fullName = isRussian
       ? `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()
       : `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
 
-      const emailSubject = isRussian
-      ? `Счет за XI EAFO Базовые медицинские курсы - Номер счета от EAFO`
-      : `Invoice for the course ${courseName} - ${nextInvoiceNumber} from EAFO`;
-    
-      const emailBody = isRussian
-  ? russianEmailTemplate(fullName, nextInvoiceNumber, payment.paymentLink, payment.package, payment.amount, payment.currency, courseName)
-  : englishEmailTemplate(fullName, nextInvoiceNumber, payment.paymentLink, payment.package, payment.amount, payment.currency, courseName);
+    const emailSubject = isRussian
+      ? `Счет за XI EAFO Базовые медицинские курсы - Номер счета ${nextInvoiceNumber}`
+      : `Invoice for ${courseName} - ${nextInvoiceNumber}`;
 
-    const mail = { subject: emailSubject, html: emailBody };
-    const emailResult = await sendEmailRusender({ email, name: fullName }, mail);
+    const emailBody = isRussian
+      ? russianEmailTemplate(
+          fullName, 
+          nextInvoiceNumber, 
+          paymentUrl, 
+          packages, 
+          totalAmount, 
+          currency, 
+          courseName
+        )
+      : englishEmailTemplate(
+          fullName, 
+          nextInvoiceNumber, 
+          paymentUrl, 
+          packages, 
+          totalAmount, 
+          currency, 
+          courseName
+        );
 
+    // Send email
+    const emailResult = await sendEmailRusender(
+      { email, name: fullName }, 
+      { subject: emailSubject, html: emailBody }
+    );
 
+    // Commit transaction
     await session.commitTransaction();
 
     return res.status(200).json({
       success: true,
-      message: "Payment created and email sent",
+      message: "Payment created and email sent successfully",
       invoiceNumber: nextInvoiceNumber,
       emailResult,
+      paymentDetails: {
+        amount: totalAmount,
+        currency,
+        packages
+      }
     });
 
   } catch (error) {
     await session.abortTransaction();
-    console.error("Error during processing:", error);
-    return res.status(500).json({ success: false, message: error.message });
+    console.error("Transaction aborted due to error:", error);
+    
+    // More detailed error response
+    return res.status(500).json({ 
+      success: false, 
+      message: "Failed to process payment",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined,
+      errorType: error.name
+    });
   } finally {
     session.endSession();
   }
 });
+
+
 
 router.post("/resend", async (req, res) => {
   const { email, invoiceNumber } = req.body;
@@ -447,30 +505,23 @@ router.post("/resend", async (req, res) => {
   }
 
   try {
-    // Find the user and their payment
     const user = await User.findOne({ email });
     if (!user) throw new Error("User not found");
 
-    const course = await Course.findOne({
-      "payments.invoiceNumber": invoiceNumber,
-    });
+    const course = await Course.findOne({ "payments.invoiceNumber": invoiceNumber });
     if (!course) throw new Error("Course with this invoice not found");
 
-    const coursePayment = course.payments.find(
-      (p) => p.invoiceNumber === invoiceNumber
-    );
-    const userCourse = user.courses.find((c) =>
-      c.payments.some((p) => p.invoiceNumber === invoiceNumber)
-    );
-
-    const userPayment =
-      userCourse?.payments.find((p) => p.invoiceNumber === invoiceNumber);
+    const coursePayment = course.payments.find(p => p.invoiceNumber === invoiceNumber);
+    const userCourse = user.courses.find(c => c.payments.some(p => p.invoiceNumber === invoiceNumber));
+    const userPayment = userCourse?.payments.find(p => p.invoiceNumber === invoiceNumber);
 
     const payment = coursePayment || userPayment;
     if (!payment) throw new Error("Payment not found");
 
     const { title, firstName, middleName, lastName } = user.personalDetails || {};
-    const isRussian = payment.currency === "RUB";
+    const currency = payment.packages?.[0]?.currency || payment.currency || "RUB";
+     const isRussian = currency === "RUB";
+
 
     const fullName = isRussian
       ? `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()
@@ -478,18 +529,23 @@ router.post("/resend", async (req, res) => {
 
     const courseName = isRussian ? course.nameRussian : course.name;
 
-    // ✅ Console log for course name
-    console.log(`[Resend Email] Course Name: ${courseName}`);
+    // 🔁 Construct human-readable package info
+    const packageDetails = payment.packages && Array.isArray(payment.packages)
+      ? payment.packages.map(pkg => `${pkg.name} — ${pkg.amount} ${pkg.currency}`).join("<br>")
+      : (payment.package || "");
 
     const emailSubject = isRussian
       ? `Счет за XI EAFO Базовые медицинские курсы - Номер счета от EAFO`
       : `Invoice for the course ${courseName} - ${invoiceNumber} from EAFO`;
 
+      
+
     const emailBody = isRussian
-      ? russianEmailTemplate(fullName, invoiceNumber, payment.paymentLink, payment.package, payment.payableAmount, payment.currency, courseName)
-      : englishEmailTemplate(fullName, invoiceNumber, payment.paymentLink, payment.package, payment.payableAmount, payment.currency, courseName);
+      ? russianEmailTemplate(fullName, invoiceNumber, payment.paymentLink, packageDetails, payment.payableAmount, currency, courseName)
+      : englishEmailTemplate(fullName, invoiceNumber, payment.paymentLink, packageDetails, payment.payableAmount, currency, courseName);
 
     const mail = { subject: emailSubject, html: emailBody };
+
     const emailResult = await sendEmailRusender({ email, name: fullName }, mail);
 
     return res.status(200).json({
@@ -505,6 +561,7 @@ router.post("/resend", async (req, res) => {
 });
 
 
+
 router.post("/manual", async (req, res) => {
   const {
     email,
@@ -513,11 +570,11 @@ router.post("/manual", async (req, res) => {
     orderId,
     paymentUrl,
     currency,
-    package: packageName,
+    packages,
     amount,
     payableAmount,
     discountPercentage,
-    code
+    code,
   } = req.body;
 
   if (!email || !courseId || !transactionId || !orderId) {
@@ -558,6 +615,18 @@ router.post("/manual", async (req, res) => {
       course.currentInvoiceNumber = nextInvoiceNumber;
     }
 
+    const normalizedPackages = (packages || []).map(pkg => ({
+      name: pkg.name,
+      amount: parseFloat(pkg.amount),
+      currency: pkg.currency,
+      quantity: parseInt(pkg.quantity) || 1
+    }));
+    
+    const calculatedTotalAmount = normalizedPackages.reduce(
+      (sum, item) => sum + (item.amount * item.quantity),
+      0
+    );
+    
     // Update User Payment
     Object.assign(userPayment, {
       invoiceNumber: nextInvoiceNumber,
@@ -565,14 +634,14 @@ router.post("/manual", async (req, res) => {
       status: "Pending",
       orderId,
       time: moment.tz("Europe/Moscow").toDate(),
-      package: packageName,
-      amount,
-      currency,
+      packages: normalizedPackages,
+      totalAmount: calculatedTotalAmount,
       payableAmount,
+      currency,
       discountPercentage,
       discountCode: code
     });
-
+    
     // Update Course Payment
     Object.assign(coursePayment, {
       invoiceNumber: nextInvoiceNumber,
@@ -580,13 +649,15 @@ router.post("/manual", async (req, res) => {
       orderId,
       status: "Pending",
       time: moment.tz("Europe/Moscow").toDate(),
-      package: packageName,
-      amount,
-      currency,
+      packages: normalizedPackages,
+      totalAmount: calculatedTotalAmount,
       payableAmount,
+      currency,
       discountPercentage,
       discountCode: code
     });
+    
+    
 
     // Save updates
     await user.save({ session });
@@ -596,7 +667,7 @@ router.post("/manual", async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "Invoice generated and saved successfully",
-      invoiceNumber: nextInvoiceNumber
+      invoiceNumber: nextInvoiceNumber,
     });
 
   } catch (error) {
@@ -607,6 +678,7 @@ router.post("/manual", async (req, res) => {
     session.endSession();
   }
 });
+
 
 router.put("/payment/mark-paid", async (req, res) => {
   const { invoiceNumber, email, courseId } = req.body;

@@ -778,35 +778,34 @@ const template7EmailTemplate = (lang, user) => {
   };
 };
 
-async function sendRegistrationEmail(
-  user,
-  form,
-  linkedItemDetails,
-  submission,
-  extras = {}
-) {
+async function sendRegistrationEmail(user, form, linkedItemDetails, submission, extras = {}) {
   if (!submission || !submission.responses) {
     console.error(`Missing submission data for user ${user.email}`);
     console.debug("Submission object received:", submission);
     return;
   }
-  
 
   const invoiceAnswerRaw = submission.responses
     .find((r) => r.isUsedForInvoice)
     ?.answer?.trim();
 
   if (!invoiceAnswerRaw) {
-    console.warn(
-      ` No invoice-related answer found for user ${user.email}. Defaulting to sponsored email.`
-    );
+    console.warn(`No invoice-related answer found for user ${user.email}. Defaulting to sponsored email.`);
   } else {
     console.log(`Invoice answer: "${invoiceAnswerRaw}" for user ${user.email}`);
   }
 
-  const packageName = extras.package || linkedItemDetails?.name || "Package 1";
-  console.log(`Detected package: "${packageName}"`);
+  // ✅ Support array or object
+  const firstPackageName =
+    extras.package ||
+    (Array.isArray(linkedItemDetails)
+      ? linkedItemDetails[0]?.name
+      : linkedItemDetails?.name) ||
+    "Package 1";
 
+  console.log(`Detected package: "${firstPackageName}"`);
+
+  // 🎯 Package groups
   const template1Packages = [
     "Конкурсное участие Тариф 1 Пакет 1",
     "Конкурсное участие Тариф 1 Пакет 2",
@@ -827,7 +826,7 @@ async function sendRegistrationEmail(
   ];
   const template4Packages = [
     "Внеконкурсное участие (полная стоимость) Тариф 1 Пакет 13",
-    "Внеконкурсное участие (полная стоимость) 1 Пакет 18",
+    "Внеконкурсное участие (полная стоимость) Тариф 1  Пакет 18",
   ];
   const template5Packages = [
     "Внеконкурсное участие (полная стоимость) Тариф 1 Пакет 14",
@@ -836,11 +835,12 @@ async function sendRegistrationEmail(
     "Внеконкурсное участие (полная стоимость) Тариф 1  Пакет 17",
   ];
 
-  const template1 = template1Packages.includes(packageName);
-  const template2 = template2Packages.includes(packageName);
-  const template3 = template3Packages.includes(packageName);
-  const template4 = template4Packages.includes(packageName);
-  const template5 = template5Packages.includes(packageName);
+  // 🎯 Detect template group
+  const template1 = template1Packages.includes(firstPackageName);
+  const template2 = template2Packages.includes(firstPackageName);
+  const template3 = template3Packages.includes(firstPackageName);
+  const template4 = template4Packages.includes(firstPackageName);
+  const template5 = template5Packages.includes(firstPackageName);
 
   const lang = form.isUsedForRussian ? "ru" : "en";
   console.log(`🌐 Language selected: ${lang}`);
@@ -849,10 +849,12 @@ async function sendRegistrationEmail(
     ...user,
     personalDetails: {
       ...user.personalDetails,
-      package: extras.package || linkedItemDetails?.name || "",
+      package: firstPackageName,
       price:
         extras.price ||
-        (linkedItemDetails?.amount && linkedItemDetails?.currency
+        (Array.isArray(linkedItemDetails)
+          ? `${linkedItemDetails[0]?.amount || ""} ${linkedItemDetails[0]?.currency || ""}`
+          : linkedItemDetails?.amount && linkedItemDetails?.currency
           ? `${linkedItemDetails.amount} ${linkedItemDetails.currency}`
           : ""),
       submissionDate:
@@ -862,87 +864,89 @@ async function sendRegistrationEmail(
 
   let conditionalTemplateMatch = null;
 
-  // --- Template 6 / 7: Based on yes/no answer to a specific question ---
+  // 🧠 Conditional YES/NO template logic
   const conditionalTemplates = [
     {
-      questionId: "683b4e5153716bcccf4bd2dd", // YES/NO question
+      questionId: "683b4e5153716bcccf4bd2dd",
       conditions: [
-        {
-          answer: "Да",
-          template: template6EmailTemplate,
-          label: "template6 (yes answer)",
-        },
-        {
-          answer: "Нет",
-          template: template7EmailTemplate,
-          label: "template7 (no answer)",
-        },
+        { answer: "Да", template: template6EmailTemplate, label: "template6 (yes)" },
+        { answer: "Нет", template: template7EmailTemplate, label: "template7 (no)" },
       ],
     },
     {
-      questionId: "683cba4d53716bcccf4db693", // YES/NO question
+      questionId: "683cba4d53716bcccf4db693",
       conditions: [
-        {
-          answer: "Yes",
-          template: template6EmailTemplate,
-          label: "template6 (yes answer)",
-        },
-        {
-          answer: "No",
-          template: template7EmailTemplate,
-          label: "template7 (no answer)",
-        },
+        { answer: "Yes", template: template6EmailTemplate, label: "template6 (yes)" },
+        { answer: "No", template: template7EmailTemplate, label: "template7 (no)" },
       ],
-    }
+    },
   ];
 
   for (const rule of conditionalTemplates) {
     const matchedResponse = submission.responses.find(
       (r) => r.questionId === rule.questionId
     );
-
     if (matchedResponse && matchedResponse.answer) {
-      const normalizedAnswer = matchedResponse.answer.trim().toLowerCase();
-      const matchedCondition = rule.conditions.find(
-        (cond) => cond.answer.toLowerCase() === normalizedAnswer
-      );
-      if (matchedCondition) {
-        conditionalTemplateMatch = matchedCondition;
+      const normalized = matchedResponse.answer.trim().toLowerCase();
+      const match = rule.conditions.find((c) => c.answer.toLowerCase() === normalized);
+      if (match) {
+        conditionalTemplateMatch = match;
         break;
       }
     }
   }
 
-  // --- Template 8 / 9: Special logic for Seminar Package 19 based on language ---
-  // --- Template 8 / 9: Special logic for Seminar Package 19 or 20 ---
-if (
-  packageName === "Участие в тематических Семинарах Пакет 19" ||
-  packageName === "Участие в тематических Семинарах Пакет 20"
-) {
-  const seminarQuestionId =
-    lang === "ru"
-      ? "683b4dec53716bcccf4bc4ee"
-      : "683cba0153716bcccf4da31e";
+  // 🎓 Seminar logic
+  if (
+    firstPackageName === "Участие в тематических Семинарах Пакет 19" ||
+    firstPackageName === "Участие в тематических Семинарах Пакет 20"
+  ) {
+    const seminarQuestionId =
+      lang === "ru" ? "683b4dec53716bcccf4bc4ee" : "683cba0153716bcccf4da31e";
 
-  const seminarResponse = submission.responses.find(
-    (r) => r.questionId === seminarQuestionId
-  );
+    const seminarResponse = submission.responses.find(
+      (r) => r.questionId === seminarQuestionId
+    );
 
-  const answersArray = Array.isArray(seminarResponse?.answer)
-    ? seminarResponse.answer
-    : seminarResponse?.answer
-    ? [seminarResponse.answer]
-    : [];
+    const answersArray = Array.isArray(seminarResponse?.answer)
+      ? seminarResponse.answer
+      : seminarResponse?.answer
+      ? [seminarResponse.answer]
+      : [];
 
-  const normalizedAnswers = answersArray.map((a) => a.trim().toLowerCase());
+    const normalizedAnswers = answersArray.map((a) => a.trim().toLowerCase());
 
-  console.log(`📋 Seminar response for user ${user.email}:`);
-  console.log(`🔸 Raw seminar answers:`, seminarResponse?.answer);
-  console.log(`🔸 Parsed answers array:`, answersArray);
-  console.log(`🔸 Normalized answers:`, normalizedAnswers);
+    console.log(`📋 Seminar response for user ${user.email}:`);
+    console.log(`🔸 Raw:`, seminarResponse?.answer);
+    console.log(`🔸 Normalized:`, normalizedAnswers);
 
-  if (packageName === "Участие в тематических Семинарах Пакет 19") {
-    if (normalizedAnswers.includes("да") || normalizedAnswers.includes("yes")) {
+    if (firstPackageName === "Участие в тематических Семинарах Пакет 19") {
+      if (normalizedAnswers.includes("да") || normalizedAnswers.includes("yes")) {
+        conditionalTemplateMatch = {
+          template: (lang, user) =>
+            template6EmailTemplate(lang, {
+              ...user,
+              personalDetails: {
+                ...user.personalDetails,
+                seminarAnswers: answersArray,
+              },
+            }),
+          label: "template6 (Seminar 19 - yes)",
+        };
+      } else if (normalizedAnswers.includes("нет") || normalizedAnswers.includes("no")) {
+        conditionalTemplateMatch = {
+          template: (lang, user) =>
+            template7EmailTemplate(lang, {
+              ...user,
+              personalDetails: {
+                ...user.personalDetails,
+                seminarAnswers: answersArray,
+              },
+            }),
+          label: "template7 (Seminar 19 - no)",
+        };
+      }
+    } else if (firstPackageName === "Участие в тематических Семинарах Пакет 20") {
       conditionalTemplateMatch = {
         template: (lang, user) =>
           template6EmailTemplate(lang, {
@@ -952,43 +956,12 @@ if (
               seminarAnswers: answersArray,
             },
           }),
-        label: "template6 (Seminar 19 - yes)",
-      };
-    } else if (
-      normalizedAnswers.includes("нет") ||
-      normalizedAnswers.includes("no")
-    ) {
-      conditionalTemplateMatch = {
-        template: (lang, user) =>
-          template7EmailTemplate(lang, {
-            ...user,
-            personalDetails: {
-              ...user.personalDetails,
-              seminarAnswers: answersArray,
-            },
-          }),
-        label: "template7 (Seminar 19 - no)",
+        label: "template6 (Seminar 20 - auto)",
       };
     }
-  } else if (packageName === "Участие в тематических Семинарах Пакет 20") {
-    conditionalTemplateMatch = {
-      template: (lang, user) =>
-        template6EmailTemplate(lang, {
-          ...user,
-          personalDetails: {
-            ...user.personalDetails,
-            seminarAnswers: answersArray,
-          },
-        }),
-      label: "template6 (Seminar 20 - no condition)",
-    };
   }
 
-
-  }
-  
-
-  // --- Select Final Email Template ---
+  // 📤 Select template
   let emailTemplate;
 
   if (template1) {
@@ -1010,15 +983,14 @@ if (
     console.log(`📨 Using conditional email template: ${conditionalTemplateMatch.label}`);
     emailTemplate = conditionalTemplateMatch.template(lang, extendedUser);
   } else {
-    console.log("📨 Using sponsored (default) email template");
+    console.warn(
+      `⚠️ No template match for package "${firstPackageName}". Using sponsored fallback.`
+    );
     emailTemplate = getSponsoredParticipationEmailTemplate(lang, extendedUser);
   }
 
-  // --- Send Email ---
   if (!emailTemplate) {
-    console.error(
-      `❌ No email template found for user ${user.email}. Invoice answer: "${invoiceAnswerRaw}"`
-    );
+    console.error(`❌ No email template generated for user ${user.email}`);
     return;
   }
 
@@ -1593,11 +1565,13 @@ router.put("/:formId/questions", authenticateJWT, async (req, res) => {
 });
 
 const findLinkedItems = async (invoiceFields, courseId, session) => {
-  if (!invoiceFields?.length || !courseId) return null;
+  if (!invoiceFields?.length || !courseId) return [];
 
   try {
     const course = await Course.findById(courseId).session(session);
-    if (!course?.rules?.length || !course?.items?.length) return null;
+    if (!course?.rules?.length || !course?.items?.length) return [];
+
+    const matchedItems = [];
 
     for (const rule of course.rules) {
       const { conditions = [], linkedItems = [] } = rule;
@@ -1637,26 +1611,30 @@ const findLinkedItems = async (invoiceFields, courseId, session) => {
       }
 
       if (allMatched) {
-        const linkedItemId = linkedItems[0]?.toString();
-        const item = course.items.find(
-          (i) => i._id.toString() === linkedItemId
-        );
-        if (item) {
-          return item;
-        } else {
-          console.warn(
-            "Linked item ID found, but item not present in course.items"
+        for (const linkedItemId of linkedItems) {
+          const item = course.items.find(
+            (i) => i._id.toString() === linkedItemId.toString()
           );
+          if (item) {
+            matchedItems.push({
+              name: item.name,
+              amount: item.amount,
+              currency: item.currency,
+            });
+          } else {
+            console.warn("Linked item ID found, but not in course.items");
+          }
         }
       }
     }
+
+    return matchedItems;
   } catch (error) {
     console.error("Error in findLinkedItems:", error);
     throw error;
   }
-
-  return null;
 };
+
 
 // 2. Extract invoice fields (no change)
 const extractInvoiceFields = (processedSubmissions) => {
@@ -2010,69 +1988,89 @@ async function processCriticalSubmission(req, session, discountInfo) {
       }
     }
 
-    if (result.linkedItemDetails) {
-      const transactionId = Math.floor(
-        100000 + Math.random() * 900000
-      ).toString();
+    let paymentData = null;
 
-      const paymentData = {
-        transactionId,
-        package: result.linkedItemDetails.name,
-        amount: result.linkedItemDetails.amount,
-        currency: result.linkedItemDetails.currency,
-        status: "Not created",
-        submittedAt: moment.tz("Europe/Moscow").toDate(),
-      };
 
-      if (result.appliedCoupon) {
-        paymentData.discountCode = result.appliedCoupon.code;
-        paymentData.discountPercentage = result.appliedCoupon.percentage;
-        paymentData.discountType = result.appliedCoupon.type;
-        paymentData.discountStatus = "used";
+if (result.linkedItemDetails && Array.isArray(result.linkedItemDetails) && result.linkedItemDetails.length > 0) {
+  const transactionId = Math.floor(100000 + Math.random() * 900000).toString();
+  const submittedAt = moment.tz("Europe/Moscow").toDate();
 
-        // Apply discount to amount if needed
-        if (result.appliedCoupon.percentage) {
-          paymentData.originalAmount = paymentData.amount;
-          paymentData.amount = Math.round(
-            paymentData.amount * (1 - result.appliedCoupon.percentage / 100)
-          );
-        }
-      }
+  const packages = result.linkedItemDetails.map((item) => ({
+    name: item.name,
+    amount: item.amount,
+    currency: item.currency,
+    quantity: 1,
 
-      await User.updateOne(
-        { _id: user._id, "courses.courseId": form.courseId },
-        {
-          $push: {
-            "courses.$.payments": paymentData,
-          },
-        },
-        { session }
+  }));
+
+  const totalAmount = result.linkedItemDetails.reduce(
+    (sum, item) => sum + item.amount,
+    0
+  );
+
+  paymentData = {
+    transactionId,
+    packages,
+    totalAmount,
+    payableAmount: totalAmount, // may change with discount
+    currency: result.linkedItemDetails[0].currency,
+    status: "Not created",
+    submittedAt,
+  };
+
+  if (result.appliedCoupon) {
+    const { code, percentage, type } = result.appliedCoupon;
+
+    paymentData.discountCode = code;
+    paymentData.discountPercentage = percentage;
+    paymentData.discountType = type;
+    paymentData.discountStatus = "used";
+
+    if (percentage) {
+      paymentData.payableAmount = Math.round(
+        totalAmount * (1 - percentage / 100)
       );
-
-      
-
-      await Course.updateOne(
-        { _id: form.courseId },
-        {
-          $push: {
-            payments: {
-              ...paymentData,
-              email,
-              userId: user._id,
-            },
-          },
-        },
-        { session }
-      );
-
-      
-      
     }
+  }
 
-    await sendRegistrationEmail(user, form, result.linkedItemDetails, submissions, {
-      package: result.linkedItemDetails?.name,
-      price: `${result.linkedItemDetails?.amount} ${result.linkedItemDetails?.currency}`,
-    });
+  // Save to User
+  await User.updateOne(
+    { _id: user._id, "courses.courseId": form.courseId },
+    {
+      $push: {
+        "courses.$.payments": paymentData,
+      },
+    },
+    { session }
+  );
+
+  // Save to Course
+  await Course.updateOne(
+    { _id: form.courseId },
+    {
+      $push: {
+        payments: {
+          ...paymentData,
+          email,
+          userId: user._id,
+        },
+      },
+    },
+    { session }
+  );
+}
+
+
+if (paymentData) {
+  await sendRegistrationEmail(user, form, result.linkedItemDetails, submissions, {
+    packages: paymentData.packages.map((p) => p.name).join(", "),
+    price: `${paymentData.payableAmount} ${paymentData.currency}`,
+  });
+} else {
+  console.warn(`⚠️ No payment data generated. Skipping email to ${user.email}`);
+}
+
+   
 
     // Apply coupon logic — unchanged, keep your existing coupon logic here
 
@@ -2318,7 +2316,11 @@ async function sendTelegramNotification(user, form, linkedItemDetails) {
     const firstName = user.personalDetails?.firstName || "Н/Д";
     const lastName = user.personalDetails?.lastName || "";
     const email = user.email || "Н/Д";
-    const packageName = linkedItemDetails?.name || "Н/Д";
+
+    const packageName = Array.isArray(linkedItemDetails)
+      ? linkedItemDetails.map((item) => item.name).join(", ")
+      : linkedItemDetails?.name || "Н/Д";
+
     const submittedAt = new Date().toLocaleString("ru-RU", {
       timeZone: "Europe/Moscow",
     });
@@ -2337,6 +2339,7 @@ async function sendTelegramNotification(user, form, linkedItemDetails) {
     console.error(`❌ Failed to send Telegram notification:`, err.message);
   }
 }
+
 
 
 

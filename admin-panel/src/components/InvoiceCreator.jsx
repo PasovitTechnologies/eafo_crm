@@ -1,146 +1,121 @@
-import React, { useState, useEffect } from 'react';
-import './InvoiceCreator.css';
-import { AiOutlineClose } from 'react-icons/ai';
-import Select from 'react-select';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from "react";
+import { AiOutlineClose } from "react-icons/ai";
+import Select from "react-select";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import "./InvoiceCreator.css";
+import { useTranslation } from "react-i18next";
+
 
 const InvoiceCreator = ({ onClose, courseId }) => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [users, setUsers] = useState([]);
-  const [itemChoice, setItemChoice] = useState('');
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [customItem, setCustomItem] = useState('');
-  const [amount, setAmount] = useState('');
-  const [currency, setCurrency] = useState('INR');
-  const [courseItems, setCourseItems] = useState([]);
+  const [items, setItems] = useState([
+    { name: "", quantity: 1, amount: 0, currency: "RUB" },
+  ]);
+  const [selectedMethod, setSelectedMethod] = useState("alfabank");
+  const [paymentUrl, setPaymentUrl] = useState("");
+  const [orderId, setOrderId] = useState("");
   const [transactionId, setTransactionId] = useState("");
-
-  const [paymentUrl, setPaymentUrl] = useState('');
-  const [orderId, setOrderId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedMethod, setSelectedMethod] = useState("stripe");
+  const [emailSending, setEmailSending] = useState(false);
+  const { t } = useTranslation();
+  
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem("token");
         const courseRes = await fetch(`${baseUrl}/api/courses/${courseId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        if (!courseRes.ok) throw new Error('Failed to fetch course');
-
+        if (!courseRes.ok) throw new Error("Failed to fetch course");
         const courseData = await courseRes.json();
-        const registrationForm = courseData.forms.find(f => f.isUsedForRegistration);
-        if (!registrationForm) throw new Error('No registration form found');
-
-        const formRes = await fetch(`${baseUrl}/api/form/${registrationForm.formId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!formRes.ok) throw new Error('Failed to fetch form submissions');
-
-        const formData = await formRes.json();
-        const submissions = formData.submissions || [];
-
-        const userOptions = submissions
-          .filter(sub => !!sub.email)
-          .map(sub => ({
-            value: sub.email,
-            label: sub.email,
-          }));
-
+        const paymentEmails = courseData.payments
+          ?.filter((p) => !!p.email)
+          .map((p) => p.email);
+        const uniqueEmails = Array.from(new Set(paymentEmails));
+        const userOptions = uniqueEmails.map((email) => ({
+          value: email,
+          label: email,
+        }));
         setUsers(userOptions);
       } catch (error) {
-        console.error('Error fetching users:', error);
-      }
-    };
-
-    const fetchItems = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${baseUrl}/api/courses/${courseId}/items`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error('Failed to fetch course items');
-
-        const data = await res.json();
-        setCourseItems(data.items || []);
-      } catch (error) {
-        console.error('Error fetching course items:', error);
+        console.error("Error fetching users:", error);
       }
     };
 
     if (courseId) {
       fetchUsers();
-      fetchItems();
     }
   }, [courseId]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!selectedUser) return alert('Please select a user.');
+  const handleAddItem = () => {
+    const currency = selectedMethod === "alfabank" ? "RUB" : "INR";
+    setItems([...items, { name: "", quantity: 1, amount: 0, currency }]);
+  };
 
-    let item = '';
-    if (itemChoice === 'manual') {
-      if (!customItem || !amount || !currency) {
-        return alert('Please fill out all manual item fields.');
-      }
-      item = `${customItem} - ${amount} ${currency}`;
+  const handleRemoveItem = (indexToRemove) => {
+    if (items.length > 1) {
+      setItems(items.filter((_, index) => index !== indexToRemove));
     } else {
-      if (!selectedItem) return alert('Please select an item.');
-      item = selectedItem.label;
+      toast.warning("You need at least one item in the invoice");
     }
-
-    console.log('✅ Creating invoice for:', selectedUser.value);
-    console.log('✅ Item:', item);
-    onClose();
   };
 
   const handlePayment = async () => {
     const email = selectedUser?.value;
-    const packageName = itemChoice === 'manual' ? customItem : selectedItem?.value;
-    const totalAmount = itemChoice === 'manual'
-      ? parseFloat(amount)
-      : courseItems.find(item => item.name === selectedItem?.value)?.amount;
-    const currencyFinal = itemChoice === 'manual'
-      ? currency
-      : courseItems.find(item => item.name === selectedItem?.value)?.currency;
-  
-    if (!email || !packageName || !totalAmount || !currencyFinal) {
-      alert("Missing required payment info.");
+    if (
+      !email ||
+      items.length === 0 ||
+      items.some((i) => !i.name || !i.amount)
+    ) {
+      toast.error("Please fill all item fields and select a user");
       return;
     }
-  
-    const paymentMethod = currencyFinal === "INR" ? "stripe" : "alfabank";
+
+    const orderNumber = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const currency = selectedMethod === "alfabank" ? "RUB" : "INR";
+    const amount = items.reduce((acc, i) => acc + i.amount * i.quantity, 0);
+    const method = selectedMethod;
+    const packages = items.map((i) => ({
+      name: i.name,
+      quantity: i.quantity,
+      amount: i.amount,
+      currency,
+    }));
+
     const orderDetails = {
-      amount: totalAmount,
-      currency: currencyFinal,
+      amount,
+      currency,
       email,
-      course: packageName,
-      returnUrl: "http://localhost:3000/payment-success",
-      failUrl: "http://localhost:3000/payment-failed",
+      course: courseId,
+      returnUrl: `${window.location.origin}/payment-success`,
+      failUrl: `${window.location.origin}/payment-failed`,
+      orderNumber: orderNumber,
     };
-  
+
     setLoading(true);
     setError(null);
-  
+
     try {
       const endpoint =
-        paymentMethod === "stripe"
+        method === "stripe"
           ? `${baseUrl}/api/stripe/create-payment-link`
           : `${baseUrl}/api/payment/alfabank/pay`;
-  
+
       const response = await axios.post(endpoint, orderDetails, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json",
         },
       });
-  
+
       if (response.data.success) {
         setPaymentUrl(response.data.paymentUrl);
         setOrderId(response.data.orderId);
@@ -154,38 +129,42 @@ const InvoiceCreator = ({ onClose, courseId }) => {
       setLoading(false);
     }
   };
-  
-  // Email sender
+
   const handleSendEmail = async () => {
     if (!selectedUser?.value || !paymentUrl || !orderId) {
-      return alert("Missing required data for email.");
+      return toast.error("Missing required data for email");
     }
 
-    const orderNumber = Math.floor(100000 + Math.random() * 900000).toString();
-  
-    const packageName = itemChoice === 'manual' ? customItem : selectedItem?.value;
-    const currencyFinal = itemChoice === 'manual'
-      ? currency
-      : courseItems.find(item => item.name === selectedItem?.value)?.currency;
-  
     const emailData = {
       email: selectedUser.value,
       courseId,
       orderId,
       paymentUrl,
-      transactionId:orderNumber,
-      package: packageName,
-      currency: currencyFinal,
+      transactionId: Math.floor(100000 + Math.random() * 900000).toString(),
+      packages: items.map((i) => ({
+        name: i.name,
+        quantity: i.quantity,
+        amount: i.amount,
+        currency: selectedMethod === "alfabank" ? "RUB" : "INR",
+      })),
+      currency: selectedMethod === "alfabank" ? "RUB" : "INR",
+      totalAmount: items.reduce((acc, i) => acc + i.amount * i.quantity, 0),
     };
-  
+
+    setEmailSending(true);
+
     try {
-      const res = await axios.post(`${baseUrl}/api/email/send-email`, emailData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-      });
-  
+      const res = await axios.post(
+        `${baseUrl}/api/email/send-email`,
+        emailData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
       if (res.data.success) {
         toast.success("📧 Email sent successfully!");
       } else {
@@ -193,33 +172,34 @@ const InvoiceCreator = ({ onClose, courseId }) => {
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to send email.");
+    } finally {
+      setEmailSending(false);
     }
   };
-  
-  
-  // WhatsApp sender
+
   const handleSendWhatsApp = async () => {
-    if (!selectedUser?.value || !paymentUrl || !transactionId || !orderId) {
-      return alert("Missing required data for WhatsApp.");
+    if (!selectedUser?.value || !paymentUrl || !orderId) {
+      return toast.error("Missing required data for WhatsApp");
     }
-  
-    const packageName = itemChoice === 'manual' ? customItem : selectedItem?.value;
-    const currencyFinal = itemChoice === 'manual'
-      ? currency
-      : courseItems.find(item => item.name === selectedItem?.value)?.currency;
-  
+
     const wpData = {
       to: selectedUser.value,
       message: `Please complete your payment: ${paymentUrl}`,
       courseId,
       orderId,
-      transactionId,
+      transactionId: Math.floor(100000 + Math.random() * 900000).toString(),
       paymentUrl,
       email: selectedUser.value,
-      package: packageName,
-      currency: currencyFinal,
+      packages: items.map((i) => ({
+        name: i.name,
+        quantity: i.quantity,
+        amount: i.amount,
+        currency: selectedMethod === "alfabank" ? "RUB" : "INR",
+      })),
+      currency: selectedMethod === "alfabank" ? "RUB" : "INR",
+      payableAmount: items.reduce((acc, i) => acc + i.amount * i.quantity, 0),
     };
-  
+
     try {
       const res = await axios.post(`${baseUrl}/api/whatsapp/send-wp`, wpData, {
         headers: {
@@ -227,7 +207,7 @@ const InvoiceCreator = ({ onClose, courseId }) => {
           "Content-Type": "application/json",
         },
       });
-  
+
       if (res.data.success) {
         toast.success("📲 WhatsApp message sent!");
       } else {
@@ -237,128 +217,192 @@ const InvoiceCreator = ({ onClose, courseId }) => {
       toast.error(err.response?.data?.message || "WhatsApp error.");
     }
   };
-  
-
-  const itemOptions = courseItems.map(item => ({
-    value: item.name,
-    label: `${item.name} - ${item.amount} ${item.currency}`,
-  }));
 
   return (
     <div className="invoice-creator-modal-overlay">
-      <div className="invoice-creator-modal">
-        <button className="invoice-creator-close-icon" onClick={onClose}>
+      <ToastContainer className="custom-toast-container" />
+      <div className="invoice-creator-modal-container">
+        <button className="invoice-close-btn" onClick={onClose}>
           <AiOutlineClose size={20} />
         </button>
 
-        <h2>Create Invoice</h2>
-        <form onSubmit={handleSubmit}>
-          <label>Select User</label>
+        <h2 className="invoice-title">{t("invoiceCreator.title")}</h2>
+
+        <div className="invoice-section">
+          <label className="invoice-label">{t("invoiceCreator.selectUser")}</label>
           <Select
             options={users}
             value={selectedUser}
             onChange={setSelectedUser}
-            placeholder="Search or select a user"
-            className="invoice-creator-select"
+            placeholder={t("invoiceCreator.searchUser")}
+            className="invoice-select"
+            classNamePrefix="invoice-select"
           />
+        </div>
 
-          <label style={{ marginTop: '1rem' }}>Select Item Method</label>
-          <div className="choice-buttons">
-            <button
+        <div className="invoice-section">
+          <label className="invoice-label">{t("invoiceCreator.paymentMethod")}</label>
+          <div className="payment-method-buttons">
+          <button
               type="button"
-              className={itemChoice === 'select' ? 'active' : ''}
+              className={`method-btn ${selectedMethod === "alfabank" ? "active" : ""}`}
               onClick={() => {
-                setItemChoice('select');
-                setCustomItem('');
-                setAmount('');
-                setCurrency('INR');
+                setSelectedMethod("alfabank");
+                setItems(items.map((i) => ({ ...i, currency: "RUB" })));
               }}
             >
-              Select from List
+              AlfaBank (RUB)
             </button>
             <button
               type="button"
-              className={itemChoice === 'manual' ? 'active' : ''}
+              className={`method-btn ${selectedMethod === "stripe" ? "active" : ""}`}
               onClick={() => {
-                setItemChoice('manual');
-                setSelectedItem(null);
+                setSelectedMethod("stripe");
+                setItems(items.map((i) => ({ ...i, currency: "INR" })));
               }}
             >
-              Enter Manually
+              Stripe (INR)
             </button>
           </div>
+        </div>
 
-          {itemChoice === 'select' && (
-            <Select
-              options={itemOptions}
-              value={selectedItem}
-              onChange={setSelectedItem}
-              className="invoice-creator-select"
-            />
-          )}
+        <div className="invoice-section">
+          <h3 className="invoice-section-title">
+            <span className="section-title-bar"></span>
+            {t("invoiceCreator.items")}
+          </h3>
+          <div className="items-header">
+            <span>{t("invoiceCreator.description")}</span>
+            <span>{t("invoiceCreator.quantity")}</span>
+            <span>{t("invoiceCreator.amount")}</span>
+            <span>{t("invoiceCreator.currency")}</span>
+          </div>
 
-          {itemChoice === 'manual' && (
-            <div className="manual-item-fields">
+          {items.map((item, index) => (
+            <div key={index} className="item-row">
               <input
                 type="text"
-                placeholder="Package Name"
-                value={customItem}
-                onChange={(e) => setCustomItem(e.target.value)}
-                className="invoice-creator-input"
+                placeholder={t("invoiceCreator.description")}
+                value={item.name}
+                onChange={(e) => {
+                  const updated = [...items];
+                  updated[index].name = e.target.value;
+                  setItems(updated);
+                }}
+                className="item-input"
               />
               <input
                 type="number"
-                placeholder="Amount"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="invoice-creator-input"
+                placeholder="1"
+                min="1"
+                value={item.quantity}
+                onChange={(e) => {
+                  const updated = [...items];
+                  updated[index].quantity = parseInt(e.target.value) || 1;
+                  setItems(updated);
+                }}
+                className="item-input qty"
               />
-              <select
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-                className="invoice-creator-input"
+              <input
+                type="number"
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                value={item.amount}
+                onChange={(e) => {
+                  const updated = [...items];
+                  updated[index].amount = parseFloat(e.target.value) || 0;
+                  setItems(updated);
+                }}
+                className="item-input amount"
+              />
+              <input
+                type="text"
+                value={item.currency}
+                disabled
+                className="item-input currency"
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveItem(index)}
+                className="remove-item-btn"
+                disabled={items.length <= 1}
+                title={t("invoiceCreator.removeItem")}
               >
-                <option value="INR">INR</option>
-                <option value="RUP">RUP</option>
-              </select>
+                ×
+              </button>
             </div>
-          )}
+          ))}
 
-          <div className="actions">
+<div className="invoice-total-row">
+  <span className="invoice-total-label">{t("invoiceCreator.totalAmount")}:</span>
+  <span className="invoice-total-value">
+    {items
+      .reduce((acc, i) => acc + i.amount * i.quantity, 0)
+      .toFixed(2)}{" "}
+    {selectedMethod === "alfabank" ? "RUB" : "INR"}
+  </span>
+</div>
+
+
           <button
-              type="button"
-              onClick={handlePayment}
-              disabled={loading}
-              className="generate-btn"
-            >
-              {loading ? "Generating..." : "Generate Payment Link"}
-            </button>
-            <div className="send-actions-row">
-            <div className="send-actions-row">
-  <button type="button" className="email-btn" onClick={handleSendEmail}>
-    📧 Send via Email
-  </button>
-  <button type="button" className="whatsapp-btn" onClick={handleSendWhatsApp}>
-    📲 Send via WhatsApp
-  </button>
-</div>
+            className="add-item-btn"
+            type="button"
+            onClick={handleAddItem}
+          >
+            + {t("invoiceCreator.addItem")}
+          </button>
+        </div>
 
-</div>
-
-           
-          </div>
+        <div className="invoice-actions">
+          <button
+            type="button"
+            onClick={handlePayment}
+            disabled={loading}
+            className={`generate-btn ${loading ? "loading" : ""}`}
+          >
+            {loading ? (
+              <>
+                <span className="spinner"></span>
+                {t("invoiceCreator.generating")}
+              </>
+            ) : (
+              t("invoiceCreator.generateLink")
+            )}
+          </button>
 
           {paymentUrl && (
-            <div className="payment-result">
-              <strong>Payment Link:</strong>{" "}
-              <a href={paymentUrl} target="_blank" rel="noreferrer" className="payment-link">
-                Payment Link
+            <div className="payment-link-container">
+              <p className="payment-link-label">{t("invoiceCreator.paymentLink")}</p>
+              <a
+                href={paymentUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="payment-link"
+              >
+                {paymentUrl}
               </a>
+              <div className="share-buttons">
+                <button
+                  className="share-btn email"
+                  onClick={handleSendEmail}
+                  disabled={emailSending}
+                >
+                  {emailSending ? "Sending..." : <><i className="icon-email"></i> {t("invoiceCreator.email")}</>}
+                </button>
+
+                <button
+                  className="share-btn whatsapp"
+                  onClick={handleSendWhatsApp}
+                >
+                  <i className="icon-whatsapp"></i> {t("invoiceCreator.whatsapp")}
+                </button>
+              </div>
             </div>
           )}
 
-          {error && <div className="error-text">❌ {error}</div>}
-        </form>
+          {error && <div className="error-message">{error}</div>}
+        </div>
       </div>
     </div>
   );

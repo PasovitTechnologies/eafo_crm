@@ -1,201 +1,400 @@
-/* Modal Overlay */
+/* Base Styles */
 .invoice-creator-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: rgba(0, 0, 0, 0.4);
-    z-index: 1000;
-  }
-  
-  .invoice-creator-modal {
-    background-color: #fff;
-    padding: 30px;
-    width: 600px;
-    max-width: 90%;
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    position: relative;
-    overflow-y: auto;
-  }
-  
-  .invoice-creator-close-icon {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    color: #333;
-    font-size: 18px;
-    cursor: pointer;
-    transition: color 0.3s;
-  }
-  
-  .invoice-creator-close-icon:hover {
-    color: #e74c3c;
-  }
-  
-  /* Header */
-  h2 {
-    text-align: center;
-    font-size: 1.5rem;
-    color: #333;
-    margin-bottom: 1.5rem;
-  }
-  
-  /* Form Inputs */
-  label {
-    font-size: 1rem;
-    color: #333;
-    margin-bottom: 0.5rem;
-    display: block;
-  }
-  
-  .invoice-creator-select,
-  .invoice-creator-input,
-  .invoice-creator-input select {
-    width: 100%;
-    padding: 10px;
-    margin: 0.5rem 0 1rem 0;
-    border-radius: 5px;
-    border: 1px solid #ddd;
-    font-size: 1rem;
-    transition: border-color 0.3s;
-  }
-  
-  .invoice-creator-select:focus,
-  .invoice-creator-input:focus,
-  .invoice-creator-input select:focus {
-    border-color: #3498db;
-    outline: none;
-  }
-  
-  /* Button Styles */
-  .choice-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 1.5rem;
-  }
-  
-  .choice-buttons button {
-    padding: 10px 20px;
-    background-color: #3498db;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    flex-grow: 1;
-    margin: 0 5px;
-  }
-  
-  .choice-buttons button.active,
-  .choice-buttons button:hover {
-    background-color: #2980b9;
-  }
-  
-  .save-btn,
-  .generate-btn {
-    padding: 12px 20px;
-    background-color: #2ecc71;
-    border: none;
-    border-radius: 5px;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    width: 100%;
-    margin-bottom: 1rem;
-  }
-  
-  .save-btn:hover,
-  .generate-btn:hover {
-    background-color: #27ae60;
-  }
-  
-  .save-btn:disabled,
-  .generate-btn:disabled {
-    background-color: #95a5a6;
-    cursor: not-allowed;
-  }
-  
-  /* Payment Link Section */
-  .payment-result {
-    margin-top: 1.5rem;
-    font-size: 1rem;
-  }
-  
-  .payment-link {
-    color: #3498db;
-    text-decoration: none;
-    font-weight: bold;
-    transition: color 0.3s;
-  }
-  
-  .payment-link:hover {
-    color: #2980b9;
-  }
-  
-  .error-text {
-    color: #e74c3c;
-    font-size: 1rem;
-    margin-top: 1rem;
-    text-align: center;
-  }
-  
-  /* Modal Footer */
-  .actions {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-  .send-actions-row {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  
-  .email-btn, .whatsapp-btn {
-    flex: 1;
-    padding: 10px;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    border-radius: 4px;
-  }
-  
-  .email-btn {
-    background-color: #007bff;
-    color: white;
-  }
-  
-  .whatsapp-btn {
-    background-color: #25d366;
-    color: white;
-  }
-  
-  /* Mobile Responsiveness */
-  @media (max-width: 768px) {
-    .invoice-creator-modal {
-      width: 90%;
-    }
-  
-    .choice-buttons {
-      flex-direction: column;
-    }
-  
-    .choice-buttons button {
-      margin-bottom: 0.5rem;
-    }
-  
-    .save-btn,
-    .generate-btn {
-      width: 100%;
-    }
-  }
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.invoice-creator-modal-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 2rem;
+  position: relative;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.invoice-close-btn {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  transition: color 0.2s;
+  padding: 0.5rem;
+}
+
+.invoice-close-btn:hover {
+  color: #333;
+}
+
+.invoice-title {
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  font-size: 1.8rem;
+}
+
+.invoice-section {
+  margin-bottom: 2rem;
+}
+
+.invoice-label {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: #4a5568;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.invoice-section-title {
+  color: #4a5568;
+  margin-bottom: 1.25rem;
+  font-weight: 500;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-title-bar {
+  display: block;
+  width: 4px;
+  height: 1.2rem;
+  background: #4299e1;
+  border-radius: 2px;
+}
+
+/* Select Styles */
+.invoice-select {
+  margin-bottom: 1rem;
+}
+
+.invoice-select__control {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  min-height: 44px;
+  transition: all 0.2s;
+}
+
+.invoice-select__control--is-focused {
+  border-color: #4299e1;
+  box-shadow: 0 0 0 1px #4299e1;
+}
+
+.invoice-select__placeholder {
+  color: #a0aec0;
+}
+
+/* Payment Method Buttons */
+.payment-method-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.method-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #4a5568;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.method-btn:hover {
+  border-color: #cbd5e0;
+}
+
+.method-btn.active {
+  background: #ebf8ff;
+  border-color: #4299e1;
+  color: #2b6cb0;
+}
+
+/* Items Table */
+.items-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  padding: 0 0.5rem;
+  font-size: 0.85rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+/* Item row container */
+.item-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  align-items: center;
+}
+
+/* Remove item button */
+.remove-item-btn {
+  background: #fff5f5;
+  color: #e53e3e;
+  border: 1px solid #fed7d7;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1.2rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.remove-item-btn:hover {
+  background: #fed7d7;
+  color: #c53030;
+}
+
+.remove-item-btn:disabled {
+  background: #f7fafc;
+  color: #cbd5e0;
+  border-color: #e2e8f0;
+  cursor: not-allowed;
+}
+
+/* Update items header to match new column structure */
+.items-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr auto;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  padding: 0 0.5rem;
+  font-size: 0.85rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+/* Add empty cell in header for the remove button */
+.items-header span:last-child {
+  visibility: hidden;
+}
+
+.item-input {
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.item-input:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+.item-input.qty {
+  text-align: center;
+}
+
+.item-input.amount {
+  text-align: right;
+}
+
+.item-input.currency {
+  background-color: #f7fafc;
+  color: #718096;
+  cursor: not-allowed;
+  text-align: center;
+  font-weight: 500;
+}
+
+/* Buttons */
+.add-item-btn {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px dashed #cbd5e0;
+  border-radius: 8px;
+  background: transparent;
+  color: #4a5568;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.5rem;
+}
+
+.add-item-btn:hover {
+  border-color: #a0aec0;
+  background: #f7fafc;
+}
+
+.generate-btn {
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #4299e1;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.generate-btn:hover {
+  background: #3182ce;
+}
+
+.generate-btn.loading {
+  background: #bee3f8;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Payment Link */
+.payment-link-container {
+  background: #f0fff4;
+  border: 1px solid #c6f6d5;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.payment-link-label {
+  font-size: 0.9rem;
+  color: #2f855a;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.payment-link {
+  display: block;
+  color: #2b6cb0;
+  text-decoration: none;
+  word-break: break-all;
+  margin-bottom: 1rem;
+  transition: color 0.2s;
+}
+
+.payment-link:hover {
+  color: #2c5282;
+  text-decoration: underline;
+}
+
+.share-buttons {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.share-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border: none;
+}
+
+.share-btn.email {
+  background: #edf2f7;
+  color: #2d3748;
+}
+
+.share-btn.email:hover {
+  background: #e2e8f0;
+}
+
+.share-btn.whatsapp {
+  background: #ebf8ff;
+  color: #2b6cb0;
+}
+
+.share-btn.whatsapp:hover {
+  background: #bee3f8;
+}
+
+.icon-email, .icon-whatsapp {
+  font-size: 1.1rem;
+}
+
+/* Error Message */
+.error-message {
+  color: #e53e3e;
+  background: #fff5f5;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #fed7d7;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.invoice-total-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+  font-weight: bold;
+  font-size: 1.1rem;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 0.75rem;
+}
+
+.invoice-total-label {
+  color: #444;
+}
+
+.invoice-total-value {
+  color: #111;
+}

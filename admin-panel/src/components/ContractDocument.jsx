@@ -30,6 +30,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
     agreement_date: formatDateForInput(data?.agreement_date),
     service_name: data?.service_name || "",
     total_amount: data?.total_amount || 0,
+    packages: data?.packages || [],
   });
 
   useEffect(() => {
@@ -42,6 +43,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
       agreement_number: data?.agreement_number || "",
       agreement_date: formatDateForInput(data?.agreement_date),
       total_amount: data?.total_amount || 0,
+      packages: data?.packages || [],
     });
   }, [data]);
 
@@ -164,6 +166,13 @@ const ContractDocument = ({ data = {}, onClose }) => {
     const year = d.getFullYear();
     return `${day}.${month}.${year}`;
   };
+
+
+  const total = formData.packages.reduce(
+    (sum, pkg) => sum + (pkg.amount || 0) * (pkg.quantity || 1),
+    0
+  );
+  
 
 
 
@@ -366,15 +375,18 @@ const ContractDocument = ({ data = {}, onClose }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>{formData.service_name}</td>
-                      <td>1</td>
-                      <td>шт</td>
-                      <td>{formatCurrency(formData.total_amount)}</td>
-                      <td>{formatCurrency(formData.total_amount)}</td>
-                    </tr>
-                  </tbody>
+  {formData.packages.map((pkg, index) => (
+    <tr key={index}>
+      <td>{index + 1}</td>
+      <td>{pkg.name}</td>
+      <td>{pkg.quantity || 1}</td>
+      <td>шт</td>
+      <td>{formatCurrency(pkg.amount)}</td>
+      <td>{formatCurrency((pkg.amount || 0) * (pkg.quantity || 1))}</td>
+    </tr>
+  ))}
+</tbody>
+
                 </table>
 
                 <div
@@ -403,7 +415,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
                             fontWeight: "bold",
                           }}
                         >
-                          {formatCurrency(formData.total_amount)}
+                          {formatCurrency(total)}
                         </td>
                       </tr>
                       <tr>
@@ -417,7 +429,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
                             fontWeight: "bold",
                           }}
                         >
-                          {formatCurrency(formData.total_amount)}
+                          {formatCurrency(total)}
                         </td>
                       </tr>
                     </tbody>
@@ -435,10 +447,10 @@ const ContractDocument = ({ data = {}, onClose }) => {
                   {/* Item count and total amount */}
                   <p style={{ fontSize: "14px" }}>
                     Всего наименований 1, на сумму{" "}
-                    {formatCurrency(formData.total_amount)}.
+                    {formatCurrency(total)}.
                   </p>
                   <p style={{ fontSize: "14px" }}>
-                    Сумма прописью: <b>{numberToWordsRussian(parseFloat(formData.total_amount || 0))}</b>
+                    Сумма прописью: <b>{numberToWordsRussian(parseFloat(total || 0))}</b>
                   </p>
 
                   {/* Compact table for total and VAT */}

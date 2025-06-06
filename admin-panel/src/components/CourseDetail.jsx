@@ -585,7 +585,7 @@ const CourseDetail = () => {
     <div className="modal-overlay">
       <div className="item-modal">
         <button className="item-modal-close" onClick={closeModal}>&times;</button>
-        <h2 className="item-model-heading">{modalType === "editItem" ? t("courseDetail.modelEditItems") : t("courseDetail.modelAddItems")}</h2>
+        <h2 className="item-model-heading">{modalType === "editItem" ? t("courseDetail.modalEditItems") : t("courseDetail.modalAddItems")}</h2>
         <div className="item-form">
         <input 
           type="text" 

@@ -26,7 +26,8 @@ const AktDocument = ({ data = {}, onClose }) => {
     service_name: data?.service_name || "",
     agreement_number: data?.agreement_number || "",
     agreement_date: formatDateForInput(data?.agreement_date),
-    total_amount: data?.total_amount || 0
+    total_amount: data?.total_amount || 0,
+    packages: data?.packages || [],
   });
   console.log(formData.total_amount)
 
@@ -39,7 +40,8 @@ const AktDocument = ({ data = {}, onClose }) => {
       service_name: data?.service_name || "",
       agreement_number: data?.agreement_number || "",
       agreement_date: formatDateForInput(data?.agreement_date),
-      total_amount: data?.total_amount || 0
+      total_amount: data?.total_amount || 0,
+      packages: data?.packages || [],
     });
   }, [data]);
 
@@ -164,6 +166,12 @@ const AktDocument = ({ data = {}, onClose }) => {
     const year = d.getFullYear();
     return `${day}.${month}.${year}`;
   };
+
+  const total = formData.packages?.reduce(
+    (sum, p) => sum + (p.amount || 0) * (p.quantity || 1),
+    0
+  );
+  
   
   
 
@@ -213,11 +221,11 @@ const AktDocument = ({ data = {}, onClose }) => {
         ) : (
           <div className="akt-content" ref={aktRef}>
             <div className="container">
-              <p className="heading" style={{ fontSize: "25px", fontWeight: "bold", textDecoration: "underline" }}>
+              <p className="heading" style={{ fontSize: "18px", fontWeight: "bold", textDecoration: "underline" }}>
               Акт сдачи-приемки услуг № {formData.agreement_number|| "N/A"} {formatDateDDMMYYYY(formData.agreement_date) || ""} г от 8 августа 2025 г. 
             </p>
 
-            <div style={{ marginTop: "20px" }}>
+            <div>
               <table className="info-table">
                 <tbody>
                   <tr>
@@ -252,34 +260,31 @@ const AktDocument = ({ data = {}, onClose }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>1</td>
-                    <td>{formData.service_name}</td>
-                    <td style={{textAlign:"right"}}>1</td>
-                    <td>шт</td>
-                    <td style={{textAlign:"right"}}>{formatCurrency(formData.total_amount)}</td>
-                    <td style={{textAlign:"right"}}>{formatCurrency(formData.total_amount)}</td>
-                  </tr>
-                  <tr>
-                    <td style={{border:"none"}}></td>
-                    <td style={{border:"none"}}></td>
-                    <td style={{border:"none"}}></td>
-                    <td style={{border:"none"}}></td>
-                    <td style={{border:"none",textAlign:"right"}}>Итого:</td>
-                    <td style={{textAlign:"right"}}>{formatCurrency(formData.total_amount)}</td>
-                  </tr>
-                  <tr>
-                    <td style={{border:"none"}}></td>
-                    <td style={{border:"none"}}></td>
-                    <td style={{border:"none"}}></td>
-                    <td style={{border:"none"}}></td>
-                    <td style={{border:"none",textAlign:"right"}}>Без налога (НДС)</td>
-                    <td style={{border:"none",textAlign:"right"}}>-</td>
-                  </tr>
-                </tbody>
+  {formData.packages?.map((pkg, idx) => (
+    <tr key={idx}>
+      <td>{idx + 1}</td>
+      <td>{pkg.name}</td>
+      <td style={{ textAlign: "right" }}>{pkg.quantity || 1}</td>
+      <td>шт</td>
+      <td style={{ textAlign: "right" }}>{formatCurrency(pkg.amount)}</td>
+      <td style={{ textAlign: "right" }}>{formatCurrency((pkg.amount || 0) * (pkg.quantity || 1))}</td>
+    </tr>
+  ))}
+  <tr>
+    <td colSpan="4" style={{border:"none" }}/>
+    <td style={{ textAlign: "right" , border:"none"}}>Итого:</td>
+    <td style={{ textAlign: "right" }}>{formatCurrency(total)}</td>
+  </tr>
+  <tr>
+    <td colSpan="4" style={{border:"none" }}/>
+    <td style={{ textAlign: "right", border:"none" }}>Без налога (НДС)</td>
+    <td style={{ textAlign: "right" }}>-</td>
+  </tr>
+</tbody>
+
               </table>
 
-              <p>Сумма прописью: <b>{numberToWordsRussian(parseFloat(formData.total_amount || 0))}</b></p>
+              <p>Сумма прописью: <b>{numberToWordsRussian(total)}</b></p>
               <p style={{marginTop:"10px"}}>Вышеперечисленные услуги выполнены полностью и в срок. Заказчик претензий по объему, качеству и срокам оказания услуг не имеет, в том числе и при неподписании акта сдачи-приемки.
 
 </p>

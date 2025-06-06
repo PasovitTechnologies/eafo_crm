@@ -27,29 +27,40 @@ const ruleSchema = new mongoose.Schema({
 
 const paymentSchema = new mongoose.Schema({
   email: { type: String, required: false },
-  transactionId: { type: String, required: true },
+
+  transactionId: { type: String, required: true }, // Shared ID for the whole transaction
   invoiceNumber: { type: String, required: false, default: "" },
   paymentId: { type: String, required: false },
-  package: { type: String, required: true },
-  amount: { type: Number, required: true },
-  currency: { type: String, required: true },
   paymentLink: { type: String, required: false },
   orderId: { type: String, required: false },
-  discountCode: { type: String, required: false },           
+
+  // Multiple packages per transaction
+  packages: [
+    {
+      name: { type: String, required: true },
+      amount: { type: Number, required: true },
+      quantity: { type: String, required: true},
+      currency: { type: String, required: true },
+    }
+  ],
+
+  totalAmount: { type: Number, required: true },       // Sum of all package amounts
+  payableAmount: { type: Number, required: false },    // Final amount after discount (optional)
+
+  discountCode: { type: String, required: false },
   discountPercentage: { type: String, required: false },
   discountStatus: { type: String, required: false },
-  payableAmount: { type: String, required: false },
+
   paidAt: { type: Date },
-  
-  
+  time: { type: Date },
 
   status: {
     type: String,
     enum: ["Not created", "Pending", "Paid", "Failed", "Expired", "free"],
     default: "Not created",
   },
-  time: { type: Date },
 });
+
 
 // Course Schema
 const courseSchema = new mongoose.Schema(

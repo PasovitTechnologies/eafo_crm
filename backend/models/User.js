@@ -91,27 +91,34 @@ const userSchema = new mongoose.Schema(
           {
             transactionId: {
               type: String,    // 6-digit string
-              required: true
-            }, 
-            package: { type: String, required: false },         // e.g., "Package 1"
-            amount: { type: Number, required: false },           // e.g., 24500
-            currency: { type: String, required: false },         // e.g., "INR"
-            orderId: { type: String, required: false },         // e.g., "INR"
-
-            // Fields you will push LATER during payment processing
-            invoiceNumber: { type: String, required: false, default: "" },
-            paymentId: { type: String, required: false },         // Unique ID from payment gateway
-            paymentLink: { type: String, required: false },       // URL to payment link
-            time: { type: Date },                                 // Will push manually later
-            status: { type: String, default: "Not created" },    
-            discountCode: { type: String, required: false },            
-            discountPercentage: { type: String, required: false },
-            discountStatus: { type: String, required: false },
-            payableAmount: { type: String, required: false },
+              required: true,
+            },
+            packages: [
+              {
+                name: { type: String, required: true },
+                quantity: { type: String, required: true},
+                amount: { type: Number, required: true },
+                currency: { type: String, required: true },
+              }
+            ],
+            totalAmount: { type: Number, required: true }, // Sum of package amounts
+            payableAmount: { type: Number, required: false }, // After discount
+            currency: { type: String, required: true },
+        
+            orderId: { type: String, required: false },
+            invoiceNumber: { type: String, default: "" },
+            paymentId: { type: String, required: false },
+            paymentLink: { type: String, required: false },
+            time: { type: Date },
+            status: { type: String, default: "Not created" },
+        
+            discountCode: { type: String },
+            discountPercentage: { type: Number },
+            discountStatus: { type: String },
             paidAt: { type: Date },
-
           }
         ],
+        
 
         qrCodes: [{
           qrFileId: { type: mongoose.Schema.Types.ObjectId, required: true },

@@ -248,38 +248,49 @@
     "noSubmissions": "Записей не найдено."
   },
 
-  "InvoiceModal": {
-    "item": "Товары",
-    "entry": "Записи счета",
-    "name": "Наименование",
+  "invoiceModal": {
+    "title": "Платежная квитанция",
+    "paymentMethod": "Способ оплаты",
+    "items": "Позиции счета",
+    "itemName": "Наименование",
+    "quantity": "Кол-во",
     "amount": "Сумма",
-    "addItem": "Добавить элемент",
+    "removeItem": "Удалить позицию",
+    "addItem": "Добавить позицию",
+    "hideRegistration": "Скрыть регистрацию",
+    "viewRegistration": "Просмотр регистрации",
+    "totalAmount": "Итоговая сумма",
+    "originalTotal": "Исходная сумма",
+    "discount": "Скидка ({{percentage}}%)",
+    "totalPayable": "К оплате",
     "total": "Итого",
-    "generateLink": "Создать ссылку для оплаты",
+    "generateLink": "Создать платежную ссылку",
     "processing": "Обработка...",
-    "sendWhatsApp": "Отправить через WhatsApp",
-    "sendEmail": "Отправить по Email",
+    "generateInvoiceOnly": "Только счет-фактура",
+    "paymentLinkGenerated": "Платежная ссылка создана",
+    "linkCopied": "Ссылка скопирована",
+    "copyLink": "Копировать ссылку",
+    "sendEmail": "Отправить по email",
+    "sendWhatsApp": "Отправить WhatsApp",
     "sending": "Отправка...",
+    "markAsFree": "Отметить как бесплатного участника",
+    "freeAccess": "Участник имеет бесплатный доступ",
     "paymentHistory": "История платежей",
     "date": "Дата",
-    "time": "Время",
-    "status": "Статус",
-    "noSubmissions": "История платежей для этого курса отсутствует",
-    "fetchError": "Не удалось получить историю платежей",
-    "invoiceDetails": "Детали счета",
-    "package": "Пакет",
-    "paymentLink": "Ссылка для оплаты",
-    "successPopup": "Счет успешно отправлен!",
-    "akt": "АКТ",
-    "contract": "Счета",
-    "orderId": "Номер заказа",
-    "invoiceNumber":"Номер счета",
-    "paymentMethod":"Способ оплаты",
-    "markAsPaid": "Отметить как оплачено",
-    "markAsFree": "Сделать участника бесплатным",
-    "markAsFreeStatus": "Отмечен как бесплатный",
-    "generateInvoiceOnly": "Генерировать без оплаты Ссылку"
-
+    "status": {
+      "paid": "Оплачено",
+      "pending": "В ожидании",
+      "failed": "Ошибка",
+      "unknown": "Неизвестно"
+    },
+    "viewLink": "Просмотр ссылки",
+    "viewAkt": "Просмотр Акта",
+    "viewContract": "Просмотр Договора",
+    "resendEmail": "Отправить email повторно",
+    "resendWhatsApp": "Отправить WhatsApp повторно",
+    "markAsPaid": "Отметить как оплаченный",
+    "noPaymentHistory": "История платежей отсутствует",
+    "emailSentSuccess": "Email успешно отправлен!"
   }
   ,
   "CourseManager": {
@@ -768,6 +779,39 @@
     "ui_registered": "UI зарегистрированы",
     "all_registered": "Полностью зарегистрированы"
   }
+  },
+
+  "invoiceCreator": {
+    "title": "Создать счет",
+    "selectUser": "Выберите пользователя",
+    "searchUser": "Найти или выбрать пользователя",
+    "paymentMethod": "Способ оплаты",
+    "items": "Позиции",
+    "description": "Описание",
+    "quantity": "Кол-во",
+    "amount": "Сумма",
+    "currency": "Валюта",
+    "addItem": "Добавить позицию",
+    "generateLink": "Создать платежную ссылку",
+    "generating": "Создание...",
+    "paymentLink": "Платежная ссылка:",
+    "email": "Эл. почта",
+    "whatsapp": "WhatsApp",
+    "emailError": "Отсутствуют данные для отправки по почте",
+    "fillFieldsError": "Заполните все поля и выберите пользователя",
+    "minItemError": "Требуется хотя бы один товар в счете",
+     "totalAmount": "Общая сумма"
+  },
+
+  "registrationForms": {
+    "title": "Формы регистрации",
+    "noForms": "Формы регистрации не найдены",
+    "noFormsDescription": "Этот пользователь еще не отправлял формы регистрации.",
+    "courseId": "ID курса",
+    "submittedOn": "Отправлено",
+    "notProvided": "Не указано",
+    "loading": "Загрузка форм регистрации...",
+    "question": "Вопрос"
   }
 
 }

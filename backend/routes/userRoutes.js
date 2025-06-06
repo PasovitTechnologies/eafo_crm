@@ -13,6 +13,8 @@ const crypto = require("crypto");
 const { message } = require("telegram/client");
 const moment = require("moment-timezone");
 const Course = require("../models/Course");
+const { Form, Question } = require("../models/Form");
+
 
 
 
@@ -922,6 +924,55 @@ router.put("/:email/courses/:courseId/free", authenticateJWT, async (req, res) =
 });
 
 
+
+// Example using Express + Mongoose
+
+
+const getUserRegistrationFormsByEmail = async (req, res) => {
+  try {
+    const { email } = req.params;
+    if (!email) return res.status(400).json({ message: "Email is required." });
+
+    // 1. Find user by email
+    const user = await User.findOne({ email }).lean();
+    if (!user) return res.status(404).json({ message: "User not found." });
+
+    const results = [];
+
+    // 2. For each course, look for registered forms
+    for (const course of user.courses || []) {
+      for (const formRef of course.registeredForms || []) {
+        if (!formRef.isUsedForRegistration) continue;
+
+        // 3. Load form
+        const form = await Form.findById(formRef.formId).lean();
+        if (!form) continue;
+
+        // 4. Find this user's submission in form
+        const submission = form.submissions?.find(
+          (sub) => sub.email.toLowerCase() === email.toLowerCase()
+        );
+
+        if (submission) {
+          results.push({
+            courseId: course.courseId,
+            formId: form._id,
+            formName: form.formName,
+            questions: form.questions,
+            submission,
+          });
+        }
+      }
+    }
+
+    res.json({ registrationForms: results });
+  } catch (err) {
+    console.error("Error fetching registration forms:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+router.get("/registration-forms/:email", getUserRegistrationFormsByEmail);
 
 
 

@@ -44,6 +44,7 @@ const InvoiceEntries = () => {
   const [userNotesMap, setUserNotesMap] = useState({});
   const [hoveredRowId, setHoveredRowId] = useState(null);
 
+
   useEffect(() => {
     if (!courseId) return;
     fetchCoursePayments();
@@ -425,6 +426,16 @@ const InvoiceEntries = () => {
             )}
           </div>
         </div>
+        <div>
+        <button
+  onClick={() => setShowInvoiceCreator(true)}
+  className="create-invoice-btn"
+>
+  Create Invoice
+</button>
+
+
+        </div>
       </div>
 
       <div className="invoice-table-container">
@@ -451,16 +462,35 @@ const InvoiceEntries = () => {
                     <br />
                     <span>{payment.email || "N/A"}</span>
                   </td>
-                  <td>{payment.package || "N/A"}</td>
-                  <td>{`${payment.amount || 0} ${
-                    payment.currency || "USD"
-                  }`}</td>
                   <td>
-                    <OfferedAmountCell
-                      amount={payment.amount || 0}
-                      offerPercent={payment.discountPercentage || 0}
-                      currency={payment.currency || "USD"}
-                    />
+  {Array.isArray(payment.packages)
+    ? payment.packages.map((p) => p.name).join(", ")
+    : payment.package || "N/A"}
+</td>
+
+<td>
+<td>
+  {payment.packages?.length > 0
+    ? `${payment.packages
+        .reduce(
+          (sum, pkg) =>
+            sum + (parseFloat(pkg.amount) || 0) * (parseInt(pkg.quantity) || 1),
+          0
+        )
+        .toFixed(2)} ${payment.packages[0]?.currency || "USD"}`
+    : "N/A"}
+</td>
+
+</td>
+
+
+                  <td>
+                  <OfferedAmountCell
+  amount={payment.totalAmount || 0}
+  offerPercent={payment.discountPercentage || 0}
+  currency={payment.packages?.[0]?.currency || "USD"}
+/>
+
                   </td>
 
                   <td>
@@ -564,9 +594,13 @@ const InvoiceEntries = () => {
 
       {selectedSubmission && (
         <InvoiceModal
+          payment={selectedSubmission}
           submission={selectedSubmission}
           isOpen={!!selectedSubmission}
-          onClose={() => setSelectedSubmission(null)}
+          onClose={() => {
+          setSelectedSubmission(null);  
+          fetchCoursePayments(); // <- call on close
+                    }}
           courseId={courseId}
           discountCode={selectedSubmission.discountCode}
           discountPercentage={selectedSubmission.discountPercentage}
@@ -594,7 +628,10 @@ const InvoiceEntries = () => {
       )}
       {showInvoiceCreator && (
         <InvoiceCreator
-          onClose={() => setShowInvoiceCreator(false)}
+        onClose={() => {
+          setShowInvoiceCreator(false);
+          fetchCoursePayments(); // <- call on close
+        }}
           submission={selectedSubmission}
           courseId={courseId}
         />

@@ -1,27 +1,38 @@
-/* ================================
-   Modal Overlay
-================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&family=PT+Sans+Narrow:wght@400;700&display=swap');
+/* Modern Modal Styles with #033672 color scheme */
+.modern-invoice-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 900px;
+  max-height: 90vh;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+  border-top: 4px solid #033672;
+}
 
-body.modal-open {
-  overflow: hidden;
-
+.modern-invoice-modal.open {
+  display: block;
 }
 
 .invoice-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
+  right: 0;
+  bottom: 0;
+  background-color: rgba(3, 54, 114, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 999;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.4s ease, visibility 0.4s ease;
-  z-index: 999;
-  padding: 16px;
-  box-sizing: border-box;
-
+  transition: all 0.3s ease;
 }
 
 .invoice-modal-overlay.open {
@@ -29,513 +40,799 @@ body.modal-open {
   visibility: visible;
 }
 
-/* ================================
-   Slide-in Sidebar Modal
-================================ */
-.invoice-modal {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 600px;
-  max-width: 100%;
-  max-height: 100vh;     /* ensures modal fits viewport */
-  overflow-y: auto;
-  background: #fff;
-  box-shadow: -4px 0 10px rgba(0, 0, 0, 0.2);
-  padding: 30px 20px;
-  overflow-y: auto;
-  transform: translateX(100%);
-  transition: transform 0.5s ease, opacity 0.3s ease;
-  opacity: 0;
-  z-index: 1000;
-  box-sizing: border-box;
-  padding-bottom: 100px;
-  font-family: "Inter Tight", sans-serif;
-
-
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.invoice-modal.open {
-  transform: translateX(0);
-  opacity: 1;
+.modal-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #033672;
+  margin: 0;
 }
 
-/* ================================
-   Close Button
-================================ */
-.close-modal-btn {
+.close-button {
   background: none;
   border: none;
-  font-size: 28px;
-  position: absolute;
-  top: 10px;
-  right: 15px;
   cursor: pointer;
-  color: #555;
-  transition: color 0.3s ease;
-  width: auto; /* Ensures it doesn’t stretch */
-  height: auto;
-  display: inline-block;
-  flex-shrink: 0;
-  
+  padding: 8px;
+  color: #666;
+  transition: color 0.2s;
 }
 
-
-.close-modal-btn:hover {
-  color: #ff4d4d;
+.close-button:hover {
+  color: #033672;
 }
 
-/* ================================
-   Form Elements
-================================ */
-.invoice-modal select,
-.invoice-modal .items-container input {
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  margin-bottom: 15px;
-  transition: border 0.3s;
-  box-sizing: border-box;
-}
-
-.invoice-modal select:focus,
-.invoice-modal input:focus {
-  border-color: #007bff;
-  outline: none;
-}
-
-/* ================================
-   Items Container
-================================ */
-.items-container {
-  margin-top: 15px;
-}
-
-.item-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 10px;
-  margin-bottom: 12px;
-  background: #f1f1f1;
+/* Section Cards */
+.section-card {
+  background: #f9fafb;
   border-radius: 8px;
-  align-items: center; /* Vertically center inputs and button */
+  padding: 16px;
+  margin-bottom: 16px;
+  border: 1px solid #e5e7eb;
 }
 
-.item-row input {
-  flex: 1;
-  background-color: #fff;
-  color: #000;
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 14px;
-  margin: auto;
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #033672;
+  margin: 0 0 16px 0;
 }
 
-.currency-type {
+/* User Info Section */
+.user-info-section {
+  margin-bottom: 20px;
+}
+
+.user-email {
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  font-size: 14px;
-}
-
-/* ================================
-   Delete Icon Button
-================================ */
-.invoice-dlt-btn {
-  background-color: #ff4d4d;
-  color: #fff;
+  gap: 8px;
   font-size: 16px;
-  cursor: pointer;
-  padding: 10px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s, transform 0.2s;
-  border: none;
+  color: #033672;
+  font-weight: 500;
 }
 
-
-
-
-/* ================================
-   Buttons
-================================ */
-.invoice-modal button,
-.items-container .add-items-btn {
-  background: #134275;
-  color: #fff;
-  border: none;
-  padding: 10px 16px;
+/* Modern Select */
+.modern-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
   border-radius: 6px;
+  background-color: white;
+  font-size: 14px;
+  color: #374151;
+  transition: all 0.2s;
+  border-color: #033672;
+}
+
+.modern-select:focus {
+  outline: none;
+  border-color: #033672;
+  box-shadow: 0 0 0 2px rgba(3, 54, 114, 0.1);
+}
+
+/* Items Grid */
+.items-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.item-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.item-details {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+
+.modern-input {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 100%;
+  transition: all 0.2s;
+}
+
+.modern-input:focus {
+  outline: none;
+  border-color: #033672;
+  box-shadow: 0 0 0 2px rgba(3, 54, 114, 0.1);
+}
+
+.quantity-input {
+  width: 60px;
+}
+
+.amount-input {
+  width: 100px;
+}
+
+.currency-badge {
+  background: #f0f4ff;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #033672;
+  font-weight: 500;
+}
+
+.delete-item-button {
+  background: #fee2e2;
+  border: none;
+  color: #dc2626;
+  padding: 8px;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background 0.3s, transform 0.2s;
+  transition: background 0.2s;
+}
+
+.delete-item-button:hover {
+  background: #fecaca;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.add-item-button, .toggle-form-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.add-item-button {
+  background: #e0e7ff;
+  color: #033672;
+  border: 1px solid #033672;
+}
+
+.add-item-button:hover {
+  background: #d1dbf9;
+}
+
+.toggle-form-button {
+  background: #f0f4ff;
+  color: #033672;
+  border: 1px solid #033672;
+}
+
+.toggle-form-button:hover {
+  background: #e0e7ff;
+}
+
+/* Total Section */
+.total-section {
+  background: #f0f4ff;
+  border-color: #d1dbff;
+}
+
+.amount-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.amount-row {
+  display: flex;
+  justify-content: space-between;
   font-size: 15px;
 }
 
-.invoice-modal button:hover,
-.items-container .add-items-btn:hover {
-  background: #0a2848;
+.original-amount {
+  text-decoration: line-through;
+  color: #6b7280;
 }
 
-.invoice-modal button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
+.discount-row {
+  color: #065f46;
 }
 
-.invoice-total-amt {
-  margin: 10px 0;
+.discount-code {
+  margin-left: 4px;
+  font-size: 13px;
+  color: #047857;
 }
 
-.currency-type {
-  color: #000;
+.total-row {
+  font-weight: 600;
+  font-size: 16px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e5e7eb;
 }
 
-/* ================================
-   Layout Sections
-================================ */
-.payment-details {
+.total-amount {
+  color: #033672;
+  font-size: 17px;
+}
+
+/* Primary Action Buttons */
+.action-buttons-container {
   display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.primary-button, .secondary-button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+  justify-content: center;
+}
+
+.primary-button {
+  background: #033672;
+  color: white;
+}
+
+.primary-button:hover {
+  background: #022a5c;
+  transform: translateY(-1px);
+}
+
+.primary-button:disabled {
+  background: #5a7eb7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.secondary-button {
+  background: #e0e7ff;
+  color: #033672;
+  border: 1px solid #033672;
+}
+
+.secondary-button:hover {
+  background: #d1dbf9;
+  transform: translateY(-1px);
+}
+
+.secondary-button:disabled {
+  background: #e0e7ff;
+  color: #5a7eb7;
+  border-color: #5a7eb7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Payment Link Section */
+.payment-link-section {
+  background: #f0f4ff;
+  border-color: #d1dbff;
+}
+
+.link-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.link-group{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.payment-link {
+  flex: 1;
+  padding: 10px 12px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #033672;
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.copy-link-button {
+  background: #d1dbff;
+  border: none;
+  color: #033672;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: auto;
+}
+
+.copy-link-button:hover {
+  background: #b8c7fa;
+}
+
+.send-options {
+  display: flex;
   gap: 12px;
 }
 
-/* ================================
-   Send Invoice & WhatsApp Buttons
-================================ */
-.invoice-send-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.send-invoice-btn,
-.whatsapp-btn {
+.send-button {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 8px;
-}
-
-.send-icon {
-  font-size: 20px;
-}
-
-.whatsapp-btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.whatsapp-status {
-  margin-top: 12px;
-  padding: 12px;
+  padding: 10px 16px;
+  border: none;
   border-radius: 6px;
   font-size: 14px;
-  background: #e9f7ef;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
 }
 
-.status-header {
+.email-button {
+  background: #e0e7ff;
+  color: #033672;
+  border: 1px solid #033672;
   display: flex;
+  justify-content: center;
   align-items: center;
   gap: 8px;
-}
-
-.status-timestamp {
-  margin-top: 6px;
-  font-size: 12px;
-  color: #666;
-}
-
-.whatsapp-btn.sending {
-  animation: pulse 1.5s infinite;
-}
-
-.generate-invoice-btn{
-  margin-right: 10px;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 1; }
-}
-
-/* ================================
-   Payment Link
-================================ */
-.payment-link {
-  margin-top: 20px;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.payment-link a {
-  color: #007bff;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.payment-link a:hover {
-  color: #0056b3;
-  text-decoration: underline;
-}
-
-/* ================================
-   Payment History
-================================ */
-.payment-history {
-  margin-top: 30px;
-  border-radius: 8px;
-}
-
-.payment-history h3 {
-  font-size: 20px;
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.payment-info-list {
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 10px;
-}
-
-.payment-info-list li {
-  list-style: none;
-  padding: 15px;
+  padding: 10px 16px;
+  border: none;
   border-radius: 6px;
-  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.email-button:hover {
+  background: #d1dbf9;
+}
+
+.whatsapp-button {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #166534;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.whatsapp-button:hover {
+  background: #bbf7d0;
+}
+
+/* Free Access Section */
+.free-access-section {
+  width: 100%;
+}
+
+.invoice-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.invoice-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.invoice-toggle-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  
+}
+
+.invoice-toggle-slider {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+  background-color: #ccc;
+  border-radius: 24px;
+  transition: .4s;
+  
+}
+
+.invoice-toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  border-radius: 50%;
+  transition: .4s;
+}
+
+.invoice-toggle-input:checked + .invoice-toggle-slider {
+  background-color: #4CAF50;
+}
+
+.invoice-toggle-input:checked + .invoice-toggle-slider:before {
+  transform: translateX(26px);
+}
+
+.invoice-toggle-label {
+  font-size: 0.875rem;
+  width: 100%;
+
+}
+
+.free-access-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background-color: #e8f5e9;
+  border-radius: 16px;
+  color: #2e7d32;
+  font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .toggle-wrapper {
+    gap: 0.5rem;
+  }
+  
+  .toggle-slider {
+    width: 40px;
+    height: 20px;
+  }
+  
+  .toggle-slider:before {
+    height: 14px;
+    width: 14px;
+  }
+  
+  .toggle-label, .free-access-badge {
+    font-size: 0.75rem;
+  }
+}
+/* Payment History */
+.payment-history-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.payment-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.payment-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
+  margin-bottom: 12px;
 }
 
-.payment-info-list li:hover {
-  cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+.invoice-number {
+  font-weight: 600;
+  color: #033672;
 }
 
-.payment-link-container{
-  gap: 20px;
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
-.copy-button{
-  margin-left: 20px;
+.status-badge.paid {
+  background: #dcfce7;
+  color: #166534;
 }
-.buttons-container{
-  width: 100%;
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.failed {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.packages-list {
+  margin-bottom: 12px;
+}
+
+.package-item {
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
-
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
 }
+
+.package-name {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.package-details {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.payment-details {
+  margin: 12px 0;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+.detail-row span:first-child {
+  color: #6b7280;
+}
+
+.link-actions {
+  margin: 12px 0;
+}
+
+.payment-link-button {
+  display: inline-block;
+  padding: 8px 16px;
+  background: #e0e7ff;
+  color: #033672;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s;
+  border: 1px solid #033672;
+  margin-right: 5px
+}
+
+.payment-link-button:hover {
+  background: #d1dbf9;
+}
+
 .payment-actions {
   display: flex;
-  flex-direction: row;
-  gap: 10px;
-}
-.payment-actions button{
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
   width: 100%;
 }
-.email-resend-btn{
-  margin-right: 10px;
-}
-.resend-action{
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-.resend-action .resend-btn{
-  width: 100%;
-  flex: 1;
-}
-/* ================================
-   Error Message
-================================ */
-.error-message {
-  color: red;
-  font-size: 14px;
-  margin-top: 10px;
-  text-align: center;
-  font-weight: bold;
-}
 
-/* ================================
-   Popup Notification
-================================ */
-.popup {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #4caf50;
-  color: #fff;
-  padding: 15px 25px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  animation: fadeInOut 3s ease;
-  z-index: 1500;
-}
-
-@keyframes fadeInOut {
-  0% { opacity: 0; transform: translateY(20px); }
-  20%, 80% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(20px); }
-}
-
-/* ================================
-   Toast Notification
-================================ */
-.custom-toast-container .Toastify__toast {
-  background-color: #0d224f !important;
-  color: white !important;
-  border-radius: 8px !important;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
-}
-
-.custom-toast-container .Toastify__progress-bar {
-  background-color: white !important;
-}
-
-.custom-toast-container .Toastify__close-button {
-  color: white !important;
-}
-
-.free-access-section {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-top: 20px;
-  padding: 12px 16px;
-  background-color: #f0f9f4;
-  border-left: 4px solid #38a169;
-  border-radius: 6px;
-}
-
-.free-access-control {
+/* Base button styles */
+.document-button, .resend-button {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #2f855a;
+  gap: 0.5rem;
+  white-space: nowrap;
+  transition: all 0.2s ease;
   cursor: pointer;
+}
+
+/* Disabled state for paid payments */
+.payment-disabled {
+  opacity: 0.6;
+  background-color: #f0f0f0;
+  color: #666;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Specific button styles */
+.akt-button {
+  background-color: #4a6fa5;
+  color: white;
+  border: 1px solid #3a5a8a;
+}
+
+.contract-button {
+  background-color: #5a8a5a;
+  color: white;
+  border: 1px solid #4a7a4a;
+}
+
+.email-resend {
+  background-color: #e8f0fe;
+  color: #1a73e8;
+  border: 1px solid #d2e3fc;
+}
+
+.whatsapp-resend {
+  background-color: #e5f8ed;
+  color: #25d366;
+  border: 1px solid #c8f0d6;
+}
+
+/* Hover states for enabled buttons */
+.akt-button:not(.payment-disabled):hover {
+  background-color: #3a5a8a;
+}
+
+.contract-button:not(.payment-disabled):hover {
+  background-color: #4a7a4a;
+}
+
+.email-resend:not(.payment-disabled):hover {
+  background-color: #d2e3fc;
+}
+
+.whatsapp-resend:not(.payment-disabled):hover {
+  background-color: #c8f0d6;
+}
+
+/* Layout styles */
+.payment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
   width: 100%;
-
 }
 
-.free-access-checkbox {
-  width: 18px;
-  height: 18px;
-  accent-color: #2f855a;
-  cursor: pointer;
+.document-actions, .resend-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
-.free-access-label {
-  user-select: none;
-}
-
-.free-access-status {
-  margin-top: 6px;
-  font-size: 14px;
-  color: #276749;
-  font-weight: 500;
-}
-.mark-paid-section{
-  margin-top: 10px;
-}
-
-/* ================================
-   Responsive Design
-================================ */
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .invoice-modal {
-    width: 100%;
-    padding: 20px 16px;
-    padding-bottom: 100px;
-  }
-
-  .payment-details {
+  .payment-actions {
     flex-direction: column;
-  }
-
-  .send-icons svg {
-    font-size: 26px;
-  }
-
-  .popup {
-    bottom: 15px;
-    right: 15px;
-    padding: 10px 18px;
-  }
-  .resend-btn{
-    flex: 1;
-  }
-  .resend-actions{
-    display: flex;
-    flex-direction: row;
-    margin-top: 10px;
-  }
-  .copy-button{
-    margin-top: 10px;
-    margin-left: 0px;
-    margin-bottom: 10px;
-  }
-  .buttons-container {
-    flex-direction: column;
-    gap: 10px;
-  }
-  .generate-invoice-btn{
-    margin-bottom: 10px;
+    align-items: flex-start;
+    gap: 0.75rem;
   }
   
+  .document-actions, .resend-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .document-button, .resend-button {
+    flex: 1;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 480px) {
-  .invoice-modal {
+  .document-button, .resend-button {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+}
+.mark-paid-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.paid-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  color: #6b7280;
+  text-align: center;
+}
+
+.empty-state svg {
+  margin-bottom: 16px;
+  color: #d1d5db;
+}
+
+/* Success Popup */
+.success-popup {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #033672;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1100;
+}
+
+/* Document Modals */
+.document-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(3, 54, 114, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 1100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .modern-invoice-modal {
+    width: 95%;
     padding: 16px;
-    padding-top: 50px;
-    padding-bottom: 100px;
-
-
-  }
-
-  .item-row {
-    flex-direction: column;
-  }
-
-  .send-invoice-btn,
-  .whatsapp-btn,
-  .invoice-modal button {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .payment-info-list li {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-  .close-modal-btn {
-    display: inline-block;
-    width: auto !important;
-    max-width: none;
-  }
-  .payment-actions{
-    flex-direction: row;
-    width: 100%;
-  }
-  .payment-actions button{
-    flex: 1;
   }
   
+  .action-buttons-container, .send-options {
+    flex-direction: column;
+  }
+  
+  .item-details {
+    flex-wrap: wrap;
+  }
+  
+  .quantity-input, .amount-input {
+    width: 100%;
+  }
+  
+  .document-actions, .resend-actions {
+    flex-direction: column;
+  }
 }

@@ -17,6 +17,7 @@ import { useCallback } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
+import RegistrationFormsViewer from "./RegistrationFormsViewer";
 
 const InvoiceModal = ({
   submission,
@@ -45,6 +46,8 @@ const InvoiceModal = ({
   const [whatsappLoading, setWhatsappLoading] = useState(false);
   const [whatsappStatus, setWhatsappStatus] = useState(null);
   const [isFreeParticipant, setIsFreeParticipant] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState(null);
+  const [showFormViewer, setShowFormViewer] = useState(false);
 
   const { t } = useTranslation(); // Translation hook
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -69,20 +72,28 @@ const InvoiceModal = ({
 
   useEffect(() => {
     if (isOpen && submission) {
-      const currency = submission.currency || "INR";
+      const currency =
+        submission.packages?.[0]?.currency || submission.currency || "INR";
 
-      setItems(
-        submission.package && submission.amount
-          ? [
-              {
-                name: submission.package,
-                amount: parseFloat(submission.amount) || 0,
-                currency,
-                percentage: submission.discountPercentage,
-              },
-            ]
-          : [{ name: "", amount: 0, currency }]
-      );
+      if (submission.packages?.length > 0) {
+        setItems(
+          submission.packages.map((pkg) => ({
+            name: pkg.name,
+            amount: pkg.amount,
+            currency: pkg.currency,
+            quantity: pkg.quantity || 1,
+          }))
+        );
+      } else {
+        setItems([
+          {
+            name: submission.package || "",
+            amount: parseFloat(submission.amount) || 0,
+            currency,
+            quantity: 1,
+          },
+        ]);
+      }
 
       // Set initial payment method based on currency
       if (currency === "RUB") {
@@ -122,23 +133,43 @@ const InvoiceModal = ({
           headers: { Authorization: `Bearer ${token}` },
         }
       );
+
       const course = response.data.courses.find((c) => c.courseId === courseId);
+
       if (!course?.payments) {
         setPaymentHistory([]);
-        return;
+        return [];
       }
-      setPaymentHistory(
-        course.payments.map((payment) => ({
-          ...payment,
-          time: payment.time ? new Date(payment.time).toLocaleString() : "N/A",
-        }))
-      );
+
+      const payments = course.payments.map((payment) => ({
+        ...payment,
+        time: payment.time ? new Date(payment.time).toLocaleString() : "N/A",
+      }));
+
+      setPaymentHistory(payments);
       setUserData(response.data);
+
+      // ✅ Auto-set selectedPayment if available
+      if (
+        submission.invoiceNumber &&
+        (!selectedPayment ||
+          selectedPayment.invoiceNumber !== submission.invoiceNumber)
+      ) {
+        const currentInvoice = payments.find(
+          (p) => p.invoiceNumber === submission.invoiceNumber
+        );
+        if (currentInvoice) {
+          setSelectedPayment(currentInvoice);
+        }
+      }
+
+      return payments;
     } catch (error) {
       console.error("Payment history error:", error);
       setError(
         error.response?.data?.message || "Failed to fetch payment history"
       );
+      return [];
     }
   };
 
@@ -181,7 +212,12 @@ const InvoiceModal = ({
   const addNewItem = () => {
     setItems([
       ...items,
-      { name: "", amount: 0, currency: items[0]?.currency || "INR" },
+      {
+        name: "",
+        amount: 0,
+        currency: items[0]?.currency || "INR",
+        quantity: 1,
+      },
     ]);
   };
 
@@ -192,7 +228,8 @@ const InvoiceModal = ({
   const currency = items[0]?.currency || "INR";
 
   const rawTotal = items.reduce(
-    (sum, item) => sum + (Number(item.amount) || 0),
+    (sum, item) =>
+      sum + (Number(item.amount) || 0) * (parseInt(item.quantity) || 1),
     0
   );
 
@@ -216,27 +253,34 @@ const InvoiceModal = ({
     setLoading(true);
     setError(null);
 
-    const orderNumber = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
+    const orderNumber = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const currency = selectedMethod === "stripe" ? "INR" : "RUB";
 
     const orderDetails = {
       amount: totalAmount,
-      currency: selectedMethod === "stripe" ? "INR" : "RUB",
+      currency,
       email: submission.email,
-      course: items.map((item) => item.name).join(", "),
-      returnUrl: "http://localhost:3000/payment-success",
-      failUrl: "http://localhost:3000/payment-failed",
-      orderNumber, // <-- ADD THIS
+      packages: items.map((item) => ({
+        name: item.name,
+        amount: parseFloat(item.amount),
+        currency: item.currency,
+        quantity: parseInt(item.quantity) || 1,
+      })),
+      courseId,
+      formId,
+      returnUrl: window.location.origin + "/payment-success",
+      failUrl: window.location.origin + "/payment-failed",
+      orderNumber,
     };
 
-    console.log("Initiating payment with details:", orderDetails);
+    console.log("📦 Initiating payment with:", orderDetails);
 
     try {
       const endpoint =
         selectedMethod === "stripe"
           ? `${baseUrl}/api/stripe/create-payment-link`
           : `${baseUrl}/api/payment/alfabank/pay`;
-
-      console.log("Selected payment endpoint:", endpoint);
 
       const response = await axios.post(endpoint, orderDetails, {
         headers: {
@@ -245,25 +289,20 @@ const InvoiceModal = ({
         },
       });
 
-      console.log("Payment response received:", response.data);
-
       if (response.data.success) {
-        toast.success("Payment link generated");
+        toast.success("✅ Payment link generated");
         setPaymentUrl(response.data.paymentUrl);
-        setOrderId(response.data.orderId);
+        setOrderId(response.data.orderId || orderNumber);
       } else {
-        console.error("Payment failed with message:", response.data.message);
+        console.error("❌ Payment failed:", response.data.message);
         setError(response.data.message || "Payment failed.");
       }
     } catch (error) {
-      console.error(
-        "Payment request error:",
-        error.response?.data || error.message
-      );
+      console.error("❌ Payment error:", error.response?.data || error.message);
       setError(error.response?.data?.message || "Payment request failed.");
     } finally {
       setLoading(false);
-      console.log("Payment process completed");
+      console.log("✅ Payment process completed");
     }
   };
 
@@ -280,9 +319,7 @@ const InvoiceModal = ({
       return;
     }
 
-    // Extract package, amount, currency
     const packageName = items.map((item) => item.name).join(", ");
-    const amount = totalAmount.toFixed(2);
     const currency = items[0]?.currency || "INR";
 
     const emailData = {
@@ -292,10 +329,16 @@ const InvoiceModal = ({
       paymentUrl,
       transactionId: submission.transactionId,
       email: submission.email,
-      package: packageName,
+      packages: items.map((item) => ({
+        name: item.name,
+        amount: parseFloat(item.amount),
+        currency: item.currency,
+        quantity: parseInt(item.quantity) || 1,
+      })),
       amount: rawTotal.toFixed(2),
+      payableAmount: totalAmount.toFixed(2),
       currency,
-      payableAmount: amount,
+      package: packageName, // Optional, for readable summary
       discountPercentage: discountPercentage || 0,
       code: discountCode,
     };
@@ -315,20 +358,30 @@ const InvoiceModal = ({
       );
 
       if (response.data.success) {
-        console.log("Invoice email sent successfully:", response.data);
+        const newInvoiceNumber = response.data.invoiceNumber;
+        console.log("📧 Invoice email sent successfully:", response.data);
         setShowPopup(true);
-        fetchPaymentHistory();
-        setPaymentUrl("");
 
-        setTimeout(() => {
-          setShowPopup(false);
-        }, 3000);
+        const payments = await fetchPaymentHistory(); // ⬅️ wait for result
+        const newInvoice = payments.find(
+          (p) => p.invoiceNumber === newInvoiceNumber
+        );
+
+        if (newInvoice) {
+          setSelectedPayment(newInvoice);
+        }
+
+        setPaymentUrl("");
+        setTimeout(() => setShowPopup(false), 3000);
       } else {
-        console.error("Failed to send invoice email:", response.data.message);
+        console.error(
+          "❌ Failed to send invoice email:",
+          response.data.message
+        );
       }
     } catch (error) {
       console.error(
-        "Error sending email request:",
+        "❌ Email send error:",
         error.response?.data || error.message
       );
       alert(
@@ -353,7 +406,6 @@ const InvoiceModal = ({
     }
 
     const phoneNumber = userData.personalDetails.phone.replace(/\D/g, "");
-
     if (!/^\d{10,15}$/.test(phoneNumber)) {
       alert("❌ Invalid phone number format.");
       return;
@@ -364,16 +416,15 @@ const InvoiceModal = ({
       return;
     }
 
-    // Extract package details
-    const packageName = items.map((item) => item.name).join(", ");
-    const amount = totalAmount.toFixed(2);
     const currency = items[0]?.currency || "INR";
 
-    const message = `*Payment Invoice* 📩
-    
-  💼 *Package:* ${packageName}
-  💰 *Amount:* ${amount} ${currency}
-  🔗 *Payment Link:* ${paymentUrl}`;
+    const packageDetails = items
+      .map((item) => `🔹 ${item.name}: ${item.amount} ${item.currency}`)
+      .join("\n");
+
+    const message = `*📩 Payment Invoice*\n\n${packageDetails}\n\n💰 *Total:* ${totalAmount.toFixed(
+      2
+    )} ${currency}\n🔗 *Payment Link:* ${paymentUrl}`;
 
     setWhatsappLoading(true);
     setWhatsappStatus(null);
@@ -390,10 +441,13 @@ const InvoiceModal = ({
           orderId,
           paymentUrl,
           transactionId: submission.transactionId,
-          package: packageName,
-          amount: rawTotal.toFixed(2),
-          currency,
-          payableAmount: amount,
+          packages: items.map((item) => ({
+            name: item.name,
+            amount: parseFloat(item.amount),
+            currency: item.currency,
+            quantity: parseInt(item.quantity) || 1,
+          })),
+          payableAmount: totalAmount.toFixed(2),
           discountPercentage: discountPercentage || 0,
           code: discountCode,
         },
@@ -412,7 +466,20 @@ const InvoiceModal = ({
           message: `WhatsApp message delivered! Invoice: ${response.data.invoiceNumber}`,
           timestamp: new Date().toLocaleTimeString(),
         });
-        fetchPaymentHistory();
+
+        const newInvoiceNumber = response.data.invoiceNumber;
+
+        // 👇 Refetch and auto-set selected payment
+        if (newInvoiceNumber) {
+          const payments = await fetchPaymentHistory();
+          const currentInvoice = payments.find(
+            (p) => p.invoiceNumber === newInvoiceNumber
+          );
+          if (currentInvoice) {
+            setSelectedPayment(currentInvoice);
+          }
+        }
+
         setTimeout(() => {
           setPaymentUrl("");
         }, 1000);
@@ -431,18 +498,19 @@ const InvoiceModal = ({
     }
   }, [paymentUrl, whatsappLoading, userData, submission, items, totalAmount]);
 
-  const capitalize = (str) => str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+  const capitalize = (str) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
 
   const handleViewAkt = (payment) => {
     console.log("🧾 handleViewAkt clicked", payment); // ✅ Debug log
-
-    
 
     if (userData) {
       console.log("✅ Valid paid payment, opening AKT modal");
 
       const aktDetails = {
-        full_name :`${userData.personalDetails.lastName.toUpperCase()} ${capitalize(userData.personalDetails.firstName)} ${capitalize(userData.personalDetails.middleName)}`,
+        full_name: `${userData.personalDetails.lastName.toUpperCase()} ${capitalize(
+          userData.personalDetails.firstName
+        )} ${capitalize(userData.personalDetails.middleName)}`,
         date_of_birth: new Date(
           userData.personalDetails.dob
         ).toLocaleDateString(),
@@ -450,7 +518,7 @@ const InvoiceModal = ({
         phone_no: userData.personalDetails.phone || "N/A",
         agreement_number: `${payment.invoiceNumber}`,
         agreement_date: `${payment.paidAt}`,
-        service_name: payment.package,
+        packages: payment.packages || [],
         total_amount: `${payment.amount} ${payment.currency}`,
         userData,
       };
@@ -473,15 +541,17 @@ const InvoiceModal = ({
     if (userData) {
       // Removed the check for payment status
       const aktDetails = {
-        full_name :`${userData.personalDetails.lastName.toUpperCase()} ${capitalize(userData.personalDetails.firstName)} ${capitalize(userData.personalDetails.middleName)}`,
+        full_name: `${userData.personalDetails.lastName.toUpperCase()} ${capitalize(
+          userData.personalDetails.firstName
+        )} ${capitalize(userData.personalDetails.middleName)}`,
         date_of_birth: new Date(
           userData.personalDetails.dob
         ).toLocaleDateString(),
         email: userData.email,
         phone_no: userData.personalDetails.phone || "N/A",
         agreement_number: `${payment.invoiceNumber}`,
-        agreement_date: `${payment.paidAt}`,
-        service_name: payment.package,
+        agreement_date: `${payment.time}`,
+        packages: payment.packages || [],
         total_amount: `${payment.amount} ${payment.currency}`,
         userData,
       };
@@ -493,6 +563,10 @@ const InvoiceModal = ({
 
   const handleCloseContract = () => {
     setIsContractOpen(false);
+  };
+
+  const handleCloseFormViewer = () => {
+    setShowFormViewer(false);
   };
 
   const handleMethodChange = (method) => {
@@ -534,14 +608,21 @@ const InvoiceModal = ({
 
   const handleResendEmail = async (payment) => {
     const recipientEmail = payment?.email || submission?.email;
+
     if (!recipientEmail) {
-      toast.error("Recipient email missing");
+      toast.error("❌ Recipient email is missing.");
+      return;
+    }
+
+    if (!payment?.invoiceNumber) {
+      toast.error("❌ Invoice number is missing.");
       return;
     }
 
     try {
       setEmailSending(true);
-      const response = await axios.post(
+
+      const { data } = await axios.post(
         `${baseUrl}/api/email/resend`,
         {
           invoiceNumber: payment.invoiceNumber,
@@ -554,23 +635,24 @@ const InvoiceModal = ({
         }
       );
 
-      if (response.data.success) {
-        toast.success("Email resent successfully");
-        fetchPaymentHistory(); // refresh list
+      if (data.success) {
+        toast.success("✅ Email resent successfully");
+        fetchPaymentHistory(); // Refresh list if needed
       } else {
-        toast.error(response.data.message || "Failed to resend email");
+        toast.error(`❌ ${data.message || "Failed to resend email"}`);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Error resending email");
+      console.error("Error resending email:", error);
+      toast.error(
+        `❌ ${
+          error.response?.data?.message ||
+          "Error occurred while resending email"
+        }`
+      );
     } finally {
       setEmailSending(false);
     }
   };
-
-  requestAnimationFrame(() => {
-    const modal = document.querySelector(".invoice-modal");
-    modal?.scrollTo(0, modal.scrollHeight);
-  });
 
   const handleResendWhatsApp = async (payment) => {
     const phone = userData?.personalDetails?.phone;
@@ -660,7 +742,6 @@ const InvoiceModal = ({
           );
           fetchPaymentHistory();
           await fetchCoursePayments(); // <-- Add this line
-
         } else {
           throw new Error(response.data.message || "Failed to mark as free");
         }
@@ -694,7 +775,12 @@ const InvoiceModal = ({
       formId,
       orderId: orderNumber,
       transactionId: submission.transactionId,
-      package: items.map((item) => item.name).join(", "),
+      packages: items.map((item) => ({
+        name: item.name,
+        amount: parseFloat(item.amount),
+        currency: item.currency,
+        quantity: parseInt(item.quantity) || 1,
+      })),
       rawAmount: rawTotal.toFixed(2),
       payableAmount: totalAmount.toFixed(2),
       discountPercentage: discountPercentage || 0,
@@ -722,7 +808,6 @@ const InvoiceModal = ({
         setPaymentUrl(""); // no URL since this is invoice-only
         setOrderId(orderNumber);
         fetchPaymentHistory();
-        
       } else {
         throw new Error(response.data.message || "Failed to generate invoice");
       }
@@ -766,7 +851,6 @@ const InvoiceModal = ({
         toast.success(`Invoice ${payment.invoiceNumber} marked as paid`);
         fetchPaymentHistory();
         await fetchCoursePayments(); // <-- Add this line
-
       } else {
         throw new Error(response.data.message || "Failed to update status");
       }
@@ -779,312 +863,485 @@ const InvoiceModal = ({
 
   return (
     <>
-      <ToastContainer className="custom-toast-container" />
+      <ToastContainer
+        className="custom-toast-container"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+
+      {/* Modern Overlay with blue tint */}
       <div
         className={`invoice-modal-overlay ${isOpen ? "open" : ""}`}
         onClick={onClose}
       ></div>
-      <div className={`invoice-modal ${isOpen ? "open" : ""}`}>
-        <button className="close-modal-btn" onClick={onClose}>
-          &times;
-        </button>
 
-        <div className="payment-method-selector">
-          <h4>{t("InvoiceModal.paymentMethod")}</h4>
-          <select
-            value={selectedMethod}
-            onChange={(e) => handleMethodChange(e.target.value)}
-            className="payment-method-dropdown"
-          >
-            {paymentMethods.map((method) => (
-              <option key={method.id} value={method.id}>
-                {method.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="items-container">
-          <h4>{t("InvoiceModal.item")}</h4>
-          {items.map((item, index) => (
-            <div key={index} className="item-row">
-              <input
-                type="text"
-                value={item.name}
-                onChange={(e) =>
-                  handleItemChange(index, "name", e.target.value)
-                }
-                placeholder="Item Name"
+      {/* Main Modal Container */}
+      <div className={`modern-invoice-modal ${isOpen ? "open" : ""}`}>
+        {/* Modal Header with primary color */}
+        <div className="modal-header">
+          <h2 className="modal-title">{t("invoiceModal.title")}</h2>
+          <button className="close-button" onClick={onClose}>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 6L6 18M6 6L18 18"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
               />
-              <input
-                type="number"
-                min="0"
-                value={item.amount}
-                onChange={(e) =>
-                  handleItemChange(index, "amount", e.target.value)
-                }
-                placeholder="Amount"
-              />
-
-              <span className="currency-type">{currency}</span>
-              <button
-                className="invoice-dlt-btn"
-                onClick={() => removeItem(index)}
-              >
-                <FaTrashAlt />
-              </button>
-            </div>
-          ))}
-          <button className="add-items-btn" onClick={addNewItem}>
-            + {t("InvoiceModal.addItem")}
+            </svg>
           </button>
         </div>
 
-        <div className="invoice-total-amt">
+        {/* User Info Section */}
+        <div className="user-info-section">
+          <div className="user-email">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z"
+                fill="none"
+                stroke="#033672"
+                strokeWidth="2"
+              />
+              <path
+                d="M22 6L12 13L2 6"
+                stroke="#033672"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+            <span>{submission.email}</span>
+          </div>
+        </div>
+
+        {/* Payment Method Selector */}
+        <div className="section-card">
+          <h3 className="section-title">{t("invoiceModal.paymentMethod")}</h3>
+          <div className="payment-method-selector">
+            <select
+              value={selectedMethod}
+              onChange={(e) => handleMethodChange(e.target.value)}
+              className="modern-select"
+            >
+              {paymentMethods.map((method) => (
+                <option key={method.id} value={method.id}>
+                  {method.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Items Section */}
+        <div className="section-card">
+          <h3 className="section-title">{t("invoiceModal.items")}</h3>
+          <div className="items-grid">
+            {items.map((item, index) => (
+              <div key={index} className="item-card">
+                <input
+                  type="text"
+                  value={item.name}
+                  onChange={(e) =>
+                    handleItemChange(index, "name", e.target.value)
+                  }
+                  placeholder={t("invoiceModal.itemName")}
+                  className="modern-input"
+                />
+                <div className="item-details">
+                  <input
+                    type="number"
+                    min="1"
+                    value={item.quantity}
+                    onChange={(e) =>
+                      handleItemChange(index, "quantity", e.target.value)
+                    }
+                    placeholder={t("invoiceModal.quantity")}
+                    className="modern-input quantity-input"
+                  />
+                  <input
+                    type="number"
+                    min="0"
+                    value={item.amount}
+                    onChange={(e) =>
+                      handleItemChange(index, "amount", e.target.value)
+                    }
+                    placeholder={t("invoiceModal.amount")}
+                    className="modern-input amount-input"
+                  />
+                  <span className="currency-badge">{currency}</span>
+                  <button
+                    className="delete-item-button"
+                    onClick={() => removeItem(index)}
+                    title={t("invoiceModal.removeItem")}
+                  >
+                    <FaTrashAlt />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="action-buttons">
+            <button className="add-item-button" onClick={addNewItem}>
+              <span>+</span> {t("invoiceModal.addItem")}
+            </button>
+            <button
+              className="toggle-form-button"
+              onClick={() => setShowFormViewer((prev) => !prev)}
+            >
+              {showFormViewer
+                ? t("invoiceModal.hideRegistration")
+                : t("invoiceModal.viewRegistration")}
+            </button>
+          </div>
+        </div>
+
+        {/* Total Amount Section */}
+        <div className="section-card total-section">
+          <h3 className="section-title">{t("invoiceModal.totalAmount")}</h3>
           {discountPercentage ? (
-            <>
-              <p>
-                <strong>Original Total:</strong>{" "}
-                <span style={{ textDecoration: "line-through", color: "gray" }}>
+            <div className="amount-details">
+              <div className="amount-row">
+                <span>{t("invoiceModal.originalTotal")}:</span>
+                <span className="original-amount">
                   {rawTotal.toFixed(2)} {currency}
                 </span>
-              </p>
-              <p>
-                <strong>Discount ({discountPercentage}%):</strong>{" "}
-                {(rawTotal - totalAmount).toFixed(2)} {currency}{" "}
-                <span>({discountCode})</span>
-              </p>
-              <p>
-                <strong>Total after Discount:</strong> {totalAmount.toFixed(2)}{" "}
-                {currency}
-              </p>
-            </>
+              </div>
+              <div className="amount-row discount-row">
+                <span>
+                  {t("invoiceModal.discount", {
+                    percentage: discountPercentage,
+                  })}
+                  :
+                </span>
+                <span className="discount-amount">
+                  -{(rawTotal - totalAmount).toFixed(2)} {currency}
+                  <span className="discount-code">({discountCode})</span>
+                </span>
+              </div>
+              <div className="amount-row total-row">
+                <span>{t("invoiceModal.totalPayable")}:</span>
+                <span className="total-amount">
+                  {totalAmount.toFixed(2)} {currency}
+                </span>
+              </div>
+            </div>
           ) : (
-            <p>
-              <strong>Total:</strong> {totalAmount.toFixed(2)} {currency}
-            </p>
+            <div className="amount-row total-row">
+              <span>{t("invoiceModal.total")}:</span>
+              <span className="total-amount">
+                {totalAmount.toFixed(2)} {currency}
+              </span>
+            </div>
           )}
         </div>
 
-        <button
-          onClick={handleGenerateInvoiceOnly}
-          disabled={loading || totalAmount <= 0}
-          className="generate-invoice-btn"
-        >
-         {t("InvoiceModal.generateInvoiceOnly")}
-        </button>
+        {/* Action Buttons */}
+        <div className="action-buttons-container">
+          <button
+            className="primary-button"
+            onClick={handlePayment}
+            disabled={
+              loading ||
+              totalAmount <= 0 ||
+              getRealPaymentStatus(submission) === "paid"
+            }
+          >
+            {loading
+              ? t("invoiceModal.processing")
+              : t("invoiceModal.generateLink")}
+          </button>
 
-        <button onClick={handlePayment} disabled={loading || totalAmount <= 0}>
-          {loading
-            ? t("InvoiceModal.generateLink")
-            : t("InvoiceModal.generateLink")}
-        </button>
+          <button
+            className="secondary-button"
+            onClick={handleGenerateInvoiceOnly}
+            disabled={
+              loading ||
+              totalAmount <= 0 ||
+              getRealPaymentStatus(submission) === "paid"
+            }
+          >
+            {t("invoiceModal.generateInvoiceOnly")}
+          </button>
+        </div>
 
+        {/* Payment Link Section */}
         {paymentUrl && (
-          <div className="payment-details">
-            <div className="payment-info">
-              <p>
-                {t("InvoiceModal.paymentLink")}:{" "}
-                <a href={paymentUrl} target="_blank" rel="noopener noreferrer">
-                  View Link
+          <div className="section-card payment-link-section">
+            <h3 className="section-title">
+              {t("invoiceModal.paymentLinkGenerated")}
+            </h3>
+            <div className="link-container">
+              <div className="link-group">
+                <a
+                  href={paymentUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="payment-link"
+                >
+                  {paymentUrl.substring(0, 40)}...
                 </a>
-              </p>
+                <button
+                  className="copy-link-button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(paymentUrl);
+                    toast.success(t("invoiceModal.linkCopied"));
+                  }}
+                  title={t("invoiceModal.copyLink")}
+                >
+                  <FaRegCopy />
+                </button>
+              </div>
             </div>
 
-            <div className="invoice-send-actions">
-              <button onClick={handleSendEmail} disabled={emailSending}>
-                <FaEnvelope /> {emailSending ? "Sending..." : "Send via Email"}
+            <div className="send-options">
+              <button
+                className="email-button"
+                onClick={handleSendEmail}
+                disabled={emailSending}
+              >
+                <FaEnvelope />
+                {emailSending
+                  ? t("invoiceModal.sending")
+                  : t("invoiceModal.sendEmail")}
               </button>
 
               <button
-                className="send-invoice-btn whatsapp-btn"
+                className="whatsapp-button"
                 onClick={handleSendWhatsApp}
                 disabled={whatsappLoading}
               >
-                <FaWhatsapp className="whatsapp-icon" />
-                {whatsappLoading ? "Sending..." : "Send via WhatsApp"}
+                <FaWhatsapp />
+                {whatsappLoading
+                  ? t("invoiceModal.sending")
+                  : t("invoiceModal.sendWhatsApp")}
               </button>
-
-              {whatsappStatus && (
-                <div className={`whatsapp-status ${whatsappStatus.type}`}>
-                  <div className="status-header">
-                    {whatsappStatus.type === "success" ? (
-                      <FaCheckCircle twoToneColor="#52c41a" />
-                    ) : (
-                      <FaTimesCircle twoToneColor="#ff4d4f" />
-                    )}
-                    <span>{whatsappStatus.message}</span>
-                  </div>
-                  {whatsappStatus.timestamp && (
-                    <div className="status-timestamp">
-                      <small>Sent at: {whatsappStatus.timestamp}</small>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
           </div>
         )}
 
-        <div className="free-access-section">
-          <label className="free-access-control">
-            <input
-              type="checkbox"
-              checked={isFreeParticipant}
-              onChange={handleFreeCheckboxChange}
-              className="free-access-checkbox"
-            />
-            <span className="free-access-labe">{t("InvoiceModal.markAsFree")}</span>
-          </label>
-
-          {isFreeParticipant && (
-            <div className="free-access-status">{t("InvoiceModal.markAsFreeStatus")}</div>
-          )}
+        {/* Free Access Toggle */}
+        <div className="section-card free-access-section">
+          <div className="invoice-toggle-wrapper">
+            <label className="invoice-toggle-container">
+              <input
+                type="checkbox"
+                checked={isFreeParticipant}
+                onChange={handleFreeCheckboxChange}
+                className="invoice-toggle-input"
+              />
+              <span className="invoice-toggle-slider"></span>
+              <span className="invoice-toggle-label">
+                {t("invoiceModal.markAsFree")}
+              </span>
+            </label>
+            {isFreeParticipant && (
+              <div className="free-access-badge">
+                <FaCheckCircle />
+                <span>{t("invoiceModal.freeAccess")}</span>
+              </div>
+            )}
+          </div>
         </div>
 
-        
+        {/* Payment History */}
+        {selectedPayment ? (
+          <div className="payment-history-grid">
+            <div className="payment-card">
+              <div className="payment-header">
+                <span className="invoice-number">
+                  #{selectedPayment.invoiceNumber}
+                </span>
+                <span
+                  className={`status-badge ${getRealPaymentStatus(
+                    selectedPayment
+                  )}`}
+                >
+                  {t(
+                    `invoiceModal.status.${getRealPaymentStatus(
+                      selectedPayment
+                    )}`
+                  )}
+                </span>
+              </div>
 
-        <div className="payment-history">
-          <h3>{t("InvoiceModal.paymentHistory")}</h3>
-          {error ? (
-            <p className="error-message">{error}</p>
-          ) : paymentHistory.length > 0 ? (
-            <ul className="payment-info-list">
-              {paymentHistory
-               .filter((payment) => !!payment.invoiceNumber)
-              .map((payment, index) => (
+              {selectedPayment.packages &&
+                selectedPayment.packages.length > 0 && (
+                  <div className="packages-list">
+                    {selectedPayment.packages.map((pkg, idx) => {
+                      const quantity = pkg.quantity || 1;
+                      const unitAmount = parseFloat(pkg.amount) || 0;
+                      const total = (unitAmount * quantity).toFixed(2);
 
-                
-                <li key={index} className="payment-info-item">
-                  <div>
-                    <p>
-                      <strong>{t("InvoiceModal.invoiceNumber")}:</strong>{" "}
-                      {payment.invoiceNumber}
-                    </p>
-                    <p>
-                      <strong>{t("InvoiceModal.package")}:</strong>{" "}
-                      {payment.package}
-                    </p>
-                    <p>
-                      <strong>{t("InvoiceModal.amount")}:</strong>{" "}
-                      {payment.payableAmount} {payment.currency}
-                    </p>
-                    <p>
-                      <strong>{t("InvoiceModal.status")}:</strong>{" "}
-                      {getRealPaymentStatus(payment)}
-                    </p>
-                    <p>
-                      <strong>{t("InvoiceModal.date")}:</strong> {payment.time}
-                    </p>
-                    {payment.paymentLink && (
-                      <div className="payment-link-container">
-                        <a
-                          href={payment.paymentLink}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {t("InvoiceModal.paymentLink")}
-                        </a>
-
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(payment.paymentLink);
-                            toast.success("Link copied!");
-                          }}
-                          className="copy-button"
-                          title={t("InvoiceModal.copyLink")}
-                        >
-                          <FaRegCopy size={18} />
-                        </button>
-                      </div>
-                    )}
-
-                    <div className="buttons-container">
-                      <div className="payment-actions">
-                        {/* AKT Button - Only if paid */}
-                        <button
-                          onClick={() => handleViewAkt(payment)}
-                          disabled={getRealPaymentStatus(payment) !== "paid"}
-                          className={
-                            getRealPaymentStatus(payment) === "paid"
-                              ? "btn-paid"
-                              : "btn-disabled"
-                          }
-                        >
-                          {t("InvoiceModal.akt")}
-                        </button>
-
-                        {/* Contract Button - Always enabled */}
-                        <button
-                          onClick={() => handleViewContract(payment)}
-                          className="btn-paid"
-                        >
-                          {t("InvoiceModal.contract")}
-                        </button>
-                      </div>
-
-                      {payment.paymentLink && (
-                        <div className="resend-actions">
-                          <button
-                            onClick={() => handleResendEmail(payment)}
-                            className="email-resend-btn resend-btn"
-                            title="Resend via Email"
-                            disabled={emailSending}
-                          >
-                            <FaEnvelope size={18} />
-                            {emailSending && (
-                              <span className="resend-loading">Sending...</span>
-                            )}
-                          </button>
-
-                          <button
-                            onClick={() => handleResendWhatsApp(payment)}
-                            className="whatsapp-resend-btn resend-btn"
-                            title="Resend via WhatsApp"
-                            disabled={whatsappLoading}
-                          >
-                            <FaWhatsapp size={18} />
-                            {whatsappLoading && (
-                              <span className="resend-loading">Sending...</span>
-                            )}
-                          </button>
+                      return (
+                        <div key={idx} className="package-item">
+                          <span className="package-name">{pkg.name}</span>
+                          <span className="package-details">
+                            {unitAmount.toFixed(2)} × {quantity} = {total}{" "}
+                            {pkg.currency}
+                          </span>
                         </div>
-                      )}
-                    </div>
-                    <div className="mark-paid-section">
-                      <label>
-                        <input
-                          type="checkbox"
-                          onChange={() => handleMarkAsPaid(payment)}
-                          disabled={getRealPaymentStatus(payment) === "paid"}
-                          checked={getRealPaymentStatus(payment) === "paid"} // <- controlled by status
-                        />
+                      );
+                    })}
+                  </div>
+                )}
 
-                        <span style={{ marginLeft: "5px" }}>{t("InvoiceModal.markAsPaid")}</span>
-                      </label>
+              <div className="payment-details">
+                <div className="detail-row">
+                  <span>{t("invoiceModal.amount")}:</span>
+                  <span>
+                    {selectedPayment.totalAmount} {selectedPayment.currency}
+                  </span>
+                </div>
+                <div className="detail-row">
+                  <span>{t("invoiceModal.date")}:</span>
+                  <span>{selectedPayment.time}</span>
+                </div>
+              </div>
+
+              {selectedPayment.paymentLink &&
+                getRealPaymentStatus(selectedPayment) !== "paid" && (
+                  <div className="link-actions">
+                    <div className="link-group">
+                      <a
+                        href={selectedPayment.paymentLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="payment-link-button"
+                      >
+                        {t("invoiceModal.viewLink")}
+                      </a>
+                      <button
+                        className="copy-link-button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(
+                            selectedPayment.paymentLink
+                          );
+                          toast.success(t("invoiceModal.linkCopied"));
+                        }}
+                        title={t("invoiceModal.copyLink")}
+                      >
+                        <FaRegCopy />
+                      </button>
                     </div>
                   </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>{t("InvoiceModal.noSubmissions")}</p>
-          )}
-        </div>
+                )}
 
-        {showPopup && (
-          <div className="popup">✅ {t("InvoiceModal.successPopup")}</div>
+              <div className="payment-actions">
+                <div className="document-actions">
+                  <button
+                    onClick={() => handleViewAkt(selectedPayment)}
+                    disabled={getRealPaymentStatus(selectedPayment) !== "paid"}
+                    className={`document-button akt-button ${
+                      getRealPaymentStatus(selectedPayment) === "paid"
+                        ? ""
+                        : "payment-disabled"
+                    }`}
+                  >
+                    {t("invoiceModal.viewAkt")}
+                  </button>
+                  <button
+                    onClick={() => handleViewContract(selectedPayment)}
+                    className={`document-button contract-button`}
+                  >
+                    {t("invoiceModal.viewContract")}
+                  </button>
+                </div>
+
+                {selectedPayment.paymentLink &&
+                  getRealPaymentStatus(selectedPayment) !== "paid" && (
+                    <div className="resend-actions">
+                      <button
+                        onClick={() => handleResendEmail(selectedPayment)}
+                        disabled={emailSending}
+                        className={`resend-button email-resend ${
+                          emailSending ? "payment-disabled" : ""
+                        }`}
+                      >
+                        <FaEnvelope />
+                        {emailSending
+                          ? t("invoiceModal.sending")
+                          : t("invoiceModal.resendEmail")}
+                      </button>
+                      <button
+                        onClick={() => handleResendWhatsApp(selectedPayment)}
+                        disabled={whatsappLoading}
+                        className={`resend-button whatsapp-resend ${
+                          whatsappLoading ? "payment-disabled" : ""
+                        }`}
+                      >
+                        <FaWhatsapp />
+                        {whatsappLoading
+                          ? t("invoiceModal.sending")
+                          : t("invoiceModal.resendWhatsApp")}
+                      </button>
+                    </div>
+                  )}
+              </div>
+
+              <div className="mark-paid-section">
+                <label className="paid-checkbox">
+                  <input
+                    type="checkbox"
+                    onChange={() => handleMarkAsPaid(selectedPayment)}
+                    disabled={getRealPaymentStatus(selectedPayment) === "paid"}
+                    checked={getRealPaymentStatus(selectedPayment) === "paid"}
+                  />
+                  <span>{t("invoiceModal.markAsPaid")}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="empty-state">
+            <p>{t("invoiceModal.noPaymentHistory")}</p>
+          </div>
         )}
       </div>
+
+      {/* Popup Modals */}
+      {showPopup && (
+        <div className="success-popup">
+          <FaCheckCircle />
+          <span>{t("invoiceModal.emailSentSuccess")}</span>
+        </div>
+      )}
+
       {isAktOpen && aktData && (
-        <div className="akt-fullscreen-overlay">
+        <div className="document-modal-overlay">
           <AktDocument data={aktData} onClose={handleCloseAkt} />
         </div>
       )}
 
       {isContractOpen && contractData && (
-        <div className="akt-fullscreen-overlay">
+        <div className="document-modal-overlay">
           <ContractDocument data={contractData} onClose={handleCloseContract} />
+        </div>
+      )}
+
+      {showFormViewer && (
+        <div className="form-viewer-modal">
+          <RegistrationFormsViewer
+            email={submission.email}
+            onClose={handleCloseFormViewer}
+          />
         </div>
       )}
     </>
