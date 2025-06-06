@@ -7,7 +7,6 @@ import "./Document.css";
 const Document = () => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState({
-    passport: null,
     motivation: null,
     resume: null,
     academicCertificates: null,
@@ -28,13 +27,7 @@ const Document = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   const fileConfig = {
-    passport: {
-      accept: ".pdf,.jpg,.jpeg,.png",
-      maxSize: 5 * 1024 * 1024,
-      errorMessage: t("documentUpload.errors.fileType", {
-        formats: ".pdf, .jpg, .jpeg, .png",
-      }),
-    },
+   
     motivation: {
       accept: ".pdf,.doc,.docx",
       maxSize: 10 * 1024 * 1024,
@@ -229,7 +222,6 @@ const Document = () => {
 
     const formDataToSend = new FormData();
     const fileFields = [
-      "passport",
       "motivation",
       "resume",
       "academicCertificates",
@@ -264,7 +256,6 @@ const Document = () => {
           setUploadedFiles(data.documents);
           setFormData((prev) => ({
             ...prev,
-            passport: null,
             motivation: null,
             resume: null,
             academicCertificates: null,
@@ -448,12 +439,7 @@ const Document = () => {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="document-upload-form">
-          {renderFileSection(
-            "passport",
-            "passport.label",
-            "passport.description",
-            true
-          )}
+    
           {renderFileSection(
             "motivation",
             "motivation.label",
