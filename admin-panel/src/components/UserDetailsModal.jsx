@@ -778,24 +778,29 @@ const UserDetailsModal = ({ submission, userData, closeModal }) => {
         : `${baseUrl}/api/email/confirmation`;
 
     try {
-      const payment = fullUserData?.courses?.find(
-        (c) => c.courseId === courseId
-      )?.payments?.[0];
+     
       const personal = fullUserData?.personalDetails || {};
 
+      const currentCourse = fullUserData?.courses?.find(
+        (c) => c.courseId === courseId
+      );
+      const firstPayment = currentCourse?.payments?.[0] || {};
+      const firstPackage = firstPayment?.packages?.[0] || {};
+      
       const emailPayload = {
         email: submission.email,
         registrationType: invoiceType,
         registeredAt: new Date(submission.createdAt).toLocaleString("ru-RU"),
-        package: payment?.package,
-        amount: payment?.amount,
-        currency: payment?.currency,
+        package: firstPackage.name || "",
+        amount: firstPackage.amount || "",
+        currency: firstPackage.currency || "",
         firstName: personal.firstName || "",
         middleName: personal.middleName || "",
         lastName: personal.lastName || "",
         gender: personal.gender || "",
-        courseId: courseId,
+        courseId,
       };
+      
 
       // ✅ Log the payload being sent
       console.log("Sending email with payload:", emailPayload);
@@ -1130,42 +1135,75 @@ const confirmationSent = emailStatus?.confirmationSent || false;
                 </div>
               )}
 
-              {activeTab === "Invoice" && (
-                <div className="content-info">
-                  <div className="subcontent-info">
-                    <h3>{t("userDetailsModal.invoiceInfo")}</h3>
-                    <p>
-                      <strong>{t("userDetailsModal.invoiceType")}:</strong>{" "}
-                      {invoiceType}
-                    </p>
-                    <p>
-                      <strong>{t("userDetailsModal.categoryType")}:</strong>{" "}
-                      {categoryType}
-                    </p>
-                    <p>
-                      <strong>{t("userDetailsModal.registeredAt")}:</strong>{" "}
-                      {new Date(submission.createdAt).toLocaleString()}
-                    </p>
-                  </div>
+{activeTab === "Invoice" && (
+  <div className="content-info">
+    <div className="subcontent-info">
+      <h3>{t("userDetailsModal.invoiceInfo")}</h3>
+      <p>
+        <strong>{t("userDetailsModal.invoiceType")}:</strong> {invoiceType}
+      </p>
+      <p>
+        <strong>{t("userDetailsModal.categoryType")}:</strong> {categoryType}
+      </p>
+      <p>
+        <strong>{t("userDetailsModal.registeredAt")}:</strong>{" "}
+        {new Date(submission.createdAt).toLocaleString()}
+      </p>
+    </div>
 
-                  <div className="subcontent-info">
-                    <h3>{t("userDetailsModal.paymentInfo")}</h3>
-                    <p>
-                      <strong>{t("userDetailsModal.package")}:</strong>{" "}
-                      {fullUserData?.courses[0]?.payments[0]?.package || "N/A"}
-                    </p>
-                    <p>
-                      <strong>{t("userDetailsModal.amount")}:</strong>{" "}
-                      {fullUserData?.courses[0]?.payments[0]?.amount || "N/A"}{" "}
-                      {fullUserData?.courses[0]?.payments[0]?.currency || "N/A"}
-                    </p>
-                    <p>
-                      <strong>{t("userDetailsModal.status")}:</strong>{" "}
-                      {fullUserData?.courses[0]?.payments[0]?.status || "N/A"}
-                    </p>
-                  </div>
-                </div>
-              )}
+    <div className="subcontent-info">
+      <h3>{t("userDetailsModal.paymentInfo")}</h3>
+      {(() => {
+        const currentCourse = fullUserData?.courses?.find(
+          (c) => c.courseId === courseId
+        );
+        const payments = currentCourse?.payments || [];
+
+        if (!payments.length) {
+          return <p>No payment records available.</p>;
+        }
+
+        return payments.map((payment, pIndex) => (
+          <div key={payment.transactionId || pIndex} className="payment-block">
+            <h4>Payment {pIndex + 1}</h4>
+            <p>
+              <strong>{t("userDetailsModal.status")}:</strong>{" "}
+              {payment.status || "N/A"}
+            </p>
+            <p>
+              <strong>{t("userDetailsModal.invoiceNumber")}:</strong>{" "}
+              {payment.invoiceNumber || "N/A"}
+            </p>
+            <p>
+              <strong>{t("userDetailsModal.time")}:</strong>{" "}
+              {payment.time
+                ? new Date(payment.time).toLocaleString()
+                : "N/A"}
+            </p>
+
+            {(payment.packages || []).map((pkg, i) => (
+              <div key={pkg._id || i} className="package-block">
+                <p>
+                  <strong>{t("userDetailsModal.package")}:</strong>{" "}
+                  {pkg.name || "N/A"}
+                </p>
+                <p>
+                  <strong>{t("userDetailsModal.amount")}:</strong>{" "}
+                  {pkg.amount || "N/A"} {pkg.currency || ""}
+                </p>
+                <p>
+                  <strong>{t("userDetailsModal.quantity")}:</strong>{" "}
+                  {pkg.quantity || "1"}
+                </p>
+              </div>
+            ))}
+          </div>
+        ));
+      })()}
+    </div>
+  </div>
+)}
+
 
               {activeTab === "Registration" && (
                 <div className="content-info">

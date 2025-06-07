@@ -197,6 +197,11 @@
     "status": "Статус",
 
 
+  "invoiceNumber": "Номер счета",
+  "time": "Время",
+  "quantity": "Количество",
+
+
     "professionalDocuments": "Профессиональные документы",
     "view": "Просмотр",
     "download": "Скачать",

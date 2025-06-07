@@ -193,6 +193,10 @@
     "currency": "Currency",
     "status": "Status",
 
+  "invoiceNumber": "Invoice Number",
+  "time": "Time",
+  "quantity": "Quantity",
+
 
     "professionalDocuments": "Professional Documents",
     "view": "View",
@@ -286,7 +290,7 @@
     },
     "viewLink": "View Link",
     "viewAkt": "View AKT",
-    "viewContract": "View Contract",
+    "viewContract": "View Invoice",
     "resendEmail": "Resend Email",
     "resendWhatsApp": "Resend WhatsApp",
     "markAsPaid": "Mark as Paid",

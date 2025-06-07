@@ -43,7 +43,7 @@
   display: block;
 }
 
-.invoice-modal-overlay, .document-modal-overlay {
+.invoice-modal-overlay{
   position: fixed;
   top: 0;
   left: 0;
