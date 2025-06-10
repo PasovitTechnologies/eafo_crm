@@ -6,7 +6,6 @@
     "english": "English",
     "russian": "Русский",
 
-
   "preRegister": "Pre-Registration for the XI EAFO Basic Medical Courses",
   "firstName": "First Name",
   "middleName": "Middle Name",
@@ -19,8 +18,7 @@
   "submit": "Submit",
   "pleaseAgree": "Please agree to the required terms before submitting.",
   "formError": "Error submitting form",
-  "registerSuccess": "Successfully registered",
-    
+  "registerSuccess": "Successfully registered", 
     "sidebar": {
     "webinarDashboard": "Webinar Dashboard",
     "webinarManagement": "Webinar Management",
@@ -60,7 +58,6 @@
     "success": "Login successful!",
     "failed": "Login failed. Please try again."
   },
-
 "Dashboard": {
     "welcome": "Welcome to the Admin Dashboard",
     "Users": "Users",
@@ -82,7 +79,6 @@
     "loading": "Loading user data...",
     "noData": "No data available"
   },
-
   "Courses": {
     "totalSubmissions": "Total Submissions",
     "allForms": "All Forms",
@@ -98,7 +94,6 @@
     "6months": "6 Months",
     "all": "All Time"
   },
-
   "webinars": {
     "loading": "Loading webinars...",
     "error": "Error: {{error}}",
@@ -121,7 +116,6 @@
     "edit": "Edit",
     "delete": "Delete"
   },
-
   "courseManager": {
     "loading": "Loading...",
     "error": "Error: {{error}}",
@@ -131,7 +125,6 @@
     "past": "Past",
     "noCourses": "No courses found."
   },
-
   "courseEntries": {
     "loading": "Loading...",
     "error": "Error: {{error}}",
@@ -145,7 +138,6 @@
     "sendWhatsApp": "Send WhatsApp",
     "noSubmissions": "No submissions found."
   },
-
   "emailModal": {
     "sendEmail": "Send Email",
     "to": "To",
@@ -158,7 +150,6 @@
     "emailFailed": "Failed to send email: {{error}}",
     "emailError": "An error occurred while sending the email."
   },
-
   "userDetailsModal": {
     "header": "User & Submission Details",
     "Personal": "Personal",
@@ -213,7 +204,6 @@
     "sendConfirmation": "Send Confirmation",
     "confirmationSent": "Confirmation Sent"
   },
-
   "invoiceManager": {
       "searchCourses": "Search courses...",
       "all": "All",
@@ -361,7 +351,6 @@
     "deleteSuccess": "✅ Question deleted successfully!",
     "deleteError": "❌ Failed to delete question."
   },
-
   "CourseQuestionsDetail": {
     "title": "Manage Questions & Rules",
     "goBack": "Go Back",
@@ -443,7 +432,6 @@
     "addTargetQuestion": "Please add at least one target question.",
     "selectAllTargets": "Please select all target questions."
   },
-
   "courseDetail": {
     "back": "Back",
     "items": "Items",
@@ -517,7 +505,6 @@
     "deleteError": "An error occurred while deleting the item."
 
   },
-
   "courseForms": {
     "loading": "Loading forms...",
     "noForms": "No forms available. Click \"New Form\" to create one.",
@@ -562,7 +549,6 @@
     "errorDeleting": "🚨 Error deleting form",
     "errorUpdating": "🚨 Error updating form"
   },
-
   "formInfoModel": {
     "formDetails": "Form Details",
     "uploadImage": "Click to Upload Image",
@@ -583,7 +569,6 @@
     "errorUpdatingForm": "Failed to update form. Please try again.",
     "close": "✖"
   },
-
   "FormEntries": {
     "form_submissions": "Form Submissions",
     "filter": "Filter",
@@ -628,7 +613,6 @@
     "answer": "Answer",
     "noResponse": "No response"
   },
-
   "enquiry": {
     "searchPlaceholder": "Search by message or email...",
     "refresh": "Refresh",
@@ -659,7 +643,6 @@
     "noAttachments": "No Attachments"
   }
   },
-
   "userDatabase": {
     "title": "User Database",
     "searchPlaceholder": "Search by email, Name...",
@@ -674,7 +657,6 @@
     "nextPage": "Next",
     "notAvailable": "N/A"
   },
-
   "WebinarDashboard": {
     "title": "Webinar Dashboard",
     "searchPlaceholder": "Search webinars...",
@@ -684,7 +666,6 @@
     "noWebinars": "No webinars found",
     "errorFetching": "Error fetching webinars"
   },
-
   "webinarParticipants": {
     "title": "{{webinarTitle}} - Participants",
     "searchPlaceholder": "Search by email",
@@ -698,7 +679,6 @@
     "export": "Export CSV",
     "loading": "Loading..."
   },
-
   "webinarManagement": {
     "title": "Webinar Management",
     "searchPlaceholder": "Search webinars...",
@@ -729,7 +709,6 @@
       "regaliaRussian": "Regalia (Russian)"
     }
   },
-
   "pdfExport": {
     "title": "User & Submission Details",
     "sections": {
@@ -783,7 +762,6 @@
     "all_registered": "All Registered"
   }
   },
-
   "invoiceCreator": {
     "title": "Create Invoice",
     "selectUser": "Select User",

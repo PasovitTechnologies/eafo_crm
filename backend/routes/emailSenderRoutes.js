@@ -7,6 +7,13 @@ const UserNotification = require("../models/UserNotificationSchema");
 const multer = require("multer");
 const mongoose = require("mongoose");
 const moment = require("moment-timezone");
+const nodemailer = require("nodemailer");
+const { GridFSBucket } = require("mongodb");
+const conn = mongoose.connection;
+
+
+
+// Endpoint to send emails and save payments
 
 
 const router = express.Router();
@@ -34,39 +41,8 @@ async function runWithRetry(fn, maxRetries = 3) {
   }
 }
 
-// Helper function to send emails using Rusender
-const sendEmailRusender = async (recipient, mail) => {
-  const emailData = {
-      mail: {
-          to: { email: recipient.email },
-          from: { email: "eafo@e-registrar.org", name: "EAFO" },
-          subject: mail.subject,
-          previewTitle: mail.subject,
-          html: mail.html.replace("{name}", recipient.name || "User")
-      }
-  };
 
-  try {
 
-      const response = await axios.post(RUSENDER_API, emailData, {
-          headers: {
-              "Content-Type": "application/json",
-              "X-Api-Key": process.env.RUSENDER_API_KEY
-          }
-      });
-
-      return { email: recipient.email, status: "Success", data: response.data };
-      console.log('✅ Success:', res.data);
-  } catch (error) {
-
-      return { 
-          email: recipient.email, 
-          status: "Failed", 
-          error: error.response?.data || error.message 
-      };
-      console.error('❌ Error:', err.response?.data || err.message);
-  }
-};
 
 
 const russianEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, amount, currency, courseName) => {
@@ -85,21 +61,10 @@ const russianEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, 
   <div style="max-width: 600px; margin: 40px auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
     
     <p><strong>${fullName},</strong></p>
-    <p>Благодарим Вас за регистрацию на XI EAFO Базовые медицинские курсы, который пройдет 23 июля по 8 августа 2025 в г. Магас, Республика Ингушетия.</p>
-
-    <p style="margin-bottom: 10px;">
-      <strong>Номер счета:</strong> ${invoiceNumber}<br />
-      <strong>Пакет:</strong> ${packageName}<br />
-      <strong>Сумма:</strong> ${amount} ${currency}<br />
-      <strong>Дата:</strong> ${formattedDate}
-    </p>
+    <p>Для ознакомления с деталями платежа и оплаты, перейдите по ссылке ниже. Вы также можете оплатить заявку по счету, прикрепленному к этому письму.</p>
 
     <p>
-      Вы можете получить доступ к деталям платежа, нажав на ссылку ниже. Завершите процесс регистрации, произведя оплату.
-    </p>
-
-    <p>
-      <strong>Ссылка для оплаты для российских участников:</strong>
+      Ссылка для оплаты для участников:
     </p>
 
     <p style="margin-bottom: 20px;">
@@ -108,24 +73,18 @@ const russianEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, 
       </a>
     </p>
 
-    <p>
-      *Участник должен оплатить сумму, указанную в счете, в течение 3 дней.
+    <p><strong>
+      Участник должен оплатить сумму, указанную в счете, в течение 3 дней. Заявка будет считаться завершенной после подтверждения оплаты.
+      </strong>
     </p>
 
-    <p>
-      После совершения платежа отправьте подтверждение банковского перевода и свое полное имя на адрес:
-      <a href="mailto:travel@eafo.info">travel@eafo.info</a>
-    </p>
+    <p>После совершения платежа, пожалуйста, отправьте подтверждение банковского перевода и свое ФИО на адрес: basic@eafo.info</p>
 
-    <p>
-      Если у вас есть какие-либо вопросы, свяжитесь с командой EAFO по адресу:
-      <a href="mailto:info@eafo.info">info@eafo.info</a>
-    </p>
+    <p> Контакты: электронная почта - basic@eafo.info, телефон: +7 (985) 125-77-88 (Telegram, Whatsapp)</p>
 
-    <p style="margin-bottom: 0;">
-      С наилучшими пожеланиями,<br/>
-      <strong>Команда EAFO</strong>
-    </p>
+    <p> Техническая поддержка: basic@eafo.info, телефон: +7 (985) 125-77-88 (Telegram, Whatsapp)</p>
+
+    <p>С уважением,<br>команда EAFO</p>
 
     <hr style="margin-top: 40px; border: none; border-top: 1px solid #eee;" />
     <p style="font-size: 12px; color: #999;">
@@ -210,122 +169,247 @@ const englishEmailTemplate = (fullName, invoiceNumber, paymentUrl, packageName, 
 
 
 
+const sendEmailSMTP = async (recipient, mail) => {
+  // Configure SMTP transporter
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,           // e.g., smtp.gmail.com
+    port: parseInt(process.env.SMTP_PORT), // 465 for SSL
+    secure: true,                          // true for port 465
+    auth: {
+      user: process.env.EMAIL_USER,        // eafo@e-registrar.org
+      pass: process.env.EMAIL_PASS,        // your app password
+    },
+  });
 
-// Endpoint to send emails and save payments
-router.post("/send", async (req, res) => {
-  const {
+  // Compose email
+  const mailOptions = {
+    from: `"EAFO" <${process.env.EMAIL_USER}>`,
+    to: recipient.email,
+    subject: mail.subject,
+    html: mail.html.replace("{name}", recipient.firstName || "User"),
+    attachments: [],
+  };
+
+  // Handle attachments (if any)
+  if (mail.attachments?.length > 0) {
+    const attachment = mail.attachments[0];
+    mailOptions.attachments.push({
+      filename: attachment.filename,
+      content: attachment.content, // Should be a Buffer
+      contentType: attachment.contentType || "application/pdf",
+    });
+  }
+
+  // Send email
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Email sent:", info.messageId);
+    return {
+      email: recipient.email,
+      status: "Success",
+      messageId: info.messageId,
+      response: info.response,
+    };
+  } catch (error) {
+    console.error("❌ SMTP Email error:", error);
+    return {
+      email: recipient.email,
+      status: "Failed",
+      error: error.message,
+    };
+  }
+};
+
+
+
+
+const sendEmailRusender = async (recipient, mail) => {
+  const emailData = {
+    mail: {
+      to: { email: recipient.email },
+      from: { email: "eafo@e-registrar.org", name: "EAFO" },
+      subject: mail.subject,
+      previewTitle: mail.subject,
+      html: mail.html.replace("{name}", recipient.name || "User"),
+    },
+  };
+
+  if (mail.attachments?.length) {
+    const attachment = mail.attachments[0];
+    emailData.mail.attachments = [
+      {
+        name: attachment.filename,
+        content: Buffer.from(attachment.content).toString("base64"),
+        type: "application/pdf",
+        disposition: "attachment",
+      },
+    ];
+  }
+
+  try {
+    const response = await axios.post(RUSENDER_API, emailData, {
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": process.env.RUSENDER_API_KEY,
+      },
+    });
+    return { email: recipient.email, status: "Success", data: response.data };
+  } catch (error) {
+    return {
+      email: recipient.email,
+      status: "Failed",
+      error: error.response?.data || error.message,
+    };
+  }
+};
+
+// POST /api/email/send
+router.post("/send", upload.single("contract"), async (req, res) => {
+  let {
     email,
     courseId,
-    transactionId,
-    orderId,
     paymentUrl,
     packages,
     payableAmount,
     discountPercentage,
     code,
+    invoiceNumber,
   } = req.body;
 
-  if (!email || !courseId || !transactionId || !orderId || !paymentUrl || !packages?.length) {
-    return res.status(400).json({ success: false, message: "Missing required data." });
+  const contractPdfBuffer = req.file?.buffer;
+
+  console.log("📥 Email send request received:");
+  console.log("📧 Email:", email);
+  console.log("📘 Course ID:", courseId);
+  console.log("📄 Invoice Number:", invoiceNumber);
+  console.log("📄 PDF attached:", !!contractPdfBuffer);
+
+  try {
+    packages = JSON.parse(packages);
+    payableAmount = parseFloat(payableAmount);
+    discountPercentage = parseFloat(discountPercentage || "0");
+  } catch (err) {
+    console.error("❌ JSON parsing error:", err);
+    return res.status(400).json({ success: false, message: "Invalid input format." });
+  }
+
+  if (!email || !courseId  || !packages?.length || !invoiceNumber) {
+    return res.status(400).json({
+      success: false,
+      message: "Missing required data.",
+      missingFields: {
+        email,
+        courseId,
+        paymentUrl,
+        packagesLength: packages?.length,
+        invoiceNumber,
+      },
+    });
   }
 
   try {
-    const result = await runWithRetry(async (session) => {
-      const user = await User.findOne({ email }).session(session);
-      if (!user) throw new Error("User not found");
+    const user = await User.findOne({ email });
+    const course = await Course.findById(courseId);
+    if (!user || !course) throw new Error("User or course not found");
 
-      const userCourse = user.courses.find(c => c.courseId.toString() === courseId);
-      if (!userCourse) throw new Error("User is not enrolled in this course");
+    const { title, firstName, middleName, lastName } = user.personalDetails || {};
+    const fullName = `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
+    const currency = packages[0].currency;
+    const courseName = currency === "RUB" ? course.nameRussian : course.name;
 
-      const userPayment = userCourse.payments.find(p => p.transactionId === transactionId);
-      if (!userPayment) throw new Error("Transaction ID not found in user payments");
+    const subject = currency === "RUB"
+      ? `Счет за XI EAFO Базовые медицинские курсы по онкологии и онкопатологии - Номер счета от EAFO`
+      : `Invoice for ${courseName} - ${invoiceNumber}`;
 
-      const course = await Course.findById(courseId).session(session);
-      if (!course) throw new Error("Course not found");
+    const emailHtml = currency === "RUB"
+      ? russianEmailTemplate(fullName, invoiceNumber, paymentUrl, packages[0].name, payableAmount, currency, courseName)
+      : englishEmailTemplate(fullName, invoiceNumber, paymentUrl, packages[0].name, payableAmount, currency, courseName);
 
-      const coursePayment = course.payments.find(p => p.transactionId === transactionId);
-      if (!coursePayment) throw new Error("Transaction ID not found in course payments");
+    const emailOptions = {
+      subject,
+      html: emailHtml,
+      attachments: [],
+    };
 
-      // Generate Invoice Number
-      let currentInvoiceNumber = course.currentInvoiceNumber || "EAFO-003/25/0100";
-      const match = currentInvoiceNumber.match(/(\d{4})$/);
-      let nextInvoiceNumber = "EAFO-003/25/0100";
+    let fileId = null;
 
-      if (match) {
-        const newNumber = (parseInt(match[1], 10) + 1).toString().padStart(4, "0");
-        nextInvoiceNumber = currentInvoiceNumber.replace(/(\d{4})$/, newNumber);
+    // Save contract to GridFS and attach it
+    if (contractPdfBuffer) {
+      const bucket = new GridFSBucket(conn.db, { bucketName: "contracts" });
+      const uploadStream = bucket.openUploadStream(`Contract_${invoiceNumber}.pdf`, {
+        contentType: "application/pdf",
+        metadata: { email, courseId, invoiceNumber },
+      });
+
+      uploadStream.end(contractPdfBuffer);
+
+      await new Promise((resolve, reject) => {
+        uploadStream.on("finish", () => {
+          fileId = uploadStream.id;
+          emailOptions.attachments.push({
+            filename: `Contract_${invoiceNumber}.pdf`,
+            content: contractPdfBuffer,
+            contentType: "application/pdf",
+          });
+          resolve();
+        });
+        uploadStream.on("error", reject);
+      });
+    } else {
+      console.warn("⚠️ No contract PDF attached.");
+    }
+
+    // Send email
+    const emailResult = await sendEmailSMTP({ email, name: fullName }, emailOptions);
+
+    // 🔐 Save contractFileId to user and course payment entry
+    if (fileId) {
+      const transactionId = course.payments.find(p => p.invoiceNumber === invoiceNumber)?.transactionId;
+
+      if (transactionId) {
+        await User.updateOne(
+          { email, "courses.courseId": courseId },
+          {
+            $set: {
+              "courses.$[c].payments.$[p].contractFileId": fileId,
+            },
+          },
+          {
+            arrayFilters: [
+              { "c.courseId": courseId },
+              { "p.invoiceNumber": invoiceNumber },
+            ],
+          }
+        );
+
+        await Course.updateOne(
+          { _id: courseId },
+          {
+            $set: {
+              "payments.$[p].contractFileId": fileId,
+            },
+          },
+          {
+            arrayFilters: [
+              { "p.invoiceNumber": invoiceNumber },
+            ],
+          }
+        );
+        console.log("📥 Contract fileId saved to User & Course payment.");
+      } else {
+        console.warn("⚠️ Transaction not found for invoice:", invoiceNumber);
       }
-      course.currentInvoiceNumber = nextInvoiceNumber;
-
-      // Calculate totals
-      const totalAmount = packages.reduce((sum, pkg) => {
-        const amount = parseFloat(pkg.amount) || 0;
-        const quantity = parseInt(pkg.quantity) || 1;
-        return sum + amount * quantity;
-      }, 0);
-
-      const currency = packages[0]?.currency || "INR";
-      const packageLabel = packages.map(p => p.name).join(", ");
-
-      const normalizedPackages = packages.map(pkg => ({
-        name: pkg.name,
-        amount: parseFloat(pkg.amount),
-        currency: pkg.currency,
-        quantity: parseInt(pkg.quantity) || 1, // fallback for missing values
-      }));
-      
-
-      const commonData = {
-        invoiceNumber: nextInvoiceNumber,
-        paymentLink: paymentUrl,
-        status: "Pending",
-        orderId,
-        time: moment.tz("Europe/Moscow").toDate(),
-        packages: normalizedPackages,
-        totalAmount,
-        payableAmount,
-        currency,
-        discountPercentage,
-        discountCode: code,
-      };
-      
-
-      Object.assign(userPayment, commonData);
-      Object.assign(coursePayment, commonData);
-
-      await user.save({ session });
-      await course.save({ session });
-
-      // Email
-      const { title, firstName, middleName, lastName } = user.personalDetails || {};
-      const isRussian = currency === "RUB";
-      const courseName = isRussian ? course.nameRussian : course.name;
-      const fullName = isRussian
-        ? `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()
-        : `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
-
-      const emailSubject = isRussian
-        ? `Счет за XI EAFO Базовые медицинские курсы - Номер счета от EAFO`
-        : `Invoice for the course ${courseName} - ${nextInvoiceNumber} from EAFO`;
-
-      const emailBody = isRussian
-        ? russianEmailTemplate(fullName, nextInvoiceNumber, paymentUrl, packageLabel, totalAmount.toFixed(2), currency, courseName)
-        : englishEmailTemplate(fullName, nextInvoiceNumber, paymentUrl, packageLabel, totalAmount.toFixed(2), currency, courseName);
-
-      const emailResult = await sendEmailRusender({ email, name: fullName }, { subject: emailSubject, html: emailBody });
-
-      return { invoiceNumber: nextInvoiceNumber, emailResult };
-    });
+    }
 
     return res.status(200).json({
       success: true,
-      message: "Invoice updated and email sent successfully",
-      ...result,
+      message: "Email with invoice sent successfully.",
+      invoiceNumber,
+      emailResult,
     });
-
-  } catch (error) {
-    console.error("❌ Error during email sending and updating:", error);
-    return res.status(500).json({ success: false, message: error.message });
+  } catch (err) {
+    console.error("❌ Server error:", err);
+    return res.status(500).json({ success: false, message: err.message });
   }
 });
 
@@ -432,7 +516,7 @@ router.post("/send-email", async (req, res) => {
       : `${title || ""} ${firstName || ""} ${middleName || ""} ${lastName || ""}`.trim();
 
     const emailSubject = isRussian
-      ? `Счет за XI EAFO Базовые медицинские курсы - Номер счета ${nextInvoiceNumber}`
+      ? `Счет за XI EAFO Базовые медицинские курсы по онкологии и онкопатологии - Номер счета от EAFO`
       : `Invoice for ${courseName} - ${nextInvoiceNumber}`;
 
     const emailBody = isRussian
@@ -520,8 +604,7 @@ router.post("/resend", async (req, res) => {
 
     const { title, firstName, middleName, lastName } = user.personalDetails || {};
     const currency = payment.packages?.[0]?.currency || payment.currency || "RUB";
-     const isRussian = currency === "RUB";
-
+    const isRussian = currency === "RUB";
 
     const fullName = isRussian
       ? `${title || ""} ${lastName || ""} ${firstName || ""} ${middleName || ""}`.trim()
@@ -529,36 +612,66 @@ router.post("/resend", async (req, res) => {
 
     const courseName = isRussian ? course.nameRussian : course.name;
 
-    // 🔁 Construct human-readable package info
     const packageDetails = payment.packages && Array.isArray(payment.packages)
       ? payment.packages.map(pkg => `${pkg.name} — ${pkg.amount} ${pkg.currency}`).join("<br>")
       : (payment.package || "");
 
     const emailSubject = isRussian
-      ? `Счет за XI EAFO Базовые медицинские курсы - Номер счета от EAFO`
+      ? `Счет за XI EAFO Базовые медицинские курсы по онкологии и онкопатологии - Номер счета от EAFO`
       : `Invoice for the course ${courseName} - ${invoiceNumber} from EAFO`;
-
-      
 
     const emailBody = isRussian
       ? russianEmailTemplate(fullName, invoiceNumber, payment.paymentLink, packageDetails, payment.payableAmount, currency, courseName)
       : englishEmailTemplate(fullName, invoiceNumber, payment.paymentLink, packageDetails, payment.payableAmount, currency, courseName);
 
-    const mail = { subject: emailSubject, html: emailBody };
+    const mail = { subject: emailSubject, html: emailBody, attachments: [] };
 
-    const emailResult = await sendEmailRusender({ email, name: fullName }, mail);
+    // ✅ Attach the PDF from GridFS if available
+    if (payment.contractFileId) {
+      const db = mongoose.connection.db;
+      const bucket = new GridFSBucket(db, { bucketName: "contracts" });
 
-    return res.status(200).json({
-      success: true,
-      message: "Invoice email resent",
-      emailResult,
-    });
+      const downloadStream = bucket.openDownloadStream(new mongoose.Types.ObjectId(payment.contractFileId));
+
+      const chunks = [];
+      downloadStream.on("data", (chunk) => chunks.push(chunk));
+      downloadStream.on("end", async () => {
+        const buffer = Buffer.concat(chunks);
+        mail.attachments.push({
+          filename: `Contract_${invoiceNumber}.pdf`,
+          content: buffer,
+          contentType: "application/pdf",
+        });
+
+
+        const emailResult = await sendEmailSMTP({ email, name: fullName }, mail);
+        return res.status(200).json({
+          success: true,
+          message: "Invoice email resent with attachment",
+          emailResult,
+        });
+      });
+
+      downloadStream.on("error", (err) => {
+        console.error("❌ Error reading contract PDF:", err.message);
+        return res.status(500).json({ success: false, message: "Failed to read contract from storage." });
+      });
+    } else {
+      console.warn("⚠️ No contractFileId found — sending email without attachment");
+      const emailResult = await sendEmailSMTP({ email, name: fullName }, mail);
+      return res.status(200).json({
+        success: true,
+        message: "Invoice email resent (no contract attachment)",
+        emailResult,
+      });
+    }
 
   } catch (error) {
     console.error("Resend email error:", error.message);
     return res.status(500).json({ success: false, message: error.message });
   }
 });
+
 
 
 
@@ -695,24 +808,60 @@ router.put("/payment/mark-paid", async (req, res) => {
     const course = await Course.findById(courseId).session(session);
     if (!user || !course) throw new Error("User or course not found");
 
-    // Update in course
+    // Find payment in course
     const coursePayment = course.payments.find(p => p.invoiceNumber === invoiceNumber);
     if (!coursePayment) throw new Error("Invoice not found in course");
-    coursePayment.status = "Paid";
 
-    // Update in user course payments
+    // Generate or update AKT number
+    let baseAkt = course.currentAktNumber || course.aktNumber;
+    if (!baseAkt) {
+      console.warn("Missing aktNumber on course, using fallback");
+      baseAkt = "EAFO-003/25/000";
+    }
+
+    console.log(`Current AKT base: ${baseAkt}`);
+    const match = baseAkt.match(/^(.*\/)(\d{3})$/);
+    let newAktNumber = baseAkt;
+
+    if (match) {
+      const prefix = match[1];
+      const number = parseInt(match[2], 10) + 1;
+      newAktNumber = `${prefix}${number.toString().padStart(3, "0")}`;
+      course.currentAktNumber = newAktNumber;
+    } else {
+      console.warn("Invalid aktNumber format:", baseAkt);
+    }
+
+    // Update course payment
+
+    const paidAt = moment.tz("Europe/Moscow").toDate();
+
+    coursePayment.status = "Paid";
+    coursePayment.paidAt = paidAt;
+    coursePayment.aktNumber = newAktNumber;
+
+    // Update user course payment
     const userCourse = user.courses.find(c => c.courseId.toString() === courseId);
     if (!userCourse) throw new Error("User is not enrolled in this course");
 
     const userPayment = userCourse.payments.find(p => p.invoiceNumber === invoiceNumber);
     if (!userPayment) throw new Error("Invoice not found in user payments");
-    userPayment.status = "Paid";
 
+    userPayment.status = "Paid";
+    userPayment.paidAt = paidAt;
+    userPayment.aktNumber = newAktNumber;
+
+    // Save both models
     await course.save({ session });
     await user.save({ session });
+
     await session.commitTransaction();
 
-    res.status(200).json({ success: true, message: "Payment marked as paid" });
+    res.status(200).json({
+      success: true,
+      message: "Payment marked as paid",
+      aktNumber: newAktNumber,
+    });
   } catch (error) {
     await session.abortTransaction();
     res.status(500).json({ success: false, message: error.message });
@@ -720,6 +869,7 @@ router.put("/payment/mark-paid", async (req, res) => {
     session.endSession();
   }
 });
+
 
 
  

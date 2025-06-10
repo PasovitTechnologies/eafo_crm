@@ -31,6 +31,7 @@ const paymentSchema = new mongoose.Schema({
   transactionId: { type: String, required: true }, // Shared ID for the whole transaction
   invoiceNumber: { type: String, required: false, default: "" },
   paymentId: { type: String, required: false },
+  aktNumber: { type: String },
   paymentLink: { type: String, required: false },
   orderId: { type: String, required: false },
 
@@ -59,6 +60,12 @@ const paymentSchema = new mongoose.Schema({
     enum: ["Not created", "Pending", "Paid", "Failed", "Expired", "free"],
     default: "Not created",
   },
+  contractFileId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'contracts.files', // optional, for reference clarity
+  },
+  submittedAt: Date
+  
 });
 
 
@@ -77,6 +84,9 @@ const courseSchema = new mongoose.Schema(
     websiteLink: { type: String, required: true, trim: true },
     invoiceNumber: { type: String, required: true, trim: true },
     currentInvoiceNumber: { type: String, required: false, trim: true },
+    aktNumber: { type: String, required: true, trim: true },
+    currentAktNumber: { type: String, required: false, trim: true },
+
     status: {
       type: String,
       enum: ["Active", "Not Active"],

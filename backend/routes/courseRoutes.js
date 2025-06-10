@@ -65,12 +65,13 @@ router.post("/", authenticateJWT, async (req, res) => {
     const {
       name,
       date,
-      invoiceNumber
+      invoiceNumber,
+      aktNumber
     } = req.body;
 
 
     // Ensure required fields are present
-    if (!name || !date || !invoiceNumber) {
+    if (!name || !date || !invoiceNumber || !aktNumber) {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
@@ -94,6 +95,7 @@ router.post("/", authenticateJWT, async (req, res) => {
       ...req.body,          // Spread all fields into the course object
       slug,
       currentInvoiceNumber: req.body.invoiceNumber,
+      currentAktNumber: req.body.aktNumber,
       date: parsedDate,     // Ensure the date is saved as a valid Date object
       items: [],
       forms: [],

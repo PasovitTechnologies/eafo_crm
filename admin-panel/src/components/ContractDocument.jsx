@@ -1,8 +1,8 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, forwardRef } from "react";
 import html2pdf from "html2pdf.js";
 import "./ContractDocument.css";
 
-const ContractDocument = ({ data = {}, onClose }) => {
+const ContractDocument = forwardRef(({ data = {}, onClose }, ref) => {
   const contractRef = useRef();
   const [isEditing, setIsEditing] = useState(false);
 
@@ -28,6 +28,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
     phone_no: data?.phone_no || "",
     agreement_number: data?.agreement_number || "",
     agreement_date: formatDateForInput(data?.agreement_date),
+    submitted_date: formatDateForInput(data?.submitted_date),
     service_name: data?.service_name || "",
     total_amount: data?.total_amount || 0,
     packages: data?.packages || [],
@@ -42,10 +43,35 @@ const ContractDocument = ({ data = {}, onClose }) => {
       service_name: data?.service_name || "",
       agreement_number: data?.agreement_number || "",
       agreement_date: formatDateForInput(data?.agreement_date),
+      submitted_date: formatDateForInput(data?.submitted_date),
       total_amount: data?.total_amount || 0,
       packages: data?.packages || [],
     });
   }, [data]);
+
+  const generateContractPDFBlob = async (element) => {
+    if (!element) {
+      console.error("Element for PDF generation is missing");
+      return null;
+    }
+
+    const options = {
+      margin: 0,
+      filename: "contract.pdf",
+      image: { type: "jpeg", quality: 1 },
+      html2canvas: { scale: 3, useCORS: true },
+      jsPDF: { unit: "mm", format: [210, 350], orientation: "portrait" },
+    };
+
+    return new Promise((resolve, reject) => {
+      html2pdf()
+        .from(element)
+        .set(options)
+        .outputPdf("blob")
+        .then(resolve)
+        .catch(reject);
+    });
+  };
 
   const handleDownloadPDF = async () => {
     const input = contractRef.current;
@@ -84,30 +110,62 @@ const ContractDocument = ({ data = {}, onClose }) => {
     }));
   };
 
-
   const numberToWordsRussian = (num) => {
     if (typeof num !== "number" || isNaN(num)) return "ноль рублей ноль копеек";
-  
+
     const belowTwenty = [
-      "ноль", "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять", "десять",
-      "одиннадцать", "двенадцать", "тринадцать", "четырнадцать", "пятнадцать", "шестнадцать",
-      "семнадцать", "восемнадцать", "девятнадцать"
+      "ноль",
+      "один",
+      "два",
+      "три",
+      "четыре",
+      "пять",
+      "шесть",
+      "семь",
+      "восемь",
+      "девять",
+      "десять",
+      "одиннадцать",
+      "двенадцать",
+      "тринадцать",
+      "четырнадцать",
+      "пятнадцать",
+      "шестнадцать",
+      "семнадцать",
+      "восемнадцать",
+      "девятнадцать",
     ];
-  
+
     const tens = [
-      "", "", "двадцать", "тридцать", "сорок", "пятьдесят",
-      "шестьдесят", "семьдесят", "восемьдесят", "девяносто"
+      "",
+      "",
+      "двадцать",
+      "тридцать",
+      "сорок",
+      "пятьдесят",
+      "шестьдесят",
+      "семьдесят",
+      "восемьдесят",
+      "девяносто",
     ];
-  
+
     const hundreds = [
-      "", "сто", "двести", "триста", "четыреста",
-      "пятьсот", "шестьсот", "семьсот", "восемьсот", "девятьсот"
+      "",
+      "сто",
+      "двести",
+      "триста",
+      "четыреста",
+      "пятьсот",
+      "шестьсот",
+      "семьсот",
+      "восемьсот",
+      "девятьсот",
     ];
-  
+
     const thousandsForms = ["тысяча", "тысячи", "тысяч"];
     const millionsForms = ["миллион", "миллиона", "миллионов"];
     const billionsForms = ["миллиард", "миллиарда", "миллиардов"];
-  
+
     const getForm = (n, forms) => {
       const lastDigit = n % 10;
       const lastTwoDigits = n % 100;
@@ -116,7 +174,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
       if (lastDigit >= 2 && lastDigit <= 4) return forms[1];
       return forms[2];
     };
-  
+
     const convertTriplet = (n, isFemale = false) => {
       let result = [];
       const h = Math.floor(n / 100);
@@ -125,7 +183,13 @@ const ContractDocument = ({ data = {}, onClose }) => {
       result.push(hundreds[h]);
       if (t > 1) {
         result.push(tens[t]);
-        result.push(u === 1 && isFemale ? "одна" : u === 2 && isFemale ? "две" : belowTwenty[u]);
+        result.push(
+          u === 1 && isFemale
+            ? "одна"
+            : u === 2 && isFemale
+            ? "две"
+            : belowTwenty[u]
+        );
       } else {
         if (t * 10 + u > 0) {
           if (t * 10 + u === 1 && isFemale) result.push("одна");
@@ -135,25 +199,41 @@ const ContractDocument = ({ data = {}, onClose }) => {
       }
       return result.filter(Boolean).join(" ");
     };
-  
+
     const parts = [];
-  
+
     const integerPart = Math.floor(num);
     const fractionalPart = Math.round((num - integerPart) * 100);
-  
+
     const billions = Math.floor(integerPart / 1e9);
     const millions = Math.floor((integerPart % 1e9) / 1e6);
     const thousands = Math.floor((integerPart % 1e6) / 1e3);
     const remainder = integerPart % 1e3;
-  
-    if (billions) parts.push(`${convertTriplet(billions)} ${getForm(billions, billionsForms)}`);
-    if (millions) parts.push(`${convertTriplet(millions)} ${getForm(millions, millionsForms)}`);
-    if (thousands) parts.push(`${convertTriplet(thousands, true)} ${getForm(thousands, thousandsForms)}`);
-    if (remainder || parts.length === 0) parts.push(`${convertTriplet(remainder)} рублей`);
-  
+
+    if (billions)
+      parts.push(
+        `${convertTriplet(billions)} ${getForm(billions, billionsForms)}`
+      );
+    if (millions)
+      parts.push(
+        `${convertTriplet(millions)} ${getForm(millions, millionsForms)}`
+      );
+    if (thousands)
+      parts.push(
+        `${convertTriplet(thousands, true)} ${getForm(
+          thousands,
+          thousandsForms
+        )}`
+      );
+    if (remainder || parts.length === 0)
+      parts.push(`${convertTriplet(remainder)} рублей`);
+
     const kopecks = fractionalPart.toString().padStart(2, "0");
-    const kopeckWords = fractionalPart === 0 ? "ноль копеек" : `${convertTriplet(fractionalPart)} копеек`;
-  
+    const kopeckWords =
+      fractionalPart === 0
+        ? "ноль копеек"
+        : `${convertTriplet(fractionalPart)} копеек`;
+
     return `${parts.join(" ")} ${kopeckWords}`.replace(/\s+/g, " ").trim();
   };
 
@@ -167,18 +247,13 @@ const ContractDocument = ({ data = {}, onClose }) => {
     return `${day}.${month}.${year}`;
   };
 
-
   const total = formData.packages.reduce(
     (sum, pkg) => sum + (pkg.amount || 0) * (pkg.quantity || 1),
     0
   );
-  
-
-
-
 
   return (
-    <div className="contract-page">
+    <div ref={ref} className="contract-page">
       <div className="contract-popup-overlay">
         <div className="contract-popup">
           <button className="contract-close-btn" onClick={onClose}>
@@ -304,13 +379,16 @@ const ContractDocument = ({ data = {}, onClose }) => {
                     <tr>
                       <td className="col-1">
                         Исполнитель: Автономная некоммерческая организация
-                        «Научно-образовательный центр «Евразийская
-                        онкологическая программа «ЕАФО» (АНО "ЕАФО")
+                        <br />
+                        «Научно-образовательный центр <br />
+                        «Евразийская онкологическая программа «ЕАФО» (АНО
+                        "ЕАФО")
                         <br />
                         <br />
-                        Заказчик: {formData.full_name} ({formatDateDDMMYYYY(formData.date_of_birth) || ""} г.р),
+                        Заказчик: {formData.full_name} (
+                        {formatDateDDMMYYYY(formData.date_of_birth) || ""} г.р),
                         <br />
-                        контактные данные: {formData.email}; тел.:{" "}
+                        контактные данные: e-mail: {formData.email}; тел.:{" "}
                         {formData.phone_no}
                       </td>
                       <td className="col-2"></td>
@@ -326,8 +404,9 @@ const ContractDocument = ({ data = {}, onClose }) => {
 
                 <p style={{ textDecoration: "underline", marginBottom: "5px" }}>
                   {" "}
-                  В назначении платежа укажите: оплата по счету{" "}
-                  {formData.agreement_number}, а также ФИО получателя услуги
+                  В назначении платежа укажите: Договор №{" "}
+                  {formData.agreement_number}, от{" "}
+                  {formatDateDDMMYYYY(formData.submitted_date) || ""}
                 </p>
                 <table
                   className="information-table"
@@ -337,27 +416,32 @@ const ContractDocument = ({ data = {}, onClose }) => {
                     <tr>
                       <td>Исполнитель:</td>
                       <td>
-                        АНО "ЕАФО", ИНН 7715491261, 125080, Москва г, ш
-                        Волоколамское, д. 1, стр. 1, офис 606С, тел.: +7 (915)
-                        129-09-27, р/с 40703 810 9 02570 000043, в банке АО
-                        «АЛЬФА-БАНК», БИК 044525593, к/с 30101 810 2 00000
-                        000593
+                        <b>
+                          АНО "ЕАФО", ИНН 7715491261, КПП 774301001, 125080,
+                          Москва г, ш Волоколамское, д. 1, стр. 1, офис 606С,
+                          тел.: +7 (915) 333-30-66
+                        </b>
                       </td>
                     </tr>
                     <tr>
                       <td>Заказчик:</td>
                       <td>
-                        {formData.full_name} (
-                          {formatDateDDMMYYYY(formData.date_of_birth) || ""} г.р)
-                        <br />
-                        E-mail: {formData.email}; Тел.: {formData.phone_no}
+                        <b>
+                          {formData.full_name} (
+                          {formatDateDDMMYYYY(formData.date_of_birth) || ""}{" "}
+                          г.р)
+                          <br />
+                          e-mail: {formData.email}; Тел.: {formData.phone_no}
+                        </b>
                       </td>
                     </tr>
                     <tr>
                       <td>Основание:</td>
                       <td>
-                        Договор № {formData.agreement_number} от{" "}
-                        {formatDateDDMMYYYY(formData.agreement_date) || ""} г.
+                        <b>
+                          Договор № {formData.agreement_number} от{" "}
+                          {formatDateDDMMYYYY(formData.submitted_date) || ""} г.
+                        </b>
                       </td>
                     </tr>
                   </tbody>
@@ -366,75 +450,62 @@ const ContractDocument = ({ data = {}, onClose }) => {
                 <table className="border-table" style={{ fontSize: "12px" }}>
                   <thead>
                     <tr>
-                      <th>№</th>
-                      <th>Товары (работы, услуги)</th>
-                      <th>Кол-во</th>
-                      <th>Ед.</th>
-                      <th>Цена</th>
-                      <th>Сумма</th>
+                      <th style={{ textAlign: "center" }}>№</th>
+                      <th style={{ textAlign: "center" }}>
+                        Товары (работы, услуги)
+                      </th>
+                      <th style={{ textAlign: "center" }}>Кол-во</th>
+                      <th style={{ textAlign: "center" }}>Ед.</th>
+                      <th style={{ textAlign: "center" }}>Цена</th>
+                      <th style={{ textAlign: "center" }}>Сумма</th>
                     </tr>
                   </thead>
                   <tbody>
-  {formData.packages.map((pkg, index) => (
-    <tr key={index}>
-      <td>{index + 1}</td>
-      <td>{pkg.name}</td>
-      <td>{pkg.quantity || 1}</td>
-      <td>шт</td>
-      <td>{formatCurrency(pkg.amount)}</td>
-      <td>{formatCurrency((pkg.amount || 0) * (pkg.quantity || 1))}</td>
-    </tr>
-  ))}
-</tbody>
+                    {formData.packages.map((pkg, index) => (
+                      <tr key={index}>
+                        <td>{index + 1}</td>
+                        <td>
+                          Участие в ХI EAFO Базовых медицинских курсах,
+                          <br />
+                          23.07.2025-8.08.2025, {pkg.name}
+                        </td>
+                        <td>{pkg.quantity || 1}</td>
+                        <td>шт</td>
+                        <td>{formatCurrency(pkg.amount)}</td>
+                        <td>
+                          {formatCurrency(
+                            (pkg.amount || 0) * (pkg.quantity || 1)
+                          )}
+                        </td>
+                      </tr>
+                    ))}
 
+                    <tr>
+                      <td style={{ border: "none" }}></td>
+                      <td style={{ border: "none" }}></td>
+                      <td style={{ border: "none" }}></td>
+                      <td style={{ border: "none" }}></td>
+                      <td style={{ border: "none", textAlign: "right" }}>
+                        <b>Итого:</b>
+                      </td>
+                      <td style={{ border: "none", textAlign: "left" }}>
+                        <b>{formatCurrency(total)}</b>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style={{ border: "none" }}></td>
+                      <td style={{ border: "none" }}></td>
+                      <td style={{ border: "none" }}></td>
+                      <td style={{ border: "none" }}></td>
+                      <td style={{ border: "none", textAlign: "right" }}>
+                        <b>Без НДС:</b>
+                      </td>
+                      <td style={{ border: "none", textAlign: "left" }}>
+                        <b>{formatCurrency(total)}</b>
+                      </td>
+                    </tr>
+                  </tbody>
                 </table>
-
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "flex-end",
-                    marginTop: "20px",
-                  }}
-                >
-                  <table
-                    style={{
-                      borderCollapse: "collapse",
-                      fontSize: "14px",
-                      width: "400px",
-                    }}
-                  >
-                    <tbody>
-                      <tr>
-                        <td style={{ padding: "5px", whiteSpace: "nowrap" }}>
-                          Итого:
-                        </td>
-                        <td
-                          style={{
-                            padding: "5px",
-                            whiteSpace: "nowrap",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {formatCurrency(total)}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td style={{ padding: "5px", whiteSpace: "nowrap" }}>
-                          Без НДС:
-                        </td>
-                        <td
-                          style={{
-                            padding: "5px",
-                            whiteSpace: "nowrap",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          {formatCurrency(total)}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
 
                 {/* New section with all the additional information */}
                 <div
@@ -446,67 +517,73 @@ const ContractDocument = ({ data = {}, onClose }) => {
                 >
                   {/* Item count and total amount */}
                   <p style={{ fontSize: "14px" }}>
-                    Всего наименований 1, на сумму{" "}
-                    {formatCurrency(total)}.
+                    Всего наименований 1, на сумму {formatCurrency(total)}.
                   </p>
                   <p style={{ fontSize: "14px" }}>
-                    Сумма прописью: <b>{numberToWordsRussian(parseFloat(total || 0))}</b>
+                    <b>
+                      Сумма прописью:{" "}
+                      {numberToWordsRussian(parseFloat(total || 0))}
+                    </b>
                   </p>
 
                   {/* Compact table for total and VAT */}
 
                   {/* Service deadline */}
                   <p style={{ marginTop: "10px", fontSize: "14px" }}>
-                    <b>Срок организации услуги:</b> не позднее 20 рабочих дней
-                    после поступления денежных средств на расчетный счет.
+                    <b>Срок организации услуги:</b> с 23 июля по 8 августа
+                    2023 года.
                   </p>
 
                   {/* Payment instructions */}
                   <p style={{ marginTop: "10px", fontSize: "14px" }}>
                     <b>Внимание!</b> Прежде чем произвести оплату настоящего
-                    счёта ознакомьтесь со всеми условиями Договора оказания
-                    услуг информационно-аналитического ассистанса,
-                    опубликованного на сайте:
+                    счёта ознакомьтесь со всеми условиями Договора публичной
+                    оферты, Политикой конфиденциальности и Согласием на
+                    обработку персональных данных, опубликованных на caйтe:
                     <a
                       href=" https://www.basic.eafo.info"
                       target="_blank"
-                      style={{ color: "#007BFF", textDecoration: "none" }}
+                      style={{
+                        color: "#007BFF",
+                        textDecoration: "none",
+                        margin: "0px 2px",
+                      }}
                     >
                       https://www.basic.eafo.info
                     </a>
-                    <br />и Политикой оператора в отношении персональных данных,
-                    опубликованной на сайте:
-                    <a
-                      href="https://www.eafo.info/ru/privacy-policy"
-                      target="_blank"
-                      style={{ color: "#007BFF", textDecoration: "none" }}
-                    >
-                      https://www.eafo.info/ru/privacy-policy
-                    </a>
+                    <br />
+                    <br />
                   </p>
 
                   <p style={{ fontSize: "14px" }}>
                     Оплата данного счета означает принятие всех условий АНО
-                    «ЕАФО» и заключение Договора оказания услуг
-                    информационно-аналитического ассистанса, опубликованного на
-                    сайте:
+                    «ЕАФО» и заключение Договора публичной оферты,
+                    опубликованного на caйтe:
                     <a
                       href=" https://www.basic.eafo.info"
                       target="_blank"
-                      style={{ color: "#007BFF", textDecoration: "none" }}
+                      style={{
+                        color: "#007BFF",
+                        textDecoration: "none",
+                        margin: "0px 2px",
+                      }}
                     >
-                      https://www.basic.eafo.info: 
+                      https://www.basic.eafo.info
                     </a>
-                     в письменной форме (п.п.2,3 ст.434, п.3 ст.438 ГК РФ), а
-                    также письменное согласие на обработку персональных данных
-                    согласно Политики оператора в отношении персональных данных,
-                    опубликованной на сайте:
+                    <br />в письменной форме (п.п.2,3 ст.434, п.З ст.438 ГК РФ),
+                    а также письменное согласие на обработку персональных данных
+                    согласно Политики конфиденциальност,
+                    опубликованной на сайте:
                     <a
-                      href="https://www.eafo.info/ru/privacy-policy"
+                      href="https://www.basic.eafo.info"
                       target="_blank"
-                      style={{ color: "#007BFF", textDecoration: "none" }}
+                      style={{
+                        color: "#007BFF",
+                        textDecoration: "none",
+                        margin: "0px 2px",
+                      }}
                     >
-                      https://www.eafo.info/ru/privacy-policy
+                      https://www.basic.eafo.info
                     </a>
                   </p>
 
@@ -521,7 +598,7 @@ const ContractDocument = ({ data = {}, onClose }) => {
                     >
                       <tbody>
                         {/* Client Row */}
-                        <tr style={{ fontSize: "10px"}}>
+                        <tr style={{ fontSize: "10px" }}>
                           <td style={{ padding: "10px 0", width: "20%" }}>
                             <b>Клиент</b>
                           </td>
@@ -534,11 +611,20 @@ const ContractDocument = ({ data = {}, onClose }) => {
                                 flexDirection: "column",
                                 justifyContent: "center",
                                 alignItems: "center",
-                               
                               }}
                             >
-                              <span>______________________________</span>
-                              <span>подписи</span>
+                              <span
+                                style={{ marginBottom: "-15px", zIndex: "100" }}
+                              >
+                                <img
+                                  src="https://static.wixstatic.com/media/59c2f3_91a4a81dc17646a09d2a2d916a3392d1~mv2.png"
+                                  style={{ width: "60px" }}
+                                />
+                              </span>
+                              <span style={{ zIndex: "100" }}>
+                                ______________________________
+                              </span>
+                              <span style={{ zIndex: "100" }}>подписи</span>
                             </div>
                           </td>
                           <td style={{ width: "40%" }}>
@@ -555,21 +641,48 @@ const ContractDocument = ({ data = {}, onClose }) => {
                             </div>
                           </td>
                         </tr>
+                        <div
+                          style={{
+                            position: "relative",
+                            width: "100%",
+                            height: "0",
+                            display: "flex",
+                            justifyContent: "center",
+                            zIndex: "10000",
+                          }}
+                          className="stamp_image"
+                        >
+                          <img
+                            src="https://static.wixstatic.com/media/59c2f3_4a0ea350d575421db1c1f7dc2240a4d1~mv2.png"
+                            alt="Stamp"
+                            style={{
+                              position: "absolute",
+                              top: "0px",
+                              zIndex: 10000,
+                              width: "120px",
+                              opacity: 0.9,
+                            }}
+                          />
+                        </div>
 
                         {/* Director Row with 4 Columns */}
-                        <tr style={{ fontSize: "10px"}}>
+                        <tr style={{ fontSize: "10px" }}>
                           <td style={{ padding: "10px 0", width: "20%" }}>
                             <b>Руководитель</b>
                           </td>
                           <td style={{ width: "10%", textAlign: "center" }}>
-                          <div
+                            <div
                               style={{
                                 display: "flex",
                                 flexDirection: "column",
                                 justifyContent: "center",
                                 alignItems: "center",
                               }}
-                            > <span style={{marginBottom:"-10px"}}>Директор</span>
+                            >
+                              {" "}
+                              <span style={{ marginBottom: "-10px" }}>
+                                <b>Директор</b>
+                              </span>
                               <span>___________________</span>
                               <span>должность</span>
                             </div>
@@ -582,66 +695,77 @@ const ContractDocument = ({ data = {}, onClose }) => {
                                 justifyContent: "center",
                                 alignItems: "center",
                                 marginTop: "5px",
-                               
                               }}
                             >
-                             <span>______________________________</span>
-                             <span>подписи</span>
+                              <span
+                                style={{ marginBottom: "-15px", zIndex: "100" }}
+                              >
+                                <img
+                                  src="https://static.wixstatic.com/media/59c2f3_c49968169bbf4849b6948c3d7b06452b~mv2.png"
+                                  style={{ width: "80px" }}
+                                />
+                              </span>
+
+                              <span style={{ zIndex: "100" }}>
+                                ______________________________
+                              </span>
+                              <span style={{ zIndex: "100" }}>подписи</span>
                             </div>
                           </td>
                           <td style={{ width: "40%", textAlign: "center" }}>
-                          <div
+                            <div
                               style={{
                                 display: "flex",
                                 flexDirection: "column",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 marginTop: "5px",
-                               
                               }}
                             >
-                             <span style={{marginBottom:"-10px"}}>Субраманиан Сомасундарам </span>
-                             <span>______________________________</span>
-                             <span>расшифровка подписи</span>
+                              <span style={{ marginBottom: "-10px" }}>
+                                <b>Субраманиан Сомасундарам</b>
+                              </span>
+                              <span>______________________________</span>
+                              <span>расшифровка подписи</span>
                             </div>
                           </td>
                         </tr>
 
                         {/* Accountant Row */}
-                        <tr style={{ fontSize: "10px"}}>
+                        <tr style={{ fontSize: "10px" }}>
                           <td style={{ padding: "10px 0px", width: "20%" }}>
                             <b>Главный (старший) бухгалтер</b>
                           </td>
                           <td style={{ width: "10%" }}></td>
                           <td style={{ width: "30%", textAlign: "center" }}>
-                          <div
+                            <div
                               style={{
                                 display: "flex",
                                 flexDirection: "column",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 marginTop: "5px",
-                               
                               }}
                             >
-                             <span>______________________________</span>
-                             <span>подписи</span>
+                              <span>______________________________</span>
+                              <span>подписи</span>
                             </div>
                           </td>
                           <td style={{ width: "40%", textAlign: "center" }}>
-                          <div
+                            <div
                               style={{
                                 display: "flex",
                                 flexDirection: "column",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 marginTop: "5px",
-                               
                               }}
                             >
-                             <span style={{marginBottom:"-10px"}}>Смирнова Елена Федоровна </span>
-                             <span>______________________________</span>
-                             <span>расшифровка подписи</span>
+                              <span style={{ marginBottom: "-10px" }}>
+                                <b>Смирнова Елена Федоровна</b>
+                              </span>
+                              <span>______________________________</span>
+                              <span>расшифровка подписи</span>
                             </div>
                           </td>
                         </tr>
@@ -665,6 +789,6 @@ const ContractDocument = ({ data = {}, onClose }) => {
       </div>
     </div>
   );
-};
+});
 
 export default ContractDocument;

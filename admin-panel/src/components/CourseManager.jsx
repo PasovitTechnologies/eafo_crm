@@ -18,6 +18,7 @@ const CourseManager = () => {
   const [description, setDescription] = useState("");
   const [descriptionRussian, setDescriptionRussian] = useState("");
   const [invoiceNumber, setInvoiceNumber] = useState("");
+  const [aktNumber, setAktNumber] = useState("");
   const [courseDate, setCourseDate] = useState("");
   const [courseEndDate, setCourseEndDate] = useState("");
   const [bannerUrl, setBannerUrl] = useState("");
@@ -70,6 +71,7 @@ const CourseManager = () => {
         bannerUrl,
         bannerUrlRussian,
         invoiceNumber,
+        aktNumber,
         websiteLink,
         status,
       };
@@ -158,6 +160,7 @@ const CourseManager = () => {
     setDescription("");
     setDescriptionRussian("");
     setInvoiceNumber("");
+    setAktNumber("");
     setCourseDate("");
     setCourseEndDate("");
     setBannerUrl("");
@@ -174,6 +177,7 @@ const CourseManager = () => {
     setNameRussian(course.nameRussian || "");
     setDescription(course.description || "");
     setDescriptionRussian(course.descriptionRussian || "");
+    setAktNumber(course.aktNumber || "");
     setInvoiceNumber(course.invoiceNumber || "");
     setCourseDate(course.date.split("T")[0]);
     setCourseEndDate(course.endDate ? course.endDate.split("T")[0] : "");
@@ -400,6 +404,19 @@ const CourseManager = () => {
                       type="text"
                       value={invoiceNumber}
                       onChange={(e) => setInvoiceNumber(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-field">
+                    <label htmlFor="aktNumber">
+                      {t("CourseManager.aktNumber")}
+                    </label>
+                    <input
+                      id="invoiceNumber"
+                      type="text"
+                      value={aktNumber}
+                      onChange={(e) => setAktNumber(e.target.value)}
                       required
                     />
                   </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./InvoiceModal.css";
 import {
@@ -18,6 +18,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Swal from "sweetalert2";
 import RegistrationFormsViewer from "./RegistrationFormsViewer";
+import ReactDOM from "react-dom";
+import ReactDOMServer from "react-dom/server";
+import html2pdf from "html2pdf.js";
 
 const InvoiceModal = ({
   submission,
@@ -27,7 +30,7 @@ const InvoiceModal = ({
   courseId,
   discountCode,
   discountPercentage,
-  fullName 
+  fullName,
 }) => {
   const [items, setItems] = useState([]);
   const [selectedMethod, setSelectedMethod] = useState("");
@@ -49,6 +52,11 @@ const InvoiceModal = ({
   const [isFreeParticipant, setIsFreeParticipant] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [showFormViewer, setShowFormViewer] = useState(false);
+  const contractPreviewRef = useRef();
+  const [contractPdfBlob, setContractPdfBlob] = useState(null);
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [isInvoiceOnlyMode, setIsInvoiceOnlyMode] = useState(false);
+
 
   const { t } = useTranslation(); // Translation hook
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -238,6 +246,27 @@ const InvoiceModal = ({
     ? rawTotal - (rawTotal * discountPercentage) / 100
     : rawTotal;
 
+  const generateContractPDFBlob = async (element) => {
+    if (!element) return null;
+
+    const options = {
+      margin: 10,
+      filename: "contract.pdf",
+      image: { type: "jpeg", quality: 1 },
+      html2canvas: { scale: 3, useCORS: true },
+      jsPDF: { unit: "mm", format: [210, 350], orientation: "portrait" },
+    };
+
+    return new Promise((resolve, reject) => {
+      html2pdf()
+        .from(element)
+        .set(options)
+        .outputPdf("blob")
+        .then(resolve)
+        .catch(reject);
+    });
+  };
+
   const handlePayment = async () => {
     if (!submission.email || items.length === 0 || totalAmount <= 0) {
       setError(
@@ -255,13 +284,13 @@ const InvoiceModal = ({
     setError(null);
 
     const orderNumber = Math.floor(100000 + Math.random() * 900000).toString();
-
     const currency = selectedMethod === "stripe" ? "INR" : "RUB";
 
     const orderDetails = {
       amount: totalAmount,
       currency,
       email: submission.email,
+      transactionId: submission.transactionId,
       packages: items.map((item) => ({
         name: item.name,
         amount: parseFloat(item.amount),
@@ -291,9 +320,61 @@ const InvoiceModal = ({
       });
 
       if (response.data.success) {
+        const resolvedOrderId = response.data.orderId || orderNumber;
+        const resolvedInvoiceNumber =
+          response.data.invoiceNumber || `EAFO-${resolvedOrderId}`;
+
         toast.success("✅ Payment link generated");
+
         setPaymentUrl(response.data.paymentUrl);
-        setOrderId(response.data.orderId || orderNumber);
+        setOrderId(resolvedOrderId);
+
+        // ✅ Set selectedPayment with generated invoice info
+        setSelectedPayment({
+          invoiceNumber: resolvedInvoiceNumber,
+          totalAmount: totalAmount.toFixed(2),
+          currency,
+          time: new Date().toISOString(),
+          paymentLink: response.data.paymentUrl,
+          status: "pending",
+          packages: items,
+          email: submission.email,
+        });
+
+        // 👇 Create a temporary div for contract generation
+        const htmlString = ReactDOMServer.renderToStaticMarkup(
+          <ContractDocument
+            data={{
+              full_name: submission.fullName,
+              email: submission.email,
+              phone_no: userData?.personalDetails?.phone || "",
+              agreement_number: resolvedInvoiceNumber,
+              agreement_date: new Date().toISOString(),
+              submitted_date: submission.submittedAt || "",
+              packages: items,
+              total_amount: totalAmount.toFixed(2),
+              date_of_birth: userData?.personalDetails?.dob,
+            }}
+          />
+        );
+
+        const tempDiv = document.createElement("div");
+        tempDiv.style.display = "none";
+        tempDiv.innerHTML = htmlString;
+        document.body.appendChild(tempDiv);
+
+        const contractElement = tempDiv.querySelector(".contract-content");
+
+        if (contractElement) {
+          try {
+            const blob = await generateContractPDFBlob(contractElement);
+            setContractPdfBlob(blob);
+          } catch (e) {
+            console.error("PDF generation failed", e);
+          }
+        }
+
+        document.body.removeChild(tempDiv);
       } else {
         console.error("❌ Payment failed:", response.data.message);
         setError(response.data.message || "Payment failed.");
@@ -308,86 +389,90 @@ const InvoiceModal = ({
   };
 
   const handleSendEmail = async () => {
-    if (!submission?.email) {
-      console.error("❌ Missing recipient email.");
+    if (
+      !submission?.email ||
+      !contractPdfBlob ||
+      !selectedPayment
+    ) {
+      alert("❌ Missing email, payment link, contract, or payment data");
+      console.error("❌ Missing input:", {
+        email: submission?.email,
+        paymentUrl,
+        contractPdfBlob,
+        selectedPayment,
+      });
       return;
     }
 
-    if (!paymentUrl) {
-      alert(
-        "❌ No payment URL generated. Please generate a payment link first."
-      );
+    // Ensure invoiceNumber exists
+    if (!selectedPayment.invoiceNumber) {
+      alert("❌ Missing invoice number");
+      console.error("❌ Missing invoice number:", selectedPayment);
       return;
     }
 
-    const packageName = items.map((item) => item.name).join(", ");
-    const currency = items[0]?.currency || "INR";
+    // Ensure packages is a non-empty array
+    if (
+      !Array.isArray(selectedPayment.packages) ||
+      selectedPayment.packages.length === 0
+    ) {
+      alert("❌ Missing or empty packages");
+      console.error("❌ Invalid packages:", selectedPayment.packages);
+      return;
+    }
 
-    const emailData = {
-      courseId,
-      formId,
-      orderId,
-      paymentUrl,
-      transactionId: submission.transactionId,
-      email: submission.email,
-      packages: items.map((item) => ({
-        name: item.name,
-        amount: parseFloat(item.amount),
-        currency: item.currency,
-        quantity: parseInt(item.quantity) || 1,
-      })),
-      amount: rawTotal.toFixed(2),
-      payableAmount: totalAmount.toFixed(2),
-      currency,
-      package: packageName, // Optional, for readable summary
-      discountPercentage: discountPercentage || 0,
-      code: discountCode,
-    };
+    console.log("📧 Preparing to send email using existing PDF...");
 
     try {
       setEmailSending(true);
 
-      const response = await axios.post(
-        `${baseUrl}/api/email/send`,
-        emailData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+      const pdfFile = new File([contractPdfBlob], `Contract_${orderId}.pdf`, {
+        type: "application/pdf",
+      });
+
+      const formData = new FormData();
+      formData.append("contract", pdfFile);
+      formData.append("email", submission.email);
+      formData.append("courseId", courseId);
+      formData.append("formId", formId || "");
+      formData.append("transactionId", selectedPayment.transactionId || "");
+      formData.append("orderId", selectedPayment.orderId || "");
+      formData.append("paymentUrl", selectedPayment.paymentLink || "");
+      formData.append("packages", JSON.stringify(selectedPayment.packages));
+      formData.append(
+        "payableAmount",
+        selectedPayment.payableAmount !== undefined
+          ? selectedPayment.payableAmount
+          : totalAmount.toFixed(2)
       );
+      formData.append("discountPercentage", discountPercentage || 0);
+      formData.append("code", discountCode || "");
+      formData.append("invoiceNumber", selectedPayment.invoiceNumber);
+
+      console.log("📤 Sending FormData to backend (PDF from blob)...");
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(`🧷 ${key}: File → ${value.name}, size: ${value.size}`);
+        } else {
+          console.log(`🔑 ${key}: ${value}`);
+        }
+      }
+
+      const response = await axios.post(`${baseUrl}/api/email/send`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
 
       if (response.data.success) {
-        const newInvoiceNumber = response.data.invoiceNumber;
-        console.log("📧 Invoice email sent successfully:", response.data);
-        setShowPopup(true);
-
-        const payments = await fetchPaymentHistory(); // ⬅️ wait for result
-        const newInvoice = payments.find(
-          (p) => p.invoiceNumber === newInvoiceNumber
-        );
-
-        if (newInvoice) {
-          setSelectedPayment(newInvoice);
-        }
-
-        setPaymentUrl("");
-        setTimeout(() => setShowPopup(false), 3000);
+        toast.success("✅ Email sent with contract PDF");
+        console.log("📨 Email response:", response.data);
       } else {
-        console.error(
-          "❌ Failed to send invoice email:",
-          response.data.message
-        );
+        throw new Error(response.data.message || "Unknown error from server.");
       }
-    } catch (error) {
-      console.error(
-        "❌ Email send error:",
-        error.response?.data || error.message
-      );
-      alert(
-        `Error: ${error.response?.data?.message || "Failed to send invoice"}`
-      );
+    } catch (err) {
+      console.error("❌ Email send error:", err);
+      alert("Failed to send email with contract. Check console for details.");
     } finally {
       setEmailSending(false);
     }
@@ -518,11 +603,14 @@ const InvoiceModal = ({
         email: userData.email,
         phone_no: userData.personalDetails.phone || "N/A",
         agreement_number: `${payment.invoiceNumber}`,
+        akt_number: payment.aktNumber,
         agreement_date: `${payment.paidAt}`,
         packages: payment.packages || [],
         total_amount: `${payment.amount} ${payment.currency}`,
         userData,
       };
+
+      console.log("📄 AKT Details:", aktDetails);
 
       setAktData(aktDetails);
       setIsAktOpen(true);
@@ -551,6 +639,7 @@ const InvoiceModal = ({
         email: userData.email,
         phone_no: userData.personalDetails.phone || "N/A",
         agreement_number: `${payment.invoiceNumber}`,
+        submitted_date:`${payment.submittedAt}`,
         agreement_date: `${payment.time}`,
         packages: payment.packages || [],
         total_amount: `${payment.amount} ${payment.currency}`,
@@ -762,12 +851,13 @@ const InvoiceModal = ({
       setError("Email and valid amount required.");
       return;
     }
-
+  
     setLoading(true);
+    setIsInvoiceOnlyMode(true); // 🔁 Track mode
     setError(null);
-
+  
     const orderNumber = Math.floor(100000 + Math.random() * 900000).toString();
-
+  
     const invoiceData = {
       amount: totalAmount,
       currency: selectedMethod === "stripe" ? "INR" : "RUB",
@@ -786,12 +876,10 @@ const InvoiceModal = ({
       payableAmount: totalAmount.toFixed(2),
       discountPercentage: discountPercentage || 0,
       code: discountCode,
-      paymentUrl: null,
+      paymentUrl: null, // 🛑 NO payment link
       onlyInvoice: true,
     };
-
-    console.log(invoiceData);
-
+  
     try {
       const response = await axios.post(
         `${baseUrl}/api/email/manual`,
@@ -803,12 +891,49 @@ const InvoiceModal = ({
           },
         }
       );
-
+  
       if (response.data.success) {
         toast.success(`Invoice generated: ${response.data.invoiceNumber}`);
-        setPaymentUrl(""); // no URL since this is invoice-only
         setOrderId(orderNumber);
-        fetchPaymentHistory();
+        setSelectedPayment({
+          ...invoiceData,
+          invoiceNumber: response.data.invoiceNumber,
+          time: new Date().toISOString(),
+        });
+  
+        // ⬇️ Generate PDF using ContractDocument
+        const htmlString = ReactDOMServer.renderToStaticMarkup(
+          <ContractDocument
+            data={{
+              full_name: submission.fullName,
+              email: submission.email,
+              phone_no: userData?.personalDetails?.phone || "",
+              agreement_number: response.data.invoiceNumber,
+              agreement_date: new Date().toISOString(),
+              packages: items,
+              total_amount: totalAmount.toFixed(2),
+              date_of_birth: userData?.personalDetails?.dob,
+            }}
+          />
+        );
+  
+        const tempDiv = document.createElement("div");
+        tempDiv.style.display = "none";
+        tempDiv.innerHTML = htmlString;
+        document.body.appendChild(tempDiv);
+  
+        const contractElement = tempDiv.querySelector(".contract-content");
+  
+        if (contractElement) {
+          try {
+            const blob = await generateContractPDFBlob(contractElement);
+            setContractPdfBlob(blob);
+          } catch (e) {
+            console.error("PDF generation failed", e);
+          }
+        }
+  
+        document.body.removeChild(tempDiv);
       } else {
         throw new Error(response.data.message || "Failed to generate invoice");
       }
@@ -819,6 +944,7 @@ const InvoiceModal = ({
       setLoading(false);
     }
   };
+  
 
   const handleMarkAsPaid = async (payment) => {
     const confirmed = await Swal.fire({
@@ -883,7 +1009,11 @@ const InvoiceModal = ({
       ></div>
 
       {/* Main Modal Container */}
-      <div className={`modern-invoice-modal ${isOpen ? "open" : ""} ${showFormViewer ? "split-view" : ""}`}>
+      <div
+        className={`modern-invoice-modal ${isOpen ? "open" : ""} ${
+          showFormViewer ? "split-view" : ""
+        }`}
+      >
         {/* Modal Header with primary color */}
         <div className="modal-header">
           <h2 className="modal-title">{t("invoiceModal.title")}</h2>
@@ -929,9 +1059,9 @@ const InvoiceModal = ({
               />
             </svg>
             <div className="user-div">
-            <span>{submission.fullName}</span>
-            <span>({submission.email})</span>
-          </div>
+              <span>{submission.fullName}</span>
+              <span>({submission.email})</span>
+            </div>
           </div>
         </div>
 
@@ -1086,8 +1216,19 @@ const InvoiceModal = ({
           </button>
         </div>
 
+        {contractPdfBlob && (
+          <div className="contract-preview-wrapper">
+            <button
+              className="view-contract-btn"
+              onClick={() => setShowPdfPreview(true)}
+            >
+             View Contract PDF
+            </button>
+          </div>
+        )}
+
         {/* Payment Link Section */}
-        {paymentUrl && (
+        {contractPdfBlob && (
           <div className="section-card payment-link-section">
             <h3 className="section-title">
               {t("invoiceModal.paymentLinkGenerated")}
@@ -1340,16 +1481,37 @@ const InvoiceModal = ({
         </div>
       )}
 
-{showFormViewer && (
-  <div className="form-viewer-split">
-    <RegistrationFormsViewer
-      email={submission.email}
-      onClose={handleCloseFormViewer}
-      fullName={fullName || submission.fullName || ""}
-    />
-  </div>
-)}
+      {showFormViewer && (
+        <div className="form-viewer-split">
+          <RegistrationFormsViewer
+            email={submission.email}
+            onClose={handleCloseFormViewer}
+            fullName={fullName || submission.fullName || ""}
+          />
+        </div>
+      )}
 
+      {/* This should come AFTER <div className="modern-invoice-modal"> */}
+      {showPdfPreview && contractPdfBlob && (
+        <div className="pdf-preview-overlay">
+          <div className="pdf-preview-modal">
+            <div className="pdf-header">
+              <h3>Contract Preview</h3>
+              <button
+                onClick={() => setShowPdfPreview(false)}
+                className="invoice-close-btn"
+              >
+                ✖
+              </button>
+            </div>
+            <iframe
+              src={URL.createObjectURL(contractPdfBlob)}
+              className="pdf-iframe"
+              title="Contract PDF"
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };
