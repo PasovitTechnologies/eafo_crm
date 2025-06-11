@@ -123,7 +123,8 @@
     "all": "All",
     "upcoming": "Upcoming",
     "past": "Past",
-    "noCourses": "No courses found."
+    "noCourses": "No courses found.",
+    "aktNumber": "AKT Number"
   },
   "courseEntries": {
     "loading": "Loading...",
@@ -309,6 +310,8 @@
   "active": "Active",
   "notActive": "Not Active",
     "save": "Save",
+    "noCourses": "No courses found.",
+    "aktNumber": "AKT Number",
     "errorFetch": "Failed to load courses.",
     "errorLoad": "Error loading courses. Please try again later.",
     "errorAddUpdate": "Error adding/updating course.",
@@ -697,6 +700,7 @@
       "date": "Date",
       "time": "Time",
       "dayOfWeek": "Day of Week",
+      "dayOfWeekRussian": "Day of the Week (Russian)",
       "liveEmbed": "Live Embed Code",
       "eventSiteURL": "Event Site URL",
       "chatEmbed": "Chat Embed Code",
