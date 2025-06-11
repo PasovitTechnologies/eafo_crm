@@ -1,5 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=PT+Sans+Narrow:wght@400;700&display=swap');
 
+.contract-offline-modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 700px;
+  margin: auto;
+  position: relative;
+}
+
+
 .contract-page{
     font-family: "PT Sans Narrow", sans-serif;
 }

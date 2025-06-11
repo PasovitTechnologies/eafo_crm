@@ -21,6 +21,7 @@ import RegistrationFormsViewer from "./RegistrationFormsViewer";
 import ReactDOM from "react-dom";
 import ReactDOMServer from "react-dom/server";
 import html2pdf from "html2pdf.js";
+import ContractOffline from "./ContractOffline";
 
 const InvoiceModal = ({
   submission,
@@ -57,6 +58,12 @@ const InvoiceModal = ({
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [isInvoiceOnlyMode, setIsInvoiceOnlyMode] = useState(false);
   const [viewedContractBlob, setViewedContractBlob] = useState(null);
+  const [isContractOfflineOpen, setIsContractOfflineOpen] = useState(false);
+  const [offlineContractData, setOfflineContractData] = useState(null);
+
+
+  
+
 
   const { t } = useTranslation(); // Translation hook
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -355,7 +362,7 @@ const InvoiceModal = ({
               phone_no: userData?.personalDetails?.phone || "",
               agreement_number: resolvedInvoiceNumber,
               agreement_date: new Date().toISOString(),
-              submitted_date: submission.submittedAt || "",
+              submitted_date:submission.submittedAt || (paymentHistory.length > 0 ? paymentHistory[0].submittedAt : ""),
               packages: items,
               total_amount: totalAmount.toFixed(2),
               date_of_birth: userData?.personalDetails?.dob,
@@ -654,6 +661,33 @@ const InvoiceModal = ({
       toast.error("Could not load contract PDF");
     }
   };
+
+  const handleViewContractOffline = (payment) => {
+    if (!userData || !payment) return;
+  
+    const fullName = `${userData.personalDetails.lastName} ${userData.personalDetails.firstName} ${userData.personalDetails.middleName}`.trim();
+  
+    const offlineData = {
+      fullName,                // English full name
+      fullNameRussian: fullName, // Russian name (same for now)
+      email: userData.email,
+      phone_no: userData.personalDetails?.phone || "",
+      aktNumber: payment?.aktNumber || "",
+      invoiceNumber: payment?.invoiceNumber || "",
+      agreement_date: payment?.paidAt || new Date().toISOString(),
+    };
+    console.log(offlineData)
+  
+    setOfflineContractData(offlineData);
+    setIsContractOfflineOpen(true);
+  };
+  
+
+  const handleCloseContractOffline = () => {
+    setIsContractOfflineOpen(false);
+  };
+  
+  
   
 
   const handleCloseContract = () => {
@@ -992,6 +1026,26 @@ const InvoiceModal = ({
     }
   };
 
+
+  const handleDownloadContract = async () => {
+    const response = await fetch(`${baseUrl}/api/contract/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        full_name: submission.fullName,
+        email: submission.email,
+        phone_no: userData?.personalDetails?.phone || '',
+      }),
+    });
+  
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Contract_${submission.fullName}.docx`;
+    a.click();
+  };
+  
   return (
     <>
       <ToastContainer
@@ -1038,6 +1092,9 @@ const InvoiceModal = ({
             </svg>
           </button>
         </div>
+
+       
+
 
         {/* User Info Section */}
         <div className="user-info-section">
@@ -1412,6 +1469,18 @@ const InvoiceModal = ({
                   >
                     {t("invoiceModal.viewContract")}
                   </button>
+
+                  <button
+                    onClick={() => handleViewContractOffline(selectedPayment)}
+                    disabled={getRealPaymentStatus(selectedPayment) !== "paid"}
+                    className={`document-button akt-button ${
+                      getRealPaymentStatus(selectedPayment) === "paid"
+                        ? ""
+                        : "payment-disabled"
+                    }`}
+                  >
+                    {t("invoiceModal.viewContractOffline")}
+                  </button>
                 </div>
 
                 {selectedPayment.paymentLink &&
@@ -1484,6 +1553,13 @@ const InvoiceModal = ({
           <ContractDocument data={contractData} onClose={handleCloseContract} />
         </div>
       )}
+
+{isContractOfflineOpen && (
+  <div className="document-modal-overlay">
+    <ContractOffline data={offlineContractData} onClose={handleCloseContractOffline} />
+  </div>
+)}
+
 
       {showFormViewer && (
         <div className="form-viewer-split">

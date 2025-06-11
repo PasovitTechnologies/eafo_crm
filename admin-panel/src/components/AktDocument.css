@@ -1,4 +1,62 @@
 /* General Styles */
+
+.bilingual-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: 'Times New Roman', serif;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+  
+  .header-rows, .content-rows, .section-rows {
+    display: flex;
+  }
+  .content-rows, .section-rows{
+    padding: 1px;
+    gap: 5px;
+  } 
+  
+  .column {
+    width: 50%;
+    padding: 2px;
+    box-sizing: border-box;
+  }
+  
+  .english {
+  }
+  
+  .document-title {
+    font-size: 10px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .document-date {
+    text-align: center;
+  }
+  
+  .section-titles {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 3px;
+  }
+  
+  .paragraph {
+    font-size: 12px;
+    margin-bottom: 0px;
+    text-align: justify;
+    text-indent: 20px;
+  }
+  .para{
+    text-align: justify;
+  }
+
+  .page-break {
+    page-break-before: always;
+    break-before: page;
+  }
+  
+
 .container {
     margin: 0;
     padding: 10px;

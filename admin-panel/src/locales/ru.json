@@ -290,6 +290,7 @@
       "failed": "Ошибка",
       "unknown": "Неизвестно"
     },
+    "viewContractOffline": "Офлайн-контракт",
     "viewLink": "Просмотр ссылки",
     "viewAkt": "Просмотр Акта",
     "viewContract": "Просмотр Счет",

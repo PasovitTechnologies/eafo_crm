@@ -279,6 +279,7 @@
       "failed": "Failed",
       "unknown": "Unknown"
     },
+    "viewContractOffline": "Offline Contract",
     "viewLink": "View Link",
     "viewAkt": "View AKT",
     "viewContract": "View Invoice",
