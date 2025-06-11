@@ -85,7 +85,6 @@ const notificationRoutes = require("./routes/notificationsRoutes");
 const preCourseRoutes = require("./routes/preCourseRoutes");
 const groups = require('./routes/groups');
 const candidates = require('./routes/candidates');
-const contractRoutes = require('./routes/contract');
 
 
 //qr app
@@ -112,7 +111,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/precourse", preCourseRoutes);
 app.use('/api/groups', groups);
 app.use('/api/candidates', candidates);
-app.use('/api/contract', contractRoutes);
+
 
 //qr app
 app.use('/api/qr', qrLoginRoutes);
