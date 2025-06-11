@@ -6,8 +6,12 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./InvoiceCreator.css";
 import { useTranslation } from "react-i18next";
+import ContractDocument from "./ContractDocument";
+import ReactDOMServer from "react-dom/server";
+import html2pdf from "html2pdf.js";
 
 const InvoiceCreator = ({ onClose, courseId }) => {
+
   const [selectedUser, setSelectedUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [items, setItems] = useState([
@@ -20,7 +24,14 @@ const InvoiceCreator = ({ onClose, courseId }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [emailSending, setEmailSending] = useState(false);
+  const [contractPdfBlob, setContractPdfBlob] = useState(null);
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
+  const [invoiceNumber, setInvoiceNumber] = useState();
+  
+  
   const { t } = useTranslation();
+  const paymentCourseId = courseId
+  console.log(paymentCourseId)
 
   const baseUrl = import.meta.env.VITE_BASE_URL;
 
@@ -69,21 +80,32 @@ const InvoiceCreator = ({ onClose, courseId }) => {
           "Content-Type": "application/json",
         },
       });
-
+  
       if (!response.ok) throw new Error("User not found");
-
+  
       const data = await response.json();
+  
       const fullName = `${data.personalDetails?.firstName || ""} ${
         data.personalDetails?.middleName || ""
       } ${data.personalDetails?.lastName || ""}`.trim();
-      const phoneWithCode = `${data.personalDetails?.phone || ""}`;
-
-      return { fullName, phone: phoneWithCode };
+  
+      const phone = data.personalDetails?.phone || "";
+      const dob = data.personalDetails?.dob || "";
+  
+      // 🔍 Find existing payment with submittedAt
+      const coursePayment = data.courses
+        ?.find(c => c.courseId === courseId || c.courseId?._id === courseId)
+        ?.payments?.[0]; // or use `.find()` with specific logic
+  
+      const submittedAt = coursePayment?.submittedAt || "";
+  
+      return { fullName, phone, dateOfBirth: dob, submittedAt };
     } catch (err) {
       console.error("❌ Error fetching user details:", err);
       return null;
     }
   };
+  
 
   const handleAddItem = () => {
     const currency = selectedMethod === "alfabank" ? "RUB" : "INR";
@@ -98,59 +120,127 @@ const InvoiceCreator = ({ onClose, courseId }) => {
     }
   };
 
+
+    const generateContractPDFBlob = async (element) => {
+      if (!element) return null;
+  
+      const options = {
+        margin: 10,
+        filename: "contract.pdf",
+        image: { type: "jpeg", quality: 1 },
+        html2canvas: { scale: 3, useCORS: true },
+        jsPDF: { unit: "mm", format: [210, 350], orientation: "portrait" },
+      };
+  
+      return new Promise((resolve, reject) => {
+        html2pdf()
+          .from(element)
+          .set(options)
+          .outputPdf("blob")
+          .then(resolve)
+          .catch(reject);
+      });
+    };
+
+
   const handlePayment = async () => {
     const email = selectedUser?.value;
-    if (
-      !email ||
-      items.length === 0 ||
-      items.some((i) => !i.name || !i.amount)
-    ) {
+    const fullName = selectedUser?.label?.split("(")[0]?.trim();
+    const amount = items.reduce((acc, i) => acc + i.amount * i.quantity, 0);
+  
+    if (!email || items.length === 0 || items.some((i) => !i.name || !i.amount)) {
       toast.error("Please fill all item fields and select a user");
       return;
     }
 
-    const orderNumber = Math.floor(100000 + Math.random() * 900000).toString();
+    const userDetails = await fetchUserDetailsByEmail(email);
+  const phone = userDetails?.phone || "";
+  const dob = userDetails?.dateOfBirth || "";
+  const submittedAt = userDetails?.submittedAt || new Date().toISOString();
 
+  
+    const orderNumber = Math.floor(100000 + Math.random() * 900000).toString();
+    const transactionId = Math.floor(100000 + Math.random() * 900000).toString();
     const currency = selectedMethod === "alfabank" ? "RUB" : "INR";
-    const amount = items.reduce((acc, i) => acc + i.amount * i.quantity, 0);
-    const method = selectedMethod;
+  
     const packages = items.map((i) => ({
       name: i.name,
       quantity: i.quantity,
       amount: i.amount,
       currency,
     }));
-
+  
     const orderDetails = {
       amount,
       currency,
       email,
-      course: courseId,
+      courseId: paymentCourseId,
       returnUrl: `${window.location.origin}/payment-success`,
       failUrl: `${window.location.origin}/payment-failed`,
-      orderNumber: orderNumber,
+      orderNumber,
+      transactionId,
+      packages,
     };
-
+  
     setLoading(true);
     setError(null);
-
+  
     try {
       const endpoint =
-        method === "stripe"
+        selectedMethod === "stripe"
           ? `${baseUrl}/api/stripe/create-payment-link`
-          : `${baseUrl}/api/payment/alfabank/pay`;
-
+          : `${baseUrl}/api/payment/invoice-creator/alfabank/pay`;
+  
       const response = await axios.post(endpoint, orderDetails, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "application/json",
         },
       });
-
+  
       if (response.data.success) {
-        setPaymentUrl(response.data.paymentUrl);
-        setOrderId(response.data.orderId);
+        const resolvedOrderId = response.data.orderId || orderNumber;
+        const resolvedInvoiceNumber = response.data.invoiceNumber || `EAFO-${resolvedOrderId}`;
+        
         toast.success("✅ Payment link generated!");
+        setPaymentUrl(response.data.paymentUrl);
+        setInvoiceNumber(response.data.invoiceNumber);
+        setOrderId(resolvedOrderId);
+  
+        // Generate contract
+        const htmlString = ReactDOMServer.renderToStaticMarkup(
+          <ContractDocument
+            data={{
+              full_name: fullName,
+              email,
+              phone_no: "", // optional, populate if you have userData
+              agreement_number: resolvedInvoiceNumber,
+              agreement_date: new Date().toISOString(),
+              submitted_date: submittedAt,
+              packages,
+              total_amount: amount.toFixed(2),
+              date_of_birth: dob, // optional
+            }}
+          />
+        );
+  
+        const tempDiv = document.createElement("div");
+        tempDiv.style.display = "none";
+        tempDiv.innerHTML = htmlString;
+        document.body.appendChild(tempDiv);
+  
+        const contractElement = tempDiv.querySelector(".contract-content");
+  
+        if (contractElement) {
+          try {
+            const blob = await generateContractPDFBlob(contractElement);
+            setContractPdfBlob(blob);
+          } catch (e) {
+            console.error("PDF generation failed", e);
+          }
+        }
+  
+        document.body.removeChild(tempDiv);
       } else {
         setError(response.data.message || "Payment failed.");
       }
@@ -160,53 +250,90 @@ const InvoiceCreator = ({ onClose, courseId }) => {
       setLoading(false);
     }
   };
+  
 
   const handleSendEmail = async () => {
-    if (!selectedUser?.value || !paymentUrl || !orderId) {
-      return toast.error("Missing required data for email");
+    if (!selectedUser?.value || !contractPdfBlob || !paymentUrl || !orderId) {
+      alert("❌ Missing email, payment link, or contract PDF");
+      console.error("❌ Missing input:", {
+        email: selectedUser?.value,
+        paymentUrl,
+        contractPdfBlob,
+        orderId,
+      });
+      return;
     }
-
-    const emailData = {
-      email: selectedUser.value,
-      courseId,
-      orderId,
-      paymentUrl,
-      transactionId: Math.floor(100000 + Math.random() * 900000).toString(),
-      packages: items.map((i) => ({
-        name: i.name,
-        quantity: i.quantity,
-        amount: i.amount,
-        currency: selectedMethod === "alfabank" ? "RUB" : "INR",
-      })),
+  
+    const userDetails = await fetchUserDetailsByEmail(selectedUser.value);
+    const phone = userDetails?.phone || "";
+    const dob = userDetails?.dateOfBirth || "";
+    const submittedAt = userDetails?.submittedAt || new Date().toISOString();
+    const fullName = selectedUser?.label?.split("(")[0]?.trim();
+  
+    const packages = items.map((i) => ({
+      name: i.name,
+      quantity: i.quantity,
+      amount: i.amount,
       currency: selectedMethod === "alfabank" ? "RUB" : "INR",
-      totalAmount: items.reduce((acc, i) => acc + i.amount * i.quantity, 0),
-    };
-
-    setEmailSending(true);
-
+    }));
+  
+    const totalAmount = items.reduce((acc, i) => acc + i.amount * i.quantity, 0);
+    const currency = selectedMethod === "alfabank" ? "RUB" : "INR";
+  
     try {
-      const res = await axios.post(
-        `${baseUrl}/api/email/send-email`,
-        emailData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-            "Content-Type": "application/json",
-          },
+      setEmailSending(true);
+  
+      const pdfFile = new File([contractPdfBlob], `Contract_${orderId}.pdf`, {
+        type: "application/pdf",
+      });
+  
+      const formData = new FormData();
+      formData.append("contract", pdfFile);
+      formData.append("email", selectedUser.value);
+      formData.append("courseId", courseId);
+      formData.append("orderId", orderId);
+      formData.append("paymentUrl", paymentUrl);
+      formData.append("transactionId", transactionId || "");
+      formData.append("packages", JSON.stringify(packages));
+      formData.append("currency", currency);
+      formData.append("payableAmount", totalAmount.toFixed(2));
+      formData.append("invoiceNumber", invoiceNumber); // or response.invoiceNumber if available
+  
+      // Optional fields
+      formData.append("fullName", fullName);
+      formData.append("phone", phone);
+      formData.append("dob", dob);
+      formData.append("submittedAt", submittedAt);
+  
+      console.log("📤 Sending email with contract PDF...");
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(`🧷 ${key}: File → ${value.name}, size: ${value.size}`);
+        } else {
+          console.log(`🔑 ${key}: ${value}`);
         }
-      );
-
-      if (res.data.success) {
-        toast.success("📧 Email sent successfully!");
+      }
+  
+      const response = await axios.post(`${baseUrl}/api/email/send`, formData, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+  
+      if (response.data.success) {
+        toast.success("✅ Email sent with contract PDF");
+        console.log("📨 Email response:", response.data);
       } else {
-        toast.error(res.data.message || "Email sending failed.");
+        throw new Error(response.data.message || "Unknown error from server.");
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to send email.");
+      console.error("❌ Failed to send email:", err);
+      alert("Failed to send email with contract. Check console for details.");
     } finally {
       setEmailSending(false);
     }
   };
+  
 
   const handleSendWhatsApp = async () => {
     if (!selectedUser?.value || !paymentUrl || !orderId) {
@@ -415,6 +542,18 @@ const InvoiceCreator = ({ onClose, courseId }) => {
             )}
           </button>
 
+          {contractPdfBlob && (
+          <div className="contract-preview-wrapper">
+            <button
+              className="view-contract-btn"
+              onClick={() => setShowPdfPreview(true)}
+            >
+              View Contract PDF
+            </button>
+          </div>
+        )}
+          
+
           {paymentUrl && (
             <div className="payment-link-container">
               <p className="payment-link-label">
@@ -454,9 +593,29 @@ const InvoiceCreator = ({ onClose, courseId }) => {
             </div>
           )}
 
-          {error && <div className="error-message">{error}</div>}
         </div>
       </div>
+
+      {showPdfPreview && contractPdfBlob && (
+        <div className="pdf-preview-overlay">
+          <div className="pdf-preview-modal">
+            <div className="pdf-header">
+              <h3>Contract Preview</h3>
+              <button
+                onClick={() => setShowPdfPreview(false)}
+                className="invoice-close-btn"
+              >
+                ✖
+              </button>
+            </div>
+            <iframe
+              src={URL.createObjectURL(contractPdfBlob)}
+              className="pdf-iframe"
+              title="Contract PDF"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

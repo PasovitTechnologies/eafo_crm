@@ -173,6 +173,165 @@ router.post("/alfabank/pay", async (req, res) => {
 
 
 
+router.post("/invoice-creator/alfabank/pay", async (req, res) => {
+  try {
+    const {
+      orderNumber,
+      amount,
+      returnUrl,
+      failUrl,
+      email,
+      courseId,
+      formId = null,
+      packages = [],
+      transactionId,
+      payableAmount = amount,
+      discountPercentage = 0,
+      code = null,
+    } = req.body;
+
+    console.log("📥 /alfabank/pay request received");
+    console.log("🧾 orderNumber:", orderNumber);
+    console.log("💰 amount:", amount);
+    console.log("📧 email:", email);
+    console.log("📘 courseId:", courseId);
+    console.log("🧾 transactionId:", transactionId);
+    console.log("📦 packages:", packages);
+    console.log("💵 payableAmount:", payableAmount);
+
+    // Validate required fields
+    if (!orderNumber || !amount || !returnUrl || !failUrl || !email || !courseId) {
+      console.error("❌ Missing required fields:", {
+        orderNumber, amount, returnUrl, failUrl, email, courseId,
+      });
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    // Load course and user
+    const course = await Course.findById(courseId);
+    const user = await User.findOne({ email });
+
+    if (!course || !user) {
+      console.error("❌ User or course not found");
+      return res.status(404).json({ success: false, message: "User or course not found" });
+    }
+
+    console.log("✅ User and course loaded");
+
+    // Generate next invoice number
+    let currentInvoiceNumber = course.currentInvoiceNumber || "EAFO-003/25/0100";
+    const match = currentInvoiceNumber.match(/(\d{4})$/);
+    let nextInvoiceNumber = currentInvoiceNumber;
+
+    if (match) {
+      const newNumber = (parseInt(match[1], 10) + 1).toString().padStart(4, "0");
+      nextInvoiceNumber = currentInvoiceNumber.replace(/(\d{4})$/, newNumber);
+    }
+
+    course.currentInvoiceNumber = nextInvoiceNumber;
+    console.log("🧾 Next invoice number:", nextInvoiceNumber);
+
+    // Normalize packages
+    const normalizedPackages = packages.map(pkg => ({
+      name: pkg.name,
+      amount: parseFloat(pkg.amount),
+      currency: pkg.currency,
+      quantity: parseInt(pkg.quantity),
+    }));
+
+    const currency = normalizedPackages[0]?.currency || "RUB";
+
+    const newPayment = {
+      email,
+      invoiceNumber: nextInvoiceNumber,
+      paymentLink: null,
+      status: "Pending",
+      orderId: orderNumber,
+      time: new Date(),
+      packages: normalizedPackages,
+      totalAmount: amount,
+      payableAmount,
+      currency,
+      discountPercentage: parseFloat(discountPercentage),
+      discountCode: code,
+      transactionId,
+    };
+
+    // Always push a new payment object
+    let userCourse = user.courses.find(c => c.courseId.toString() === courseId);
+    if (!userCourse) {
+      console.warn("⚠️ Course not found in user. Creating entry.");
+      userCourse = { courseId, payments: [] };
+      user.courses.push(userCourse);
+    }
+    userCourse.payments.push({ ...newPayment });
+
+    let coursePaymentBlock = course.payments;
+    coursePaymentBlock.push({ ...newPayment });
+
+    console.log("✅ New payment added to user and course");
+
+    // Register with AlfaBank
+    const formData = new URLSearchParams();
+    formData.append("userName", alfUser);
+    formData.append("password", alfPassword);
+    formData.append("orderNumber", orderNumber);
+    formData.append("amount", amount * 100); // minor currency
+    formData.append("returnUrl", returnUrl);
+    formData.append("failUrl", failUrl);
+    formData.append("email", email);
+    formData.append("sessionTimeoutSecs", 259200);
+
+    console.log("🚀 Sending payment registration to AlfaBank...");
+
+    const response = await axios.post(
+      `${alfApiUrl}/api/rest/register.do`,
+      formData.toString(),
+      { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
+    );
+
+    if (response.data.formUrl) {
+      console.log("✅ AlfaBank payment URL generated:", response.data.formUrl);
+
+      const latestUserPayment = userCourse.payments[userCourse.payments.length - 1];
+      const latestCoursePayment = coursePaymentBlock[coursePaymentBlock.length - 1];
+
+      latestUserPayment.paymentLink = response.data.formUrl;
+      latestCoursePayment.paymentLink = response.data.formUrl;
+
+      if (response.data.orderId) {
+        latestUserPayment.paymentId = response.data.orderId;
+        latestCoursePayment.paymentId = response.data.orderId;
+        console.log("🆔 AlfaBank orderId saved:", response.data.orderId);
+      }
+
+      await user.save();
+      await course.save();
+
+      console.log("💾 User and course saved with payment info");
+
+      return res.json({
+        success: true,
+        paymentUrl: response.data.formUrl,
+        orderId: response.data.orderId,
+        invoiceNumber: nextInvoiceNumber,
+      });
+    } else {
+      console.error("❌ AlfaBank error:", response.data.errorMessage);
+      return res.status(400).json({
+        success: false,
+        message: response.data.errorMessage || "Error generating payment URL",
+      });
+    }
+  } catch (error) {
+    console.error("❌ Payment error:", error.response?.data || error.message);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+
+
+
 
 // Handle Payment Status Request for AlfaBank
 router.post("/alfabank/status", async (req, res) => {  

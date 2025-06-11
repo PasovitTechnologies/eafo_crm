@@ -56,7 +56,7 @@ const InvoiceModal = ({
   const [contractPdfBlob, setContractPdfBlob] = useState(null);
   const [showPdfPreview, setShowPdfPreview] = useState(false);
   const [isInvoiceOnlyMode, setIsInvoiceOnlyMode] = useState(false);
-
+  const [viewedContractBlob, setViewedContractBlob] = useState(null);
 
   const { t } = useTranslation(); // Translation hook
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -389,11 +389,7 @@ const InvoiceModal = ({
   };
 
   const handleSendEmail = async () => {
-    if (
-      !submission?.email ||
-      !contractPdfBlob ||
-      !selectedPayment
-    ) {
+    if (!submission?.email || !contractPdfBlob || !selectedPayment) {
       alert("❌ Missing email, payment link, contract, or payment data");
       console.error("❌ Missing input:", {
         email: submission?.email,
@@ -626,30 +622,34 @@ const InvoiceModal = ({
     setIsAktOpen(false);
   };
 
-  const handleViewContract = (payment) => {
-    if (userData) {
-      // Removed the check for payment status
-      const aktDetails = {
-        full_name: `${userData.personalDetails.lastName.toUpperCase()} ${capitalize(
-          userData.personalDetails.firstName
-        )} ${capitalize(userData.personalDetails.middleName)}`,
-        date_of_birth: new Date(
-          userData.personalDetails.dob
-        ).toLocaleDateString(),
-        email: userData.email,
-        phone_no: userData.personalDetails.phone || "N/A",
-        agreement_number: `${payment.invoiceNumber}`,
-        submitted_date:`${payment.submittedAt}`,
-        agreement_date: `${payment.time}`,
-        packages: payment.packages || [],
-        total_amount: `${payment.amount} ${payment.currency}`,
-        userData,
-      };
-
-      setContractData(aktDetails);
-      setIsContractOpen(true);
+  const handleViewContract = async (payment) => {
+    const contractFileId = payment?.contractFileId || submission?.contractFileId;
+  
+    if (!contractFileId) {
+      toast.error("Missing contract file ID");
+      return;
+    }
+  
+    try {
+      const response = await axios.get(
+        `${baseUrl}/api/email/contract-file/${contractFileId}`,
+        {
+          responseType: "blob",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+  
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      setViewedContractBlob(blob);
+      setShowPdfPreview(true);          // Controls modal visibility
+    } catch (error) {
+      console.error("Failed to fetch contract file:", error);
+      toast.error("Could not load contract PDF");
     }
   };
+  
 
   const handleCloseContract = () => {
     setIsContractOpen(false);
@@ -851,13 +851,13 @@ const InvoiceModal = ({
       setError("Email and valid amount required.");
       return;
     }
-  
+
     setLoading(true);
     setIsInvoiceOnlyMode(true); // 🔁 Track mode
     setError(null);
-  
+
     const orderNumber = Math.floor(100000 + Math.random() * 900000).toString();
-  
+
     const invoiceData = {
       amount: totalAmount,
       currency: selectedMethod === "stripe" ? "INR" : "RUB",
@@ -879,7 +879,7 @@ const InvoiceModal = ({
       paymentUrl: null, // 🛑 NO payment link
       onlyInvoice: true,
     };
-  
+
     try {
       const response = await axios.post(
         `${baseUrl}/api/email/manual`,
@@ -891,7 +891,7 @@ const InvoiceModal = ({
           },
         }
       );
-  
+
       if (response.data.success) {
         toast.success(`Invoice generated: ${response.data.invoiceNumber}`);
         setOrderId(orderNumber);
@@ -900,7 +900,7 @@ const InvoiceModal = ({
           invoiceNumber: response.data.invoiceNumber,
           time: new Date().toISOString(),
         });
-  
+
         // ⬇️ Generate PDF using ContractDocument
         const htmlString = ReactDOMServer.renderToStaticMarkup(
           <ContractDocument
@@ -916,14 +916,14 @@ const InvoiceModal = ({
             }}
           />
         );
-  
+
         const tempDiv = document.createElement("div");
         tempDiv.style.display = "none";
         tempDiv.innerHTML = htmlString;
         document.body.appendChild(tempDiv);
-  
+
         const contractElement = tempDiv.querySelector(".contract-content");
-  
+
         if (contractElement) {
           try {
             const blob = await generateContractPDFBlob(contractElement);
@@ -932,7 +932,7 @@ const InvoiceModal = ({
             console.error("PDF generation failed", e);
           }
         }
-  
+
         document.body.removeChild(tempDiv);
       } else {
         throw new Error(response.data.message || "Failed to generate invoice");
@@ -944,7 +944,6 @@ const InvoiceModal = ({
       setLoading(false);
     }
   };
-  
 
   const handleMarkAsPaid = async (payment) => {
     const confirmed = await Swal.fire({
@@ -1222,7 +1221,7 @@ const InvoiceModal = ({
               className="view-contract-btn"
               onClick={() => setShowPdfPreview(true)}
             >
-             View Contract PDF
+              View Contract PDF
             </button>
           </div>
         )}
@@ -1492,26 +1491,27 @@ const InvoiceModal = ({
       )}
 
       {/* This should come AFTER <div className="modern-invoice-modal"> */}
-      {showPdfPreview && contractPdfBlob && (
-        <div className="pdf-preview-overlay">
-          <div className="pdf-preview-modal">
-            <div className="pdf-header">
-              <h3>Contract Preview</h3>
-              <button
-                onClick={() => setShowPdfPreview(false)}
-                className="invoice-close-btn"
-              >
-                ✖
-              </button>
-            </div>
-            <iframe
-              src={URL.createObjectURL(contractPdfBlob)}
-              className="pdf-iframe"
-              title="Contract PDF"
-            />
-          </div>
-        </div>
-      )}
+      {showPdfPreview && (contractPdfBlob || viewedContractBlob) && (
+  <div className="pdf-preview-overlay">
+    <div className="pdf-preview-modal">
+      <div className="pdf-header">
+        <h3>Contract Preview</h3>
+        <button
+          onClick={() => setShowPdfPreview(false)}
+          className="invoice-close-btn"
+        >
+          ✖
+        </button>
+      </div>
+      <iframe
+        src={URL.createObjectURL(viewedContractBlob || contractPdfBlob)}
+        className="pdf-iframe"
+        title="Contract PDF"
+      />
+    </div>
+  </div>
+)}
+
     </>
   );
 };

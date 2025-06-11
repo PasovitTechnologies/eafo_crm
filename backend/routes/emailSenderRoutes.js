@@ -368,33 +368,33 @@ router.post("/send", upload.single("contract"), async (req, res) => {
 
       if (transactionId) {
         await User.updateOne(
-          { email, "courses.courseId": courseId },
+          {
+            email,
+            "courses.courseId": courseId,
+            "courses.payments.invoiceNumber": invoiceNumber,
+          },
           {
             $set: {
-              "courses.$[c].payments.$[p].contractFileId": fileId,
+              "courses.$[].payments.$[p].contractFileId": fileId,
             },
           },
           {
             arrayFilters: [
-              { "c.courseId": courseId },
               { "p.invoiceNumber": invoiceNumber },
             ],
           }
         );
+        
 
         await Course.updateOne(
-          { _id: courseId },
+          { _id: courseId, "payments.invoiceNumber": invoiceNumber },
           {
             $set: {
-              "payments.$[p].contractFileId": fileId,
+              "payments.$.contractFileId": fileId,
             },
-          },
-          {
-            arrayFilters: [
-              { "p.invoiceNumber": invoiceNumber },
-            ],
           }
         );
+        
         console.log("📥 Contract fileId saved to User & Course payment.");
       } else {
         console.warn("⚠️ Transaction not found for invoice:", invoiceNumber);
@@ -410,6 +410,28 @@ router.post("/send", upload.single("contract"), async (req, res) => {
   } catch (err) {
     console.error("❌ Server error:", err);
     return res.status(500).json({ success: false, message: err.message });
+  }
+});
+
+router.get("/contract-file/:fileId", async (req, res) => {
+  const { fileId } = req.params;
+
+  try {
+    const bucket = new GridFSBucket(conn.db, { bucketName: "contracts" });
+    const _id = new mongoose.Types.ObjectId(fileId);
+
+    const downloadStream = bucket.openDownloadStream(_id);
+
+    res.set("Content-Type", "application/pdf");
+    downloadStream.pipe(res);
+
+    downloadStream.on("error", (err) => {
+      console.error("GridFS stream error:", err);
+      res.status(404).json({ message: "File not found" });
+    });
+  } catch (err) {
+    console.error("Failed to fetch contract PDF:", err);
+    res.status(500).json({ message: "Error fetching file" });
   }
 });
 
