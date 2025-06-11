@@ -420,9 +420,23 @@ router.get("/contract-file/:fileId", async (req, res) => {
     const bucket = new GridFSBucket(conn.db, { bucketName: "contracts" });
     const _id = new mongoose.Types.ObjectId(fileId);
 
-    const downloadStream = bucket.openDownloadStream(_id);
+    const files = await bucket.find({ _id }).toArray();
+    if (!files || files.length === 0) {
+      return res.status(404).json({ message: "File not found" });
+    }
 
-    res.set("Content-Type", "application/pdf");
+    const file = files[0];
+    let filename = file.filename || `Счет_${fileId}.pdf`;
+
+    // 🧼 Sanitize filename to avoid slashes
+    filename = filename.replace(/[\/\\]/g, "_");
+
+    res.set({
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `inline; filename="${filename}"`,
+    });
+
+    const downloadStream = bucket.openDownloadStream(_id);
     downloadStream.pipe(res);
 
     downloadStream.on("error", (err) => {
@@ -434,6 +448,8 @@ router.get("/contract-file/:fileId", async (req, res) => {
     res.status(500).json({ message: "Error fetching file" });
   }
 });
+
+
 
 
 

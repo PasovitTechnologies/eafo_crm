@@ -246,26 +246,31 @@ const InvoiceModal = ({
     ? rawTotal - (rawTotal * discountPercentage) / 100
     : rawTotal;
 
-  const generateContractPDFBlob = async (element) => {
-    if (!element) return null;
-
-    const options = {
-      margin: 10,
-      filename: "contract.pdf",
-      image: { type: "jpeg", quality: 1 },
-      html2canvas: { scale: 3, useCORS: true },
-      jsPDF: { unit: "mm", format: [210, 350], orientation: "portrait" },
+    const generateContractPDFBlob = async (element) => {
+      if (!element) return null;
+    
+      // Apply global font size to the element before converting
+      element.style.fontSize = "10px";
+    
+      const options = {
+        margin: 5,
+        filename: "contract.pdf",
+        image: { type: "jpeg", quality: 1 },
+        html2canvas: { scale: 3, useCORS: true },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      };
+    
+      return new Promise((resolve, reject) => {
+        html2pdf()
+          .from(element)
+          .set(options)
+          .outputPdf("blob")
+          .then(resolve)
+          .catch(reject);
+      });
     };
-
-    return new Promise((resolve, reject) => {
-      html2pdf()
-        .from(element)
-        .set(options)
-        .outputPdf("blob")
-        .then(resolve)
-        .catch(reject);
-    });
-  };
+    
+    
 
   const handlePayment = async () => {
     if (!submission.email || items.length === 0 || totalAmount <= 0) {
@@ -1496,12 +1501,29 @@ const InvoiceModal = ({
     <div className="pdf-preview-modal">
       <div className="pdf-header">
         <h3>Contract Preview</h3>
-        <button
-          onClick={() => setShowPdfPreview(false)}
-          className="invoice-close-btn"
-        >
-          ✖
-        </button>
+        <div className="pdf-header-buttons">
+          <button
+            onClick={() => {
+              const blob = viewedContractBlob || contractPdfBlob;
+              const fileName = `Счет_${selectedPayment?.invoiceNumber || "EAFO"}.pdf`;
+              const link = document.createElement("a");
+              link.href = URL.createObjectURL(blob);
+              link.download = fileName;
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}
+            className="invoice-download-btn"
+          >
+            ⬇ Download
+          </button>
+          <button
+            onClick={() => setShowPdfPreview(false)}
+            className="invoice-close-btn"
+          >
+            ✖
+          </button>
+        </div>
       </div>
       <iframe
         src={URL.createObjectURL(viewedContractBlob || contractPdfBlob)}
@@ -1511,6 +1533,7 @@ const InvoiceModal = ({
     </div>
   </div>
 )}
+
 
     </>
   );
