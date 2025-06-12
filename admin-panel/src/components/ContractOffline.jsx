@@ -59,7 +59,7 @@ const ContractOffline = ({ data = {}, onClose }) => {
 
     const options = {
       margin: 8,
-      filename: `AKT_${formData.akt_number}.pdf`,
+      filename: `Договор БК_АО_очное_итог_${formData.akt_number}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
@@ -184,9 +184,25 @@ const ContractOffline = ({ data = {}, onClose }) => {
                         paddingBottom: "1px",
                       }}
                     >
-                      {formData.full_name} {formData.email}{" "}
-                      {formData.phone_no}
+                      {formData.full_name + " "}, 
+                    </div><div
+                      style={{
+                        display: "inline-block",
+                        borderBottom: "1px solid #000",
+                        paddingBottom: "1px",
+                      }}
+                    >
+                      {formData.email + " "},{" "}
+                    </div><div
+                      style={{
+                        display: "inline-block",
+                        borderBottom: "1px solid #000",
+                        paddingBottom: "1px",
+                      }}
+                    >
+                     {formData.phone_no} 
                     </div>
+                    
                     , collectively referred to as the "Parties". It contains all
                     the essential terms of the Service Agreement available on
                     the Contractor's website at: <a href="http://basic.eafo.info">http://basic.eafo.info</a> and its
@@ -214,8 +230,23 @@ const ContractOffline = ({ data = {}, onClose }) => {
                         paddingBottom: "1px",
                       }}
                     >
-                      {formData.full_name_russian} {formData.email}{" "}
-                      {formData.phone_no}
+                      {formData.full_name + " "}, 
+                    </div><div
+                      style={{
+                        display: "inline-block",
+                        borderBottom: "1px solid #000",
+                        paddingBottom: "1px",
+                      }}
+                    >
+                      {formData.email + " "},{" "}
+                    </div><div
+                      style={{
+                        display: "inline-block",
+                        borderBottom: "1px solid #000",
+                        paddingBottom: "1px",
+                      }}
+                    >
+                     {formData.phone_no} 
                     </div>
                     , именуемому в дальнейшем «Заказчик», с другой стороны,
                     вместе именуемые «Стороны», и содержит все существенные
@@ -568,16 +599,15 @@ const ContractOffline = ({ data = {}, onClose }) => {
                     3.1. The cost of the Services provided under this Agreement
                     is specified in the invoice issued to the Customer for
                     organizing participation in the Event, which constitutes an
-                    integral part of this Agreement. The cost of organizing
+                    integral part of this Agreement.<span className="page-break">The cost of organizing
                     participation in the Event is determined based on the Price
                     List in effect at the time of concluding the Agreement, as
                     posted on the Event Website. The invoice shall include its
                     number and the necessary
-                    <b />
-                    <b /> details regarding the Service.Payment of the invoice
+                 details regarding the Service.Payment of the invoice
                     by the Customer signifies that they have fully reviewed and
                     accepted the terms of this Agreement and the Price List in
-                    effect on the date of payment, as published on the Website.
+                    effect on the date of payment, as published on the Website.</span>
                   </p>
                   <p className="paragraph">
                     3.2. Payment for the Services is made by the Customer in the
@@ -593,7 +623,7 @@ const ContractOffline = ({ data = {}, onClose }) => {
                     3.1. Стоимость Услуг, оказываемых по настоящему Договору,
                     указывается в выставленном Заказчику счёте на организацию
                     участия в Мероприятии, который является неотъемлемой частью
-                    настоящего Договора. Стоимость организации участия в
+                    настоящего Договора.<span className="page-break"> Стоимость организации участия в
                     Мероприятии определяется на основании Прайс-листа,
                     действующего на момент заключения Договора, размещенного на
                     Сайте Мероприятия. В<b />
@@ -606,7 +636,7 @@ const ContractOffline = ({ data = {}, onClose }) => {
                       он полностью ознакомился и принимает условия настоящего
                       Договора и Прайс-листа, действующего на дату оплаты,
                       содержащиеся на Сайте.
-                    </span>
+                    </span></span>
                   </p>
                   <p className="paragraph">
                     3.2. Оплата Услуг производится Заказчиком в порядке 100%
@@ -775,7 +805,7 @@ const ContractOffline = ({ data = {}, onClose }) => {
                   <h2 className="section-titles">
                     6. TERMINATION OF THE AGREEMENT
                   </h2>
-                  <p className="paragraph page-break">
+                  <p className="paragraph">
                     6.1. The Agreement may be terminated unilaterally by either
                     party in accordance with the legislation of the Russian
                     Federation.
@@ -815,7 +845,7 @@ const ContractOffline = ({ data = {}, onClose }) => {
                   <h2 className="section-titles">
                     6. ПОРЯДОК РАСТОРЖЕНИЯ ДОГОВОРА
                   </h2>
-                  <p className="paragraph page-break">
+                  <p className="paragraph">
                     6.1. Договор может быть расторгнут сторонами в одностороннем
                     порядке, законодательством РФ.
                   </p>

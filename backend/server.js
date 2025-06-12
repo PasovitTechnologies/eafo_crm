@@ -112,7 +112,6 @@ app.use("/api/precourse", preCourseRoutes);
 app.use('/api/groups', groups);
 app.use('/api/candidates', candidates);
 
-
 //qr app
 app.use('/api/qr', qrLoginRoutes);
 

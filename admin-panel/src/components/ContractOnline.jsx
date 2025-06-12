@@ -59,7 +59,7 @@ const ContractOnline = ({ data = {}, onClose }) => {
 
     const options = {
       margin: 8,
-      filename: `AKT_${formData.akt_number}.pdf`,
+      filename: `Договор БК_АО_очное_итог_${formData.akt_number}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
@@ -178,7 +178,7 @@ const ContractOnline = ({ data = {}, onClose }) => {
                         paddingRight:"3px"
                       }}
                     >
-                      {formData.full_name}</div>
+                      {formData.full_name},</div>
                       <div
                       style={{
                         display: "inline-block",
@@ -186,7 +186,7 @@ const ContractOnline = ({ data = {}, onClose }) => {
                         paddingBottom: "1px",
                         paddingRight:"3px"
                       }}
-                    >{formData.email} {" "}</div><div
+                    >{formData.email}, {" "}</div><div
                     style={{
                       display: "inline-block",
                       borderBottom: "1px solid #000",
@@ -208,7 +208,7 @@ const ContractOnline = ({ data = {}, onClose }) => {
                         paddingRight:"3px"
                       }}
                     >
-                      {formData.full_name}</div>
+                      {formData.full_name},</div>
                       <div
                       style={{
                         display: "inline-block",
@@ -216,7 +216,7 @@ const ContractOnline = ({ data = {}, onClose }) => {
                         paddingBottom: "1px",
                         paddingRight:"3px"
                       }}
-                    >{formData.email} {" "}</div><div
+                    >{formData.email}, {" "}</div><div
                     style={{
                       display: "inline-block",
                       borderBottom: "1px solid #000",
@@ -527,7 +527,7 @@ const ContractOnline = ({ data = {}, onClose }) => {
                   5.4. The Contractor shall not be liable for the manner in which the Customer uses the information obtained from the Event or for the results of such use by the Customer. Any illegal use of information by the Customer, which became known to them through the Contractor, fully absolves the Contractor of all legal and legal consequences associated with the Customer’s illegal actions.
                   </p>
                   <p className="paragraph">
-                  5.5. Without contradicting the above, the Parties shall be released from liability for breach of the terms of the Agreement if such breach is caused by force majeure circumstances (force majeure), including: actions of state authorities (e.g., adoption of legal acts, blocking access to websites, messengers, social networks, etc.), termination of access to resources involved in maintaining the operation of the personal account, website, its domains, and content due to reasons beyond the Contractor's control, such as sanctions, fire, flood, earthquake, other natural disasters, lack of electricity and/or computer network malfunctions, strikes, civil unrest, riots, and any other circumstances, without limitation, that may affect the Parties' ability to fulfill the terms of the Agreement.
+                  5.5. Without contradicting the above, the Parties shall be released from liability for breach of the terms of the Agreement if such breach is caused by force majeure circumstances (force majeure), including: actions of state authorities (e.g., adoption of legal acts, blocking access to websites, messengers, social networks, etc.),<span className="page-break"> termination of access to resources involved in maintaining the operation of the personal account, website, its domains, and content due to reasons beyond the Contractor's control, such as sanctions, fire, flood, earthquake, other natural disasters, lack of electricity and/or computer network malfunctions, strikes, civil unrest, riots, and any other circumstances, without limitation, that may affect the Parties' ability to fulfill the terms of the Agreement.</span>
                   </p>
                 </div>
                 <div className="column russian">
@@ -545,7 +545,7 @@ const ContractOnline = ({ data = {}, onClose }) => {
                   5.4. Исполнитель не несет ответственности за то, каким образом Заказчик использовал информацию Мероприятия, и за результаты ее использования Заказчиком. Любое незаконное использование информации Заказчиком, которая стала известна ему от Исполнителя, полностью освобождает Исполнителя от всех юридических и правовых последствий, связанных с незаконными действиями Заказчика.
                   </p>
                   <p className="paragraph">
-                  5.5. Не вступая в противоречие с указанным выше, Стороны освобождаются от ответственности за нарушение условий Договора, если такое нарушение вызвано действием обстоятельств непреодолимой силы (форс-мажор), включая: действия органов государственной власти (в т. ч. принятие правовых актов, блокировка доступа к сайтам, мессенджерам, социальным сетям и др.), прекращение доступа к ресурсам, задействованным в поддержании работы личного кабинета, сайта и его доменов и наполнении контентом, по независящим от Исполнителя причинам например, санкции, пожар, наводнение, землетрясение, другие стихийные бедствия, отсутствие электроэнергии и/или сбои работы компьютерной сети, забастовки, гражданские волнения, беспорядки, любые иные обстоятельства, не ограничиваясь перечисленным, которые могут повлиять на исполнение Сторонами условий Договора.
+                  5.5. Не вступая в противоречие с указанным выше, Стороны освобождаются от ответственности за нарушение условий Договора, если такое нарушение вызвано действием обстоятельств непреодолимой силы (форс-мажор), включая:<span className="page-break">действия органов государственной власти (в т. ч. принятие правовых актов, блокировка доступа к сайтам, мессенджерам, социальным сетям и др.), прекращение доступа к ресурсам, задействованным в поддержании работы личного кабинета, сайта и его доменов и наполнении контентом, по независящим от Исполнителя причинам например, санкции, пожар, наводнение, землетрясение, другие стихийные бедствия, отсутствие электроэнергии и/или сбои работы компьютерной сети, забастовки, гражданские волнения, беспорядки, любые иные обстоятельства, не ограничиваясь перечисленным, которые могут повлиять на исполнение Сторонами условий Договора.</span> 
                   </p>
                 </div>
               </div>
