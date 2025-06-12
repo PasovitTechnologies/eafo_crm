@@ -59,10 +59,14 @@ const ContractOnline = ({ data = {}, onClose }) => {
 
     const options = {
       margin: 8,
-      filename: `Договор БК_АО_очное_итог_${formData.akt_number}.pdf`,
+      filename: `Договор БК_АО_онлайн_итог_${formData.akt_number}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: { scale: 2, useCORS: true, scrollX: 0,
+        scrollY: -window.scrollY },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: {
+        mode: ['css', 'legacy'], // critical
+      }
     };
 
     await html2pdf().from(input).set(options).save();
@@ -292,7 +296,7 @@ const ContractOnline = ({ data = {}, onClose }) => {
                   <p className="paragraph">
                   2.1.4. In the Event of non-payment or late payment by the Customer for the Services, to deny the Customer access to the Event until the Customer fulfills their payment obligations;
                   </p>
-                  <p className="paragraph">
+                  <p className="paragraph page-break">
                   2.1.5. In case of necessity, but no later than 3 (three) calendar days before the Event, the time and venue of the Event may be changed; the corresponding notification of changes is published on the Contractor’s Website.
                   </p>
                   <p className="paragraph">
@@ -385,7 +389,7 @@ const ContractOnline = ({ data = {}, onClose }) => {
                   <p className="paragraph">
                   2.1.4. При невнесении или несвоевременном внесении Заказчиком платы за Услуги не допускать Заказчика к участию в Мероприятии до исполнения Заказчиком обязанностей по оплате Услуг;
                   </p>
-                  <p className="paragraph">
+                  <p className="paragraph page-break">
                   2.1.5. В случае необходимости, но не менее чем за 3 (три) календарных дня до проведения Мероприятия изменять время проведения, соответствующее уведомления об изменениях, публикуется на Сайте Исполнителя.
                   </p>
                   <p className="paragraph">2.2. Исполнитель обязан:</p>
@@ -635,7 +639,7 @@ const ContractOnline = ({ data = {}, onClose }) => {
                   <p className="paragraph">
                   8.4. The Parties agree that documents signed using a facsimile reproduction of a signature have legal validity.
                   </p>
-                  <p className="paragraph">
+                  <p className="paragraph page-break">
                   8.5. To simplify the document exchange process, the Parties recognize the appropriateness of using email. The Parties acknowledge the authenticity of documents signed by the Parties and transmitted via email addresses known to the Parties at the time of payment.
                   </p>
                   <p className="paragraph">
@@ -674,7 +678,7 @@ const ContractOnline = ({ data = {}, onClose }) => {
                   <p className="paragraph">
                   8.4. Стороны соглашаются, что документы, подписанные факсимильным воспроизведением подписи, имеют юридическую силу.
                   </p>
-                  <p className="paragraph">
+                  <p className="paragraph page-break">
                   8.5. Для упрощения процедуры обмена документами стороны признают целесообразность использования электронной почты. Стороны признают подлинность документов, подписанных сторонами и переданных по электронной почте, известной Сторонам на момент оплаты.
                   </p>
                   <p className="paragraph">

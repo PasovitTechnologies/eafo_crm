@@ -61,8 +61,12 @@ const ContractOffline = ({ data = {}, onClose }) => {
       margin: 8,
       filename: `Договор БК_АО_очное_итог_${formData.akt_number}.pdf`,
       image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true },
+      html2canvas: { scale: 2, useCORS: true, scrollX: 0,
+        scrollY: -window.scrollY },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+      pagebreak: {
+        mode: ['css', 'legacy'], // critical
+      }
     };
 
     await html2pdf().from(input).set(options).save();
@@ -357,7 +361,7 @@ const ContractOffline = ({ data = {}, onClose }) => {
                     Event may be changed; the corresponding notification of
                     changes is published on the Contractor’s Website.
                   </p>
-                  <p className="paragraph">
+                  <p className="paragraph page-break">
                     2.2. The Contractor is obligated to:
                   </p>
                   <p className="paragraph">
@@ -490,8 +494,8 @@ const ContractOffline = ({ data = {}, onClose }) => {
                     изменять время и место проведения, соответствующее
                     уведомления об изменениях, публикуется на Сайте Исполнителя.
                   </p>
-                  <p className="paragraph">2.2. Исполнитель обязан:</p>
-                  <p className="paragraph">
+                  <p className="paragraph page-break">2.2. Исполнитель обязан:</p>
+                  <p className="paragraph ">
                     2.2.1. Оказать Услуги Заказчику в соответствии с настоящим
                     Договором и программой Мероприятия.
                   </p>
@@ -592,14 +596,14 @@ const ContractOffline = ({ data = {}, onClose }) => {
 
               <div className="section-rows">
                 <div className="column english">
-                  <h2 className="section-titles">
+                  <h2 className="section-titles page-break">
                     3. COST OF SERVICES AND PAYMENT TERMS
                   </h2>
                   <p className="paragraph">
                     3.1. The cost of the Services provided under this Agreement
                     is specified in the invoice issued to the Customer for
                     organizing participation in the Event, which constitutes an
-                    integral part of this Agreement.<span className="page-break">The cost of organizing
+                    integral part of this Agreement.<span >The cost of organizing
                     participation in the Event is determined based on the Price
                     List in effect at the time of concluding the Agreement, as
                     posted on the Event Website. The invoice shall include its
@@ -616,14 +620,14 @@ const ContractOffline = ({ data = {}, onClose }) => {
                   </p>
                 </div>
                 <div className="column russian">
-                  <h2 className="section-titles">
+                  <h2 className="section-titles page-break">
                     3. СТОИМОСТЬ УСЛУГ И ПОРЯДОК РАСЧЕТОВ
                   </h2>
                   <p className="paragraph">
                     3.1. Стоимость Услуг, оказываемых по настоящему Договору,
                     указывается в выставленном Заказчику счёте на организацию
                     участия в Мероприятии, который является неотъемлемой частью
-                    настоящего Договора.<span className="page-break"> Стоимость организации участия в
+                    настоящего Договора.<span > Стоимость организации участия в
                     Мероприятии определяется на основании Прайс-листа,
                     действующего на момент заключения Договора, размещенного на
                     Сайте Мероприятия. В<b />
@@ -769,9 +773,7 @@ const ContractOffline = ({ data = {}, onClose }) => {
                     по местонахождению ответчика.
                   </p>
                   <p className="paragraph">
-                    5.3. В случае невозможности разрешения споров путем
-                    переговоров Стороны после передают их на рассмотрение в суд
-                    по местонахождению ответчика.5.4. Исполнитель не несет
+                   5.4. Исполнитель не несет
                     ответственности за то, каким образом Заказчик использовал
                     информацию Мероприятия, и за результаты ее использования
                     Заказчиком. Любое незаконное использование информации
@@ -949,7 +951,7 @@ const ContractOffline = ({ data = {}, onClose }) => {
                     Parties and transmitted via email addresses known to the
                     Parties at the time of payment.
                   </p>
-                  <p className="paragraph">
+                  <p className="paragraph page-break">
                     8.6. The Customer consents to the processing of their
                     personal data by the Contractor and/or third parties
                     involved in the provision of Services.
@@ -1017,7 +1019,7 @@ const ContractOffline = ({ data = {}, onClose }) => {
                     сторонами и переданных по электронной почте, известной
                     Сторонам на момент оплаты.
                   </p>
-                  <p className="paragraph">
+                  <p className="paragraph page-break">
                     8.6. Заказчик дает согласие на обработку Исполнителем и/или
                     третьими лицами, задействованными в оказании Услуг,
                     персональных данных Заказчика.
