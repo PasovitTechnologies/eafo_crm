@@ -22,6 +22,7 @@ import ReactDOM from "react-dom";
 import ReactDOMServer from "react-dom/server";
 import html2pdf from "html2pdf.js";
 import ContractOffline from "./ContractOffline";
+import ContractOnline from "./ContractOnline";
 
 const InvoiceModal = ({
   submission,
@@ -61,9 +62,9 @@ const InvoiceModal = ({
   const [isContractOfflineOpen, setIsContractOfflineOpen] = useState(false);
   const [offlineContractData, setOfflineContractData] = useState(null);
 
-
-  
-
+  const [isContractOnlineOpen, setIsContractOnlineOpen] = useState(false);
+  const [onlineContractData, setOnlineContractData] = useState(null);
+  const [attendanceMode, setAttendanceMode] = useState(""); // default value
 
   const { t } = useTranslation(); // Translation hook
   const baseUrl = import.meta.env.VITE_BASE_URL;
@@ -253,31 +254,29 @@ const InvoiceModal = ({
     ? rawTotal - (rawTotal * discountPercentage) / 100
     : rawTotal;
 
-    const generateContractPDFBlob = async (element) => {
-      if (!element) return null;
-    
-      // Apply global font size to the element before converting
-      element.style.fontSize = "10px";
-    
-      const options = {
-        margin: 5,
-        filename: "contract.pdf",
-        image: { type: "jpeg", quality: 1 },
-        html2canvas: { scale: 3, useCORS: true },
-        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      };
-    
-      return new Promise((resolve, reject) => {
-        html2pdf()
-          .from(element)
-          .set(options)
-          .outputPdf("blob")
-          .then(resolve)
-          .catch(reject);
-      });
+  const generateContractPDFBlob = async (element) => {
+    if (!element) return null;
+
+    // Apply global font size to the element before converting
+    element.style.fontSize = "10px";
+
+    const options = {
+      margin: 5,
+      filename: "contract.pdf",
+      image: { type: "jpeg", quality: 1 },
+      html2canvas: { scale: 3, useCORS: true },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     };
-    
-    
+
+    return new Promise((resolve, reject) => {
+      html2pdf()
+        .from(element)
+        .set(options)
+        .outputPdf("blob")
+        .then(resolve)
+        .catch(reject);
+    });
+  };
 
   const handlePayment = async () => {
     if (!submission.email || items.length === 0 || totalAmount <= 0) {
@@ -314,6 +313,7 @@ const InvoiceModal = ({
       returnUrl: window.location.origin + "/payment-success",
       failUrl: window.location.origin + "/payment-failed",
       orderNumber,
+      attendanceMode,
     };
 
     console.log("📦 Initiating payment with:", orderDetails);
@@ -362,7 +362,11 @@ const InvoiceModal = ({
               phone_no: userData?.personalDetails?.phone || "",
               agreement_number: resolvedInvoiceNumber,
               agreement_date: new Date().toISOString(),
-              submitted_date:submission.submittedAt || (paymentHistory.length > 0 ? paymentHistory[0].submittedAt : ""),
+              submitted_date:
+                submission.submittedAt ||
+                (paymentHistory.length > 0
+                  ? paymentHistory[0].submittedAt
+                  : ""),
               packages: items,
               total_amount: totalAmount.toFixed(2),
               date_of_birth: userData?.personalDetails?.dob,
@@ -635,13 +639,14 @@ const InvoiceModal = ({
   };
 
   const handleViewContract = async (payment) => {
-    const contractFileId = payment?.contractFileId || submission?.contractFileId;
-  
+    const contractFileId =
+      payment?.contractFileId || submission?.contractFileId;
+
     if (!contractFileId) {
       toast.error("Missing contract file ID");
       return;
     }
-  
+
     try {
       const response = await axios.get(
         `${baseUrl}/api/email/contract-file/${contractFileId}`,
@@ -652,10 +657,10 @@ const InvoiceModal = ({
           },
         }
       );
-  
+
       const blob = new Blob([response.data], { type: "application/pdf" });
       setViewedContractBlob(blob);
-      setShowPdfPreview(true);          // Controls modal visibility
+      setShowPdfPreview(true); // Controls modal visibility
     } catch (error) {
       console.error("Failed to fetch contract file:", error);
       toast.error("Could not load contract PDF");
@@ -664,11 +669,12 @@ const InvoiceModal = ({
 
   const handleViewContractOffline = (payment) => {
     if (!userData || !payment) return;
-  
-    const fullName = `${userData.personalDetails.lastName} ${userData.personalDetails.firstName} ${userData.personalDetails.middleName}`.trim();
-  
+
+    const fullName =
+      `${userData.personalDetails.lastName} ${userData.personalDetails.firstName} ${userData.personalDetails.middleName}`.trim();
+
     const offlineData = {
-      fullName,                // English full name
+      fullName, // English full name
       fullNameRussian: fullName, // Russian name (same for now)
       email: userData.email,
       phone_no: userData.personalDetails?.phone || "",
@@ -676,19 +682,40 @@ const InvoiceModal = ({
       invoiceNumber: payment?.invoiceNumber || "",
       agreement_date: payment?.paidAt || new Date().toISOString(),
     };
-    console.log(offlineData)
-  
+    console.log(offlineData);
+
     setOfflineContractData(offlineData);
     setIsContractOfflineOpen(true);
   };
-  
+
+  const handleViewContractOnline = (payment) => {
+    if (!userData || !payment) return;
+
+    const fullName =
+      `${userData.personalDetails.lastName} ${userData.personalDetails.firstName} ${userData.personalDetails.middleName}`.trim();
+
+    const onlineData = {
+      fullName, // English full name
+      fullNameRussian: fullName, // Russian name (same for now)
+      email: userData.email,
+      phone_no: userData.personalDetails?.phone || "",
+      aktNumber: payment?.aktNumber || "",
+      invoiceNumber: payment?.invoiceNumber || "",
+      agreement_date: payment?.paidAt || new Date().toISOString(),
+    };
+    console.log(onlineData);
+
+    setOnlineContractData(onlineData);
+    setIsContractOnlineOpen(true);
+  };
 
   const handleCloseContractOffline = () => {
     setIsContractOfflineOpen(false);
   };
-  
-  
-  
+
+  const handleCloseContractOnline = () => {
+    setIsContractOnlineOpen(false);
+  };
 
   const handleCloseContract = () => {
     setIsContractOpen(false);
@@ -917,6 +944,7 @@ const InvoiceModal = ({
       code: discountCode,
       paymentUrl: null, // 🛑 NO payment link
       onlyInvoice: true,
+      attendanceMode,
     };
 
     try {
@@ -1026,26 +1054,25 @@ const InvoiceModal = ({
     }
   };
 
-
   const handleDownloadContract = async () => {
     const response = await fetch(`${baseUrl}/api/contract/generate`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         full_name: submission.fullName,
         email: submission.email,
-        phone_no: userData?.personalDetails?.phone || '',
+        phone_no: userData?.personalDetails?.phone || "",
       }),
     });
-  
+
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = `Contract_${submission.fullName}.docx`;
     a.click();
   };
-  
+
   return (
     <>
       <ToastContainer
@@ -1092,9 +1119,6 @@ const InvoiceModal = ({
             </svg>
           </button>
         </div>
-
-       
-
 
         {/* User Info Section */}
         <div className="user-info-section">
@@ -1246,6 +1270,30 @@ const InvoiceModal = ({
               </span>
             </div>
           )}
+        </div>
+
+        <div className="section-card">
+          <h3 className="section-title">Mode of Attendance</h3>
+          <div className="payment-method-selector">
+            {selectedPayment?.attendanceMode ? (
+              <div className="attendance-mode-label">
+                <strong>Selected Mode:</strong>{" "}
+                {selectedPayment.attendanceMode.toUpperCase()}
+              </div>
+            ) : (
+              <select
+                value={attendanceMode}
+                onChange={(e) => setAttendanceMode(e.target.value)}
+                className="modern-select"
+              >
+                <option value="" disabled>
+                  Select Mode of Attendance
+                </option>
+                <option value="online">Online</option>
+                <option value="offline">Offline</option>
+              </select>
+            )}
+          </div>
         </div>
 
         {/* Action Buttons */}
@@ -1470,17 +1518,49 @@ const InvoiceModal = ({
                     {t("invoiceModal.viewContract")}
                   </button>
 
-                  <button
-                    onClick={() => handleViewContractOffline(selectedPayment)}
-                    disabled={getRealPaymentStatus(selectedPayment) !== "paid"}
-                    className={`document-button akt-button ${
-                      getRealPaymentStatus(selectedPayment) === "paid"
-                        ? ""
-                        : "payment-disabled"
-                    }`}
-                  >
-                    {t("invoiceModal.viewContractOffline")}
-                  </button>
+                  {(selectedPayment?.attendanceMode || attendanceMode) && (
+                    <>
+                      {(
+                        selectedPayment?.attendanceMode || attendanceMode
+                      ).toLowerCase() === "offline" && (
+                        <button
+                          onClick={() =>
+                            handleViewContractOffline(selectedPayment)
+                          }
+                          disabled={
+                            getRealPaymentStatus(selectedPayment) !== "paid"
+                          }
+                          className={`document-button akt-button ${
+                            getRealPaymentStatus(selectedPayment) === "paid"
+                              ? ""
+                              : "payment-disabled"
+                          }`}
+                        >
+                          {t("invoiceModal.viewContractOffline")}
+                        </button>
+                      )}
+
+                      {(
+                        selectedPayment?.attendanceMode || attendanceMode
+                      ).toLowerCase() === "online" && (
+                        <button
+                          onClick={() =>
+                            handleViewContractOnline(selectedPayment)
+                          }
+                          disabled={
+                            getRealPaymentStatus(selectedPayment) !== "paid"
+                          }
+                          className={`document-button akt-button ${
+                            getRealPaymentStatus(selectedPayment) === "paid"
+                              ? ""
+                              : "payment-disabled"
+                          }`}
+                        >
+                          {t("invoiceModal.viewContractOnline")}
+                        </button>
+                      )}
+                    </>
+                  )}
                 </div>
 
                 {selectedPayment.paymentLink &&
@@ -1554,12 +1634,23 @@ const InvoiceModal = ({
         </div>
       )}
 
-{isContractOfflineOpen && (
-  <div className="document-modal-overlay">
-    <ContractOffline data={offlineContractData} onClose={handleCloseContractOffline} />
-  </div>
-)}
+      {isContractOfflineOpen && (
+        <div className="document-modal-overlay">
+          <ContractOffline
+            data={offlineContractData}
+            onClose={handleCloseContractOffline}
+          />
+        </div>
+      )}
 
+      {isContractOnlineOpen && (
+        <div className="document-modal-overlay">
+          <ContractOnline
+            data={onlineContractData}
+            onClose={handleCloseContractOnline}
+          />
+        </div>
+      )}
 
       {showFormViewer && (
         <div className="form-viewer-split">
@@ -1573,44 +1664,44 @@ const InvoiceModal = ({
 
       {/* This should come AFTER <div className="modern-invoice-modal"> */}
       {showPdfPreview && (contractPdfBlob || viewedContractBlob) && (
-  <div className="pdf-preview-overlay">
-    <div className="pdf-preview-modal">
-      <div className="pdf-header">
-        <h3>Contract Preview</h3>
-        <div className="pdf-header-buttons">
-          <button
-            onClick={() => {
-              const blob = viewedContractBlob || contractPdfBlob;
-              const fileName = `Счет_${selectedPayment?.invoiceNumber || "EAFO"}.pdf`;
-              const link = document.createElement("a");
-              link.href = URL.createObjectURL(blob);
-              link.download = fileName;
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-            }}
-            className="invoice-download-btn"
-          >
-            ⬇ Download
-          </button>
-          <button
-            onClick={() => setShowPdfPreview(false)}
-            className="invoice-close-btn"
-          >
-            ✖
-          </button>
+        <div className="pdf-preview-overlay">
+          <div className="pdf-preview-modal">
+            <div className="pdf-header">
+              <h3>Contract Preview</h3>
+              <div className="pdf-header-buttons">
+                <button
+                  onClick={() => {
+                    const blob = viewedContractBlob || contractPdfBlob;
+                    const fileName = `Счет_${
+                      selectedPayment?.invoiceNumber || "EAFO"
+                    }.pdf`;
+                    const link = document.createElement("a");
+                    link.href = URL.createObjectURL(blob);
+                    link.download = fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                  className="invoice-download-btn"
+                >
+                  ⬇ Download
+                </button>
+                <button
+                  onClick={() => setShowPdfPreview(false)}
+                  className="invoice-close-btn"
+                >
+                  ✖
+                </button>
+              </div>
+            </div>
+            <iframe
+              src={URL.createObjectURL(viewedContractBlob || contractPdfBlob)}
+              className="pdf-iframe"
+              title="Contract PDF"
+            />
+          </div>
         </div>
-      </div>
-      <iframe
-        src={URL.createObjectURL(viewedContractBlob || contractPdfBlob)}
-        className="pdf-iframe"
-        title="Contract PDF"
-      />
-    </div>
-  </div>
-)}
-
-
+      )}
     </>
   );
 };

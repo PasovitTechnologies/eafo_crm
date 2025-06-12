@@ -291,6 +291,7 @@
       "unknown": "Неизвестно"
     },
     "viewContractOffline": "Офлайн-контракт",
+    "viewContractOnline": "Онлайн-контракт",
     "viewLink": "Просмотр ссылки",
     "viewAkt": "Просмотр Акта",
     "viewContract": "Просмотр Счет",

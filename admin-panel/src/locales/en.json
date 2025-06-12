@@ -280,6 +280,7 @@
       "unknown": "Unknown"
     },
     "viewContractOffline": "Offline Contract",
+    "viewContractOnline": "Online Contract",
     "viewLink": "View Link",
     "viewAkt": "View AKT",
     "viewContract": "View Invoice",

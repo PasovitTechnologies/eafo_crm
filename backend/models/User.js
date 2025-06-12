@@ -120,7 +120,6 @@ const userSchema = new mongoose.Schema(
             paymentLink: { type: String, required: false },
             time: { type: Date },
             status: { type: String, default: "Not created" },
-
             discountCode: { type: String },
             discountPercentage: { type: Number },
             discountStatus: { type: String },
@@ -130,7 +129,7 @@ const userSchema = new mongoose.Schema(
               ref: "contracts.files", // optional, for reference clarity
             },
             submittedAt: Date,
-          },
+            attendanceMode: String,          },
         ],
 
         qrCodes: [

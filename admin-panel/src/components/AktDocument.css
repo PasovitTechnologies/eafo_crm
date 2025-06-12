@@ -39,6 +39,7 @@
     font-size: 12px;
     font-weight: bold;
     margin-bottom: 3px;
+    text-align: center;
   }
   
   .paragraph {
@@ -49,6 +50,7 @@
   }
   .para{
     text-align: justify;
+    font-size: 12px;
   }
 
   .page-break {

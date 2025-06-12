@@ -18,7 +18,7 @@ router.post("/alfabank/pay", async (req, res) => {
     const {
       orderNumber, amount, returnUrl, failUrl, email,
       courseId, formId, packages, transactionId,
-      payableAmount, discountPercentage, code,
+      payableAmount, discountPercentage, code,attendanceMode
     } = req.body;
 
     console.log("📥 /alfabank/pay request received");
@@ -29,6 +29,7 @@ router.post("/alfabank/pay", async (req, res) => {
     console.log("🧾 transactionId:", transactionId);
     console.log("📦 packages:", packages);
     console.log("💵 payableAmount:", payableAmount);
+    console.log("Attendence mode:", attendanceMode)
 
     if (!orderNumber || !amount || !returnUrl || !failUrl || !email) {
       console.error("❌ Missing required fields:", {
@@ -85,6 +86,7 @@ router.post("/alfabank/pay", async (req, res) => {
       discountPercentage: parseFloat(discountPercentage || 0),
       discountCode: code,
       transactionId,
+      attendanceMode
     };
 
     // 🛠️ Update user payments

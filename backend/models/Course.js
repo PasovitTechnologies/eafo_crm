@@ -64,7 +64,8 @@ const paymentSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'contracts.files', // optional, for reference clarity
   },
-  submittedAt: Date
+  submittedAt: Date,
+  attendanceMode: String,
   
 });
 
